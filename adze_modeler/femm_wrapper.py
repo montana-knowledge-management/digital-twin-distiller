@@ -85,7 +85,16 @@ class FemmWriter:
         cmd_list.append("showconsole()")  # does nothing if the console is already displayed
         cmd_list.append("clearconsole()")  # clears both the input and output windows for a fresh start.
         cmd_list.append(f'remove("{out_file}")')  # get rid of the old data file, if it exists
-        cmd_list.append("newdocument(0)")  # the 0 specifies a magnetics problem
+        if self.field == kw_magnetic:
+            cmd_list.append("newdocument(0)")  # the 0 specifies a magnetics problem
+        elif self.field == kw_electrostatic:
+            cmd_list.append("newdocument(1)")  # the 1 specifies electrostatics problem
+        elif self.field == kw_heat_flow:
+            cmd_list.append("newdocument(2)")  # the 2 specifies heat flow problem
+        elif self.field == kw_current_flow:
+            cmd_list.append("newdocument(3)")  # the 3 specifies current flow problem
+
+
         # cmd_list.append("mi_hidegrid()")
         cmd = Template('file_out = openfile("$outfile", "w")')
         cmd = cmd.substitute(outfile=out_file)
@@ -711,6 +720,21 @@ class FemmWriter:
             minangle=minangle,
             acsolver=acsolver,
         )
+
+    def heat_problem(self, units, type, precision=1e-8, depth=1, minangle=30, prevsoln=0, timestep=1e-3):
+        if self.field != kw_heat_flow:
+            raise ValueError("Set the heat flow problem type!")
+
+        if units not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
+            raise ValueError(f"There is no {units} unit.")
+
+        if type not in {"planar", "axi"}:
+            raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
+
+        return f'hi_probdef("{units}", "{type}", {precision}, {depth}, {minangle}, {prevsoln}, {timestep})'
+
+
+
 
     def save_as(self, file_name):
         """
