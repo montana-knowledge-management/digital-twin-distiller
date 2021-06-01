@@ -25,16 +25,24 @@ class TestFemmHeatProblem(unittest.TestCase):
         writer.lua_model.append(writer.add_node(w1 / 2, h1 / 2))
         writer.lua_model.append(writer.add_node(-w1 / 2, h1 / 2))
 
-        writer.lua_model.append(writer.add_node(-w2 / 2, -h2 / 2))
-        writer.lua_model.append(writer.add_node(w2 / 2, -h2 / 2))
-        writer.lua_model.append(writer.add_node(w2 / 2, h2 / 2))
-        writer.lua_model.append(writer.add_node(-w2 / 2, h2 / 2))
+        writer.lua_model.append(writer.add_node(-w2 / 2, -h1 / 2))
+        writer.lua_model.append(writer.add_node(-w2 / 2, -h1 / 2 + h2))
+        writer.lua_model.append(writer.add_node(w2 / 2, -h1 / 2 + h2))
+        writer.lua_model.append(writer.add_node(w2 / 2, -h1 / 2))
 
-        writer.lua_model.append(writer.add_segment(-w1 / 2, -h1 / 2, -w2 / 2, -h2 / 2))
-        writer.lua_model.append(writer.add_segment(-w2 / 2, -h2 / 2, -w2 / 2, h2 / 2))
-        writer.lua_model.append(writer.add_segment(-w2 / 2, h2 / 2, w2 / 2, h2 / 2))
-        writer.lua_model.append(writer.add_segment(w2 / 2, h2 / 2, w2 / 2, -h2 / 2))
+        # adding segments
+        writer.lua_model.append(writer.add_segment(-w1 / 2, -h1 / 2, -w2 / 2, -h1 / 2))
+        writer.lua_model.append(writer.add_segment(-w2 / 2, -h1 / 2, -w2 / 2, -h1 / 2 + h2))
+        writer.lua_model.append(writer.add_segment(-w2 / 2, -h1 / 2 + h2, w2 / 2, -h1 / 2 + h2))
+        writer.lua_model.append(writer.add_segment(w2 / 2, -h1 / 2 + h2, w2 / 2, -h1 / 2))
+        writer.lua_model.append(writer.add_segment(w2 / 2, -h1 / 2, w1 / 2, -h1 / 2))
+        writer.lua_model.append(writer.add_segment(w1 / 2, -h1 / 2, w1 / 2, h1 / 2))
+        writer.lua_model.append(writer.add_segment(w1 / 2, h1 / 2, -w1 / 2, h1 / 2))
+        writer.lua_model.append(writer.add_segment(-w1 / 2, h1 / 2, -w1 / 2, -h1 / 2))
 
-        writer.lua_model.extend(writer.close())
+
+
+
+        #writer.lua_model.extend(writer.close())
         writer.write("test.lua")
         FemmExecutor().run_femm("test.lua")
