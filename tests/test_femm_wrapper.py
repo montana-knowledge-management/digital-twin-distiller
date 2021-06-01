@@ -320,4 +320,15 @@ class FemmTester(TestCase):
         self.assertEqual('mi_saveas("test")', FemmWriter().save_as("test"))
 
     def test_get_circuit_name(self):
-        self.assertEqual("result = mo_getcircuitproperties('icoil')", FemmWriter().get_circuit_properties("icoil"))
+        self.assertEqual(
+            "current, volt, flux = mo_getcircuitproperties('icoil')", FemmWriter().get_circuit_properties("icoil")
+        )
+
+    def test_line_integral(self):
+        self.assertEqual("mo_lineintegral(0)", FemmWriter().line_integral(0))
+
+    def test_block_integral(self):
+        self.assertEqual("mo_blockintegral(30)", FemmWriter().block_integral(30))
+
+    def test_get_point_values(self):
+        self.assertEqual("mo_getpointvalues(0.01, 0)", FemmWriter().get_point_values(0.01,0))

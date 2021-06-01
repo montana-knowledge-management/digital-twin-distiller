@@ -87,7 +87,7 @@ class FemmWriter:
         cmd_list.append(f'remove("{out_file}")')  # get rid of the old data file, if it exists
         cmd_list.append("newdocument(0)")  # the 0 specifies a magnetics problem
         # cmd_list.append("mi_hidegrid()")
-        cmd = Template("file_out = openfile(\"$outfile\", \"w\")")
+        cmd = Template('file_out = openfile("$outfile", "w")')
         cmd = cmd.substitute(outfile=out_file)
         cmd_list.append(cmd)
         return cmd_list
@@ -739,7 +739,109 @@ class FemmWriter:
 
         return cmd
 
-    def get_circuit_properties(self, circuit_name, result='current, volt, flux'):
+    # post processing commands --- data extraction
+    def line_integral(self, type):
+        """
+        Calculate the line integral of the defined contour.
+
+        Parameter name, values 1, values 2, values 3, values 4
+        0 -- Bn ---  total Bn, avg Bn, - , -
+        1 -- Ht ---  total Ht, avg Ht, -, -
+        2 -- Contour length  --- surface area, - , - , -
+        3 -- Stress Tensor Force --- DC r/x force, DC y/z force, 2x r/x force, 2x y/z force
+        4 -- Stress Tensor Torque --- total (B.n)^2, avg (B.n)^2
+        """
+
+        if self.field not in fields:
+            raise ValueError("The physical field is not defined!")
+
+        if self.field == kw_magnetic:
+            cmd = Template("mo_lineintegral($type)")
+            cmd = cmd.substitute(type=type)
+
+        return cmd
+
+    def block_integral(self, type):
+        """
+        Calculate the block integral of the selected blocks.
+
+             Type        Definition
+            ------      ------------
+             0            AJ
+             1            A
+             2            Magnetic Field Energy
+             3            Hysteresis and/or lamination losses
+             4            Resistive losses
+             5            Block cross-section area
+             6            Total losses
+             7            Total current
+             8            Integral of Bx (Br) over the block
+             9            Integral of By (Bax) over the block
+             10           Block volume
+             11           x (or r) part of steady state Lorentz force
+             12           y (or z) part of stead state Lorentz force
+             13           x (or r) part of steady state 2x Lorentz force
+             14           y (or z) part of stead state 2x Lorentz force
+             15           steady state lorentz torque
+             16           2×component of Lorentz torque
+             17           Magnetic field coenergy
+             18           x (or r) part of steady-state weighted stress tensor force
+             19           y (or z) part of steady-state weighted stress tensor force
+             20           x (or r) part of 2×weighted stress tensor force
+             21           y (or z) part of 2×weighted stress tensor force
+             22           Steady-state weighted stress tensor torque
+             23           2×component of weighted stress tensor torque
+             24           R2(i.e.moment of inertia / density)
+             25           x (or r) part of 1×weighted stress tensor force
+             26           y (or z) part of 1×weighted stress tensor force
+             27           1×component of weighted stress tensor torque
+             28           x (or r) part of 1×Lorentz force
+             29           y (or z) part of 1×Lorentz force
+             30           1×component of Lorentz torque
+
+             This function returns one (possibly complex) value,e.g.:volume = moblockintegral(10)
+        """
+
+        if self.field not in fields:
+            raise ValueError("The physical field is not defined!")
+
+        if self.field == kw_magnetic:
+            cmd = Template("mo_blockintegral($type)")
+            cmd = cmd.substitute(type=type)
+
+        return cmd
+
+    def get_point_values(self, x, y):
+        """
+        Get the values associated with the point at x,y Return in order
+
+        Symbol      Definition
+        ------      ----------
+        A           vector potential A or flux φ
+        B1          flux density    Bxif planar,Brif axisymmetric
+        B2          flux density Byif planar, Bzif axisymmetric
+        Sig         electrical conductivity σ
+        E           stored energy density
+        H1          field intensity Hxif planar,Hrif axisymmetric
+        H2          field intensity Hyif planar,Hzif axisymmetric
+        Je          eddy current density
+        Js          source current density
+        Mu1         relative permeability μxif planar,μrif axisymmetric
+        Mu2relative permeability μyif planar,μzif axisymmetric
+        Pe          Power density dissipated through ohmic losses
+        Ph          Power density dissipated by hysteresis
+        """
+
+        if self.field not in fields:
+            raise ValueError("The physical field is not defined!")
+
+        if self.field == kw_magnetic:
+            cmd = Template("mo_getpointvalues($x, $y)")
+            cmd = cmd.substitute(x=x, y=y)
+
+        return cmd
+
+    def get_circuit_properties(self, circuit_name, result="current, volt, flux"):
         """Used primarily to obtain impedance information associated with circuit properties.
         Properties are returned for the circuit property named "circuit".
         Three values are returned by the function.
@@ -756,7 +858,7 @@ class FemmWriter:
 
     def write_out_result(self, key, value):
         # writes out a key_value pair
-        cmd = Template('write(file_out, \'$key\', \', \', $value, "\{}") \n'.format('n'))
+        cmd = Template("write(file_out, '$key', ', ', $value, \"\\{}\") \n".format("n"))
         return cmd.substitute(key=key, value=value)
 
 
