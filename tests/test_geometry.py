@@ -59,13 +59,13 @@ class TestGeometry(TestCase):
 class TestMeshing(TestCase):
     def test_mesh_the_triangle(self):
         path = files("examples.triangle").joinpath("triangle.svg")
-        print(path)
+        #print(path)
         geo = import_svg(path.as_posix())
-        print(geo)
+        #print(geo)
         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
 
     def test_mesh_the_owl(self):
         path = files("examples.owl").joinpath("owl-shape.svg")
         geo = import_svg(path.as_posix())
-        print(geo)
+        #print(geo)
         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)

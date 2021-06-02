@@ -4,6 +4,10 @@ A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
 
+import ezdxf
+import sys
+import adze_modeler.objects as obj
+
 
 class Geometry:
     def __init__(self):
@@ -30,7 +34,7 @@ class Geometry:
         # save every start and end points for the geoemtry
         self.nodes.append(arc.start_pt)
         self.nodes.append(arc.end_pt)
-        self.nodes.append(arc.center)
+        self.nodes.append(arc.center_pt)
 
     def add_cubic_bezier(self, cb):
         self.cubic_beziers.append(cb)
@@ -41,7 +45,6 @@ class Geometry:
         self.nodes.append(cb.end_pt)
 
     def merge_points(self):
-
         for i in range(len(self.nodes) - 1):
             for j in range(len(self.nodes) - 1, i, -1):
                 if self.nodes[i].distance_to(self.nodes[j]) < self.epsilon:
@@ -64,17 +67,17 @@ class Geometry:
 
     def __repr__(self):
         msg = ""
-        msg += "\n Nodes: \n -----------------------\n"
+        msg += "\n Nodes:       \n -----------------------\n"
         for node in self.nodes:
             msg += str(node) + "\n"
 
-        msg += "\n Lines: \n -----------------------\n"
+        msg += "\n Lines:       \n -----------------------\n"
         for line in self.lines:
             msg += str(line) + "\n"
 
         msg += "\n Circle Arcs: \n -----------------------\n"
         for arc in self.circle_arcs:
-            msg += str(arc) + "\n"
+            msg += str(arc) + " \n"
 
         msg += "\n CubicBezier: \n -----------------------\n"
         for cubicbezier in self.cubic_beziers:
@@ -82,6 +85,38 @@ class Geometry:
 
         return msg
 
+    def import_dxf(self, dxf_file):
+        try:
+            doc = ezdxf.readfile(dxf_file)
+        except OSError:
+            print("Not a DXF file or a generic I/O error.")
+            sys.exit(1)
+        except ezdxf.DXFStructureError:
+            print("Invalid or corrupted DXF file.")
+            sys.exit(2)
+
+        # iterate over all entities in modelspace
+        # id start from the given number
+        id = 0
+
+        msp = doc.modelspace()
+        for e in msp:
+            if e.dxftype() == "LINE":
+                start = obj.Node(e.dxf.start[0], e.dxf.start[1], id)
+                end = obj.Node(e.dxf.end[0], e.dxf.end[1], id + 1)
+                self.add_line(obj.Line(start, end, id + 2))
+                id += 3
+
+            if e.dxftype() == "ARC":
+                start = obj.Node(e.start_point.x, e.start_point.y, id)
+                end = obj.Node(e.end_point.x, e.end_point.y, id + 1)
+                center = obj.Node(e.dxf.center[0], e.dxf.center[0], id + 2)
+                self.add_arc(obj.CircleArc(start, center, end, id + 3))
+                id += 4
+
+            if e.dxftype() == "POLYLINE":
+                print(e.__dict__)
+        return
 
 # def node_gmsh_point_distance(node, point):
 #     dx = node.x - point.x[0]

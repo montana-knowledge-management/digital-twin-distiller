@@ -24,3 +24,4 @@ mi_close()
 
 closefile(outfile)
 quit()
+quit()
