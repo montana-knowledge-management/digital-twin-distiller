@@ -54,9 +54,29 @@ MagneticMaterial = namedtuple(
     ],
 )  # Diameter of each wire constituent strand in millimeters.
 
+HeatFlowMaterial = namedtuple(
+    "heatflow",
+    [
+        "material_name",
+        "kx",  # Thermal conductivity in the x- or r-direction.
+        "ky",  # Thermal conductivity in the y- or z-direction.
+        "qv",  # Volume heat generation density in units of W/m3.
+        "kt",  # Volumetric heat capacity in units of MJ/(m3 * K).
+    ],
+)
+
 # TODO: other types should be defined
 MagneticDirichlet = namedtuple("magnetic_dirichlet", ["name", "a_0", "a_1", "a_2", "phi"])
 MagneticMixed = namedtuple("magnetic_mixed", ["name", "c0", "c1"])
+
+
+# HeatFlow Boundary Conditions
+HeatFlowFixedTemperature = namedtuple("heatflow_fixed_temperature", ["name", "Tset"])
+HeatFlowHeatFlux = namedtuple("heatflow_heat_flux", ["name", "qs"])
+HeatFlowConvection = namedtuple("heatflow_convection", ["name", "h", "Tinf"])
+HeatFlowRadiation = namedtuple("heatflow_radiation", ["name", "beta", "Tinf"])
+HeatFlowPeriodic = namedtuple("heatflow_periodic", ["name"])
+HeatFlowAntiPeriodic = namedtuple("heatflow_anti_periodic", ["name"])
 
 
 class FemmWriter:
@@ -94,7 +114,6 @@ class FemmWriter:
         elif self.field == kw_current_flow:
             cmd_list.append("newdocument(3)")  # the 3 specifies current flow problem
 
-
         # cmd_list.append("mi_hidegrid()")
         cmd = Template('file_out = openfile("$outfile", "w")')
         cmd = cmd.substitute(outfile=out_file)
@@ -102,11 +121,16 @@ class FemmWriter:
         return cmd_list
 
     def close(self, out_file="femm_data.csv"):
-
+        # TODO: Generalize to all kind of problems
         cmd_list = []
         cmd_list.append("closefile(file_out)")
-        cmd_list.append("mo_close()")
-        cmd_list.append("mi_close()")
+        if self.field == kw_magnetic:
+            cmd_list.append("mo_close()")
+            cmd_list.append("mi_close()")
+
+        if self.field == kw_heat_flow:
+            cmd_list.append("ho_close()")
+            cmd_list.append("hi_close()")
         cmd_list.append("quit()")
 
         return cmd_list
@@ -125,6 +149,9 @@ class FemmWriter:
 
         if self.field == kw_magnetic:
             cmd = Template("mi_analyze($flag)")
+
+        if self.field == kw_heat_flow:
+            cmd = Template("hi_analyze($flag)")
 
         return cmd.substitute(flag=flag)
 
@@ -284,6 +311,80 @@ class FemmWriter:
                 oa=0,
             )
 
+        # HEATFLOW
+
+        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowFixedTemperature):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
+            cmd = cmd.substitute(
+                propname=f'"{boundary.name}"',
+                BdryFormat=0,
+                Tset=boundary.Tset,
+                qs=0,
+                Tinf=0,
+                h=0,
+                beta=0,
+            )
+
+        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowHeatFlux):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
+            cmd = cmd.substitute(
+                propname=f'"{boundary.name}"',
+                BdryFormat=1,
+                Tset=0,
+                qs=boundary.qs,
+                Tinf=0,
+                h=0,
+                beta=0,
+            )
+
+        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowConvection):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
+            cmd = cmd.substitute(
+                propname=f'"{boundary.name}"',
+                BdryFormat=2,
+                Tset=0,
+                qs=0,
+                Tinf=boundary.Tinf,
+                h=boundary.h,
+                beta=0,
+            )
+
+        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowRadiation):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
+            cmd = cmd.substitute(
+                propname=f'"{boundary.name}"',
+                BdryFormat=3,
+                Tset=0,
+                qs=0,
+                Tinf=boundary.Tinf,
+                h=0,
+                beta=boundary.beta,
+            )
+
+        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowPeriodic):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
+            cmd = cmd.substitute(
+                propname=f'"{boundary.name}"',
+                BdryFormat=4,
+                Tset=0,
+                qs=0,
+                Tinf=0,
+                h=0,
+                beta=0,
+            )
+
+        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowAntiPeriodic):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
+            cmd = cmd.substitute(
+                propname=f'"{boundary.name}"',
+                BdryFormat=5,
+                Tset=0,
+                qs=0,
+                Tinf=0,
+                h=0,
+                beta=0,
+            )
+
         return cmd
 
     def add_material(self, material):
@@ -324,9 +425,16 @@ class FemmWriter:
         # if self.field == kw_electrostatic:
         #     pass
         #
-        # if self.field == kw_heat_flow:
-        #     pass
-        #
+        elif self.field == kw_heat_flow:
+            cmd = Template("hi_addmaterial($materialname, $kx, $ky, $qv, $kt)")
+            cmd = cmd.substitute(
+                materialname=f'"{material.material_name}"',
+                kx=material.kx,
+                ky=material.ky,
+                qv=material.qv,
+                kt=material.kt,
+            )
+
         # if self.field == kw_current_flow:
         #     pass
 
@@ -611,6 +719,19 @@ class FemmWriter:
 
         return cmd.substitute(x1p=x1, y1p=y1, x2p=x2, y2p=y2, Editmode=editmode)
 
+    def set_segment_prop(self, propname, elementsize=1, automesh=1, hide=0, group=0, inductor="<None>"):
+        """
+        :param propname: boundary property
+        :param elementsize: Local element size along segment no greater than elementsize
+        :param automesh: mesher defers to the element constraint defined by elementsize, 1 = mesher
+                         automatically chooses mesh size along the selected segments
+        :param hide: 0 = not hidden in post-processor, 1 == hidden in post processor
+        :param group: A member of group number group
+        :param inductor: A member of the conductor specified by the string "inconductor". If the segment is not
+                         part of a conductor, this parameter can be specified as "<None>".
+        """
+        return f'hi_setsegmentprop("{propname}", {elementsize}, {automesh}, {hide}, {group}, "{inductor}")'
+
     def set_arc_segment_prop(self, maxsegdeg, propname, hide, group):
         """
         :param maxsegdeg: Meshed with elements that span at most maxsegdeg degrees per element
@@ -674,9 +795,13 @@ class FemmWriter:
 
         # ei_setblockprop("blockname", automesh, meshsize, group)
         # ci_setblockprop("blockname", automesh, meshsize, group)
-        # hi_setblockprop("blockname", automesh, meshsize, group)
 
         return cmd
+
+    # TODO: merge above
+    def set_blockprop_he(self, blockname, automesh=1, meshsize=1, group=0):
+        cmd = Template("hi_setblockprop($blockname, $automesh, $meshsize, $group)")
+        return f'hi_setblockprop("{blockname}", {automesh}, {meshsize}, {group})'
 
     # problem commands for the magnetic problem
     def magnetic_problem(self, freq, unit, type, precision=1e-8, depth=1, minangle=30, acsolver=0):
@@ -721,7 +846,7 @@ class FemmWriter:
             acsolver=acsolver,
         )
 
-    def heat_problem(self, units, type, precision=1e-8, depth=1, minangle=30, prevsoln=0, timestep=1e-3):
+    def heat_problem(self, units, type, precision=1e-8, depth=1, minangle=30, prevsoln=None, timestep=1e-3):
         if self.field != kw_heat_flow:
             raise ValueError("Set the heat flow problem type!")
 
@@ -731,10 +856,11 @@ class FemmWriter:
         if type not in {"planar", "axi"}:
             raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
 
-        return f'hi_probdef("{units}", "{type}", {precision}, {depth}, {minangle}, {prevsoln}, {timestep})'
+        if not prevsoln:
+            prevsoln = ""
+            timestep = 0
 
-
-
+        return f'hi_probdef("{units}", "{type}", {precision}, {depth}, {minangle}, "{prevsoln}", {timestep})'
 
     def save_as(self, file_name):
         """
@@ -750,6 +876,9 @@ class FemmWriter:
         if self.field == kw_magnetic:
             cmd = Template("mi_saveas($filename)")
 
+        if self.field == kw_heat_flow:
+            cmd = Template("hi_saveas($filename)")
+
         return cmd.substitute(filename='"' + file_name + '"')
 
     def load_solution(self):
@@ -760,6 +889,9 @@ class FemmWriter:
 
         if self.field == kw_magnetic:
             cmd = "mi_loadsolution()"
+
+        if self.field == kw_heat_flow:
+            cmd = "hi_loadsolution()"
 
         return cmd
 

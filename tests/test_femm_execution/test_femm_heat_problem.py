@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from adze_modeler.femm_wrapper import FemmExecutor
@@ -5,8 +6,6 @@ from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import HeatFlowConvection
 from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
 from adze_modeler.femm_wrapper import HeatFlowMaterial
-
-import os
 
 
 def c2k(C):
@@ -86,7 +85,6 @@ class TestFemmHeatProblem(unittest.TestCase):
         writer.lua_model.append(writer.set_segment_prop("fixtemp"))
         writer.lua_model.append("hi_clearselected()")
 
-
         writer.lua_model.append("hi_zoomnatural()")
         writer.lua_model.append("hi_zoomout()")
         writer.lua_model.append("hideconsole()")
@@ -101,26 +99,23 @@ class TestFemmHeatProblem(unittest.TestCase):
         writer.lua_model.append(writer.write_out_result("Fy", "Fy"))
         writer.lua_model.extend(writer.close("heat_data.csv"))
 
-
         writer.write("heatflow_test.lua")
         FemmExecutor().run_femm("heatflow_test.lua")
 
-
         with open("heat_data.csv") as f:
             content = f.readlines()
-            #print(content[0])
-            #print(content[1])
+            # print(content[0])
+            # print(content[1])
             Fx = content[0].split(",")[1]
             Fy = content[1].split(",")[1]
-            self.assertEqual(round(float(Fx), 4), 0.0112) # 0.0112
+            self.assertEqual(round(float(Fx), 4), 0.0112)  # 0.0112
             self.assertEqual(round(float(Fy), 4), 9551.0549)  # 9551.05
-
 
         try:
             os.remove("heat_data.csv")
             os.remove("heatflow_test.anh")
             os.remove("heatflow_test.feh")
             os.remove("heatflow_test.lua")
-            #os.remove("heatflow_test.fem")
+            # os.remove("heatflow_test.fem")
         except FileNotFoundError:
             pass
