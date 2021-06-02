@@ -869,6 +869,10 @@ class FemmWriter:
         if type not in {"planar", "axi"}:
             raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
 
+        if not prevsoln:
+            prevsoln = ""
+            timestep = 0
+
         return f'hi_probdef("{units}", "{type}", {precision}, {depth}, {minangle}, "{prevsoln}", {timestep})'
 
     def save_as(self, file_name):

@@ -157,3 +157,11 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
             print(content[2])
             flux = content[2].split(",")
             self.assertEqual(round(float(flux[1]), 4), 0.0006)
+        try:
+            os.remove("femm_data.csv")
+            os.remove("test.lua")
+            os.remove("test.fem")
+            os.remove("test.ans")
+
+        except FileNotFoundError:
+            self.assertTrue(False)

@@ -2,7 +2,7 @@ import os
 import unittest
 
 from adze_modeler.femm_wrapper import FemmExecutor
-from adze_modeler.femm_wrapper import FemmWriter
+from adze_modeler.femm_wrapper import FemmWriter, kw_heat_flow
 from adze_modeler.femm_wrapper import HeatFlowConvection
 from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
 from adze_modeler.femm_wrapper import HeatFlowMaterial
@@ -16,7 +16,7 @@ class TestFemmHeatProblem(unittest.TestCase):
     def test_heat_problem(self):
         writer = FemmWriter()
         # TODO: FemmWriter.set_field(fieldtype) ?
-        writer.field = "heat_flow"
+        writer.field = kw_heat_flow
         writer.lua_model.extend(writer.init_problem("heat_data.csv"))
 
         writer.lua_model.append(writer.heat_problem("meters", "planar"))
@@ -97,15 +97,15 @@ class TestFemmHeatProblem(unittest.TestCase):
         writer.lua_model.append("Fx, Fy = ho_blockintegral(3)")
         writer.lua_model.append(writer.write_out_result("Fx", "Fx"))
         writer.lua_model.append(writer.write_out_result("Fy", "Fy"))
-        writer.lua_model.extend(writer.close("heat_data.csv"))
+        writer.lua_model.extend(writer.close())
 
         writer.write("heatflow_test.lua")
         FemmExecutor().run_femm("heatflow_test.lua")
 
         with open("heat_data.csv") as f:
             content = f.readlines()
-            # print(content[0])
-            # print(content[1])
+            #print(content[0])
+            #print(content[1])
             Fx = content[0].split(",")[1]
             Fy = content[1].split(",")[1]
             self.assertEqual(round(float(Fx), 4), 0.0112)  # 0.0112
