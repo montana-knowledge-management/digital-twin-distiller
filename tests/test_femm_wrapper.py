@@ -331,4 +331,4 @@ class FemmTester(TestCase):
         self.assertEqual("mo_blockintegral(30)", FemmWriter().block_integral(30))
 
     def test_get_point_values(self):
-        self.assertEqual("mo_getpointvalues(0.01, 0)", FemmWriter().get_point_values(0.01,0))
+        self.assertEqual("mo_getpointvalues(0.01, 0)", FemmWriter().get_point_values(0.01, 0))

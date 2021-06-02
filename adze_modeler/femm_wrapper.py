@@ -42,7 +42,9 @@ MagneticMaterial = namedtuple(
         "Lam_d",  # Hysteresis lag angle in degrees, used for nonlinear BH curves.
         "Phi_hmax",
         "lam_fill",
-        # Fraction of the volume occupied per lamination that is actually filled with iron (Note that this parameter defaults to 1 the femme preprocessor dialog box because, by default, iron completely fills the volume)
+        # Fraction of the volume occupied per lamination that is actually filled with iron
+        # (Note that this parameter defaults to 1 the femme preprocessor dialog box because,
+        #  by default, iron completely fills the volume)
         "LamType",
         "Phi_hx",
         # Hysteresis lag in degrees in the x-direction for linear problems.

@@ -47,7 +47,7 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         # FEMM inductance =  0.64707 mH
 
         writer = FemmWriter()
-        writer.lua_model.extend(writer.init_problem(out_file='femm_data.csv'))
+        writer.lua_model.extend(writer.init_problem(out_file="femm_data.csv"))
 
         # problem definition
         writer.lua_model.append(writer.magnetic_problem(0, "inches", "axi"))
@@ -114,10 +114,10 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         writer.lua_model.append(writer.save_as("test.fem"))
         writer.lua_model.append(writer.analyze())
         writer.lua_model.append(writer.load_solution())
-        writer.lua_model.append(writer.get_circuit_properties("icoil", result='current, volt, flux'))
-        writer.lua_model.append(writer.write_out_result("current", 'current'))
-        writer.lua_model.append(writer.write_out_result("volt", 'volt'))
-        writer.lua_model.append(writer.write_out_result("flux", 'flux'))
+        writer.lua_model.append(writer.get_circuit_properties("icoil", result="current, volt, flux"))
+        writer.lua_model.append(writer.write_out_result("current", "current"))
+        writer.lua_model.append(writer.write_out_result("volt", "volt"))
+        writer.lua_model.append(writer.write_out_result("flux", "flux"))
 
         # print(writer.lua_model)
         writer.lua_model.extend(writer.close())
@@ -125,10 +125,10 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         FemmExecutor().run_femm("test.lua")
 
         try:
-            with open('femm_data.csv') as f:
+            with open("femm_data.csv") as f:
                 content = f.readlines()
                 print(content[2])
-                flux = content[2].split(',')
+                flux = content[2].split(",")
                 self.assertEqual(round(float(flux[1]), 4), 0.0006)
 
                 os.remove("femm_data.csv")

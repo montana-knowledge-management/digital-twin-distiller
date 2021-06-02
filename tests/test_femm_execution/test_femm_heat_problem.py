@@ -1,7 +1,7 @@
 import unittest
 
-from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import FemmExecutor
+from adze_modeler.femm_wrapper import FemmWriter
 
 # class TestFemmHeatProblem(unittest.TestCase):
 #

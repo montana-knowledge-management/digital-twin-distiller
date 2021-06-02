@@ -3,10 +3,10 @@ This class realize a layer, where the different elements of the geometry can be 
 A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
-
-import ezdxf
 import sys
+
 import adze_modeler.objects as obj
+import ezdxf
 
 
 class Geometry:
@@ -117,6 +117,7 @@ class Geometry:
             if e.dxftype() == "POLYLINE":
                 print(e.__dict__)
         return
+
 
 # def node_gmsh_point_distance(node, point):
 #     dx = node.x - point.x[0]

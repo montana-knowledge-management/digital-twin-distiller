@@ -7,9 +7,9 @@ from importlib_resources import files
 class TestSvgImport(TestCase):
     def test_owl_import_to_geometry(self):
         eml = files("examples.owl").joinpath("owl-svgrepo-com.svg")
-        #print(eml)
+        # print(eml)
         geo = import_svg(eml.as_posix())
-        #print(geo)
+        # print(geo)
         # checks the first coordinate of the first node
         self.assertEqual(445.642, geo.nodes[0].x)
         self.assertEqual(635, geo.nodes[-1].id)
