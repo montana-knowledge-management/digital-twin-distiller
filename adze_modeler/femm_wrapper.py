@@ -730,7 +730,17 @@ class FemmWriter:
         :param inductor: A member of the conductor specified by the string "inconductor". If the segment is not
                          part of a conductor, this parameter can be specified as "<None>".
         """
-        return f'hi_setsegmentprop("{propname}", {elementsize}, {automesh}, {hide}, {group}, "{inductor}")'
+        prefix = None
+        if self.field == kw_magnetic:
+            prefix = "mi"
+        elif self.field == kw_heat_flow:
+            prefix = "hi"
+        elif self.field == kw_current_flow:
+            prefix = "ci"
+        elif self.field == kw_electrostatic:
+            prefix = "ei"
+
+        return f'{prefix}_setsegmentprop("{propname}", {elementsize}, {automesh}, {hide}, {group}, "{inductor}")'
 
     def set_arc_segment_prop(self, maxsegdeg, propname, hide, group):
         """

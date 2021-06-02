@@ -4,6 +4,7 @@ from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import kw_current_flow
 from adze_modeler.femm_wrapper import kw_electrostatic
 from adze_modeler.femm_wrapper import kw_heat_flow
+from adze_modeler.femm_wrapper import kw_magnetic
 from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
@@ -312,6 +313,27 @@ class FemmTester(TestCase):
 
     def test_setarcsegment(self):
         self.assertEqual("mi_setarcsegmentprop(5, 'abc', 0, 0)", FemmWriter().set_arc_segment_prop(5, "abc", 0, 0))
+
+    def test_setsegmentprop(self):
+        writer = FemmWriter()
+        writer.field = kw_heat_flow
+        self.assertEqual('hi_setsegmentprop("alma", 1, 0, 1, 0, "<None>")', writer.set_segment_prop("alma", 1, 0, 1, 0))
+
+        writer.field = kw_magnetic
+        self.assertEqual(
+            'mi_setsegmentprop("eper", 1, 0, 1, 0, "abc")', writer.set_segment_prop("eper", 1, 0, 1, 0, "abc")
+        )
+
+        writer.field = kw_electrostatic
+        self.assertEqual(
+            'ei_setsegmentprop("barak", 0, 0.2, 1, 0, "<None>")', writer.set_segment_prop("barak", 0, 0.2, 1, 0)
+        )
+
+        writer.field = kw_current_flow
+        self.assertEqual(
+            'ci_setsegmentprop("ribizli", 0, 0.13, 1, 20, "cba")',
+            writer.set_segment_prop("ribizli", 0, 0.13, 1, 20, "cba"),
+        )
 
     def test_run_analysis(self):
         self.assertEqual("mi_analyze(1)", FemmWriter().analyze())
