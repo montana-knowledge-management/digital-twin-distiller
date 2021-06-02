@@ -307,7 +307,7 @@ class FemmTester(TestCase):
     def test_block_prop(self):
         self.assertEqual(
             "mi_setblockprop('coil', 0, 0.05, 'icoil', 0, 0, 100)",
-            FemmWriter().set_blockprop("coil", 0.05, "icoil", 0, 0, 100),
+            FemmWriter().set_blockprop("coil", 0, 0.05, 0, circuit_name="icoil", turns=100, magdirection=0),
         )
 
     def test_setarcsegment(self):

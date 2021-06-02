@@ -747,7 +747,7 @@ class FemmWriter:
             cmd = cmd.substitute(maxsegdeg=maxsegdeg, propname="'" + propname + "'", hide=hide, group=group)
         return cmd
 
-    def set_blockprop(self, blockname=None, meshsize=None, circuit_name=None, magdirection=0, group="group", turns=0):
+    def set_blockprop(self, blockname, automesh=1, meshsize=1, group=0, **kwargs):
         """
         :param meshsize: default value is None -> invokes automesh
             this command will use automesh option as the default, if the mesh size is not defined
@@ -768,6 +768,9 @@ class FemmWriter:
 
         """
         cmd = None
+        circuit_name = kwargs.get("circuit_name", None)
+        magdirection = kwargs.get("magdirection", 0)
+        turns = kwargs.get("turns", 0)
 
         if not meshsize:
             automesh = 1
@@ -793,15 +796,14 @@ class FemmWriter:
                 turns=turns,
             )
 
+        if self.field == kw_heat_flow:
+            cmd = Template("hi_setblockprop($blockname, $automesh, $meshsize, $group)")
+            cmd = cmd.substitute(blockname=f'"{blockname}"', automesh=automesh, meshsize=meshsize, group=group)
+
         # ei_setblockprop("blockname", automesh, meshsize, group)
         # ci_setblockprop("blockname", automesh, meshsize, group)
 
         return cmd
-
-    # TODO: merge above
-    def set_blockprop_he(self, blockname, automesh=1, meshsize=1, group=0):
-        cmd = Template("hi_setblockprop($blockname, $automesh, $meshsize, $group)")
-        return f'hi_setblockprop("{blockname}", {automesh}, {meshsize}, {group})'
 
     # problem commands for the magnetic problem
     def magnetic_problem(self, freq, unit, type, precision=1e-8, depth=1, minangle=30, acsolver=0):

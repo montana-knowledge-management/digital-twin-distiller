@@ -53,7 +53,7 @@ class TestFemmHeatProblem(unittest.TestCase):
         writer.lua_model.append(writer.add_material(mat))
         writer.lua_model.append(writer.add_blocklabel(*blocklabel))
         writer.lua_model.append(writer.select_label(*blocklabel))
-        writer.lua_model.append(writer.set_blockprop_he("Material"))
+        writer.lua_model.append(writer.set_blockprop("Material"))
 
         # Adding boundary properties
         insulation = HeatFlowConvection("ins", 0, c2k(22))

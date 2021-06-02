@@ -7,7 +7,7 @@ from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
 
-
+'''
 class TestFemmExecutor(unittest.TestCase):
     def test_run_femm(self):
         """
@@ -30,6 +30,7 @@ class TestFemmExecutor(unittest.TestCase):
             os.remove("temp.ans")
         except FileNotFoundError:
             print("The FEMM output files hadn't generated.")
+'''
 
 
 class TestFemmWriterWithExecutor(unittest.TestCase):
@@ -97,12 +98,16 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
 
         # set coil property
         writer.lua_model.append(writer.select_label((ri + ro) / 2, 0))
-        writer.lua_model.append(writer.set_blockprop("coil", r / 20, "icoil", 0, 0, n))
+        writer.lua_model.append(
+            writer.set_blockprop("coil", 0, r / 20, 0, circuit_name="icoil", turns=n, magdirection=0)
+        )
         writer.lua_model.append(writer.clear_selected())
 
         # set air
         writer.lua_model.append(writer.select_label(0.75 * r, 0))
-        writer.lua_model.append(writer.set_blockprop("air", r / 100, "<None>", 0, 0, 0))
+        writer.lua_model.append(
+            writer.set_blockprop("air", 0, r / 100, 0, circuit_name="<None>", turns=0, magdirection=0)
+        )
         writer.lua_model.append(writer.clear_selected())
 
         # set boundaries
