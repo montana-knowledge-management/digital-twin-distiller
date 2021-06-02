@@ -2,10 +2,11 @@ import os
 import unittest
 
 from adze_modeler.femm_wrapper import FemmExecutor
-from adze_modeler.femm_wrapper import FemmWriter, kw_heat_flow
+from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import HeatFlowConvection
 from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
 from adze_modeler.femm_wrapper import HeatFlowMaterial
+from adze_modeler.femm_wrapper import kw_heat_flow
 
 
 def c2k(C):
@@ -102,20 +103,20 @@ class TestFemmHeatProblem(unittest.TestCase):
         writer.write("heatflow_test.lua")
         FemmExecutor().run_femm("heatflow_test.lua")
 
-        with open("heat_data.csv") as f:
-            content = f.readlines()
-            #print(content[0])
-            #print(content[1])
-            Fx = content[0].split(",")[1]
-            Fy = content[1].split(",")[1]
-            self.assertEqual(round(float(Fx), 4), 0.0112)  # 0.0112
-            self.assertEqual(round(float(Fy), 4), 9551.0549)  # 9551.05
-
         try:
+            with open("heat_data.csv") as f:
+                content = f.readlines()
+                # print(content[0])
+                # print(content[1])
+                Fx = content[0].split(",")[1]
+                Fy = content[1].split(",")[1]
+                self.assertEqual(round(float(Fx), 4), 0.0112)  # 0.0112
+                self.assertEqual(round(float(Fy), 4), 9551.0549)  # 9551.05
+
             os.remove("heat_data.csv")
             os.remove("heatflow_test.anh")
             os.remove("heatflow_test.feh")
             os.remove("heatflow_test.lua")
             # os.remove("heatflow_test.fem")
         except FileNotFoundError:
-            pass
+            self.assertTrue(False)
