@@ -32,6 +32,30 @@ class TestFemmExecutor(unittest.TestCase):
             print("The FEMM output files hadn't generated.")
 '''
 
+# This test is temporarly removed because too difficult and not
+# class TestFemmExecutor(unittest.TestCase):
+#     # def test_run_femm(self):
+#     #     """
+#     #     Runs a simple, built-in femm example: https://www.femm.info/wiki/CoilGun
+#     #     """
+#     #     FemmExecutor().run_femm("coilgun.lua")
+#     #
+#     #     try:
+#     #
+#     #         with open("output.txt") as results:
+#     #             content = results.readlines()
+#     #
+#     #             result = content[0].split(",")
+#     #
+#     #         self.assertEqual(1.5, float(result[0]))
+#     #         self.assertEqual(0.05, round(float(result[1]), 2))
+#     #
+#     #         os.remove("output.txt")
+#     #         os.remove("temp.fem")
+#     #         os.remove("temp.ans")
+#     #     except FileNotFoundError:
+#     #         print("The FEMM output files hadn't generated.")
+
 
 class TestFemmWriterWithExecutor(unittest.TestCase):
     """Tries to run a simple FEMM model, which is made with the FemmWriter class"""
@@ -47,7 +71,7 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         # FEMM inductance =  0.64707 mH
 
         writer = FemmWriter()
-        writer.lua_model.extend(writer.init_problem())
+        writer.lua_model.extend(writer.init_problem(out_file="femm_data.csv"))
 
         # problem definition
         writer.lua_model.append(writer.magnetic_problem(0, "inches", "axi"))
@@ -125,7 +149,6 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
 
         # print(writer.lua_model)
         writer.lua_model.extend(writer.close())
-
         writer.write("test.lua")
         FemmExecutor().run_femm("test.lua")
 

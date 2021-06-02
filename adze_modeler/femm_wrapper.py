@@ -84,6 +84,7 @@ class FemmWriter:
 
     field = kw_magnetic
     lua_model = []  # list of the lua commands
+    out_file = "femm_data.csv"
 
     def write(self, file_name):
         """Generate a runnable lua-script for a FEMM calculation.
@@ -107,11 +108,11 @@ class FemmWriter:
         cmd_list.append(f'remove("{out_file}")')  # get rid of the old data file, if it exists
         if self.field == kw_magnetic:
             cmd_list.append("newdocument(0)")  # the 0 specifies a magnetics problem
-        elif self.field == kw_electrostatic:
+        if self.field == kw_electrostatic:
             cmd_list.append("newdocument(1)")  # the 1 specifies electrostatics problem
-        elif self.field == kw_heat_flow:
+        if self.field == kw_heat_flow:
             cmd_list.append("newdocument(2)")  # the 2 specifies heat flow problem
-        elif self.field == kw_current_flow:
+        if self.field == kw_current_flow:
             cmd_list.append("newdocument(3)")  # the 3 specifies current flow problem
 
         # cmd_list.append("mi_hidegrid()")
@@ -120,8 +121,8 @@ class FemmWriter:
         cmd_list.append(cmd)
         return cmd_list
 
-    def close(self, out_file="femm_data.csv"):
-        # TODO: Generalize to all kind of problems
+    def close(self):
+
         cmd_list = []
         cmd_list.append("closefile(file_out)")
         if self.field == kw_magnetic:
@@ -782,12 +783,12 @@ class FemmWriter:
         magdirection = kwargs.get("magdirection", 0)
         turns = kwargs.get("turns", 0)
 
-        if not meshsize:
-            automesh = 1
-            meshsize = 0
-
-        else:
-            automesh = 0
+        # if not meshsize:
+        #     automesh = 1
+        #     meshsize = 0
+        #
+        # else:
+        #     automesh = 0
 
         if self.field not in fields:
             raise ValueError("The physical field is not defined!")
@@ -867,10 +868,6 @@ class FemmWriter:
 
         if type not in {"planar", "axi"}:
             raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
-
-        if not prevsoln:
-            prevsoln = ""
-            timestep = 0
 
         return f'hi_probdef("{units}", "{type}", {precision}, {depth}, {minangle}, "{prevsoln}", {timestep})'
 
@@ -1045,7 +1042,6 @@ class FemmExecutor:
         """This function runs the femm simulation via filelink"""
 
         self.script_file = os.path.basename(script_file)
-
         # under linux we are using wine to run FEMM
         if platform == "linux":
             self.femm_command = "wine " + self.femm_path_linux
