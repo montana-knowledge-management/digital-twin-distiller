@@ -164,7 +164,7 @@ class FemmWriter:
             radius = arc.start_pt.distance_to(arc.center_pt)
             clamp = arc.start_pt.distance_to(arc.end_pt)/2.
 
-            deg = round(degrees(asin(clamp/radius)),2)
+            deg = 2*round(degrees(asin(clamp/radius)),2)
 
             lua_geometry.append(
                 self.add_arc(arc.start_pt.x, arc.start_pt.y, arc.end_pt.x, arc.end_pt.y, angle=deg, maxseg=1))
