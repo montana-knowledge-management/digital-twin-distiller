@@ -75,6 +75,21 @@ ElectrostaticMaterial = namedtuple(
         "qv",  # Volume charge density in units of C / m3
     ],
 )
+
+CurrentFlowMaterial = namedtuple(
+    "current_flow",
+    [
+        "material_name",
+        "ox",  # Electrical conductivity in the x- or r-direction in units of S/m.
+        "oy",  # Electrical conductivity in the y- or z-direction in units of S/m.
+        "ex",  # Relative permittivity in the x- or r-direction.
+        "ey",  # Relative permittivity in the y- or z-direction.
+        "ltx",  # Dielectric loss tangent in the x- or r-direction.
+        "lty",  # Dielectric loss tangent in the y- or z-direction.
+    ],
+)
+
+
 # TODO: other types should be defined
 MagneticDirichlet = namedtuple("magnetic_dirichlet", ["name", "a_0", "a_1", "a_2", "phi"])
 MagneticMixed = namedtuple("magnetic_mixed", ["name", "c0", "c1"])
@@ -90,12 +105,18 @@ HeatFlowAntiPeriodic = namedtuple("heatflow_anti_periodic", ["name"])
 
 
 # Electrostatic Boundary Conditions
+ElectrostaticFixedVoltage = namedtuple("electrostatic_fixed_voltage", ["name", "Vs"])
+ElectrostaticMixed = namedtuple("electrostatic_mixed", ["name", "c1", "c0"])
+ElectrostaticSurfaceCharge = namedtuple("electrostatic_surface_charge", ["name", "qs"])
+ElectrostaticPeriodic = namedtuple("electrostatic_periodic", ["name"])
+ElectrostaticAntiPeriodic = namedtuple("electrostatic_antiperiodic", ["name"])
 
-ElectrostaticFixedVoltage = namedtuple("electrostatic_", ["name", "Vs"])
-ElectrostaticMixed = namedtuple("electrostatic_", ["name", "c1", "c0"])
-ElectrostaticSurfaceCharge = namedtuple("electrostatic_", ["name", "qs"])
-ElectrostaticPeriodic = namedtuple("electrostatic_", ["name"])
-ElectrostaticAntiPeriodic = namedtuple("electrostatic_", ["name"])
+# Current Flow Boundary Conditions
+CurrentFlowFixedVoltage = namedtuple("currentflow_", ["name", "Vs"])
+CurrentFlowMixed = namedtuple("currentflow_", ["name", "c1", "c0"])
+CurrentFlowSurfaceCurrent = namedtuple("currentflow_", ["name", "qs"])
+CurrentFlowPeriodic = namedtuple("currentflow_", ["name"])
+CurrentFlowAntiPeriodic = namedtuple("currentflow_", ["name"])
 
 
 class FemmWriter:
@@ -175,6 +196,9 @@ class FemmWriter:
 
         if self.field == kw_electrostatic:
             cmd = Template("ei_analyze($flag)")
+
+        if self.field == kw_current_flow:
+            cmd = Template("ci_analyze($flag)")
 
         return cmd.substitute(flag=flag)
 
@@ -408,6 +432,24 @@ class FemmWriter:
                 beta=0,
             )
 
+        # TODO: Electrostatic !!!!
+
+        # Current Flow
+        if self.field == kw_current_flow and isinstance(boundary, CurrentFlowFixedVoltage):
+            cmd = f'ci_addboundprop("{boundary.name}", {boundary.Vs}, 0, 0, 0, 0)'
+
+        if self.field == kw_current_flow and isinstance(boundary, CurrentFlowMixed):
+            cmd = f'ci_addboundprop("{boundary.name}", 0, 0, {boundary.c0}, {boundary.c1}, 2)'
+
+        if self.field == kw_current_flow and isinstance(boundary, CurrentFlowSurfaceCurrent):
+            cmd = f'ci_addboundprop("{boundary.name}", 0, {boundary.qs}, 0, 0, 2)'
+
+        if self.field == kw_current_flow and isinstance(boundary, CurrentFlowPeriodic):
+            cmd = f'ci_addboundprop("{boundary.name}", 0, 0, 0, 0, 3)'
+
+        if self.field == kw_current_flow and isinstance(boundary, CurrentFlowAntiPeriodic):
+            cmd = f'ci_addboundprop("{boundary.name}", 0, 0, 0, 0, 4)'
+
         return cmd
 
     def add_material(self, material):
@@ -454,7 +496,7 @@ class FemmWriter:
                 qv=material.qv,
             )
 
-        elif self.field == kw_heat_flow:
+        if self.field == kw_heat_flow:
             cmd = Template("hi_addmaterial($materialname, $kx, $ky, $qv, $kt)")
             cmd = cmd.substitute(
                 materialname=f'"{material.material_name}"',
@@ -464,8 +506,17 @@ class FemmWriter:
                 kt=material.kt,
             )
 
-        # if self.field == kw_current_flow:
-        #     pass
+        if self.field == kw_current_flow:
+            cmd = Template("ci_addmaterial($materialname, $ox, $oy, $ex, $ey, $ltx, $lty)")
+            cmd = cmd.substitute(
+                materialname=f'"{material.material_name}"',
+                ox=material.ox,
+                oy=material.oy,
+                ex=material.ex,
+                ey=material.ey,
+                ltx=material.ltx,
+                lty=material.lty,
+            )
 
         return cmd
 
@@ -905,8 +956,9 @@ class FemmWriter:
             cmd = Template("ei_setblockprop($blockname, $automesh, $meshsize, $group)")
             cmd = cmd.substitute(blockname=f'"{blockname}"', automesh=automesh, meshsize=meshsize, group=group)
 
-        # ei_setblockprop("blockname", automesh, meshsize, group)
-        # ci_setblockprop("blockname", automesh, meshsize, group)
+        if self.field == kw_current_flow:
+            cmd = Template("ci_setblockprop($blockname, $automesh, $meshsize, $group)")
+            cmd = cmd.substitute(blockname=f'"{blockname}"', automesh=automesh, meshsize=meshsize, group=group)
 
         return cmd
 
@@ -997,6 +1049,24 @@ class FemmWriter:
 
         return f'ei_probdef("{units}", "{type}", {precision}, {depth}, {minangle})'
 
+    def currentflow_problem(self, units, type, frequency=0, precision=1e-8, depth=1, minangle=30):
+        # TODO: add docstring
+        # TODO: add unittest
+        """
+        -
+        """
+
+        if self.field != kw_current_flow:
+            raise ValueError("Set current flow problem type!")
+
+        if units not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
+            raise ValueError(f"There is no {units} unit.")
+
+        if type not in {"planar", "axi"}:
+            raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
+
+        return f'ci_probdef("{units}", "{type}", {frequency}, {precision}, {depth}, {minangle})'
+
     def save_as(self, file_name):
         """
         To solve the problem with FEMM, you have to save it with the save_as command.
@@ -1017,6 +1087,9 @@ class FemmWriter:
         if self.field == kw_electrostatic:
             cmd = Template("ei_saveas($filename)")
 
+        if self.field == kw_current_flow:
+            cmd = Template("ci_saveas($filename)")
+
         return cmd.substitute(filename='"' + file_name + '"')
 
     def load_solution(self):
@@ -1033,6 +1106,9 @@ class FemmWriter:
 
         if self.field == kw_electrostatic:
             cmd = "ei_loadsolution()"
+
+        if self.field == kw_current_flow:
+            cmd = "ci_loadsolution()"
 
         return cmd
 
