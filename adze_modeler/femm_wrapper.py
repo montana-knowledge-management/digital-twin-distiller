@@ -909,7 +909,14 @@ class FemmWriter:
         )
 
     def heat_problem(self, units, type, precision=1e-8, depth=1, minangle=30, prevsoln=None, timestep=1e-3):
-        # TODO: Docstring for arguments
+        """
+        :param units: "inches", "millimeters", "centimeters", "mils", "meters", "micrometers"
+        :param type: "planar", "axi",
+        :param precision: Precision required by the solver. Default value is 1E-8
+        :param depth: Depth of the problem into the page for 2D problems
+        :param minangle: Minimum angle constraint sen to the mesh generator
+        :param prevsoln: Indicates the solution from the previous time step assuming transient time problems
+        """
         if self.field != kw_heat_flow:
             raise ValueError("Set the heat flow problem type!")
 
@@ -926,7 +933,13 @@ class FemmWriter:
         return f'hi_probdef("{units}", "{type}", {precision}, {depth}, {minangle}, "{prevsoln}", {timestep})'
 
     def electrostatic_problem(self, units, type, precision=1e-8, depth=1, minangle=30):
-        # TODO: Docstring
+        """
+        :param units: "inches", "millimeters", "centimeters", "mils", "meters", "micrometers"
+        :param type: "planar", "axi",
+        :param precision: Precision required by the solver. Default value is 1E-8
+        :param depth: Depth of the problem into the page for 2D problems
+        :param minangle: Minimum angle constraint sen to the mesh generator
+        """
 
         if self.field != kw_electrostatic:
             raise ValueError("Set electrostatic problem type!")
