@@ -24,8 +24,6 @@ class Snapshot(metaclass=ABCMeta):
         """ Writes out a single snapshot of the numerical model into the selected FEM library.
         """
         numerical_solver = solver()
-
-
         numerical_solver.write()
 
     def run(self):

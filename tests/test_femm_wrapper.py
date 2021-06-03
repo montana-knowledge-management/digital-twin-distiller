@@ -8,6 +8,8 @@ from adze_modeler.femm_wrapper import kw_magnetic
 from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
+from adze_modeler.geometry import Geometry
+import adze_modeler.objects as obj
 
 
 class FemmTester(TestCase):
@@ -354,3 +356,24 @@ class FemmTester(TestCase):
 
     def test_get_point_values(self):
         self.assertEqual("mo_getpointvalues(0.01, 0)", FemmWriter().get_point_values(0.01, 0))
+
+    def test_create_geometry(self):
+        """create basic objects: nodes, lines and a circle arc to test the basic functionality of the command."""
+
+        geo = Geometry()
+
+        # test nodes
+        a = obj.Node(0.0, 0.0, id=1)
+        b = obj.Node(0.0, 1.0, id=2)
+        c = obj.Node(1.0, 1.0, id=3)
+
+        geo.nodes = [a, b, c]
+
+        geo.lines = [obj.Line(start_pt=a, end_pt=b, id=4), obj.Line(start_pt=a, end_pt=c, id=5)]
+        geo.circle_arcs = [obj.CircleArc(start_pt=c, center_pt=a, end_pt=b)]
+
+        cmds = FemmWriter().create_geometry(geo)
+
+        self.assertIn('mi_addnode(0.0, 0.0)', cmds)
+        self.assertIn('mi_addsegment(0.0, 0.0, 1.0, 1.0)', cmds)
+        self.assertIn('mi_addarc(1.0, 1.0, 0.0, 1.0, 90, 1)', cmds)

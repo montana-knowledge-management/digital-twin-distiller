@@ -105,12 +105,20 @@ class FemmWriter:
                 - line segments
                 - circle_arcs.
 
-            The field type should be defined separately. 
+            The field type should be defined separately.
         """
 
         lua_geometry = []
 
         # 1 - generate the nodes
+        for node in geometry.nodes:
+            lua_geometry.append(self.add_node(node.x, node.y))
+
+        for line in geometry.lines:
+            lua_geometry.append(self.add_segment(line.start_pt.x, line.start_pt.y, line.end_pt.x, line.end_pt.y))
+
+        for arc in geometry.circle_arcs:
+            lua_geometry.append(self.add_arc(arc.start_pt.x, arc.start_pt.y, arc.end_pt.x, arc.end_pt.y, angle=90, maxseg=1))
 
         return lua_geometry
 
