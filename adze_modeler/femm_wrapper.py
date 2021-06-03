@@ -9,6 +9,7 @@ import os
 import subprocess
 import adze_modeler.geometry as geo
 
+from pathlib import Path
 from collections import namedtuple
 from string import Template
 from sys import platform
@@ -91,7 +92,6 @@ CurrentFlowMaterial = namedtuple(
     ],
 )
 
-
 # TODO: other types should be defined
 MagneticDirichlet = namedtuple("magnetic_dirichlet", ["name", "a_0", "a_1", "a_2", "phi"])
 MagneticMixed = namedtuple("magnetic_mixed", ["name", "c0", "c1"])
@@ -103,7 +103,6 @@ HeatFlowConvection = namedtuple("heatflow_convection", ["name", "h", "Tinf"])
 HeatFlowRadiation = namedtuple("heatflow_radiation", ["name", "beta", "Tinf"])
 HeatFlowPeriodic = namedtuple("heatflow_periodic", ["name"])
 HeatFlowAntiPeriodic = namedtuple("heatflow_anti_periodic", ["name"])
-
 
 # Electrostatic Boundary Conditions
 ElectrostaticFixedVoltage = namedtuple("electrostatic_fixed_voltage", ["name", "Vs"])
@@ -158,7 +157,8 @@ class FemmWriter:
             lua_geometry.append(self.add_segment(line.start_pt.x, line.start_pt.y, line.end_pt.x, line.end_pt.y))
 
         for arc in geometry.circle_arcs:
-            lua_geometry.append(self.add_arc(arc.start_pt.x, arc.start_pt.y, arc.end_pt.x, arc.end_pt.y, angle=90, maxseg=1))
+            lua_geometry.append(
+                self.add_arc(arc.start_pt.x, arc.start_pt.y, arc.end_pt.x, arc.end_pt.y, angle=90, maxseg=1))
 
         return lua_geometry
 
@@ -1276,7 +1276,10 @@ class FemmExecutor:
     """
 
     # Default value of the femm path under linux and under windows.
-    femm_path_linux = "$HOME/.wine/drive_c/femm42/bin/femm.exe"
+
+    home = str(Path.home())
+    femm_path_linux = home + "/.wine/drive_c/femm42/bin/femm.exe"
+    print(femm_path_linux)
     femm_path_windows = r"C:\FEMM42\bin\femm.exe"
 
     def run_femm(self, script_file):
