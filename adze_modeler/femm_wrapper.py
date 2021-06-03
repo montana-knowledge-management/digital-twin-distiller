@@ -432,7 +432,21 @@ class FemmWriter:
                 beta=0,
             )
 
-        # TODO: Electrostatic !!!!
+        # Electrostatics
+        if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticFixedVoltage):
+            cmd = f'ei_addboundprop("{boundary.name}", {boundary.Vs}, 0, 0, 0, 0)'
+
+        if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticMixed):
+            cmd = f'ei_addboundprop("{boundary.name}", 0, 0, {boundary.c1}, {boundary.c1}, 1)'
+
+        if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticSurfaceCharge):
+            cmd = f'ei_addboundprop("{boundary.name}", 0, {boundary.qs}, 0, 0, 2)'
+
+        if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticPeriodic):
+            cmd = f'ei_addboundprop("{boundary.name}", 0, 0, 0, 0, 3)'
+
+        if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticAntiPeriodic):
+            cmd = f'ei_addboundprop("{boundary.name}", 0, 0, 0, 0, 4)'
 
         # Current Flow
         if self.field == kw_current_flow and isinstance(boundary, CurrentFlowFixedVoltage):
