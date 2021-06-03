@@ -12,5 +12,5 @@ class TestDXFImport(TestCase):
         geo = Geometry()
         geo.import_dxf(eml.as_posix())
 
-        self.assertEqual(481, len(geo.nodes))
+        self.assertEqual(236, len(geo.nodes))
         self.assertEqual(89, len(geo.lines))

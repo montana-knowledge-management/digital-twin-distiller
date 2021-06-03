@@ -110,12 +110,20 @@ class TestFemmHeatProblem(unittest.TestCase):
             Fy = content[1].split(",")[1]
             self.assertEqual(round(float(Fx), 4), 0.0112)  # 0.0112
             self.assertEqual(round(float(Fy), 4), 9551.0549)  # 9551.05
-
         try:
+            with open("heat_data.csv") as f:
+                content = f.readlines()
+                # print(content[0])
+                # print(content[1])
+                Fx = content[0].split(",")[1]
+                Fy = content[1].split(",")[1]
+                self.assertEqual(round(float(Fx), 4), 0.0112)  # 0.0112
+                self.assertEqual(round(float(Fy), 4), 9551.0549)  # 9551.05
+
             os.remove("heat_data.csv")
             os.remove("heatflow_test.anh")
             os.remove("heatflow_test.feh")
             os.remove("heatflow_test.lua")
 
         except FileNotFoundError:
-            pass
+            self.assertTrue(False)

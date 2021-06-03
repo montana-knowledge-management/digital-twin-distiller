@@ -7,6 +7,8 @@ The original FEMM code has separate scripting commands for the geometry generati
 """
 import os
 import subprocess
+import adze_modeler.geometry as geo
+
 from collections import namedtuple
 from string import Template
 from sys import platform
@@ -94,7 +96,6 @@ CurrentFlowMaterial = namedtuple(
 MagneticDirichlet = namedtuple("magnetic_dirichlet", ["name", "a_0", "a_1", "a_2", "phi"])
 MagneticMixed = namedtuple("magnetic_mixed", ["name", "c0", "c1"])
 
-
 # HeatFlow Boundary Conditions
 HeatFlowFixedTemperature = namedtuple("heatflow_fixed_temperature", ["name", "Tset"])
 HeatFlowHeatFlux = namedtuple("heatflow_heat_flux", ["name", "qs"])
@@ -135,6 +136,31 @@ class FemmWriter:
         with open(file_name, "w") as writer:
             for line in self.lua_model:
                 writer.write(line + "\n")
+
+    def create_geometry(self, geometry):
+        """ Creates a FEMM geometry with lua file from the model geometry.
+
+            Building patterns can be:
+                - nodes,
+                - line segments
+                - circle_arcs.
+
+            The field type should be defined separately.
+        """
+
+        lua_geometry = []
+
+        # 1 - generate the nodes
+        for node in geometry.nodes:
+            lua_geometry.append(self.add_node(node.x, node.y))
+
+        for line in geometry.lines:
+            lua_geometry.append(self.add_segment(line.start_pt.x, line.start_pt.y, line.end_pt.x, line.end_pt.y))
+
+        for arc in geometry.circle_arcs:
+            lua_geometry.append(self.add_arc(arc.start_pt.x, arc.start_pt.y, arc.end_pt.x, arc.end_pt.y, angle=90, maxseg=1))
+
+        return lua_geometry
 
     def init_problem(self, out_file="femm_data.csv"):
         """
@@ -937,13 +963,6 @@ class FemmWriter:
         circuit_name = kwargs.get("circuit_name", None)
         magdirection = kwargs.get("magdirection", 0)
         turns = kwargs.get("turns", 0)
-
-        # if not meshsize:
-        #     automesh = 1
-        #     meshsize = 0
-        #
-        # else:
-        #     automesh = 0
 
         if self.field not in fields:
             raise ValueError("The physical field is not defined!")

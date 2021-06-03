@@ -152,16 +152,17 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         writer.write("test.lua")
         FemmExecutor().run_femm("test.lua")
 
-        with open("femm_data.csv") as f:
-            content = f.readlines()
-            print(content[2])
-            flux = content[2].split(",")
-            self.assertEqual(round(float(flux[1]), 4), 0.0006)
         try:
-            os.remove("femm_data.csv")
-            os.remove("test.lua")
-            os.remove("test.fem")
-            os.remove("test.ans")
+            with open("femm_data.csv") as f:
+                content = f.readlines()
+                print(content[2])
+                flux = content[2].split(",")
+                self.assertEqual(round(float(flux[1]), 4), 0.0006)
+
+                os.remove("femm_data.csv")
+                os.remove("test.lua")
+                os.remove("test.fem")
+                os.remove("test.ans")
 
         except FileNotFoundError:
             self.assertTrue(False)
