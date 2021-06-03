@@ -1,3 +1,4 @@
+import os
 from unittest import TestCase
 
 from adze_modeler.geometry import Geometry
@@ -5,7 +6,6 @@ from adze_modeler.gmsh import gmsh_writer
 from adze_modeler.objects import CubicBezier
 from adze_modeler.objects import Line
 from adze_modeler.objects import Node
-from adze_modeler.svg_handlers import import_svg
 from importlib_resources import files
 
 
@@ -60,12 +60,30 @@ class TestMeshing(TestCase):
     def test_mesh_the_triangle(self):
         path = files("examples.triangle").joinpath("triangle.svg")
         # print(path)
-        geo = import_svg(path.as_posix())
-        # print(geo)
+        geo = Geometry()
+        geo.import_svg(path.as_posix())
         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
+
+        try:
+            os.remove('test.geo_unrolled')
+        except FileNotFoundError:
+            try:
+                # running tox
+                os.remove('tests\test.geo_unrolled')
+            except FileNotFoundError:
+                self.assertTrue(False)
 
     def test_mesh_the_owl(self):
         path = files("examples.owl").joinpath("owl-shape.svg")
-        geo = import_svg(path.as_posix())
-        # print(geo)
+        geo = Geometry()
+        geo.import_svg(path.as_posix())
         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
+
+        try:
+            os.remove('test.geo_unrolled')
+        except FileNotFoundError:
+            try:
+                # running tox
+                os.remove('tests\test.geo_unrolled')
+            except FileNotFoundError:
+                self.assertTrue(False)

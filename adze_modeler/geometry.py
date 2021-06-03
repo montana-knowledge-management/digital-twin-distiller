@@ -7,6 +7,7 @@ import sys
 
 import adze_modeler.objects as obj
 import ezdxf
+import svgpathtools as svg
 
 
 class Geometry:
@@ -116,8 +117,45 @@ class Geometry:
 
             if e.dxftype() == "POLYLINE":
                 print(e.__dict__)
+
+        # merge the imported points and coordinates, beca
+        self.merge_points()
+
         return
 
+    def import_svg(self, svg_img, *args):
+        """Imports the svg file into a new geo object. The function gives an automatic id to the function
+
+        svg_img: the name of the file, which contains the imported svg image
+        return: gives back a new geometry
+        """
+
+        # reads the main objects from an svg file
+        paths = svg.svg2paths(svg_img)
+
+        # id start from the given number
+        id = 0
+
+        for path in paths:
+            for seg in path:
+                if isinstance(seg, svg.Path):
+                    for element in seg:
+                        if isinstance(element, svg.Line):
+                            start = obj.Node(element.start.real, element.start.imag, id)
+                            end = obj.Node(element.end.real, element.end.imag, id + 1)
+                            self.add_line(obj.Line(start, end, id + 2))
+                            id += 3
+
+                        if isinstance(element, svg.CubicBezier):
+                            start = obj.Node(element.start.real, element.start.imag, id)
+                            control1 = obj.Node(element.control1.real, element.control1.imag, id + 1)
+                            control2 = obj.Node(element.control2.real, element.control2.imag, id + 2)
+                            end = obj.Node(element.end.real, element.end.imag, id + 3)
+                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4))
+                            id += 5
+
+        self.merge_points()
+        return
 
 # def node_gmsh_point_distance(node, point):
 #     dx = node.x - point.x[0]
