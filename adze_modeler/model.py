@@ -1,6 +1,5 @@
 from abc import ABCMeta
 from abc import abstractmethod
-from types import SimpleNamespace
 
 from adze_modeler.geometry import Geometry
 

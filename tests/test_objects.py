@@ -70,7 +70,8 @@ class TestCubicBezier(TestCase):
         self.assertEqual(b, cb.end_pt)
 
         self.assertIn(
-            "CubicBezier(Node(1.0, 0.0, id=None,label=None), Node(0.6, 0.1, id=None,label=None), Node(0.7, 0.2, id=None,label=None), Node(0.5, 0.0, id=None,label=None), id=1,label='test')",
+            "CubicBezier(Node(1.0, 0.0, id=None,label=None), Node(0.6, 0.1, id=None,label=None), Node("
+            + "0.7, 0.2, id=None,label=None), Node(0.5, 0.0, id=None,label=None), id=1,label='test')",
             str(cb),
         )
         # print(cb)
