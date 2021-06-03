@@ -14,6 +14,8 @@ from collections import namedtuple
 from string import Template
 from sys import platform
 
+from math import asin, degrees
+
 # keywords
 kw_current_flow = "current_flow"
 kw_electrostatic = "electrostatic"
@@ -157,8 +159,15 @@ class FemmWriter:
             lua_geometry.append(self.add_segment(line.start_pt.x, line.start_pt.y, line.end_pt.x, line.end_pt.y))
 
         for arc in geometry.circle_arcs:
+
+            # calculate the angle for the femm circle arc generation
+            radius = arc.start_pt.distance_to(arc.center_pt)
+            clamp = arc.start_pt.distance_to(arc.end_pt)/2.
+
+            deg = round(degrees(asin(clamp/radius)),2)
+
             lua_geometry.append(
-                self.add_arc(arc.start_pt.x, arc.start_pt.y, arc.end_pt.x, arc.end_pt.y, angle=90, maxseg=1))
+                self.add_arc(arc.start_pt.x, arc.start_pt.y, arc.end_pt.x, arc.end_pt.y, angle=deg, maxseg=1))
 
         return lua_geometry
 

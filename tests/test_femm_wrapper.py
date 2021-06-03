@@ -403,4 +403,6 @@ class FemmTester(TestCase):
 
         self.assertIn('mi_addnode(0.0, 0.0)', cmds)
         self.assertIn('mi_addsegment(0.0, 0.0, 1.0, 1.0)', cmds)
-        self.assertIn('mi_addarc(1.0, 1.0, 0.0, 1.0, 90, 1)', cmds)
+        self.assertIn('mi_addarc(1.0, 1.0, 0.0, 1.0, 20.7, 1)', cmds)
+
+        print(cmds)

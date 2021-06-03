@@ -8,6 +8,7 @@ import sys
 import adze_modeler.objects as obj
 import ezdxf
 import svgpathtools as svg
+import numpy as np
 
 
 class Geometry:
@@ -156,6 +157,7 @@ class Geometry:
 
         self.merge_points()
         return
+
 
 # def node_gmsh_point_distance(node, point):
 #     dx = node.x - point.x[0]
