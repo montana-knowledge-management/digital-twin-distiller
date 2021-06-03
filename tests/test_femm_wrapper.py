@@ -302,6 +302,25 @@ class FemmTester(TestCase):
             "mi_addboundprop('mixed_test', 0, 0, 0, 0, 0, 0, 1, 2, 2, 0, 0)", FemmWriter().add_boundary(mixed_boundary)
         )
 
+    def test_pointprop(self):
+        writer = FemmWriter()
+        writer.field = kw_electrostatic
+        self.assertEqual('ei_addpointprop("alma", 10, 0)', writer.add_pointprop("alma", Vp=10))
+        self.assertEqual('ei_addpointprop("abc", 0, 0.324)', writer.add_pointprop("abc", qp=0.324))
+
+        writer.field = kw_heat_flow
+        self.assertEqual('hi_addpointprop("barack", 10, 0)', writer.add_pointprop("barack", Tp=10))
+        self.assertEqual('hi_addpointprop("cba", 0, 0.324)', writer.add_pointprop("cba", qp=0.324))
+
+        writer.field = kw_current_flow
+        self.assertEqual('ci_addpointprop("dinnye", 10, 0)', writer.add_pointprop("dinnye", Vp=10))
+        self.assertEqual('ci_addpointprop("qwert", 0, 0.324)', writer.add_pointprop("qwert", qp=0.324))
+
+        writer.field = kw_magnetic
+        self.assertEqual('mi_addpointprop("ribizli", 10, 0)', writer.add_pointprop("ribizli", a=10))
+        self.assertEqual('mi_addpointprop("qwert123", 0, 0.324)', writer.add_pointprop("qwert123", j=0.324))
+        self.assertEqual('mi_addpointprop("qwert123", 0, 0)', writer.add_pointprop("qwert123"))
+
     def test_block_prop(self):
         self.assertEqual(
             "mi_setblockprop('coil', 0, 0.05, 'icoil', 0, 0, 100)",

@@ -42,9 +42,8 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
         writer.lua_model.append(writer.set_blockprop("Teflon"))
 
         # Adding boundary properties
-        # TODO: implement xi_addpointprop
-        writer.lua_model.append(f'ei_addpointprop("Ug", {Ug}, 0)')
-        writer.lua_model.append('ei_addpointprop("U0", 0, 0)')
+        writer.lua_model.append(writer.add_pointprop("Ug", Vp=Ug))
+        writer.lua_model.append(writer.add_pointprop("U0", Vp=0))
 
         writer.lua_model.append(writer.select_node(0, 0))
         writer.lua_model.append(writer.set_pointprop("Ug"))

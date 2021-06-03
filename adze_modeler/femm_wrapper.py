@@ -553,6 +553,50 @@ class FemmWriter:
 
         return cmd
 
+    def add_pointprop(self, propname, **kwargs):
+        """
+        Adds new point property of name "propname" with various attributes such as:
+        Electrostatics:
+            - Vp: specified potential Vp (V)
+            - qp: point charge density qp (C / m)
+
+        Magnetics:
+            - a: specified potential a (Wb / m)
+            - j: point current j (A)
+
+        Heat Flow:
+            - Tp: specified temperatire Tp at the point (K)
+            - qp: point heat generation (W / m)
+
+        Current Flow:
+            - Vp: specified potential Vp (V)
+            - qp: point current density qp (A / m)
+        """
+
+        # Electrostatics
+        if self.field == kw_electrostatic:
+            Vp = kwargs.get("Vp", 0)
+            qp = kwargs.get("qp", 0)
+            return f'ei_addpointprop("{propname}", {Vp}, {qp})'
+
+        # Magnetics
+        if self.field == kw_magnetic:
+            a = kwargs.get("a", 0)
+            j = kwargs.get("j", 0)
+            return f'mi_addpointprop("{propname}", {a}, {j})'
+
+        # Heat Flow
+        if self.field == kw_heat_flow:
+            Tp = kwargs.get("Tp", 0)
+            qp = kwargs.get("qp", 0)
+            return f'hi_addpointprop("{propname}", {Tp}, {qp})'
+
+        # Current Flow
+        if self.field == kw_current_flow:
+            Vp = kwargs.get("Vp", 0)
+            qp = kwargs.get("qp", 0)
+            return f'ci_addpointprop("{propname}", {Vp}, {qp})'
+
     def add_circprop(self, circuitname, i, circuittype):
         """
         Adds a new circuit property with name "circuitname" with a prescribed current, i.
