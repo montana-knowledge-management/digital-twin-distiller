@@ -15,7 +15,6 @@ def c2k(C):
 class TestFemmHeatProblem(unittest.TestCase):
     def test_heat_problem(self):
         writer = FemmWriter()
-        # TODO: FemmWriter.set_field(fieldtype) ?
         writer.field = kw_heat_flow
         writer.lua_model.extend(writer.init_problem("heat_data.csv"))
 
@@ -116,6 +115,6 @@ class TestFemmHeatProblem(unittest.TestCase):
             os.remove("heatflow_test.anh")
             os.remove("heatflow_test.feh")
             os.remove("heatflow_test.lua")
-            # os.remove("heatflow_test.fem")
+
         except FileNotFoundError:
             pass
