@@ -21,10 +21,12 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         # FEMM inductance =  0.64707 mH
 
         writer = FemmWriter()
+        writer.lua_model = [] #
         writer.lua_model.extend(writer.init_problem(out_file="femm_data.csv"))
 
         # problem definition
         writer.lua_model.append(writer.magnetic_problem(0, "inches", "axi"))
+        writer.write('man')
 
         # model geometry
         # rectangle (coil) -- ri, -z / 2, ro, z / 2 --
@@ -110,7 +112,7 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
                         if command[:8] in line:  # we are expecting some differences in \n's due to the file operations
                             found += 1
                             break
-                #self.assertEqual(len(writer.lua_model), found)
-                self.assertEqual(43, found)
+                self.assertEqual(len(writer.lua_model), found)
+                del writer
         except FileNotFoundError:
             self.assertTrue(False)
