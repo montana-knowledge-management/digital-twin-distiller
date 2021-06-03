@@ -7,8 +7,8 @@ import sys
 
 import adze_modeler.objects as obj
 import ezdxf
-import svgpathtools as svg
 import numpy as np
+import svgpathtools as svg
 
 
 class Geometry:

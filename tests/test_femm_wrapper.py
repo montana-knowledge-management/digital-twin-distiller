@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+import adze_modeler.objects as obj
 from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import kw_current_flow
 from adze_modeler.femm_wrapper import kw_electrostatic
@@ -9,7 +10,6 @@ from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
 from adze_modeler.geometry import Geometry
-import adze_modeler.objects as obj
 
 
 class FemmTester(TestCase):
@@ -401,8 +401,8 @@ class FemmTester(TestCase):
 
         cmds = FemmWriter().create_geometry(geo)
 
-        self.assertIn('mi_addnode(0.0, 0.0)', cmds)
-        self.assertIn('mi_addsegment(0.0, 0.0, 0.0, 1.0)', cmds)
-        self.assertIn('mi_addarc(1.0, 0.0, 0.0, 1.0, 90.0, 1)', cmds)
+        self.assertIn("mi_addnode(0.0, 0.0)", cmds)
+        self.assertIn("mi_addsegment(0.0, 0.0, 0.0, 1.0)", cmds)
+        self.assertIn("mi_addarc(1.0, 0.0, 0.0, 1.0, 90.0, 1)", cmds)
 
         print(cmds)

@@ -7,14 +7,14 @@ The original FEMM code has separate scripting commands for the geometry generati
 """
 import os
 import subprocess
-import adze_modeler.geometry as geo
-
-from pathlib import Path
 from collections import namedtuple
+from math import asin
+from math import degrees
+from pathlib import Path
 from string import Template
 from sys import platform
 
-from math import asin, degrees
+import adze_modeler.geometry as geo
 
 # keywords
 kw_current_flow = "current_flow"
@@ -139,14 +139,14 @@ class FemmWriter:
                 writer.write(line + "\n")
 
     def create_geometry(self, geometry):
-        """ Creates a FEMM geometry with lua file from the model geometry.
+        """Creates a FEMM geometry with lua file from the model geometry.
 
-            Building patterns can be:
-                - nodes,
-                - line segments
-                - circle_arcs.
+        Building patterns can be:
+            - nodes,
+            - line segments
+            - circle_arcs.
 
-            The field type should be defined separately.
+        The field type should be defined separately.
         """
 
         lua_geometry = []
@@ -162,12 +162,13 @@ class FemmWriter:
 
             # calculate the angle for the femm circle arc generation
             radius = arc.start_pt.distance_to(arc.center_pt)
-            clamp = arc.start_pt.distance_to(arc.end_pt)/2.
+            clamp = arc.start_pt.distance_to(arc.end_pt) / 2.0
 
-            deg = 2*round(degrees(asin(clamp/radius)),2)
+            deg = 2 * round(degrees(asin(clamp / radius)), 2)
 
             lua_geometry.append(
-                self.add_arc(arc.start_pt.x, arc.start_pt.y, arc.end_pt.x, arc.end_pt.y, angle=deg, maxseg=1))
+                self.add_arc(arc.start_pt.x, arc.start_pt.y, arc.end_pt.x, arc.end_pt.y, angle=deg, maxseg=1)
+            )
 
         return lua_geometry
 
@@ -1288,7 +1289,6 @@ class FemmExecutor:
 
     home = str(Path.home())
     femm_path_linux = home + "/.wine/drive_c/femm42/bin/femm.exe"
-    print(femm_path_linux)
     femm_path_windows = r"C:\FEMM42\bin\femm.exe"
 
     def run_femm(self, script_file):

@@ -5,6 +5,7 @@
 # from adze_modeler.femm_wrapper import FemmExecutor
 # from adze_modeler.femm_wrapper import FemmWriter
 # from adze_modeler.femm_wrapper import kw_electrostatic
+# from importlib_resources import files
 #
 #
 # class TestFemmElectrostaticProblem(unittest.TestCase):
@@ -67,23 +68,16 @@
 #         writer.lua_model.append(writer.write_out_result("E", "E"))
 #         writer.lua_model.extend(writer.close())
 #
-#         # Execute the script
-#         writer.write("electrostatic_test.lua")
-#         FemmExecutor().run_femm("../integration_tests/electrostatic_test.lua")
-#
-#         with open("electrostatic_data.csv") as f:
-#             content = f.readlines()
-#             E = content[0].split(",")[1]  # Stored energy
-#             self.assertEqual(round(float(E), 4), round(1.5293 * 10 ** -12, 4))
-#
-#         # try:
-#         #     os.remove("electrostatic_data.csv")
-#         #     os.remove("electrostatic_test.fee")
-#         #     os.remove("electrostatic_test.lua")
-#         #     os.remove("electrostatic_test.res")
-#         # except FileNotFoundError:
-#         #     pass
-#
-#
-# if __name__ == '__main__':
-#     TestFemmElectrostaticProblem.integation_test_electrostatic_problem()
+#         try:
+#             reference = files("tests.integration_tests").joinpath("electrostatic_test.lua")
+#             with open(reference) as f:
+#                 content = f.readlines()
+#                 found = 0
+#                 for command in writer.lua_model:
+#                     for line in content:
+#                         if command[:8] in line:  # we are expecting some differences in \n's due to the file operations
+#                             found += 1
+#                             break
+#                 self.assertEqual(len(writer.lua_model), found)
+#         except FileNotFoundError:
+#             self.assertTrue(False)

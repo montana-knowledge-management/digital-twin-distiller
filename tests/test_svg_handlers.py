@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from importlib_resources import files
 from adze_modeler.geometry import Geometry
+from importlib_resources import files
 
 
 class TestSvgImport(TestCase):

@@ -21,8 +21,7 @@ class Snapshot(metaclass=ABCMeta):
         self.epsilon = 1.0e-5
 
     def export_snapshot(self, solver):
-        """ Writes out a single snapshot of the numerical model into the selected FEM library.
-        """
+        """Writes out a single snapshot of the numerical model into the selected FEM library."""
         numerical_solver = solver()
         numerical_solver.write()
 

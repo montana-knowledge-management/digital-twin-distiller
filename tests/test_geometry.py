@@ -65,11 +65,11 @@ class TestMeshing(TestCase):
         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
 
         try:
-            os.remove('test.geo_unrolled')
+            os.remove("test.geo_unrolled")
         except FileNotFoundError:
             try:
                 # running tox
-                os.remove('tests\test.geo_unrolled')
+                os.remove("tests\test.geo_unrolled")
             except FileNotFoundError:
                 self.assertTrue(False)
 
@@ -80,10 +80,10 @@ class TestMeshing(TestCase):
         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
 
         try:
-            os.remove('test.geo_unrolled')
+            os.remove("test.geo_unrolled")
         except FileNotFoundError:
             try:
                 # running tox
-                os.remove('tests\test.geo_unrolled')
+                os.remove("tests\test.geo_unrolled")
             except FileNotFoundError:
                 self.assertTrue(False)
