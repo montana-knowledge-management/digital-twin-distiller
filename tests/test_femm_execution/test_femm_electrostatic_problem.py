@@ -1,9 +1,10 @@
 import os
 import unittest
 
-from adze_modeler.femm_wrapper import FemmExecutor
-from adze_modeler.femm_wrapper import FemmWriter, kw_electrostatic
 from adze_modeler.femm_wrapper import ElectrostaticMaterial
+from adze_modeler.femm_wrapper import FemmExecutor
+from adze_modeler.femm_wrapper import FemmWriter
+from adze_modeler.femm_wrapper import kw_electrostatic
 
 
 class TestFemmElectrostaticProblem(unittest.TestCase):
@@ -14,9 +15,9 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
 
         writer.lua_model.append(writer.electrostatic_problem("centimeters", "planar"))
 
-        a = 10 #cm
-        epsilon_r = 2.1 # -
-        Ug = 10 # V
+        a = 10  # cm
+        epsilon_r = 2.1  # -
+        Ug = 10  # V
 
         writer.lua_model.append(writer.add_node(-a / 2, a / 2))
         writer.lua_model.append(writer.add_node(-a / 2, 0))
@@ -25,7 +26,7 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
         writer.lua_model.append(writer.add_node(a / 2, -a / 2))
         writer.lua_model.append(writer.add_node(a / 2, a / 2))
 
-        writer.lua_model.append(writer.add_segment(-a / 2,a / 2, -a / 2, 0 ))
+        writer.lua_model.append(writer.add_segment(-a / 2, a / 2, -a / 2, 0))
         writer.lua_model.append(writer.add_segment(-a / 2, 0, 0, 0))
         writer.lua_model.append(writer.add_segment(0, 0, 0, -a / 2))
         writer.lua_model.append(writer.add_segment(0, -a / 2, a / 2, -a / 2))
@@ -43,7 +44,7 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
         # Adding boundary properties
         # TODO: implement xi_addpointprop
         writer.lua_model.append(f'ei_addpointprop("Ug", {Ug}, 0)')
-        writer.lua_model.append(f'ei_addpointprop("U0", 0, 0)')
+        writer.lua_model.append('ei_addpointprop("U0", 0, 0)')
 
         writer.lua_model.append(writer.select_node(0, 0))
         writer.lua_model.append(writer.set_pointprop("Ug"))
@@ -52,8 +53,6 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
         writer.lua_model.append(writer.select_node(a / 2, a / 2))
         writer.lua_model.append(writer.set_pointprop("U0"))
         writer.lua_model.append("ei_clearselected()")
-
-
 
         writer.lua_model.append("ei_zoomnatural()")
         writer.lua_model.append("ei_zoomout()")
@@ -64,20 +63,18 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
 
         # Examine the results
         writer.lua_model.append(f"eo_selectblock({a / 4}, {a / 4})")
-        writer.lua_model.append("E = eo_blockintegral(0)") # Stored Energy
+        writer.lua_model.append("E = eo_blockintegral(0)")  # Stored Energy
         writer.lua_model.append(writer.write_out_result("E", "E"))
         writer.lua_model.extend(writer.close())
-
 
         # Execute the script
         writer.write("electrostatic_test.lua")
         FemmExecutor().run_femm("electrostatic_test.lua")
 
-
         with open("electrostatic_data.csv") as f:
             content = f.readlines()
-            E = content[0].split(",")[1] # Stored energy
-            self.assertEqual(round(float(E), 4), round(1.5293*10**-12, 4))
+            E = content[0].split(",")[1]  # Stored energy
+            self.assertEqual(round(float(E), 4), round(1.5293 * 10 ** -12, 4))
 
         try:
             os.remove("electrostatic_data.csv")

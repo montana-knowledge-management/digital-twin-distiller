@@ -214,9 +214,6 @@ class FemmTester(TestCase):
         fmw.field = kw_electrostatic
         self.assertEqual("ei_selectnode(1.0, 1.0)", fmw.select_node(1.0, 1.0))
 
-    def test_select_node(self):
-        self.assertEqual("mi_selectarcsegment(1.0, 1.0)", FemmWriter().select_arc_segment(1.0, 1.0))
-
     def test_select_label(self):
         self.assertEqual("mi_selectlabel(1.0, 1.0)", FemmWriter().select_label(1.0, 1.0))
 
@@ -313,6 +310,17 @@ class FemmTester(TestCase):
 
     def test_setarcsegment(self):
         self.assertEqual("mi_setarcsegmentprop(5, 'abc', 0, 0)", FemmWriter().set_arc_segment_prop(5, "abc", 0, 0))
+
+    def test_setpointprop(self):
+        writer = FemmWriter()
+        writer.field = kw_electrostatic
+        self.assertEqual('ei_setnodeprop("eper", 0, "<None>")', writer.set_pointprop("eper"))
+        self.assertEqual('ei_setnodeprop("eper", 0, "abc")', writer.set_pointprop("eper", inductor="abc"))
+        self.assertEqual('ei_setnodeprop("eper", 34, "<None>")', writer.set_pointprop("eper", groupno=34))
+
+        writer.field = kw_heat_flow
+        self.assertEqual('hi_setnodeprop("alma", 23, "barack")', writer.set_pointprop("alma", 23, "barack"))
+        self.assertEqual('hi_setnodeprop("alma", 0, "<None>")', writer.set_pointprop("alma"))
 
     def test_setsegmentprop(self):
         writer = FemmWriter()

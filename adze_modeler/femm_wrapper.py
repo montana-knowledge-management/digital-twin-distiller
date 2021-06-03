@@ -42,7 +42,8 @@ MagneticMaterial = namedtuple(
         "Lam_d",  # Hysteresis lag angle in degrees, used for nonlinear BH curves.
         "Phi_hmax",
         "lam_fill",
-        # Fraction of the volume occupied per lamination that is actually filled with iron (Note that this parameter defaults to 1 the femme preprocessor dialog box because, by default, iron completely fills the volume)
+        # Fraction of the volume occupied per lamination that is actually filled with iron (Note that this parameter
+        # defaults to 1 the femme preprocessor dialog box because, by default, iron completely fills the volume)
         "LamType",
         "Phi_hx",
         # Hysteresis lag in degrees in the x-direction for linear problems.
@@ -69,10 +70,10 @@ ElectrostaticMaterial = namedtuple(
     "electrostatic",
     [
         "material_name",
-        "ex", # Relative permittivity in the x- or r-direction.
-        "ey", # Relative permittivity in the y- or z-direction.
-        "qv"  # Volume charge density in units of C / m3
-    ]
+        "ex",  # Relative permittivity in the x- or r-direction.
+        "ey",  # Relative permittivity in the y- or z-direction.
+        "qv",  # Volume charge density in units of C / m3
+    ],
 )
 # TODO: other types should be defined
 MagneticDirichlet = namedtuple("magnetic_dirichlet", ["name", "a_0", "a_1", "a_2", "phi"])
@@ -95,6 +96,7 @@ ElectrostaticMixed = namedtuple("electrostatic_", ["name", "c1", "c0"])
 ElectrostaticSurfaceCharge = namedtuple("electrostatic_", ["name", "qs"])
 ElectrostaticPeriodic = namedtuple("electrostatic_", ["name"])
 ElectrostaticAntiPeriodic = namedtuple("electrostatic_", ["name"])
+
 
 class FemmWriter:
     """Writes out a model snapshot"""
@@ -446,10 +448,10 @@ class FemmWriter:
         if self.field == kw_electrostatic:
             cmd = Template("ei_addmaterial($materialname, $ex, $ey, $qv)")
             cmd = cmd.substitute(
-                materialname = f'"{material.material_name}"',
-                ex = material.ex,
-                ey = material.ey,
-                qv = material.qv,
+                materialname=f'"{material.material_name}"',
+                ex=material.ex,
+                ey=material.ey,
+                qv=material.qv,
             )
 
         elif self.field == kw_heat_flow:
@@ -746,8 +748,7 @@ class FemmWriter:
 
         return cmd.substitute(x1p=x1, y1p=y1, x2p=x2, y2p=y2, Editmode=editmode)
 
-    def set_pointprop(self, propname, groupno=1, inductor="<None>"):
-        # TODO: adding unit tests
+    def set_pointprop(self, propname, groupno=0, inductor="<None>"):
         """
         :param propname: Set the selected nodes to have the nodal property 'propname'
         :param groupno: Set the selected nodes to have the group number 'groupno'
@@ -951,8 +952,6 @@ class FemmWriter:
             raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
 
         return f'ei_probdef("{units}", "{type}", {precision}, {depth}, {minangle})'
-
-
 
     def save_as(self, file_name):
         """

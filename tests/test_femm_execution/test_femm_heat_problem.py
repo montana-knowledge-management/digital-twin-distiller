@@ -2,10 +2,11 @@ import os
 import unittest
 
 from adze_modeler.femm_wrapper import FemmExecutor
-from adze_modeler.femm_wrapper import FemmWriter, kw_heat_flow
+from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import HeatFlowConvection
 from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
 from adze_modeler.femm_wrapper import HeatFlowMaterial
+from adze_modeler.femm_wrapper import kw_heat_flow
 
 
 def c2k(C):
@@ -103,8 +104,8 @@ class TestFemmHeatProblem(unittest.TestCase):
 
         with open("heat_data.csv") as f:
             content = f.readlines()
-            #print(content[0])
-            #print(content[1])
+            # print(content[0])
+            # print(content[1])
             Fx = content[0].split(",")[1]
             Fy = content[1].split(",")[1]
             self.assertEqual(round(float(Fx), 4), 0.0112)  # 0.0112
