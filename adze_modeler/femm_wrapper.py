@@ -124,9 +124,12 @@ CurrentFlowAntiPeriodic = namedtuple("currentflow_", ["name"])
 class FemmWriter:
     """Writes out a model snapshot"""
 
-    field = kw_magnetic
-    lua_model = []  # list of the lua commands
-    out_file = "femm_data.csv"
+
+    def __init__(self):
+
+        self.field = kw_magnetic
+        self.lua_model = []
+        self.out_file = "femm_data.csv"
 
     def write(self, file_name):
         """Generate a runnable lua-script for a FEMM calculation.

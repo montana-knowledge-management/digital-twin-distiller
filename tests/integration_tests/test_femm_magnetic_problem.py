@@ -26,7 +26,6 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
 
         # problem definition
         writer.lua_model.append(writer.magnetic_problem(0, "inches", "axi"))
-        writer.write('man')
 
         # model geometry
         # rectangle (coil) -- ri, -z / 2, ro, z / 2 --
