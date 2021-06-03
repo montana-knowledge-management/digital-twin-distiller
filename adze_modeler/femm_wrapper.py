@@ -65,6 +65,15 @@ HeatFlowMaterial = namedtuple(
     ],
 )
 
+ElectrostaticMaterial = namedtuple(
+    "electrostatic",
+    [
+        "material_name",
+        "ex", # Relative permittivity in the x- or r-direction.
+        "ey", # Relative permittivity in the y- or z-direction.
+        "qv"  # Volume charge density in units of C / m3
+    ]
+)
 # TODO: other types should be defined
 MagneticDirichlet = namedtuple("magnetic_dirichlet", ["name", "a_0", "a_1", "a_2", "phi"])
 MagneticMixed = namedtuple("magnetic_mixed", ["name", "c0", "c1"])
@@ -78,6 +87,14 @@ HeatFlowRadiation = namedtuple("heatflow_radiation", ["name", "beta", "Tinf"])
 HeatFlowPeriodic = namedtuple("heatflow_periodic", ["name"])
 HeatFlowAntiPeriodic = namedtuple("heatflow_anti_periodic", ["name"])
 
+
+# Electrostatic Boundary Conditions
+
+ElectrostaticFixedVoltage = namedtuple("electrostatic_", ["name", "Vs"])
+ElectrostaticMixed = namedtuple("electrostatic_", ["name", "c1", "c0"])
+ElectrostaticSurfaceCharge = namedtuple("electrostatic_", ["name", "qs"])
+ElectrostaticPeriodic = namedtuple("electrostatic_", ["name"])
+ElectrostaticAntiPeriodic = namedtuple("electrostatic_", ["name"])
 
 class FemmWriter:
     """Writes out a model snapshot"""
@@ -153,6 +170,9 @@ class FemmWriter:
 
         if self.field == kw_heat_flow:
             cmd = Template("hi_analyze($flag)")
+
+        if self.field == kw_electrostatic:
+            cmd = Template("ei_analyze($flag)")
 
         return cmd.substitute(flag=flag)
 
@@ -422,10 +442,16 @@ class FemmWriter:
                 NStrands=material.NStrands,
                 WireD=material.WireD,
             )
-        #
-        # if self.field == kw_electrostatic:
-        #     pass
-        #
+
+        if self.field == kw_electrostatic:
+            cmd = Template("ei_addmaterial($materialname, $ex, $ey, $qv)")
+            cmd = cmd.substitute(
+                materialname = f'"{material.material_name}"',
+                ex = material.ex,
+                ey = material.ey,
+                qv = material.qv,
+            )
+
         elif self.field == kw_heat_flow:
             cmd = Template("hi_addmaterial($materialname, $kx, $ky, $qv, $kt)")
             cmd = cmd.substitute(
@@ -720,6 +746,25 @@ class FemmWriter:
 
         return cmd.substitute(x1p=x1, y1p=y1, x2p=x2, y2p=y2, Editmode=editmode)
 
+    def set_pointprop(self, propname, groupno=1, inductor="<None>"):
+        # TODO: adding unit tests
+        """
+        :param propname: Set the selected nodes to have the nodal property 'propname'
+        :param groupno: Set the selected nodes to have the group number 'groupno'
+        :param inductor: Specifies which conductor the node belongs to. Default value is '<None>'
+        """
+        prefix = None
+        if self.field == kw_magnetic:
+            prefix = "mi"
+        elif self.field == kw_heat_flow:
+            prefix = "hi"
+        elif self.field == kw_current_flow:
+            prefix = "ci"
+        elif self.field == kw_electrostatic:
+            prefix = "ei"
+
+        return f'{prefix}_setnodeprop("{propname}", {groupno}, "{inductor}")'
+
     def set_segment_prop(self, propname, elementsize=1, automesh=1, hide=0, group=0, inductor="<None>"):
         """
         :param propname: boundary property
@@ -811,6 +856,10 @@ class FemmWriter:
             cmd = Template("hi_setblockprop($blockname, $automesh, $meshsize, $group)")
             cmd = cmd.substitute(blockname=f'"{blockname}"', automesh=automesh, meshsize=meshsize, group=group)
 
+        if self.field == kw_electrostatic:
+            cmd = Template("ei_setblockprop($blockname, $automesh, $meshsize, $group)")
+            cmd = cmd.substitute(blockname=f'"{blockname}"', automesh=automesh, meshsize=meshsize, group=group)
+
         # ei_setblockprop("blockname", automesh, meshsize, group)
         # ci_setblockprop("blockname", automesh, meshsize, group)
 
@@ -860,6 +909,7 @@ class FemmWriter:
         )
 
     def heat_problem(self, units, type, precision=1e-8, depth=1, minangle=30, prevsoln=None, timestep=1e-3):
+        # TODO: Docstring for arguments
         if self.field != kw_heat_flow:
             raise ValueError("Set the heat flow problem type!")
 
@@ -874,6 +924,22 @@ class FemmWriter:
             timestep = 0
 
         return f'hi_probdef("{units}", "{type}", {precision}, {depth}, {minangle}, "{prevsoln}", {timestep})'
+
+    def electrostatic_problem(self, units, type, precision=1e-8, depth=1, minangle=30):
+        # TODO: Docstring
+
+        if self.field != kw_electrostatic:
+            raise ValueError("Set electrostatic problem type!")
+
+        if units not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
+            raise ValueError(f"There is no {units} unit.")
+
+        if type not in {"planar", "axi"}:
+            raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
+
+        return f'ei_probdef("{units}", "{type}", {precision}, {depth}, {minangle})'
+
+
 
     def save_as(self, file_name):
         """
@@ -892,6 +958,9 @@ class FemmWriter:
         if self.field == kw_heat_flow:
             cmd = Template("hi_saveas($filename)")
 
+        if self.field == kw_electrostatic:
+            cmd = Template("ei_saveas($filename)")
+
         return cmd.substitute(filename='"' + file_name + '"')
 
     def load_solution(self):
@@ -905,6 +974,9 @@ class FemmWriter:
 
         if self.field == kw_heat_flow:
             cmd = "hi_loadsolution()"
+
+        if self.field == kw_electrostatic:
+            cmd = "ei_loadsolution()"
 
         return cmd
 
