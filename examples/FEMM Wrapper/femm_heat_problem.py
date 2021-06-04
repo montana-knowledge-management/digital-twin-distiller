@@ -100,7 +100,7 @@
 #         writer.lua_model.extend(writer.close())
 #
 #         writer.write("heatflow_test.lua")
-#         FemmExecutor().run_femm("heatflow_test.lua")
+#         FemmExecutor().run_femm("../integration_tests/heatflow_test.lua")
 #
 #         with open("heat_data.csv") as f:
 #             content = f.readlines()
@@ -110,20 +110,20 @@
 #             Fy = content[1].split(",")[1]
 #             self.assertEqual(round(float(Fx), 4), 0.0112)  # 0.0112
 #             self.assertEqual(round(float(Fy), 4), 9551.0549)  # 9551.05
-#         try:
-#             with open("heat_data.csv") as f:
-#                 content = f.readlines()
-#                 # print(content[0])
-#                 # print(content[1])
-#                 Fx = content[0].split(",")[1]
-#                 Fy = content[1].split(",")[1]
-#                 self.assertEqual(round(float(Fx), 4), 0.0112)  # 0.0112
-#                 self.assertEqual(round(float(Fy), 4), 9551.0549)  # 9551.05
-#
-#             os.remove("heat_data.csv")
-#             os.remove("heatflow_test.anh")
-#             os.remove("heatflow_test.feh")
-#             os.remove("heatflow_test.lua")
-#
-#         except FileNotFoundError:
-#             self.assertTrue(False)
+#         # try:
+#         #     with open("heat_data.csv") as f:
+#         #         content = f.readlines()
+#         #         # print(content[0])
+#         #         # print(content[1])
+#         #         Fx = content[0].split(",")[1]
+#         #         Fy = content[1].split(",")[1]
+#         #         self.assertEqual(round(float(Fx), 4), 0.0112)  # 0.0112
+#         #         self.assertEqual(round(float(Fy), 4), 9551.0549)  # 9551.05
+#         #
+#         #     os.remove("heat_data.csv")
+#         #     os.remove("heatflow_test.anh")
+#         #     os.remove("heatflow_test.feh")
+#         #     os.remove("heatflow_test.lua")
+#         #
+#         # except FileNotFoundError:
+#         #     self.assertTrue(False)

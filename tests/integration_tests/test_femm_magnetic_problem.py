@@ -99,7 +99,6 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         writer.lua_model.append(writer.write_out_result("flux", "flux"))
 
         writer.lua_model.extend(writer.close())
-        #writer.write('test')
 
         try:
             reference = files("tests.integration_tests").joinpath("magnetic.lua")
