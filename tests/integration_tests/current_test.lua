@@ -101,6 +101,7 @@ co_selectblock(-32.4, 7.8999999999999995)
 co_selectblock(-32.4, -7.8999999999999995)
 P = co_blockintegral(0)
 write(file_out, 'P', ', ', P, "\n") 
-
+ci_close()
+co_close()
 closefile(file_out)
 quit()
