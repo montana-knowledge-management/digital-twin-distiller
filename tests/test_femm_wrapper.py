@@ -1,7 +1,27 @@
+import os
 from unittest import TestCase
 
 import adze_modeler.objects as obj
+from adze_modeler.femm_wrapper import CurrentFlowAntiPeriodic
+from adze_modeler.femm_wrapper import CurrentFlowFixedVoltage
+from adze_modeler.femm_wrapper import CurrentFlowMaterial
+from adze_modeler.femm_wrapper import CurrentFlowMixed
+from adze_modeler.femm_wrapper import CurrentFlowPeriodic
+from adze_modeler.femm_wrapper import CurrentFlowSurfaceCurrent
+from adze_modeler.femm_wrapper import ElectrostaticAntiPeriodic
+from adze_modeler.femm_wrapper import ElectrostaticFixedVoltage
+from adze_modeler.femm_wrapper import ElectrostaticMaterial
+from adze_modeler.femm_wrapper import ElectrostaticMixed
+from adze_modeler.femm_wrapper import ElectrostaticPeriodic
+from adze_modeler.femm_wrapper import ElectrostaticSurfaceCharge
 from adze_modeler.femm_wrapper import FemmWriter
+from adze_modeler.femm_wrapper import HeatFlowAntiPeriodic
+from adze_modeler.femm_wrapper import HeatFlowConvection
+from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
+from adze_modeler.femm_wrapper import HeatFlowHeatFlux
+from adze_modeler.femm_wrapper import HeatFlowMaterial
+from adze_modeler.femm_wrapper import HeatFlowPeriodic
+from adze_modeler.femm_wrapper import HeatFlowRadiation
 from adze_modeler.femm_wrapper import kw_current_flow
 from adze_modeler.femm_wrapper import kw_electrostatic
 from adze_modeler.femm_wrapper import kw_heat_flow
@@ -41,6 +61,14 @@ class FemmTester(TestCase):
 
         writer.field = kw_electrostatic
         self.assertRaises(ValueError, writer.validate_field, "eper")
+
+    def test_write(self):
+        writer = FemmWriter()
+        writer.field = kw_heat_flow
+        writer.lua_model.append("alma")
+        writer.write("test_write.lua")
+        self.assertEqual(True, os.path.exists("test_write.lua"))
+        os.remove("test_write.lua")
 
     def test_addnode(self):
         x = 1.0
@@ -297,9 +325,67 @@ class FemmTester(TestCase):
             FemmWriter().magnetic_problem(50, "millimeters", "axi"),
         )
 
-    def test_init_proble(self):
+    def test_heat_problem(self):
+        writer = FemmWriter()
+        writer.field = kw_heat_flow
+        self.assertEqual('hi_probdef("inches", "planar", 1e-08, 1, 30, "", 0)', writer.heat_problem("inches", "planar"))
+        self.assertRaises(ValueError, writer.heat_problem, "eper", "planar")
+        self.assertRaises(ValueError, writer.heat_problem, "meters", "qwertz")
+
+    def test_current_flow_problem(self):
+        writer = FemmWriter()
+        writer.field = kw_current_flow
+        self.assertEqual(
+            'ci_probdef("inches", "planar", 100, 1e-08, 1, 30)',
+            writer.currentflow_problem("inches", "planar", 100, 1e-8, 1, 30),
+        )
+        self.assertRaises(ValueError, writer.currentflow_problem, "eper", "planar")
+        self.assertRaises(ValueError, writer.currentflow_problem, "meters", "qwertz")
+
+    def test_electrostatic_problem(self):
+        writer = FemmWriter()
+        writer.field = kw_electrostatic
+        self.assertEqual(
+            'ei_probdef("inches", "planar", 1e-08, 1, 30)',
+            writer.electrostatic_problem("inches", "planar", 1e-8, 1, 30),
+        )
+        self.assertRaises(ValueError, writer.electrostatic_problem, "barack", "planar")
+        self.assertRaises(ValueError, writer.electrostatic_problem, "mils", "planadawdawr")
+
+    def test_init_problem(self):
         self.assertIn("showconsole", FemmWriter().init_problem()[0])
         self.assertIn("clear", FemmWriter().init_problem()[1])
+
+        writer = FemmWriter()
+        writer.field = kw_magnetic
+        self.assertEqual("newdocument(0)", writer.init_problem()[3])
+
+        writer.field = kw_electrostatic
+        self.assertEqual("newdocument(1)", writer.init_problem()[3])
+
+        writer.field = kw_heat_flow
+        self.assertEqual("newdocument(2)", writer.init_problem()[3])
+
+        writer.field = kw_current_flow
+        self.assertEqual("newdocument(3)", writer.init_problem()[3])
+
+    def test_close(self):
+        writer = FemmWriter()
+        writer.field = kw_electrostatic
+        self.assertEqual("eo_close()", writer.close()[1])
+        self.assertEqual("ei_close()", writer.close()[2])
+
+        writer.field = kw_heat_flow
+        self.assertEqual("ho_close()", writer.close()[1])
+        self.assertEqual("hi_close()", writer.close()[2])
+
+        writer.field = kw_current_flow
+        self.assertEqual("co_close()", writer.close()[1])
+        self.assertEqual("ci_close()", writer.close()[2])
+
+        writer.field = kw_magnetic
+        self.assertEqual("mo_close()", writer.close()[1])
+        self.assertEqual("mi_close()", writer.close()[2])
 
     def test_add_circ_prop(self):
         self.assertEqual('mi_addcircprop("test",1,0)', FemmWriter().add_circprop("test", 1, 0))
@@ -310,6 +396,22 @@ class FemmTester(TestCase):
         self.assertEqual(
             "mi_addmaterial('coil', 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)", FemmWriter().add_material(coil)
         )
+
+        # Electrostatics
+        writer = FemmWriter()
+        writer.field = kw_electrostatic
+        mat = ElectrostaticMaterial("Teflon", 2.1, 2.1, 0)
+        self.assertEqual('ei_addmaterial("Teflon", 2.1, 2.1, 0)', writer.add_material(mat))
+
+        # Heat Flow
+        writer.field = kw_heat_flow
+        mat = HeatFlowMaterial("barack", 1, 2, 3, 4)
+        self.assertEqual('hi_addmaterial("barack", 1, 2, 3, 4)', writer.add_material(mat))
+
+        # Current Flow
+        writer.field = kw_current_flow
+        mat = CurrentFlowMaterial("ribizli", 1, 2, 3, 4, 5, 6)
+        self.assertEqual('ci_addmaterial("ribizli", 1, 2, 3, 4, 5, 6)', writer.add_material(mat))
 
     def test_add_boundary(self):
         # mi_addboundprop('abc', 0, 0, 0, 0, 0, 0, 1 / (r * 0.0254 * pi * 4.e-7), 0, 2);
@@ -327,7 +429,65 @@ class FemmTester(TestCase):
             "mi_addboundprop('mixed_test', 0, 0, 0, 0, 0, 0, 1, 2, 2, 0, 0)", FemmWriter().add_boundary(mixed_boundary)
         )
 
-    def test_pointprop(self):
+        # Heatflow tests
+        writer = FemmWriter()
+        writer.field = kw_heat_flow
+
+        ht_bc = HeatFlowFixedTemperature("Alma", 110)
+        self.assertEqual('hi_addboundprop("Alma", 0, 110, 0, 0, 0, 0)', writer.add_boundary(ht_bc))
+
+        ht_bc = HeatFlowHeatFlux("Alma", 27)
+        self.assertEqual('hi_addboundprop("Alma", 1, 0, 27, 0, 0, 0)', writer.add_boundary(ht_bc))
+
+        ht_bc = HeatFlowConvection("Alma", 27, 33)
+        self.assertEqual('hi_addboundprop("Alma", 2, 0, 0, 33, 27, 0)', writer.add_boundary(ht_bc))
+
+        ht_bc = HeatFlowRadiation("Alma", 66, 27)
+        self.assertEqual('hi_addboundprop("Alma", 3, 0, 0, 27, 0, 66)', writer.add_boundary(ht_bc))
+
+        ht_bc = HeatFlowPeriodic("Alma")
+        self.assertEqual('hi_addboundprop("Alma", 4, 0, 0, 0, 0, 0)', writer.add_boundary(ht_bc))
+
+        ht_bc = HeatFlowAntiPeriodic("Alma")
+        self.assertEqual('hi_addboundprop("Alma", 5, 0, 0, 0, 0, 0)', writer.add_boundary(ht_bc))
+
+        # Electrostatic tests
+        writer = FemmWriter()
+        writer.field = kw_electrostatic
+
+        el_bc = ElectrostaticFixedVoltage("eper", 10)
+        self.assertEqual('ei_addboundprop("eper", 10, 0, 0, 0, 0)', writer.add_boundary(el_bc))
+
+        el_bc = ElectrostaticMixed("eper", 1, 9)
+        self.assertEqual('ei_addboundprop("eper", 0, 0, 1, 9, 1)', writer.add_boundary(el_bc))
+
+        el_bc = ElectrostaticSurfaceCharge("eper", 156)
+        self.assertEqual('ei_addboundprop("eper", 0, 156, 0, 0, 2)', writer.add_boundary(el_bc))
+
+        el_bc = ElectrostaticPeriodic("eper")
+        self.assertEqual('ei_addboundprop("eper", 0, 0, 0, 0, 3)', writer.add_boundary(el_bc))
+
+        el_bc = ElectrostaticAntiPeriodic("eper")
+        self.assertEqual('ei_addboundprop("eper", 0, 0, 0, 0, 4)', writer.add_boundary(el_bc))
+
+        # Current Flow
+        writer.field = kw_current_flow
+        el_bc = CurrentFlowFixedVoltage("alma", 10)
+        self.assertEqual('ci_addboundprop("alma", 10, 0, 0, 0, 0)', writer.add_boundary(el_bc))
+
+        el_bc = CurrentFlowMixed("alma", 40, 50)
+        self.assertEqual('ci_addboundprop("alma", 0, 0, 40, 50, 2)', writer.add_boundary(el_bc))
+
+        el_bc = CurrentFlowSurfaceCurrent("alma", 33)
+        self.assertEqual('ci_addboundprop("alma", 0, 33, 0, 0, 2)', writer.add_boundary(el_bc))
+
+        el_bc = CurrentFlowPeriodic("alma")
+        self.assertEqual('ci_addboundprop("alma", 0, 0, 0, 0, 3)', writer.add_boundary(el_bc))
+
+        el_bc = CurrentFlowAntiPeriodic("alma")
+        self.assertEqual('ci_addboundprop("alma", 0, 0, 0, 0, 4)', writer.add_boundary(el_bc))
+
+    def test_addpointprop(self):
         writer = FemmWriter()
         writer.field = kw_electrostatic
         self.assertEqual('ei_addpointprop("alma", 10, 0)', writer.add_pointprop("alma", Vp=10))
@@ -352,6 +512,16 @@ class FemmTester(TestCase):
             FemmWriter().set_blockprop("coil", 0, 0.05, 0, circuit_name="icoil", turns=100, magdirection=0),
         )
 
+        writer = FemmWriter()
+        writer.field = kw_electrostatic
+        self.assertEqual('ei_setblockprop("alma", 1, 2, 3)', writer.set_blockprop("alma", 1, 2, 3))
+
+        writer.field = kw_current_flow
+        self.assertEqual('ci_setblockprop("alma", 4, 5, 6)', writer.set_blockprop("alma", 4, 5, 6))
+
+        writer.field = kw_heat_flow
+        self.assertEqual('hi_setblockprop("alma", 7, 8, 9)', writer.set_blockprop("alma", 7, 8, 9))
+
     def test_setarcsegment(self):
         self.assertEqual("mi_setarcsegmentprop(5, 'abc', 0, 0)", FemmWriter().set_arc_segment_prop(5, "abc", 0, 0))
 
@@ -365,6 +535,15 @@ class FemmTester(TestCase):
         writer.field = kw_heat_flow
         self.assertEqual('hi_setnodeprop("alma", 23, "barack")', writer.set_pointprop("alma", 23, "barack"))
         self.assertEqual('hi_setnodeprop("alma", 0, "<None>")', writer.set_pointprop("alma"))
+
+        writer.field = kw_current_flow
+        self.assertEqual('ci_setnodeprop("eper", 0, "<None>")', writer.set_pointprop("eper"))
+        self.assertEqual('ci_setnodeprop("eper", 0, "abc")', writer.set_pointprop("eper", inductor="abc"))
+        self.assertEqual('ci_setnodeprop("eper", 34, "<None>")', writer.set_pointprop("eper", groupno=34))
+
+        writer.field = kw_magnetic
+        self.assertEqual('mi_setnodeprop("alma", 23, "barack")', writer.set_pointprop("alma", 23, "barack"))
+        self.assertEqual('mi_setnodeprop("alma", 0, "<None>")', writer.set_pointprop("alma"))
 
     def test_setsegmentprop(self):
         writer = FemmWriter()
@@ -388,15 +567,51 @@ class FemmTester(TestCase):
         )
 
     def test_run_analysis(self):
-        self.assertEqual("mi_analyze(1)", FemmWriter().analyze())
+        writer = FemmWriter()
+        writer.field = kw_electrostatic
+        self.assertEqual("ei_analyze(1)", writer.analyze(1))
+
+        writer.field = kw_heat_flow
+        self.assertEqual("hi_analyze(0)", writer.analyze(0))
+
+        writer.field = kw_current_flow
+        self.assertEqual("ci_analyze(1)", writer.analyze())
+
+        writer.field = kw_magnetic
+        self.assertEqual("mi_analyze(2)", writer.analyze(2))
 
     def test_save_as_command(self):
-        self.assertEqual('mi_saveas("test")', FemmWriter().save_as("test"))
+        writer = FemmWriter()
+        writer.field = kw_electrostatic
+        self.assertEqual('ei_saveas("test")', writer.save_as("test"))
+
+        writer.field = kw_current_flow
+        self.assertEqual('ci_saveas("test")', writer.save_as("test"))
+
+        writer.field = kw_magnetic
+        self.assertEqual('mi_saveas("test")', writer.save_as("test"))
+
+        writer.field = kw_heat_flow
+        self.assertEqual('hi_saveas("test")', writer.save_as("test"))
 
     def test_get_circuit_name(self):
         self.assertEqual(
             "current, volt, flux = mo_getcircuitproperties('icoil')", FemmWriter().get_circuit_properties("icoil")
         )
+
+    def test_load_solution(self):
+        writer = FemmWriter()
+        writer.field = kw_electrostatic
+        self.assertEqual("ei_loadsolution()", writer.load_solution())
+
+        writer.field = kw_current_flow
+        self.assertEqual("ci_loadsolution()", writer.load_solution())
+
+        writer.field = kw_magnetic
+        self.assertEqual("mi_loadsolution()", writer.load_solution())
+
+        writer.field = kw_heat_flow
+        self.assertEqual("hi_loadsolution()", writer.load_solution())
 
     def test_line_integral(self):
         self.assertEqual("mo_lineintegral(0)", FemmWriter().line_integral(0))

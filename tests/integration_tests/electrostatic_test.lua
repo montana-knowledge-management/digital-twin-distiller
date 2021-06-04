@@ -37,6 +37,7 @@ ei_loadsolution()
 eo_selectblock(2.5, 2.5)
 E = eo_blockintegral(0)
 write(file_out, 'E', ', ', E, "\n")
-
+eo_close()
+ei_close()
 closefile(file_out)
 quit()

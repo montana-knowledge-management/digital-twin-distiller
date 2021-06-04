@@ -108,17 +108,17 @@ HeatFlowAntiPeriodic = namedtuple("heatflow_anti_periodic", ["name"])
 
 # Electrostatic Boundary Conditions
 ElectrostaticFixedVoltage = namedtuple("electrostatic_fixed_voltage", ["name", "Vs"])
-ElectrostaticMixed = namedtuple("electrostatic_mixed", ["name", "c1", "c0"])
+ElectrostaticMixed = namedtuple("electrostatic_mixed", ["name", "c0", "c1"])
 ElectrostaticSurfaceCharge = namedtuple("electrostatic_surface_charge", ["name", "qs"])
 ElectrostaticPeriodic = namedtuple("electrostatic_periodic", ["name"])
 ElectrostaticAntiPeriodic = namedtuple("electrostatic_antiperiodic", ["name"])
 
 # Current Flow Boundary Conditions
-CurrentFlowFixedVoltage = namedtuple("currentflow_", ["name", "Vs"])
-CurrentFlowMixed = namedtuple("currentflow_", ["name", "c1", "c0"])
-CurrentFlowSurfaceCurrent = namedtuple("currentflow_", ["name", "qs"])
-CurrentFlowPeriodic = namedtuple("currentflow_", ["name"])
-CurrentFlowAntiPeriodic = namedtuple("currentflow_", ["name"])
+CurrentFlowFixedVoltage = namedtuple("currentflow_fixed_voltage", ["name", "Vs"])
+CurrentFlowMixed = namedtuple("currentflow_mixed", ["name", "c0", "c1"])
+CurrentFlowSurfaceCurrent = namedtuple("currentflow_surface_current", ["name", "qs"])
+CurrentFlowPeriodic = namedtuple("currentflow_periodidic", ["name"])
+CurrentFlowAntiPeriodic = namedtuple("currentflow_antiperiodic", ["name"])
 
 
 class FemmWriter:
@@ -137,6 +137,9 @@ class FemmWriter:
         if shouldbe and shouldbe != self.field:
             raise ValueError(f"({self.field}) != {shouldbe}")
 
+        return True
+
+    def validate_units(self, unit):
         return True
 
     def write(self, file_name):
@@ -219,6 +222,15 @@ class FemmWriter:
         if self.field == kw_heat_flow:
             cmd_list.append("ho_close()")
             cmd_list.append("hi_close()")
+
+        if self.field == kw_electrostatic:
+            cmd_list.append("eo_close()")
+            cmd_list.append("ei_close()")
+
+        if self.field == kw_current_flow:
+            cmd_list.append("co_close()")
+            cmd_list.append("ci_close()")
+
         cmd_list.append("quit()")
 
         return cmd_list
@@ -477,7 +489,7 @@ class FemmWriter:
             cmd = f'ei_addboundprop("{boundary.name}", {boundary.Vs}, 0, 0, 0, 0)'
 
         if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticMixed):
-            cmd = f'ei_addboundprop("{boundary.name}", 0, 0, {boundary.c1}, {boundary.c1}, 1)'
+            cmd = f'ei_addboundprop("{boundary.name}", 0, 0, {boundary.c0}, {boundary.c1}, 1)'
 
         if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticSurfaceCharge):
             cmd = f'ei_addboundprop("{boundary.name}", 0, {boundary.qs}, 0, 0, 2)'
