@@ -140,6 +140,8 @@ class FemmWriter:
         return True
 
     def validate_units(self, unit):
+        if unit not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
+            raise ValueError(f"There is no {unit} unit.")
         return True
 
     def write(self, file_name):
@@ -1036,6 +1038,7 @@ class FemmWriter:
         """
 
         self.validate_field(kw_magnetic)
+        self.validate_units(unit)
 
         cmd = Template("mi_probdef($frequency,$units,$type,$precision, $depth, $minangle, $acsolver)")
         return cmd.substitute(
@@ -1059,8 +1062,7 @@ class FemmWriter:
         """
         self.validate_field(kw_heat_flow)
 
-        if units not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
-            raise ValueError(f"There is no {units} unit.")
+        self.validate_units(units)
 
         if type not in {"planar", "axi"}:
             raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
@@ -1082,8 +1084,7 @@ class FemmWriter:
 
         self.validate_field(kw_electrostatic)
 
-        if units not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
-            raise ValueError(f"There is no {units} unit.")
+        self.validate_units(units)
 
         if type not in {"planar", "axi"}:
             raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
@@ -1099,8 +1100,7 @@ class FemmWriter:
 
         self.validate_field(kw_current_flow)
 
-        if units not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
-            raise ValueError(f"There is no {units} unit.")
+        self.validate_units(units)
 
         if type not in {"planar", "axi"}:
             raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")

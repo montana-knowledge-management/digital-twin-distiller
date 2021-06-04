@@ -15,6 +15,7 @@ from adze_modeler.femm_wrapper import ElectrostaticMixed
 from adze_modeler.femm_wrapper import ElectrostaticPeriodic
 from adze_modeler.femm_wrapper import ElectrostaticSurfaceCharge
 from adze_modeler.femm_wrapper import FemmWriter
+from adze_modeler.femm_wrapper import FemmExecutor
 from adze_modeler.femm_wrapper import HeatFlowAntiPeriodic
 from adze_modeler.femm_wrapper import HeatFlowConvection
 from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
@@ -61,6 +62,17 @@ class FemmTester(TestCase):
 
         writer.field = kw_electrostatic
         self.assertRaises(ValueError, writer.validate_field, "eper")
+
+    def test_validate_units(self):
+        writer = FemmWriter()
+        self.assertEqual(True, writer.validate_units("inches"))
+        self.assertEqual(True, writer.validate_units("millimeters"))
+        self.assertEqual(True, writer.validate_units("centimeters"))
+        self.assertEqual(True, writer.validate_units("mils"))
+        self.assertEqual(True, writer.validate_units("meters"))
+        self.assertEqual(True, writer.validate_units("micrometers"))
+        self.assertRaises(ValueError, writer.validate_units, "alma")
+
 
     def test_write(self):
         writer = FemmWriter()
@@ -644,3 +656,17 @@ class FemmTester(TestCase):
         self.assertIn("mi_addarc(1.0, 0.0, 0.0, 1.0, 90.0, 1)", cmds)
 
         print(cmds)
+
+
+class TestFemmExecutor(TestCase):
+    def test_executor(self):
+        exec = FemmExecutor()
+        platform = "eper"
+        with open("test.lua", "w") as f:
+            f.write("quit()")
+        self.assertEqual(None, exec.run_femm("test.lua"))
+
+        with open("test.lua", "w") as f:
+            f.write("not_existing_command()")
+
+        self.assertEqual(None, exec.run_femm("test.lua"))
