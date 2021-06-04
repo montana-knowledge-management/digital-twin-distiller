@@ -23,7 +23,7 @@ depth = 5
 J = Ig / (depth * 1e-3 * ht * 1e-3)
 
 
-def current_flow_problem(self):
+def current_flow_problem():
     writer = FemmWriter()
     writer.field = kw_current_flow
     writer.lua_model.extend(writer.init_problem("current_data.csv"))
@@ -187,6 +187,7 @@ def current_flow_problem(self):
 
 
 def run():
+    current_flow_problem()
     FemmExecutor().run_femm("current_test.lua")
 
     with open("current_data.csv") as f:
