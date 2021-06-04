@@ -101,7 +101,7 @@ def test_heat_problem():
 
 def run():
     test_heat_problem()
-    FemmExecutor().run_femm("../integration_tests/heatflow_test.lua")
+    FemmExecutor().run_femm("heatflow_test.lua")
 
     with open("heat_data.csv") as f:
         content = f.readlines()
