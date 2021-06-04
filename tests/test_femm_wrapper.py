@@ -19,6 +19,29 @@ class FemmTester(TestCase):
 
         self.assertRaises(ValueError)
 
+    def test_validate_field(self):
+        writer = FemmWriter()
+        writer.field = kw_electrostatic
+        self.assertEqual(writer.validate_field(), True)
+
+        writer.field = kw_heat_flow
+        self.assertEqual(writer.validate_field(), True)
+
+        writer.field = kw_current_flow
+        self.assertEqual(writer.validate_field(), True)
+
+        writer.field = kw_magnetic
+        self.assertEqual(writer.validate_field(), True)
+
+        writer.field = "alma"
+        self.assertRaises(ValueError, writer.validate_field)
+
+        writer.field = "eper"
+        self.assertRaises(ValueError, writer.validate_field, "eper")
+
+        writer.field = kw_electrostatic
+        self.assertRaises(ValueError, writer.validate_field, "eper")
+
     def test_addnode(self):
         x = 1.0
         y = 0.0

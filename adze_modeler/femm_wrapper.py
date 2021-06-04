@@ -124,12 +124,20 @@ CurrentFlowAntiPeriodic = namedtuple("currentflow_", ["name"])
 class FemmWriter:
     """Writes out a model snapshot"""
 
-
     def __init__(self):
 
         self.field = kw_magnetic
         self.lua_model = []
         self.out_file = "femm_data.csv"
+
+    def validate_field(self, shouldbe=None):
+        if self.field not in fields:
+            raise ValueError(f"The physical field ({self.field}) is not defined!")
+
+        if shouldbe and shouldbe != self.field:
+            raise ValueError(f"({self.field}) != {shouldbe}")
+
+        return True
 
     def write(self, file_name):
         """Generate a runnable lua-script for a FEMM calculation.
@@ -224,8 +232,7 @@ class FemmWriter:
         either specify no value for flag or specify 0. For a minimized window, flag should be set to 1.
         """
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_analyze($flag)")
@@ -246,8 +253,7 @@ class FemmWriter:
         """adds a node to the given point (x,y)"""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_addnode($x_coord, $y_coord)")
@@ -267,8 +273,7 @@ class FemmWriter:
         """Add a new line segment from node closest to (x1,y1) to node closest to (x2,y2)"""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)")
@@ -288,8 +293,7 @@ class FemmWriter:
         """Add a new block label at (x,y)"""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_addblocklabel($x_coord, $y_coord)")
@@ -313,8 +317,7 @@ class FemmWriter:
         """
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_addarc($x_1, $y_1, $x_2, $y_2, $angle, $maxseg)")
@@ -334,8 +337,7 @@ class FemmWriter:
         """Delete all selected objects"""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = "mi_deleteselected"
@@ -356,8 +358,7 @@ class FemmWriter:
         :param boundary: checks the type of the boundary parameter, then
         """
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic and isinstance(boundary, MagneticDirichlet):
             cmd = Template(
@@ -512,8 +513,7 @@ class FemmWriter:
         """
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic and isinstance(material, MagneticMaterial):
             cmd = Template(
@@ -577,8 +577,7 @@ class FemmWriter:
         """Delete all selected nodes, the object should be selected the node selection command."""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = "mi_deleteselectednodes"
@@ -598,8 +597,7 @@ class FemmWriter:
         """Delete all selected labels"""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = "mi_deleteselectedlabels"
@@ -619,8 +617,7 @@ class FemmWriter:
         """Delete all selected segments."""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = "mi_deleteselectedsegments"
@@ -640,8 +637,7 @@ class FemmWriter:
         """Delete all selected arc segments."""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = "mi_deleteselectedarcsegments"
@@ -720,8 +716,7 @@ class FemmWriter:
         """Clear all selected nodes, blocks, segments and arc segments."""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = "mi_clearselected()"
@@ -741,8 +736,7 @@ class FemmWriter:
         """Select the line segment closest to (x,y)"""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_selectsegment($xp, $yp)")
@@ -762,8 +756,7 @@ class FemmWriter:
         """Select the arc segment closest to (x,y)"""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_selectarcsegment($xp, $yp)")
@@ -783,8 +776,7 @@ class FemmWriter:
         """Select node closest to (x,y), Returns the coordinates ofthe se-lected node"""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_selectnode($xp, $yp)")
@@ -804,8 +796,7 @@ class FemmWriter:
         """Select the label closet to (x,y). Returns the coordinates of the selected label."""
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_selectlabel($xp, $yp)")
@@ -828,8 +819,7 @@ class FemmWriter:
         """
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_selectgroup($np)")
@@ -853,8 +843,7 @@ class FemmWriter:
         """
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_selectcircle($xp, $yp, $Rp, $Editmode)")
@@ -879,8 +868,7 @@ class FemmWriter:
         """
 
         cmd = None
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_selectrectangle($x1p,$y1p,$x2p,$y2p,$Editmode)")
@@ -944,8 +932,7 @@ class FemmWriter:
         :param hide: 0 = not hidden in post-processor, 1 == hidden in post processor
         :param group: a member of group number group
         """
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_setarcsegmentprop($maxsegdeg, $propname, $hide, $group)")
@@ -977,8 +964,7 @@ class FemmWriter:
         magdirection = kwargs.get("magdirection", 0)
         turns = kwargs.get("turns", 0)
 
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template(
@@ -1037,8 +1023,7 @@ class FemmWriter:
          for AC problems.
         """
 
-        if self.field != kw_magnetic:
-            raise ValueError("Set the magnetic field parameter!")
+        self.validate_field(kw_magnetic)
 
         cmd = Template("mi_probdef($frequency,$units,$type,$precision, $depth, $minangle, $acsolver)")
         return cmd.substitute(
@@ -1060,8 +1045,7 @@ class FemmWriter:
         :param minangle: Minimum angle constraint sen to the mesh generator
         :param prevsoln: Indicates the solution from the previous time step assuming transient time problems
         """
-        if self.field != kw_heat_flow:
-            raise ValueError("Set the heat flow problem type!")
+        self.validate_field(kw_heat_flow)
 
         if units not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
             raise ValueError(f"There is no {units} unit.")
@@ -1084,8 +1068,7 @@ class FemmWriter:
         :param minangle: Minimum angle constraint sen to the mesh generator
         """
 
-        if self.field != kw_electrostatic:
-            raise ValueError("Set electrostatic problem type!")
+        self.validate_field(kw_electrostatic)
 
         if units not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
             raise ValueError(f"There is no {units} unit.")
@@ -1102,8 +1085,7 @@ class FemmWriter:
         -
         """
 
-        if self.field != kw_current_flow:
-            raise ValueError("Set current flow problem type!")
+        self.validate_field(kw_current_flow)
 
         if units not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
             raise ValueError(f"There is no {units} unit.")
@@ -1121,8 +1103,7 @@ class FemmWriter:
                               must use two backslashes e.g. "c:\\temp\\myfemmfile.fem
         """
 
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_saveas($filename)")
@@ -1141,8 +1122,7 @@ class FemmWriter:
     def load_solution(self):
         """Loads  and displays the solution."""
 
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = "mi_loadsolution()"
@@ -1171,8 +1151,7 @@ class FemmWriter:
         4 -- Stress Tensor Torque --- total (B.n)^2, avg (B.n)^2
         """
 
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mo_lineintegral($type)")
@@ -1221,8 +1200,7 @@ class FemmWriter:
              This function returns one (possibly complex) value,e.g.:volume = moblockintegral(10)
         """
 
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mo_blockintegral($type)")
@@ -1251,8 +1229,7 @@ class FemmWriter:
         Ph          Power density dissipated by hysteresis
         """
 
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mo_getpointvalues($x, $y)")
@@ -1267,8 +1244,7 @@ class FemmWriter:
 
         In order, these results are current, volt and flux of the circuit."""
 
-        if self.field not in fields:
-            raise ValueError("The physical field is not defined!")
+        self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("$result = mo_getcircuitproperties($circuit)")
