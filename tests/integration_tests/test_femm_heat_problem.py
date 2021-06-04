@@ -4,7 +4,7 @@ from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import HeatFlowConvection
 from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
 from adze_modeler.femm_wrapper import HeatFlowMaterial
-from adze_modeler.femm_wrapper import kw_heat_flow
+from adze_modeler.femm_wrapper import femm_heat_flow
 
 from importlib_resources import files
 
@@ -16,7 +16,7 @@ class TestFemmCurrentFlowProblem(unittest.TestCase):
 
     def test_heat_problem(self):
         writer = FemmWriter()
-        writer.field = kw_heat_flow
+        writer.field = femm_heat_flow
         writer.lua_model.extend(writer.init_problem("heat_data.csv"))
 
         writer.lua_model.append(writer.heat_problem("meters", "planar"))

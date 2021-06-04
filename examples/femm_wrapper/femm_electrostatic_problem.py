@@ -3,13 +3,13 @@ import os
 from adze_modeler.femm_wrapper import ElectrostaticMaterial
 from adze_modeler.femm_wrapper import FemmExecutor
 from adze_modeler.femm_wrapper import FemmWriter
-from adze_modeler.femm_wrapper import kw_electrostatic
+from adze_modeler.femm_wrapper import femm_electrostatic
 
 
 # integration test ignored from the unittest list
 def electrostatic_problem():
     writer = FemmWriter()
-    writer.field = kw_electrostatic
+    writer.field = femm_electrostatic
     writer.lua_model.extend(writer.init_problem("electrostatic_data.csv"))
 
     writer.lua_model.append(writer.electrostatic_problem("centimeters", "planar"))

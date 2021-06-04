@@ -5,9 +5,10 @@ from adze_modeler.femm_wrapper import CurrentFlowFixedVoltage
 from adze_modeler.femm_wrapper import CurrentFlowMaterial
 from adze_modeler.femm_wrapper import CurrentFlowSurfaceCurrent
 from adze_modeler.femm_wrapper import FemmWriter
-from adze_modeler.femm_wrapper import kw_current_flow
+from adze_modeler.femm_wrapper import femm_current_flow
 
 from importlib_resources import files
+
 
 class TestFemmCurrentFlowProblem(unittest.TestCase):
     def test_current_flow_problem(self):
@@ -25,7 +26,7 @@ class TestFemmCurrentFlowProblem(unittest.TestCase):
         J = Ig / (depth * 1e-3 * ht * 1e-3)
 
         writer = FemmWriter()
-        writer.field = kw_current_flow
+        writer.field = femm_current_flow
         writer.lua_model.extend(writer.init_problem("current_data.csv"))
 
         writer.lua_model.append(writer.currentflow_problem("millimeters", "planar", depth=depth))

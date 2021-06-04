@@ -14,15 +14,13 @@ from pathlib import Path
 from string import Template
 from sys import platform
 
-import adze_modeler.geometry as geo
-
 # keywords
-kw_current_flow = "current_flow"
-kw_electrostatic = "electrostatic"
-kw_magnetic = "magnetic"
-kw_heat_flow = "heat_flow"
+femm_current_flow = "current_flow"
+femm_electrostatic = "electrostatic"
+femm_magnetic = "magnetic"
+femm_heat_flow = "heat_flow"
 
-fields = [kw_electrostatic, kw_magnetic, kw_current_flow, kw_heat_flow]
+femm_fields = [femm_electrostatic, femm_magnetic, femm_current_flow, femm_heat_flow]
 
 # material types for the different FEMM suppoerted magnetic fields
 
@@ -94,7 +92,7 @@ CurrentFlowMaterial = namedtuple(
     ],
 )
 
-# TODO: other types should be defined
+# Magnetic Boundary Conditions
 MagneticDirichlet = namedtuple("magnetic_dirichlet", ["name", "a_0", "a_1", "a_2", "phi"])
 MagneticMixed = namedtuple("magnetic_mixed", ["name", "c0", "c1"])
 
@@ -126,12 +124,12 @@ class FemmWriter:
 
     def __init__(self):
 
-        self.field = kw_magnetic
+        self.field = femm_magnetic
         self.lua_model = []
         self.out_file = "femm_data.csv"
 
     def validate_field(self, shouldbe=None):
-        if self.field not in fields:
+        if self.field not in femm_fields:
             raise ValueError(f"The physical field ({self.field}) is not defined!")
 
         if shouldbe and shouldbe != self.field:
@@ -175,7 +173,6 @@ class FemmWriter:
             lua_geometry.append(self.add_segment(line.start_pt.x, line.start_pt.y, line.end_pt.x, line.end_pt.y))
 
         for arc in geometry.circle_arcs:
-
             # calculate the angle for the femm circle arc generation
             radius = arc.start_pt.distance_to(arc.center_pt)
             clamp = arc.start_pt.distance_to(arc.end_pt) / 2.0
@@ -198,13 +195,13 @@ class FemmWriter:
         cmd_list.append("showconsole()")  # does nothing if the console is already displayed
         cmd_list.append("clearconsole()")  # clears both the input and output windows for a fresh start.
         cmd_list.append(f'remove("{out_file}")')  # get rid of the old data file, if it exists
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd_list.append("newdocument(0)")  # the 0 specifies a magnetics problem
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd_list.append("newdocument(1)")  # the 1 specifies electrostatics problem
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd_list.append("newdocument(2)")  # the 2 specifies heat flow problem
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd_list.append("newdocument(3)")  # the 3 specifies current flow problem
 
         # cmd_list.append("mi_hidegrid()")
@@ -217,19 +214,19 @@ class FemmWriter:
 
         cmd_list = []
         cmd_list.append("closefile(file_out)")
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd_list.append("mo_close()")
             cmd_list.append("mi_close()")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd_list.append("ho_close()")
             cmd_list.append("hi_close()")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd_list.append("eo_close()")
             cmd_list.append("ei_close()")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd_list.append("co_close()")
             cmd_list.append("ci_close()")
 
@@ -248,16 +245,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_analyze($flag)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_analyze($flag)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_analyze($flag)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_analyze($flag)")
 
         return cmd.substitute(flag=flag)
@@ -269,16 +266,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_addnode($x_coord, $y_coord)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_addnode($x_coord, $y_coord)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_addnode($x_coord, $y_coord)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_addnode($x_coord, $y_coord)")
 
         return cmd.substitute(x_coord=x, y_coord=y)
@@ -289,16 +286,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)")
 
         return cmd.substitute(x1_coord=x1, y1_coord=y1, x2_coord=x2, y2_coord=y2)
@@ -309,16 +306,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_addblocklabel($x_coord, $y_coord)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_addblocklabel($x_coord, $y_coord)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_addblocklabel($x_coord, $y_coord)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_addblocklabel($x_coord, $y_coord)")
 
         return cmd.substitute(x_coord=x, y_coord=y)
@@ -333,16 +330,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_addarc($x_1, $y_1, $x_2, $y_2, $angle, $maxseg)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_addarc($x_1, $y_1, $x_2, $y_2, $angle, $maxseg)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_addarc($x_1, $y_1, $x_2, $y_2, $angle, $maxseg)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_addarc($x_1, $y_1, $x_2, $y_2, $angle, $maxseg)")
 
         return cmd.substitute(x_1=x1, y_1=y1, x_2=x2, y_2=y2, angle=angle, maxseg=maxseg)
@@ -353,16 +350,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = "mi_deleteselected"
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = "ei_deleteselected"
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = "hi_deleteselected"
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = "ci_deleteselected"
 
         return cmd
@@ -374,7 +371,7 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic and isinstance(boundary, MagneticDirichlet):
+        if self.field == femm_magnetic and isinstance(boundary, MagneticDirichlet):
             cmd = Template(
                 "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, " "$c0, $c1, $BdryFormat, $ia, $oa)"
             )
@@ -393,7 +390,7 @@ class FemmWriter:
                 oa=0,
             )
 
-        if self.field == kw_magnetic and isinstance(boundary, MagneticMixed):
+        if self.field == femm_magnetic and isinstance(boundary, MagneticMixed):
             cmd = Template(
                 "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, " "$c0, $c1, $BdryFormat, $ia, $oa)"
             )
@@ -414,7 +411,7 @@ class FemmWriter:
 
         # HEATFLOW
 
-        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowFixedTemperature):
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowFixedTemperature):
             cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
@@ -426,7 +423,7 @@ class FemmWriter:
                 beta=0,
             )
 
-        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowHeatFlux):
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowHeatFlux):
             cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
@@ -438,7 +435,7 @@ class FemmWriter:
                 beta=0,
             )
 
-        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowConvection):
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowConvection):
             cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
@@ -450,7 +447,7 @@ class FemmWriter:
                 beta=0,
             )
 
-        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowRadiation):
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowRadiation):
             cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
@@ -462,7 +459,7 @@ class FemmWriter:
                 beta=boundary.beta,
             )
 
-        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowPeriodic):
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowPeriodic):
             cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
@@ -474,7 +471,7 @@ class FemmWriter:
                 beta=0,
             )
 
-        if self.field == kw_heat_flow and isinstance(boundary, HeatFlowAntiPeriodic):
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowAntiPeriodic):
             cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
@@ -487,35 +484,35 @@ class FemmWriter:
             )
 
         # Electrostatics
-        if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticFixedVoltage):
+        if self.field == femm_electrostatic and isinstance(boundary, ElectrostaticFixedVoltage):
             cmd = f'ei_addboundprop("{boundary.name}", {boundary.Vs}, 0, 0, 0, 0)'
 
-        if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticMixed):
+        if self.field == femm_electrostatic and isinstance(boundary, ElectrostaticMixed):
             cmd = f'ei_addboundprop("{boundary.name}", 0, 0, {boundary.c0}, {boundary.c1}, 1)'
 
-        if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticSurfaceCharge):
+        if self.field == femm_electrostatic and isinstance(boundary, ElectrostaticSurfaceCharge):
             cmd = f'ei_addboundprop("{boundary.name}", 0, {boundary.qs}, 0, 0, 2)'
 
-        if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticPeriodic):
+        if self.field == femm_electrostatic and isinstance(boundary, ElectrostaticPeriodic):
             cmd = f'ei_addboundprop("{boundary.name}", 0, 0, 0, 0, 3)'
 
-        if self.field == kw_electrostatic and isinstance(boundary, ElectrostaticAntiPeriodic):
+        if self.field == femm_electrostatic and isinstance(boundary, ElectrostaticAntiPeriodic):
             cmd = f'ei_addboundprop("{boundary.name}", 0, 0, 0, 0, 4)'
 
         # Current Flow
-        if self.field == kw_current_flow and isinstance(boundary, CurrentFlowFixedVoltage):
+        if self.field == femm_current_flow and isinstance(boundary, CurrentFlowFixedVoltage):
             cmd = f'ci_addboundprop("{boundary.name}", {boundary.Vs}, 0, 0, 0, 0)'
 
-        if self.field == kw_current_flow and isinstance(boundary, CurrentFlowMixed):
+        if self.field == femm_current_flow and isinstance(boundary, CurrentFlowMixed):
             cmd = f'ci_addboundprop("{boundary.name}", 0, 0, {boundary.c0}, {boundary.c1}, 2)'
 
-        if self.field == kw_current_flow and isinstance(boundary, CurrentFlowSurfaceCurrent):
+        if self.field == femm_current_flow and isinstance(boundary, CurrentFlowSurfaceCurrent):
             cmd = f'ci_addboundprop("{boundary.name}", 0, {boundary.qs}, 0, 0, 2)'
 
-        if self.field == kw_current_flow and isinstance(boundary, CurrentFlowPeriodic):
+        if self.field == femm_current_flow and isinstance(boundary, CurrentFlowPeriodic):
             cmd = f'ci_addboundprop("{boundary.name}", 0, 0, 0, 0, 3)'
 
-        if self.field == kw_current_flow and isinstance(boundary, CurrentFlowAntiPeriodic):
+        if self.field == femm_current_flow and isinstance(boundary, CurrentFlowAntiPeriodic):
             cmd = f'ci_addboundprop("{boundary.name}", 0, 0, 0, 0, 4)'
 
         return cmd
@@ -529,7 +526,7 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic and isinstance(material, MagneticMaterial):
+        if self.field == femm_magnetic:
             cmd = Template(
                 "mi_addmaterial($materialname, $mux, $muy, $Hc, $J, $Cduct, $Lamd, $Phi_hmax, $lamfill, "
                 "$LamType, $Phi_hx, $Phi_hy, $NStrands, $WireD)"
@@ -554,7 +551,7 @@ class FemmWriter:
                 WireD=material.WireD,
             )
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_addmaterial($materialname, $ex, $ey, $qv)")
             cmd = cmd.substitute(
                 materialname=f'"{material.material_name}"',
@@ -563,7 +560,7 @@ class FemmWriter:
                 qv=material.qv,
             )
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_addmaterial($materialname, $kx, $ky, $qv, $kt)")
             cmd = cmd.substitute(
                 materialname=f'"{material.material_name}"',
@@ -573,7 +570,7 @@ class FemmWriter:
                 kt=material.kt,
             )
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_addmaterial($materialname, $ox, $oy, $ex, $ey, $ltx, $lty)")
             cmd = cmd.substitute(
                 materialname=f'"{material.material_name}"',
@@ -593,16 +590,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = "mi_deleteselectednodes"
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = "ei_deleteselectednodes"
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = "hi_deleteselectednodes"
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = "ci_deleteselectednodes"
 
         return cmd
@@ -613,16 +610,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = "mi_deleteselectedlabels"
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = "ei_deleteselectedlabels"
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = "hi_deleteselectedlabels"
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = "ci_deleteselectedlabels"
 
         return cmd
@@ -633,16 +630,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = "mi_deleteselectedsegments"
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = "ei_deleteselectedsegments"
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = "hi_deleteselectedsegments"
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = "ci_deleteselectedsegments"
 
         return cmd
@@ -653,16 +650,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = "mi_deleteselectedarcsegments"
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = "ei_deleteselectedarcsegments"
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = "hi_deleteselectedarcsegments"
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = "ci_deleteselectedarcsegments"
 
         return cmd
@@ -688,25 +685,25 @@ class FemmWriter:
         """
 
         # Electrostatics
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             Vp = kwargs.get("Vp", 0)
             qp = kwargs.get("qp", 0)
             return f'ei_addpointprop("{propname}", {Vp}, {qp})'
 
         # Magnetics
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             a = kwargs.get("a", 0)
             j = kwargs.get("j", 0)
             return f'mi_addpointprop("{propname}", {a}, {j})'
 
         # Heat Flow
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             Tp = kwargs.get("Tp", 0)
             qp = kwargs.get("qp", 0)
             return f'hi_addpointprop("{propname}", {Tp}, {qp})'
 
         # Current Flow
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             Vp = kwargs.get("Vp", 0)
             qp = kwargs.get("qp", 0)
             return f'ci_addpointprop("{propname}", {Vp}, {qp})'
@@ -732,16 +729,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = "mi_clearselected()"
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = "ei_clearselected()"
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = "hi_clearselected()"
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = "ci_clearselected()"
 
         return cmd
@@ -752,16 +749,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_selectsegment($xp, $yp)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_selectsegment($xp, $yp)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_selectsegment($xp, $yp)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_selectsegment($xp, $yp)")
 
         return cmd.substitute(xp=x, yp=y)
@@ -772,7 +769,7 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_selectarcsegment($xp, $yp)")
 
         # if self.field == kw_electrostatic:
@@ -792,16 +789,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_selectnode($xp, $yp)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_selectnode($xp, $yp)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_selectnode($xp, $yp)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_selectnode($xp, $yp)")
 
         return cmd.substitute(xp=x, yp=y)
@@ -812,16 +809,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_selectlabel($xp, $yp)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_selectlabel($xp, $yp)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_selectlabel($xp, $yp)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_selectlabel($xp, $yp)")
 
         return cmd.substitute(xp=x, yp=y)
@@ -835,16 +832,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_selectgroup($np)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_selectgroup($np)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_selectgroup($np)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_selectgroup($np)")
 
         return cmd.substitute(np=n)
@@ -859,16 +856,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_selectcircle($xp, $yp, $Rp, $Editmode)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_selectcircle($xp, $yp, $Rp, $Editmode)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_selectcircle($xp, $yp, $Rp, $Editmode)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_selectcircle($xp, $yp, $Rp, $Editmode)")
 
         return cmd.substitute(xp=x, yp=y, Rp=R, Editmode=editmode)
@@ -884,16 +881,16 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_selectrectangle($x1p,$y1p,$x2p,$y2p,$Editmode)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_selectrectangle($x1p,$y1p,$x2p,$y2p,$Editmode)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_selectrectangle($x1p,$y1p,$x2p,$y2p,$Editmode)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_selectrectangle($x1p,$y1p,$x2p,$y2p,$Editmode)")
 
         return cmd.substitute(x1p=x1, y1p=y1, x2p=x2, y2p=y2, Editmode=editmode)
@@ -905,13 +902,13 @@ class FemmWriter:
         :param inductor: Specifies which conductor the node belongs to. Default value is '<None>'
         """
         prefix = None
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             prefix = "mi"
-        elif self.field == kw_heat_flow:
+        elif self.field == femm_heat_flow:
             prefix = "hi"
-        elif self.field == kw_current_flow:
+        elif self.field == femm_current_flow:
             prefix = "ci"
-        elif self.field == kw_electrostatic:
+        elif self.field == femm_electrostatic:
             prefix = "ei"
 
         return f'{prefix}_setnodeprop("{propname}", {groupno}, "{inductor}")'
@@ -928,13 +925,13 @@ class FemmWriter:
                          part of a conductor, this parameter can be specified as "<None>".
         """
         prefix = None
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             prefix = "mi"
-        elif self.field == kw_heat_flow:
+        elif self.field == femm_heat_flow:
             prefix = "hi"
-        elif self.field == kw_current_flow:
+        elif self.field == femm_current_flow:
             prefix = "ci"
-        elif self.field == kw_electrostatic:
+        elif self.field == femm_electrostatic:
             prefix = "ei"
 
         return f'{prefix}_setsegmentprop("{propname}", {elementsize}, {automesh}, {hide}, {group}, "{inductor}")'
@@ -948,7 +945,7 @@ class FemmWriter:
         """
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_setarcsegmentprop($maxsegdeg, $propname, $hide, $group)")
             cmd = cmd.substitute(maxsegdeg=maxsegdeg, propname="'" + propname + "'", hide=hide, group=group)
         return cmd
@@ -974,13 +971,13 @@ class FemmWriter:
 
         """
         cmd = None
-        circuit_name = kwargs.get("circuit_name", None)
+        circuit_name = kwargs.get("circuit_name", "incircuit")
         magdirection = kwargs.get("magdirection", 0)
         turns = kwargs.get("turns", 0)
 
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template(
                 "mi_setblockprop($blockname, $automesh, $meshsize, $incircuit, $magdirection, $group, $turns)"
             )
@@ -994,15 +991,15 @@ class FemmWriter:
                 turns=turns,
             )
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_setblockprop($blockname, $automesh, $meshsize, $group)")
             cmd = cmd.substitute(blockname=f'"{blockname}"', automesh=automesh, meshsize=meshsize, group=group)
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_setblockprop($blockname, $automesh, $meshsize, $group)")
             cmd = cmd.substitute(blockname=f'"{blockname}"', automesh=automesh, meshsize=meshsize, group=group)
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_setblockprop($blockname, $automesh, $meshsize, $group)")
             cmd = cmd.substitute(blockname=f'"{blockname}"', automesh=automesh, meshsize=meshsize, group=group)
 
@@ -1037,7 +1034,7 @@ class FemmWriter:
          for AC problems.
         """
 
-        self.validate_field(kw_magnetic)
+        self.validate_field(femm_magnetic)
         self.validate_units(unit)
 
         cmd = Template("mi_probdef($frequency,$units,$type,$precision, $depth, $minangle, $acsolver)")
@@ -1060,7 +1057,7 @@ class FemmWriter:
         :param minangle: Minimum angle constraint sen to the mesh generator
         :param prevsoln: Indicates the solution from the previous time step assuming transient time problems
         """
-        self.validate_field(kw_heat_flow)
+        self.validate_field(femm_heat_flow)
 
         self.validate_units(units)
 
@@ -1082,7 +1079,7 @@ class FemmWriter:
         :param minangle: Minimum angle constraint sen to the mesh generator
         """
 
-        self.validate_field(kw_electrostatic)
+        self.validate_field(femm_electrostatic)
 
         self.validate_units(units)
 
@@ -1098,7 +1095,7 @@ class FemmWriter:
         -
         """
 
-        self.validate_field(kw_current_flow)
+        self.validate_field(femm_current_flow)
 
         self.validate_units(units)
 
@@ -1117,16 +1114,16 @@ class FemmWriter:
 
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mi_saveas($filename)")
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = Template("hi_saveas($filename)")
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = Template("ei_saveas($filename)")
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = Template("ci_saveas($filename)")
 
         return cmd.substitute(filename='"' + file_name + '"')
@@ -1136,16 +1133,16 @@ class FemmWriter:
 
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = "mi_loadsolution()"
 
-        if self.field == kw_heat_flow:
+        if self.field == femm_heat_flow:
             cmd = "hi_loadsolution()"
 
-        if self.field == kw_electrostatic:
+        if self.field == femm_electrostatic:
             cmd = "ei_loadsolution()"
 
-        if self.field == kw_current_flow:
+        if self.field == femm_current_flow:
             cmd = "ci_loadsolution()"
 
         return cmd
@@ -1165,7 +1162,7 @@ class FemmWriter:
 
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mo_lineintegral($type)")
             cmd = cmd.substitute(type=type)
 
@@ -1214,7 +1211,7 @@ class FemmWriter:
 
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mo_blockintegral($type)")
             cmd = cmd.substitute(type=type)
 
@@ -1243,7 +1240,7 @@ class FemmWriter:
 
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("mo_getpointvalues($x, $y)")
             cmd = cmd.substitute(x=x, y=y)
 
@@ -1258,7 +1255,7 @@ class FemmWriter:
 
         self.validate_field()
 
-        if self.field == kw_magnetic:
+        if self.field == femm_magnetic:
             cmd = Template("$result = mo_getcircuitproperties($circuit)")
 
         return cmd.substitute(circuit="'" + circuit_name + "'", result=result)
