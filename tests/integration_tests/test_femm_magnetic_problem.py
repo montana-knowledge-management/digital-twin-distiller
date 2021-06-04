@@ -21,7 +21,7 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         # FEMM inductance =  0.64707 mH
 
         writer = FemmWriter()
-        writer.lua_model = [] #
+        writer.lua_model = []  #
         writer.lua_model.extend(writer.init_problem(out_file="femm_data.csv"))
 
         # problem definition
@@ -99,6 +99,7 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         writer.lua_model.append(writer.write_out_result("flux", "flux"))
 
         writer.lua_model.extend(writer.close())
+        #writer.write('test')
 
         try:
             reference = files("tests.integration_tests").joinpath("magnetic.lua")
