@@ -15,7 +15,6 @@ class Snapshot(metaclass=ABCMeta):
 
     def __init__(self):
         self.geometry = Geometry
-        self.region_labels = []
         self.material_definitions = []
         self.boundary_conditions = []
         self.epsilon = 1.0e-5
