@@ -7,6 +7,7 @@ from adze_modeler.femm_wrapper import CurrentFlowSurfaceCurrent
 from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import kw_current_flow
 
+from importlib_resources import files
 
 class TestFemmCurrentFlowProblem(unittest.TestCase):
     def test_current_flow_problem(self):
@@ -182,7 +183,7 @@ class TestFemmCurrentFlowProblem(unittest.TestCase):
         writer.lua_model.extend(writer.close())
 
         try:
-            reference = files("tests.integration_tests").joinpath("heatflow_test.lua")
+            reference = files("tests.integration_tests").joinpath("current_test.lua")
             with open(reference) as f:
                 content = f.readlines()
                 found = 0
