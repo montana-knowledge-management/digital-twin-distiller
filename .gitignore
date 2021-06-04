@@ -110,6 +110,8 @@ ENV/
 env.bak/
 venv.bak/
 
+htmlcov/
+
 venv_new/
 
 # Spyder project settings
