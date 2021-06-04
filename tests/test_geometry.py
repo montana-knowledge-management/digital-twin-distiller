@@ -62,6 +62,10 @@ class TestMeshing(TestCase):
         # print(path)
         geo = Geometry()
         geo.import_svg(path.as_posix())
+
+        res = geo.__str__()
+        self.assertIn("Node(82.020832, 142.875, id=0,label=None)", res)
+        print(res)
         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
 
         try:

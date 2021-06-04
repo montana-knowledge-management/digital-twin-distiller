@@ -19,9 +19,6 @@ class Geometry:
         self.cubic_beziers = []
         self.epsilon = 1.0e-5
 
-    def add_object(self):
-        return
-
     def add_node(self, node):
         self.nodes.append(node)
 
