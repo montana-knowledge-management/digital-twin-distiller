@@ -3,9 +3,9 @@ import unittest
 from adze_modeler.femm_wrapper import ElectrostaticMaterial
 from adze_modeler.femm_wrapper import FemmExecutor
 from adze_modeler.femm_wrapper import FemmWriter
-from adze_modeler.femm_wrapper import kw_electrostatic
 from collections import Counter
 
+from adze_modeler.femm_wrapper import femm_electrostatic
 from importlib_resources import files
 
 
@@ -13,7 +13,7 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
     # integration test ignored from the unittest list
     def test_electrostatic_problem(self):
         writer = FemmWriter()
-        writer.field = kw_electrostatic
+        writer.field = femm_electrostatic
         writer.lua_model.extend(writer.init_problem("electrostatic_data.csv"))
 
         writer.lua_model.append(writer.electrostatic_problem("centimeters", "planar"))

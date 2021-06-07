@@ -13,6 +13,7 @@ class Node:
         self.id = id  # a node has to got a unique id to be translated or moved
         self.label = label  # can be used to denote a group of the elements and make some operation with them
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
+        self.hanging = True  # if its contained by another object it will be set to False
 
     def __add__(self, p):
         """Point(x1+x2, y1+y2)"""
@@ -93,6 +94,7 @@ class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
     def __init__(self, start_pt, center_pt, end_pt, id=None, label=None):
+
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt

@@ -5,7 +5,7 @@ from adze_modeler.femm_wrapper import CurrentFlowMaterial
 from adze_modeler.femm_wrapper import CurrentFlowSurfaceCurrent
 from adze_modeler.femm_wrapper import FemmExecutor
 from adze_modeler.femm_wrapper import FemmWriter
-from adze_modeler.femm_wrapper import kw_current_flow
+from adze_modeler.femm_wrapper import femm_current_flow
 
 # Problem parameters
 
@@ -25,7 +25,7 @@ J = Ig / (depth * 1e-3 * ht * 1e-3)
 
 def current_flow_problem():
     writer = FemmWriter()
-    writer.field = kw_current_flow
+    writer.field = femm_current_flow
     writer.lua_model.extend(writer.init_problem("current_data.csv"))
 
     writer.lua_model.append(writer.currentflow_problem("millimeters", "planar", depth=depth))

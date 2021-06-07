@@ -43,6 +43,26 @@ class Geometry:
         self.nodes.append(cb.control2)
         self.nodes.append(cb.end_pt)
 
+    def delete_hanging_nodes(self):
+        """Delete all nodes, which not part of a another object (Line, Circle, etc) """
+        temp = []
+        for node in self.nodes:
+            hanging = True
+            for line in self.lines:
+                if node.id == line.start_pt.id or node.id == line.end_pt.id:
+                    hanging = False
+
+            for arc in self.circle_arcs:
+               if node.id == arc.start_pt.id or \
+                       node.id == arc.end_pt.id:
+                   hanging = False
+
+            if not hanging:
+                temp.append(node)
+
+        del self.nodes
+        self.nodes = temp
+
     def merge_points(self):
         for i in range(len(self.nodes) - 1):
             for j in range(len(self.nodes) - 1, i, -1):
@@ -154,7 +174,6 @@ class Geometry:
 
         self.merge_points()
         return
-
 
 # def node_gmsh_point_distance(node, point):
 #     dx = node.x - point.x[0]
