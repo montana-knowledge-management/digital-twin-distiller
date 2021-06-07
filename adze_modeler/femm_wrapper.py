@@ -845,14 +845,14 @@ class FemmWriter:
         if self.field == kw_magnetic:
             cmd = Template("mi_selectarcsegment($xp, $yp)")
 
-        # if self.field == kw_electrostatic:
-        #     cmd = Template("ei_selectnode($xp, $yp)")
-        #
-        # if self.field == kw_heat_flow:
-        #     cmd = Template("hi_selectnode($xp, $yp)")
-        #
-        # if self.field == kw_current_flow:
-        #     cmd = Template("ci_selectnode($xp, $yp)")
+        if self.field == kw_electrostatic:
+            cmd = Template("ei_selectarcsegment($xp, $yp)")
+
+        if self.field == kw_heat_flow:
+            cmd = Template("hi_selectarcsegment($xp, $yp)")
+
+        if self.field == kw_current_flow:
+            cmd = Template("ci_selectarcsegment($xp, $yp)")
 
         cmd = cmd.substitute(xp=x, yp=y)
 
