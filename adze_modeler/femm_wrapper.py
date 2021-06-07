@@ -123,6 +123,8 @@ CurrentFlowAntiPeriodic = namedtuple("currentflow_antiperiodic", ["name"])
 class FemmWriter:
     """Writes out a model snapshot"""
 
+    push = True
+
     def __init__(self):
 
         self.field = kw_magnetic
@@ -210,6 +212,10 @@ class FemmWriter:
         cmd = Template('file_out = openfile("$outfile", "w")')
         cmd = cmd.substitute(outfile=out_file)
         cmd_list.append(cmd)
+
+        if FemmWriter.push:
+            self.lua_model.extend(cmd_list)
+
         return cmd_list
 
     def close(self):
@@ -233,6 +239,9 @@ class FemmWriter:
             cmd_list.append("ci_close()")
 
         cmd_list.append("quit()")
+
+        if FemmWriter.push:
+            self.lua_model.extend(cmd_list)
 
         return cmd_list
 
@@ -259,6 +268,9 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = Template("ci_analyze($flag)")
 
+        if FemmWriter.push:
+            self.lua_model.append(cmd.substitute(flag=flag))
+
         return cmd.substitute(flag=flag)
 
     # object add remove commnads from FEMM MANUAL page 84.
@@ -280,7 +292,12 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = Template("ci_addnode($x_coord, $y_coord)")
 
-        return cmd.substitute(x_coord=x, y_coord=y)
+        cmd = cmd.substitute(x_coord=x, y_coord=y)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def add_segment(self, x1, y1, x2, y2, push=True):
         """Add a new line segment from node closest to (x1,y1) to node closest to (x2,y2)"""
@@ -300,7 +317,12 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = Template("ci_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)")
 
-        return cmd.substitute(x1_coord=x1, y1_coord=y1, x2_coord=x2, y2_coord=y2)
+        cmd = cmd.substitute(x1_coord=x1, y1_coord=y1, x2_coord=x2, y2_coord=y2)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def add_blocklabel(self, x, y):
         """Add a new block label at (x,y)"""
@@ -319,8 +341,13 @@ class FemmWriter:
 
         if self.field == kw_current_flow:
             cmd = Template("ci_addblocklabel($x_coord, $y_coord)")
+        
+        cmd = cmd.substitute(x_coord=x, y_coord=y)
 
-        return cmd.substitute(x_coord=x, y_coord=y)
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def add_arc(self, x1, y1, x2, y2, angle, maxseg):
         """
@@ -344,7 +371,12 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = Template("ci_addarc($x_1, $y_1, $x_2, $y_2, $angle, $maxseg)")
 
-        return cmd.substitute(x_1=x1, y_1=y1, x_2=x2, y_2=y2, angle=angle, maxseg=maxseg)
+        cmd = cmd.substitute(x_1=x1, y_1=y1, x_2=x2, y_2=y2, angle=angle, maxseg=maxseg)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def delete_selected(self):
         """Delete all selected objects"""
@@ -363,6 +395,9 @@ class FemmWriter:
 
         if self.field == kw_current_flow:
             cmd = "ci_deleteselected"
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
 
         return cmd
 
@@ -517,6 +552,9 @@ class FemmWriter:
         if self.field == kw_current_flow and isinstance(boundary, CurrentFlowAntiPeriodic):
             cmd = f'ci_addboundprop("{boundary.name}", 0, 0, 0, 0, 4)'
 
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
         return cmd
 
     def add_material(self, material):
@@ -584,6 +622,9 @@ class FemmWriter:
                 lty=material.lty,
             )
 
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
         return cmd
 
     def delete_selected_nodes(self):
@@ -603,6 +644,9 @@ class FemmWriter:
 
         if self.field == kw_current_flow:
             cmd = "ci_deleteselectednodes"
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
 
         return cmd
 
@@ -624,6 +668,9 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = "ci_deleteselectedlabels"
 
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
         return cmd
 
     def delete_selected_segments(self):
@@ -644,6 +691,9 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = "ci_deleteselectedsegments"
 
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
         return cmd
 
     def delete_selected_arc_segments(self):
@@ -663,6 +713,9 @@ class FemmWriter:
 
         if self.field == kw_current_flow:
             cmd = "ci_deleteselectedarcsegments"
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
 
         return cmd
 
@@ -685,30 +738,35 @@ class FemmWriter:
             - Vp: specified potential Vp (V)
             - qp: point current density qp (A / m)
         """
-
+        cmd = None
         # Electrostatics
         if self.field == kw_electrostatic:
             Vp = kwargs.get("Vp", 0)
             qp = kwargs.get("qp", 0)
-            return f'ei_addpointprop("{propname}", {Vp}, {qp})'
+            cmd =  f'ei_addpointprop("{propname}", {Vp}, {qp})'
 
         # Magnetics
         if self.field == kw_magnetic:
             a = kwargs.get("a", 0)
             j = kwargs.get("j", 0)
-            return f'mi_addpointprop("{propname}", {a}, {j})'
+            cmd = f'mi_addpointprop("{propname}", {a}, {j})'
 
         # Heat Flow
         if self.field == kw_heat_flow:
             Tp = kwargs.get("Tp", 0)
             qp = kwargs.get("qp", 0)
-            return f'hi_addpointprop("{propname}", {Tp}, {qp})'
+            cmd = f'hi_addpointprop("{propname}", {Tp}, {qp})'
 
         # Current Flow
         if self.field == kw_current_flow:
             Vp = kwargs.get("Vp", 0)
             qp = kwargs.get("qp", 0)
-            return f'ci_addpointprop("{propname}", {Vp}, {qp})'
+            cmd =  f'ci_addpointprop("{propname}", {Vp}, {qp})'
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def add_circprop(self, circuitname, i, circuittype):
         """
@@ -721,8 +779,12 @@ class FemmWriter:
         :param i : prescribed current in Amper
         :param circuittype:  0for a parallel - connected circuit and 1 for a series-connected circuit.
         """
+        cmd = f'mi_addcircprop("{circuitname}",{i},{circuittype})'
 
-        return f'mi_addcircprop("{circuitname}",{i},{circuittype})'
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     # object selection commnads from FEMM MANUAL page 84.
     def clear_selected(self):
@@ -742,6 +804,9 @@ class FemmWriter:
 
         if self.field == kw_current_flow:
             cmd = "ci_clearselected()"
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
 
         return cmd
 
@@ -763,7 +828,12 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = Template("ci_selectsegment($xp, $yp)")
 
-        return cmd.substitute(xp=x, yp=y)
+        cmd = cmd.substitute(xp=x, yp=y)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def select_arc_segment(self, x, y):
         """Select the arc segment closest to (x,y)"""
@@ -783,7 +853,12 @@ class FemmWriter:
         # if self.field == kw_current_flow:
         #     cmd = Template("ci_selectnode($xp, $yp)")
 
-        return cmd.substitute(xp=x, yp=y)
+        cmd = cmd.substitute(xp=x, yp=y)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def select_node(self, x, y):
         """Select node closest to (x,y), Returns the coordinates ofthe se-lected node"""
@@ -803,7 +878,12 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = Template("ci_selectnode($xp, $yp)")
 
-        return cmd.substitute(xp=x, yp=y)
+        cmd = cmd.substitute(xp=x, yp=y)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def select_label(self, x, y):
         """Select the label closet to (x,y). Returns the coordinates of the selected label."""
@@ -823,7 +903,12 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = Template("ci_selectlabel($xp, $yp)")
 
-        return cmd.substitute(xp=x, yp=y)
+        cmd = cmd.substitute(xp=x, yp=y)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def select_group(self, n):
         """
@@ -846,7 +931,12 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = Template("ci_selectgroup($np)")
 
-        return cmd.substitute(np=n)
+        cmd = cmd.substitute(np=n)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def select_circle(self, x, y, R, editmode):
         """
@@ -870,7 +960,12 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = Template("ci_selectcircle($xp, $yp, $Rp, $Editmode)")
 
-        return cmd.substitute(xp=x, yp=y, Rp=R, Editmode=editmode)
+        cmd = cmd.substitute(xp=x, yp=y, Rp=R, Editmode=editmode)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def select_rectangle(self, x1, y1, x2, y2, editmode):
         """
@@ -895,7 +990,12 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = Template("ci_selectrectangle($x1p,$y1p,$x2p,$y2p,$Editmode)")
 
-        return cmd.substitute(x1p=x1, y1p=y1, x2p=x2, y2p=y2, Editmode=editmode)
+        cmd = cmd.substitute(x1p=x1, y1p=y1, x2p=x2, y2p=y2, Editmode=editmode)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def set_pointprop(self, propname, groupno=0, inductor="<None>"):
         """
@@ -904,6 +1004,7 @@ class FemmWriter:
         :param inductor: Specifies which conductor the node belongs to. Default value is '<None>'
         """
         prefix = None
+        cmd = None
         if self.field == kw_magnetic:
             prefix = "mi"
         elif self.field == kw_heat_flow:
@@ -913,7 +1014,12 @@ class FemmWriter:
         elif self.field == kw_electrostatic:
             prefix = "ei"
 
-        return f'{prefix}_setnodeprop("{propname}", {groupno}, "{inductor}")'
+        cmd = f'{prefix}_setnodeprop("{propname}", {groupno}, "{inductor}")'
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def set_segment_prop(self, propname, elementsize=1, automesh=1, hide=0, group=0, inductor="<None>"):
         """
@@ -936,7 +1042,12 @@ class FemmWriter:
         elif self.field == kw_electrostatic:
             prefix = "ei"
 
-        return f'{prefix}_setsegmentprop("{propname}", {elementsize}, {automesh}, {hide}, {group}, "{inductor}")'
+        cmd = f'{prefix}_setsegmentprop("{propname}", {elementsize}, {automesh}, {hide}, {group}, "{inductor}")'
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def set_arc_segment_prop(self, maxsegdeg, propname, hide, group):
         """
@@ -945,11 +1056,16 @@ class FemmWriter:
         :param hide: 0 = not hidden in post-processor, 1 == hidden in post processor
         :param group: a member of group number group
         """
+        cmd = None
         self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mi_setarcsegmentprop($maxsegdeg, $propname, $hide, $group)")
             cmd = cmd.substitute(maxsegdeg=maxsegdeg, propname="'" + propname + "'", hide=hide, group=group)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
         return cmd
 
     def set_blockprop(self, blockname, automesh=1, meshsize=1, group=0, **kwargs):
@@ -1005,6 +1121,10 @@ class FemmWriter:
             cmd = Template("ci_setblockprop($blockname, $automesh, $meshsize, $group)")
             cmd = cmd.substitute(blockname=f'"{blockname}"', automesh=automesh, meshsize=meshsize, group=group)
 
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
         return cmd
 
     # problem commands for the magnetic problem
@@ -1040,7 +1160,7 @@ class FemmWriter:
         self.validate_units(unit)
 
         cmd = Template("mi_probdef($frequency,$units,$type,$precision, $depth, $minangle, $acsolver)")
-        return cmd.substitute(
+        cmd = cmd.substitute(
             frequency=freq,
             units=r"'" + unit + r"'",
             type=r"'" + type + r"'",
@@ -1049,6 +1169,11 @@ class FemmWriter:
             minangle=minangle,
             acsolver=acsolver,
         )
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def heat_problem(self, units, type, precision=1e-8, depth=1, minangle=30, prevsoln=None, timestep=1e-3):
         """
@@ -1059,6 +1184,7 @@ class FemmWriter:
         :param minangle: Minimum angle constraint sen to the mesh generator
         :param prevsoln: Indicates the solution from the previous time step assuming transient time problems
         """
+        cmd = None
         self.validate_field(kw_heat_flow)
 
         self.validate_units(units)
@@ -1070,7 +1196,12 @@ class FemmWriter:
             prevsoln = ""
             timestep = 0
 
-        return f'hi_probdef("{units}", "{type}", {precision}, {depth}, {minangle}, "{prevsoln}", {timestep})'
+        cmd = f'hi_probdef("{units}", "{type}", {precision}, {depth}, {minangle}, "{prevsoln}", {timestep})'
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def electrostatic_problem(self, units, type, precision=1e-8, depth=1, minangle=30):
         """
@@ -1080,7 +1211,8 @@ class FemmWriter:
         :param depth: Depth of the problem into the page for 2D problems
         :param minangle: Minimum angle constraint sen to the mesh generator
         """
-
+        
+        cmd = None
         self.validate_field(kw_electrostatic)
 
         self.validate_units(units)
@@ -1088,15 +1220,20 @@ class FemmWriter:
         if type not in {"planar", "axi"}:
             raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
 
-        return f'ei_probdef("{units}", "{type}", {precision}, {depth}, {minangle})'
+        cmd = f'ei_probdef("{units}", "{type}", {precision}, {depth}, {minangle})'
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def currentflow_problem(self, units, type, frequency=0, precision=1e-8, depth=1, minangle=30):
         # TODO: add docstring
-        # TODO: add unittest
         """
         -
         """
 
+        cmd = None
         self.validate_field(kw_current_flow)
 
         self.validate_units(units)
@@ -1104,7 +1241,12 @@ class FemmWriter:
         if type not in {"planar", "axi"}:
             raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
 
-        return f'ci_probdef("{units}", "{type}", {frequency}, {precision}, {depth}, {minangle})'
+        cmd = f'ci_probdef("{units}", "{type}", {frequency}, {precision}, {depth}, {minangle})'
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def save_as(self, file_name):
         """
@@ -1114,6 +1256,7 @@ class FemmWriter:
                               must use two backslashes e.g. "c:\\temp\\myfemmfile.fem
         """
 
+        cmd = None
         self.validate_field()
 
         if self.field == kw_magnetic:
@@ -1128,11 +1271,18 @@ class FemmWriter:
         if self.field == kw_current_flow:
             cmd = Template("ci_saveas($filename)")
 
-        return cmd.substitute(filename='"' + file_name + '"')
+        cmd = cmd.substitute(filename='"' + file_name + '"')
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
+    
 
     def load_solution(self):
         """Loads  and displays the solution."""
 
+        cmd = None
         self.validate_field()
 
         if self.field == kw_magnetic:
@@ -1146,6 +1296,10 @@ class FemmWriter:
 
         if self.field == kw_current_flow:
             cmd = "ci_loadsolution()"
+
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
 
         return cmd
 
@@ -1211,11 +1365,15 @@ class FemmWriter:
              This function returns one (possibly complex) value,e.g.:volume = moblockintegral(10)
         """
 
+        cmd = None
         self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mo_blockintegral($type)")
             cmd = cmd.substitute(type=type)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
 
         return cmd
 
@@ -1240,11 +1398,15 @@ class FemmWriter:
         Ph          Power density dissipated by hysteresis
         """
 
+        cmd = None
         self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("mo_getpointvalues($x, $y)")
             cmd = cmd.substitute(x=x, y=y)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
 
         return cmd
 
@@ -1253,19 +1415,31 @@ class FemmWriter:
         Properties are returned for the circuit property named "circuit".
         Three values are returned by the function.
 
-        In order, these results are current, volt and flux of the circuit."""
+        In order, these results are current, volt and flux of the circuit.
+        """
 
+        cmd = None
         self.validate_field()
 
         if self.field == kw_magnetic:
             cmd = Template("$result = mo_getcircuitproperties($circuit)")
 
-        return cmd.substitute(circuit="'" + circuit_name + "'", result=result)
+        cmd = cmd.substitute(circuit="'" + circuit_name + "'", result=result)
+
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
     def write_out_result(self, key, value):
         # writes out a key_value pair
-        cmd = Template("write(file_out, '$key', ', ', $value, \"\\{}\") \n".format("n"))
-        return cmd.substitute(key=key, value=value)
+        cmd = Template("write(file_out, '$key', ', ', $value, \"\\{}\")".format("n"))
+        cmd = cmd.substitute(key=key, value=value)
+        
+        if FemmWriter.push:
+            self.lua_model.append(cmd)
+
+        return cmd
 
 
 class FemmExecutor:
