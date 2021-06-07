@@ -3,9 +3,9 @@ This class realize a layer, where the different elements of the geometry can be 
 A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
+import adze_modeler.objects as obj
 import sys
 
-import adze_modeler.objects as obj
 import ezdxf
 import numpy as np
 import svgpathtools as svg

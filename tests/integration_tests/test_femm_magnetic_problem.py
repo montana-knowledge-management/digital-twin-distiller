@@ -1,9 +1,13 @@
 import unittest
+from collections import Counter
 from math import pi
 
 from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
+from collections import Counter
+from math import pi
+
 from importlib_resources import files
 
 
@@ -99,19 +103,18 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         writer.lua_model.append(writer.write_out_result("flux", "flux"))
 
         writer.lua_model.extend(writer.close())
-        #writer.write('test')
+        # writer.write('test')
 
         try:
             reference = files("tests.integration_tests").joinpath("magnetic.lua")
             with open(reference) as f:
                 content = f.readlines()
-                found = 0
-                for command in writer.lua_model:
-                    for line in content:
-                        if command[:8] in line:  # we are expecting some differences in \n's due to the file operations
-                            found += 1
-                            break
-                self.assertEqual(len(writer.lua_model), found)
-                del writer
+                counter_test = Counter(content)
+                counter_reference = Counter(writer.lua_model)
+
+                for key in counter_reference.keys():
+                    # print(f'|{key}|', counter_reference[key.rstrip()], counter_test[key + "\n"])
+                    self.assertEqual(counter_reference[key.rstrip()], counter_test[key + "\n"])
+
         except FileNotFoundError:
             self.assertTrue(False)

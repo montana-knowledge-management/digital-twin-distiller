@@ -1,4 +1,5 @@
 import unittest
+from collections import Counter
 
 from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import HeatFlowConvection
@@ -12,8 +13,8 @@ from importlib_resources import files
 def c2k(C):
     return C + 274.15
 
-class TestFemmCurrentFlowProblem(unittest.TestCase):
 
+class TestFemmCurrentFlowProblem(unittest.TestCase):
     def test_heat_problem(self):
         writer = FemmWriter()
         writer.field = kw_heat_flow
@@ -103,13 +104,12 @@ class TestFemmCurrentFlowProblem(unittest.TestCase):
             reference = files("tests.integration_tests").joinpath("heatflow_test.lua")
             with open(reference) as f:
                 content = f.readlines()
-                found = 0
-                for command in writer.lua_model:
-                    for line in content:
-                        if command[:8] in line:  # we are expecting some differences in \n's due to the file operations
-                            found += 1
-                            break
-                self.assertEqual(len(writer.lua_model), found)
-                del writer
+                counter_test = Counter(content)
+                counter_reference = Counter(writer.lua_model)
+
+                for key in counter_reference.keys():
+                    # print(f'|{key}|', counter_reference[key.rstrip()], counter_test[key + "\n"])
+                    self.assertEqual(counter_reference[key.rstrip()], counter_test[key + "\n"])
+
         except FileNotFoundError:
             self.assertTrue(False)
