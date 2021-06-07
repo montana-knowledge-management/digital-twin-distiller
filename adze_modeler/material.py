@@ -40,6 +40,11 @@ class MaterialSnapshot:
         # in case of a FEMM model
         cmds.append(FemmWriter().add_material(self.material_definition))
 
+        if self.circuit_name != "<None>":
+            cmds.append(FemmWriter().add_circprop(circuitname=self.circuit_name,
+                                                  i=self.circuit_current,
+                                                  circuittype=self.circuit_type))
+
         if self.field_type in femm_fields:
             for point in self.region_labels:
                 cmds.append(FemmWriter().add_blocklabel(point.x, point.y))
@@ -52,10 +57,6 @@ class MaterialSnapshot:
 
                 # femm command contains special inputs only in the case of magnetic field simulation
                 if self.field_type == femm_magnetic:
-                    if self.circuit_name != "<None>":
-                        cmds.append(FemmWriter().add_circprop(circuitname=self.circuit_name,
-                                                              i=self.circuit_current,
-                                                              circuittype=self.circuit_type))
 
                     cmds.append(FemmWriter().set_blockprop(blockname=self.material_definition.material_name,
                                                            automesh=automesh,

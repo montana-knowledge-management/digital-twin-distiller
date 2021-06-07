@@ -10,11 +10,12 @@ from math import pi
 # silicon core with linea bh relationships
 silicon_core = MagneticMaterial("silicon_core", 7000, 7000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
 aluminum = MagneticMaterial("aluminum", 1, 1, 0, 0, 34.5, 0, 0, 1, 0, 0, 0, 0, 0)
-coil = MagneticMaterial("copper", 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
 air = MagneticMaterial("air", 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
 
 
-def create_phase(base_node, group, circuit_name, phase_current):
+def create_phase(name, base_node, group, circuit_name, phase_current):
+    coil = MagneticMaterial(name, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
+
     winding = MaterialSnapshot()
     winding.material_definition = coil
     winding.field_type = femm_magnetic  # magnetic field with the femm material
@@ -54,13 +55,14 @@ def create_snapshot():
 
     # label positions
     airgap.region_labels = [Node(40.5, 3.5)]
+    airgap.meshsize = 1.0
     femm_model.lua_model += airgap.create_femm_block_label()
 
     # cores -----------------------------------------------------------------------
     cores = MaterialSnapshot()
     cores.material_definition = silicon_core
     cores.field_type = femm_magnetic  # magnetic field with the femm material
-
+    cores.meshsize = 1.5
     # label positions
     cores.region_labels = [Node(16.0, 16.0), Node(40.0, 40.0)]
     femm_model.lua_model += cores.create_femm_block_label()
@@ -69,7 +71,7 @@ def create_snapshot():
     rods = MaterialSnapshot()
     rods.material_definition = aluminum
     rods.field_type = femm_magnetic  # magnetic field with the femm material
-
+    rods.meshsize = 1.5
     base_node = Node(31.6, 0.33)
     for i in range(0, 8):
         rods.region_labels.append(base_node)
@@ -77,9 +79,9 @@ def create_snapshot():
     femm_model.lua_model += rods.create_femm_block_label()
 
     # coil definitions
-    femm_model.lua_model += create_phase(Node(45.5, 3.5), 1, 'A', '1')
-    femm_model.lua_model += create_phase(Node(20.0, 43.9), 3, 'B', '-0.5+I*0.8660254037844386')
-    femm_model.lua_model += create_phase(Node(39.285, 26.8865), 2, 'C', '-0.5-I*0.866025403784439')
+    femm_model.lua_model += create_phase('copper_a', Node(45.5, 3.5), 1, 'A', '1')
+    femm_model.lua_model += create_phase('copper_b', Node(20.0, 43.9), 3, 'B', '-0.5+I*0.8660254037844386')
+    femm_model.lua_model += create_phase('copper_c', Node(39.285, 26.8865), 2, 'C', '-0.5-I*0.866025403784439')
 
     # boundary conditions
     # dirichlet
@@ -166,6 +168,10 @@ def create_snapshot():
     femm_model.lua_model += app4.create_femm_boundaries()
 
     # save to file
+    femm_model.lua_model.append(femm_model.save_as("2horse.fem"))
+    femm_model.lua_model.append(femm_model.analyze())
+    femm_model.lua_model.append(femm_model.load_solution())
+
     femm_model.lua_model.extend(femm_model.close())
     femm_model.write('2horse.lua')
     return
@@ -174,4 +180,3 @@ def create_snapshot():
 if __name__ == "__main__":
     create_snapshot()
     FemmExecutor().run_femm('2horse.lua')
-
