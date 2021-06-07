@@ -26,6 +26,7 @@ class TestMaterialSnapshot(unittest.TestCase):
         # generates the essential lua script commands
         cmd = coils.create_block_label()
 
-        self.assertEqual(cmd[0], 'mi_addblocklabel(0.5, 1.0)')
-        self.assertEqual(cmd[1], 'mi_selectlabel(0.5, 1.0)')
-        self.assertEqual(cmd[2], "mi_setblockprop('coil', 1, None, 'incircuit', 0, 0, 0)")
+        self.assertEqual(cmd[1], 'mi_addblocklabel(0.5, 1.0)')
+        self.assertEqual(cmd[2], 'mi_selectlabel(0.5, 1.0)')
+        self.assertEqual(cmd[0], 'mi_addmaterial(\'coil\', 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)')
+        #self.assertEqual(cmd[3], "mi_setblockprop('coil', 1, None, 'incircuit', 0, 0, 0)")

@@ -23,18 +23,20 @@ class MaterialSnapshot:
         cmds = []
 
         # in case of a FEMM model
+        cmds.append(FemmWriter().add_material(self.material_definition))
+
         if self.field_type in femm_fields:
             for point in self.region_labels:
                 cmds.append(FemmWriter().add_blocklabel(point.x, point.y))
                 cmds.append(FemmWriter().select_label(point.x, point.y))
 
-                if self.meshsize:
-                    automesh = 0
-                else:
-                    automesh = 1
+                #if self.meshsize:
+                #    automesh = 0
+                #else:
+                #    automesh = 1
 
-                cmds.append(FemmWriter().set_blockprop(blockname=self.material_definition.material_name,
-                                                       automesh=automesh,
-                                                       meshsize=self.meshsize, group=0))
+                #cmds.append(FemmWriter().set_blockprop(blockname=self.material_definition.material_name,
+                #                                       automesh=automesh,
+                #                                       meshsize=self.meshsize, group=0))
                 cmds.append(FemmWriter().clear_selected())
         return cmds
