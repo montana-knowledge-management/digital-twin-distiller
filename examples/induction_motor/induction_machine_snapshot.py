@@ -42,6 +42,10 @@ def create_snapshot():
     geo = Geometry()
     geo.import_dxf("2horse.dxf")
 
+    # delete hanging nodes, because the center point of every arc in the dxf is represented, but should be deleted from
+    # the femm simulation
+    geo.delete_hanging_nodes()
+
     # create and save a model geometry in lua language
     femm_model = FemmWriter()
     femm_model.lua_model = femm_model.init_problem()
@@ -80,8 +84,8 @@ def create_snapshot():
 
     # coil definitions
     femm_model.lua_model += create_phase('copper_a', Node(45.5, 3.5), 1, 'A', '1', 44)
-    femm_model.lua_model += create_phase('copper_b', Node(20.0, 43.9), 3, 'B', '-0.5+I*0.8660254037844386',44)
-    femm_model.lua_model += create_phase('copper_c', Node(39.285, 26.8865), 2, 'C', '-0.5-I*0.866025403784439',-44)
+    femm_model.lua_model += create_phase('copper_b', Node(20.0, 43.9), 3, 'B', '-0.5+I*0.8660254037844386', 44)
+    femm_model.lua_model += create_phase('copper_c', Node(39.285, 26.8865), 2, 'C', '-0.5-I*0.866025403784439', -44)
 
     # boundary conditions
     # dirichlet
@@ -172,7 +176,7 @@ def create_snapshot():
     femm_model.lua_model.append(femm_model.analyze())
     femm_model.lua_model.append(femm_model.load_solution())
 
-    femm_model.lua_model.extend(femm_model.close())
+    # femm_model.lua_model.extend(femm_model.close())
     femm_model.write('2horse.lua')
     return
 
