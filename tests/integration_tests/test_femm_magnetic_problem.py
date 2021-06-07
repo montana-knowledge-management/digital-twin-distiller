@@ -5,9 +5,6 @@ from math import pi
 from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
-from collections import Counter
-from math import pi
-
 from importlib_resources import files
 
 
@@ -99,7 +96,7 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         writer.write_out_result("flux", "flux")
 
         writer.close()
-        writer.write('magnetic_ref.lua')
+        writer.write("magnetic_ref.lua")
 
         try:
             reference = files("tests.integration_tests").joinpath("magnetic.lua")

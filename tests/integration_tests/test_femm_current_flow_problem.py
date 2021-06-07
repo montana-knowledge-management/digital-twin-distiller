@@ -1,4 +1,3 @@
-import os
 import unittest
 
 from adze_modeler.femm_wrapper import CurrentFlowFixedVoltage
@@ -6,8 +5,8 @@ from adze_modeler.femm_wrapper import CurrentFlowMaterial
 from adze_modeler.femm_wrapper import CurrentFlowSurfaceCurrent
 from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import kw_current_flow
-
 from importlib_resources import files
+
 
 class TestFemmCurrentFlowProblem(unittest.TestCase):
     def test_current_flow_problem(self):

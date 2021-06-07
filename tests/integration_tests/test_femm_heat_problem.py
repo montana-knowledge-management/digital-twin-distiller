@@ -6,7 +6,6 @@ from adze_modeler.femm_wrapper import HeatFlowConvection
 from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
 from adze_modeler.femm_wrapper import HeatFlowMaterial
 from adze_modeler.femm_wrapper import kw_heat_flow
-
 from importlib_resources import files
 
 

@@ -14,7 +14,7 @@ def create_snapshot():
     femm_model = FemmWriter()
     femm_model.lua_model = femm_model.init_problem()
     femm_model.lua_model = femm_model.create_geometry(geo)
-    femm_model.write('2horse.lua')
+    femm_model.write("2horse.lua")
     return
 
 

@@ -5,7 +5,6 @@ The code generated one snapshot from the created model, which can be run during 
 The original FEMM code has separate scripting commands for the geometry generation in different subfields
 
 """
-import adze_modeler.geometry as geo
 import os
 import subprocess
 from collections import namedtuple
@@ -14,6 +13,8 @@ from math import degrees
 from pathlib import Path
 from string import Template
 from sys import platform
+
+import adze_modeler.geometry as geo
 
 # keywords
 kw_current_flow = "current_flow"
@@ -341,7 +342,7 @@ class FemmWriter:
 
         if self.field == kw_current_flow:
             cmd = Template("ci_addblocklabel($x_coord, $y_coord)")
-        
+
         cmd = cmd.substitute(x_coord=x, y_coord=y)
 
         if FemmWriter.push:
@@ -743,7 +744,7 @@ class FemmWriter:
         if self.field == kw_electrostatic:
             Vp = kwargs.get("Vp", 0)
             qp = kwargs.get("qp", 0)
-            cmd =  f'ei_addpointprop("{propname}", {Vp}, {qp})'
+            cmd = f'ei_addpointprop("{propname}", {Vp}, {qp})'
 
         # Magnetics
         if self.field == kw_magnetic:
@@ -761,7 +762,7 @@ class FemmWriter:
         if self.field == kw_current_flow:
             Vp = kwargs.get("Vp", 0)
             qp = kwargs.get("qp", 0)
-            cmd =  f'ci_addpointprop("{propname}", {Vp}, {qp})'
+            cmd = f'ci_addpointprop("{propname}", {Vp}, {qp})'
 
         if FemmWriter.push:
             self.lua_model.append(cmd)
@@ -1121,7 +1122,6 @@ class FemmWriter:
             cmd = Template("ci_setblockprop($blockname, $automesh, $meshsize, $group)")
             cmd = cmd.substitute(blockname=f'"{blockname}"', automesh=automesh, meshsize=meshsize, group=group)
 
-
         if FemmWriter.push:
             self.lua_model.append(cmd)
 
@@ -1211,7 +1211,7 @@ class FemmWriter:
         :param depth: Depth of the problem into the page for 2D problems
         :param minangle: Minimum angle constraint sen to the mesh generator
         """
-        
+
         cmd = None
         self.validate_field(kw_electrostatic)
 
@@ -1277,7 +1277,6 @@ class FemmWriter:
             self.lua_model.append(cmd)
 
         return cmd
-    
 
     def load_solution(self):
         """Loads  and displays the solution."""
@@ -1296,7 +1295,6 @@ class FemmWriter:
 
         if self.field == kw_current_flow:
             cmd = "ci_loadsolution()"
-
 
         if FemmWriter.push:
             self.lua_model.append(cmd)
@@ -1435,7 +1433,7 @@ class FemmWriter:
         # writes out a key_value pair
         cmd = Template("write(file_out, '$key', ', ', $value, \"\\{}\")".format("n"))
         cmd = cmd.substitute(key=key, value=value)
-        
+
         if FemmWriter.push:
             self.lua_model.append(cmd)
 
