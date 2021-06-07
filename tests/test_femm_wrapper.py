@@ -1,7 +1,5 @@
-import os
-from unittest import TestCase
-
 import adze_modeler.objects as obj
+import os
 from adze_modeler.femm_wrapper import CurrentFlowAntiPeriodic
 from adze_modeler.femm_wrapper import CurrentFlowFixedVoltage
 from adze_modeler.femm_wrapper import CurrentFlowMaterial
@@ -14,8 +12,8 @@ from adze_modeler.femm_wrapper import ElectrostaticMaterial
 from adze_modeler.femm_wrapper import ElectrostaticMixed
 from adze_modeler.femm_wrapper import ElectrostaticPeriodic
 from adze_modeler.femm_wrapper import ElectrostaticSurfaceCharge
-from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import FemmExecutor
+from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import HeatFlowAntiPeriodic
 from adze_modeler.femm_wrapper import HeatFlowConvection
 from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
@@ -31,6 +29,7 @@ from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
 from adze_modeler.geometry import Geometry
+from unittest import TestCase
 
 
 class FemmTester(TestCase):
@@ -72,7 +71,6 @@ class FemmTester(TestCase):
         self.assertEqual(True, writer.validate_units("meters"))
         self.assertEqual(True, writer.validate_units("micrometers"))
         self.assertRaises(ValueError, writer.validate_units, "alma")
-
 
     def test_write(self):
         writer = FemmWriter()

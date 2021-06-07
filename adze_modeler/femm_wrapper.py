@@ -5,6 +5,7 @@ The code generated one snapshot from the created model, which can be run during 
 The original FEMM code has separate scripting commands for the geometry generation in different subfields
 
 """
+import adze_modeler.geometry as geo
 import os
 import subprocess
 from collections import namedtuple
@@ -13,8 +14,6 @@ from math import degrees
 from pathlib import Path
 from string import Template
 from sys import platform
-
-import adze_modeler.geometry as geo
 
 # keywords
 kw_current_flow = "current_flow"
@@ -188,7 +187,7 @@ class FemmWriter:
 
         return lua_geometry
 
-    def init_problem(self, out_file="femm_data.csv"):
+    def init_problem(self, out_file="femm_data.csv", push=True):
         """
         This commands initialize a femm console and flush the variables
         :param out_file: defines the default output file
@@ -237,7 +236,7 @@ class FemmWriter:
 
         return cmd_list
 
-    def analyze(self, flag=1):
+    def analyze(self, flag=1, push=True):
         """
 
         Runs a FEMM analysis to solve a problem. By default the analysis runs in non-visible mode.
@@ -263,7 +262,7 @@ class FemmWriter:
         return cmd.substitute(flag=flag)
 
     # object add remove commnads from FEMM MANUAL page 84.
-    def add_node(self, x, y):
+    def add_node(self, x, y, push=True):
         """adds a node to the given point (x,y)"""
 
         cmd = None
@@ -283,7 +282,7 @@ class FemmWriter:
 
         return cmd.substitute(x_coord=x, y_coord=y)
 
-    def add_segment(self, x1, y1, x2, y2):
+    def add_segment(self, x1, y1, x2, y2, push=True):
         """Add a new line segment from node closest to (x1,y1) to node closest to (x2,y2)"""
 
         cmd = None
@@ -303,7 +302,7 @@ class FemmWriter:
 
         return cmd.substitute(x1_coord=x1, y1_coord=y1, x2_coord=x2, y2_coord=y2)
 
-    def add_blocklabel(self, x, y):
+    def add_blocklabel(self, x, y, push=True):
         """Add a new block label at (x,y)"""
 
         cmd = None
@@ -323,7 +322,7 @@ class FemmWriter:
 
         return cmd.substitute(x_coord=x, y_coord=y)
 
-    def add_arc(self, x1, y1, x2, y2, angle, maxseg):
+    def add_arc(self, x1, y1, x2, y2, angle, maxseg, push=True):
         """
         Add a new arc segment from the nearest nodeto (x1,y1) to the nearest node to (x2,y2)
         with angle ‘angle’ divided into ‘maxseg’ segments.
@@ -347,7 +346,7 @@ class FemmWriter:
 
         return cmd.substitute(x_1=x1, y_1=y1, x_2=x2, y_2=y2, angle=angle, maxseg=maxseg)
 
-    def delete_selected(self):
+    def delete_selected(self, push=True):
         """Delete all selected objects"""
 
         cmd = None
@@ -367,7 +366,7 @@ class FemmWriter:
 
         return cmd
 
-    def add_boundary(self, boundary):
+    def add_boundary(self, boundary, push=True):
         """
         :param boundary: checks the type of the boundary parameter, then
         """
@@ -520,7 +519,7 @@ class FemmWriter:
 
         return cmd
 
-    def add_material(self, material):
+    def add_material(self, material, push=True):
         """
         mi addmaterial("materialname", mu_x, mu_y, H_c, J, Cduct, Lam_d, Phi_hmax,
                         lam_fill, LamType, Phi_hx, Phi_hy, NStrands, WireD)
@@ -587,7 +586,7 @@ class FemmWriter:
 
         return cmd
 
-    def delete_selected_nodes(self):
+    def delete_selected_nodes(self, push=True):
         """Delete all selected nodes, the object should be selected the node selection command."""
 
         cmd = None
@@ -607,7 +606,7 @@ class FemmWriter:
 
         return cmd
 
-    def delete_selected_labels(self):
+    def delete_selected_labels(self, push=True):
         """Delete all selected labels"""
 
         cmd = None
@@ -627,7 +626,7 @@ class FemmWriter:
 
         return cmd
 
-    def delete_selected_segments(self):
+    def delete_selected_segments(self, push=True):
         """Delete all selected segments."""
 
         cmd = None
@@ -647,7 +646,7 @@ class FemmWriter:
 
         return cmd
 
-    def delete_selected_arc_segments(self):
+    def delete_selected_arc_segments(self, push=True):
         """Delete all selected arc segments."""
 
         cmd = None
@@ -667,7 +666,7 @@ class FemmWriter:
 
         return cmd
 
-    def add_pointprop(self, propname, **kwargs):
+    def add_pointprop(self, propname, push=True, **kwargs):
         """
         Adds new point property of name "propname" with various attributes such as:
         Electrostatics:
@@ -711,7 +710,7 @@ class FemmWriter:
             qp = kwargs.get("qp", 0)
             return f'ci_addpointprop("{propname}", {Vp}, {qp})'
 
-    def add_circprop(self, circuitname, i, circuittype):
+    def add_circprop(self, circuitname, i, circuittype, push=True):
         """
         Adds a new circuit property with name "circuitname" with a prescribed current, i.
         The circuittype parameter is
@@ -726,7 +725,7 @@ class FemmWriter:
         return f'mi_addcircprop("{circuitname}",{i},{circuittype})'
 
     # object selection commnads from FEMM MANUAL page 84.
-    def clear_selected(self):
+    def clear_selected(self, push=True):
         """Clear all selected nodes, blocks, segments and arc segments."""
 
         cmd = None
@@ -746,7 +745,7 @@ class FemmWriter:
 
         return cmd
 
-    def select_segment(self, x, y):
+    def select_segment(self, x, y, push=True):
         """Select the line segment closest to (x,y)"""
 
         cmd = None
@@ -766,7 +765,7 @@ class FemmWriter:
 
         return cmd.substitute(xp=x, yp=y)
 
-    def select_arc_segment(self, x, y):
+    def select_arc_segment(self, x, y, push=True):
         """Select the arc segment closest to (x,y)"""
 
         cmd = None
@@ -786,7 +785,7 @@ class FemmWriter:
 
         return cmd.substitute(xp=x, yp=y)
 
-    def select_node(self, x, y):
+    def select_node(self, x, y, push=True):
         """Select node closest to (x,y), Returns the coordinates ofthe se-lected node"""
 
         cmd = None
@@ -806,7 +805,7 @@ class FemmWriter:
 
         return cmd.substitute(xp=x, yp=y)
 
-    def select_label(self, x, y):
+    def select_label(self, x, y, push=True):
         """Select the label closet to (x,y). Returns the coordinates of the selected label."""
 
         cmd = None
@@ -826,7 +825,7 @@ class FemmWriter:
 
         return cmd.substitute(xp=x, yp=y)
 
-    def select_group(self, n):
+    def select_group(self, n, push=True):
         """
         Select the n th group of nodes, segments, arc segments and block labels.
         This function will clear all previously selected elements and leave the edit mode in 4(group)
@@ -849,7 +848,7 @@ class FemmWriter:
 
         return cmd.substitute(np=n)
 
-    def select_circle(self, x, y, R, editmode):
+    def select_circle(self, x, y, R, editmode, push=True):
         """
         Select circle selects objects within a circle of radius R centered at(x, y).If only x, y, and R paramters
         are given, the current edit mode is used.If the editmode parameter is used, 0 denotes nodes, 2 denotes block
@@ -873,7 +872,7 @@ class FemmWriter:
 
         return cmd.substitute(xp=x, yp=y, Rp=R, Editmode=editmode)
 
-    def select_rectangle(self, x1, y1, x2, y2, editmode):
+    def select_rectangle(self, x1, y1, x2, y2, editmode, push=True):
         """
         This command selects objects within a rectangle definedby points (x1,y1) and (x2,y2).
         If no editmode parameter is supplied, the current edit mode isused. If the editmode parameter is used,
@@ -898,7 +897,7 @@ class FemmWriter:
 
         return cmd.substitute(x1p=x1, y1p=y1, x2p=x2, y2p=y2, Editmode=editmode)
 
-    def set_pointprop(self, propname, groupno=0, inductor="<None>"):
+    def set_pointprop(self, propname, groupno=0, inductor="<None>", push=True):
         """
         :param propname: Set the selected nodes to have the nodal property 'propname'
         :param groupno: Set the selected nodes to have the group number 'groupno'
@@ -916,7 +915,7 @@ class FemmWriter:
 
         return f'{prefix}_setnodeprop("{propname}", {groupno}, "{inductor}")'
 
-    def set_segment_prop(self, propname, elementsize=1, automesh=1, hide=0, group=0, inductor="<None>"):
+    def set_segment_prop(self, propname, elementsize=1, automesh=1, hide=0, group=0, inductor="<None>", push=True):
         """
         :param propname: boundary property
         :param elementsize: Local element size along segment no greater than elementsize
@@ -939,7 +938,7 @@ class FemmWriter:
 
         return f'{prefix}_setsegmentprop("{propname}", {elementsize}, {automesh}, {hide}, {group}, "{inductor}")'
 
-    def set_arc_segment_prop(self, maxsegdeg, propname, hide, group):
+    def set_arc_segment_prop(self, maxsegdeg, propname, hide, group, push=True):
         """
         :param maxsegdeg: Meshed with elements that span at most maxsegdeg degrees per element
         :param propname: boundary property
@@ -953,7 +952,7 @@ class FemmWriter:
             cmd = cmd.substitute(maxsegdeg=maxsegdeg, propname="'" + propname + "'", hide=hide, group=group)
         return cmd
 
-    def set_blockprop(self, blockname, automesh=1, meshsize=1, group=0, **kwargs):
+    def set_blockprop(self, blockname, automesh=1, meshsize=1, group=0, push=True, **kwargs):
         """
         :param meshsize: default value is None -> invokes automesh
             this command will use automesh option as the default, if the mesh size is not defined
@@ -1009,7 +1008,7 @@ class FemmWriter:
         return cmd
 
     # problem commands for the magnetic problem
-    def magnetic_problem(self, freq, unit, type, precision=1e-8, depth=1, minangle=30, acsolver=0):
+    def magnetic_problem(self, freq, unit, type, precision=1e-8, depth=1, minangle=30, acsolver=0, push=True):
         """
          Definition of the magnetic problem, like probdef(0,'inches','axi',1e-8,0,30);
 
@@ -1051,7 +1050,7 @@ class FemmWriter:
             acsolver=acsolver,
         )
 
-    def heat_problem(self, units, type, precision=1e-8, depth=1, minangle=30, prevsoln=None, timestep=1e-3):
+    def heat_problem(self, units, type, precision=1e-8, depth=1, minangle=30, prevsoln=None, timestep=1e-3, push=True):
         """
         :param units: "inches", "millimeters", "centimeters", "mils", "meters", "micrometers"
         :param type: "planar", "axi",
@@ -1073,7 +1072,7 @@ class FemmWriter:
 
         return f'hi_probdef("{units}", "{type}", {precision}, {depth}, {minangle}, "{prevsoln}", {timestep})'
 
-    def electrostatic_problem(self, units, type, precision=1e-8, depth=1, minangle=30):
+    def electrostatic_problem(self, units, type, precision=1e-8, depth=1, minangle=30, push=True):
         """
         :param units: "inches", "millimeters", "centimeters", "mils", "meters", "micrometers"
         :param type: "planar", "axi",
@@ -1091,7 +1090,7 @@ class FemmWriter:
 
         return f'ei_probdef("{units}", "{type}", {precision}, {depth}, {minangle})'
 
-    def currentflow_problem(self, units, type, frequency=0, precision=1e-8, depth=1, minangle=30):
+    def currentflow_problem(self, units, type, frequency=0, precision=1e-8, depth=1, minangle=30, push=True):
         # TODO: add docstring
         # TODO: add unittest
         """
@@ -1107,7 +1106,7 @@ class FemmWriter:
 
         return f'ci_probdef("{units}", "{type}", {frequency}, {precision}, {depth}, {minangle})'
 
-    def save_as(self, file_name):
+    def save_as(self, file_name, push=True):
         """
         To solve the problem with FEMM, you have to save it with the save_as command.
 
@@ -1131,7 +1130,7 @@ class FemmWriter:
 
         return cmd.substitute(filename='"' + file_name + '"')
 
-    def load_solution(self):
+    def load_solution(self, push=True):
         """Loads  and displays the solution."""
 
         self.validate_field()
@@ -1151,7 +1150,7 @@ class FemmWriter:
         return cmd
 
     # post processing commands --- data extraction
-    def line_integral(self, type):
+    def line_integral(self, type, push=True):
         """
         Calculate the line integral of the defined contour.
 

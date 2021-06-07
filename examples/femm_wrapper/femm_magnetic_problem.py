@@ -119,16 +119,12 @@ def air_core_coil_inductance():
 
     # set coil property
     writer.lua_model.append(writer.select_label((ri + ro) / 2, 0))
-    writer.lua_model.append(
-        writer.set_blockprop("coil", 0, r / 20, 0, circuit_name="icoil", turns=n, magdirection=0)
-    )
+    writer.lua_model.append(writer.set_blockprop("coil", 0, r / 20, 0, circuit_name="icoil", turns=n, magdirection=0))
     writer.lua_model.append(writer.clear_selected())
 
     # set air
     writer.lua_model.append(writer.select_label(0.75 * r, 0))
-    writer.lua_model.append(
-        writer.set_blockprop("air", 0, r / 100, 0, circuit_name="<None>", turns=0, magdirection=0)
-    )
+    writer.lua_model.append(writer.set_blockprop("air", 0, r / 100, 0, circuit_name="<None>", turns=0, magdirection=0))
     writer.lua_model.append(writer.clear_selected())
 
     # set boundaries
@@ -170,5 +166,5 @@ def run():
     return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

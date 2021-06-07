@@ -49,9 +49,9 @@ hi_analyze(1)
 hi_loadsolution()
 ho_selectblock(0, 0.1)
 Fx, Fy = ho_blockintegral(3)
-write(file_out, 'Fx', ', ', Fx, "\n") 
+write(file_out, 'Fx', ', ', Fx, "\n")
 
-write(file_out, 'Fy', ', ', Fy, "\n") 
+write(file_out, 'Fy', ', ', Fy, "\n")
 
 closefile(file_out)
 ho_close()

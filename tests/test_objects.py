@@ -1,9 +1,8 @@
-from math import pi
-from unittest import TestCase
-
 from adze_modeler.objects import CubicBezier
 from adze_modeler.objects import Line
 from adze_modeler.objects import Node
+from math import pi
+from unittest import TestCase
 
 
 class TestNodeOperations(TestCase):

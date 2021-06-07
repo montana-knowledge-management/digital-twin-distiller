@@ -1,10 +1,11 @@
 import os
 import unittest
-
 from adze_modeler.femm_wrapper import ElectrostaticMaterial
 from adze_modeler.femm_wrapper import FemmExecutor
 from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import kw_electrostatic
+from collections import Counter
+
 from importlib_resources import files
 
 
@@ -72,13 +73,12 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
             reference = files("tests.integration_tests").joinpath("electrostatic_test.lua")
             with open(reference) as f:
                 content = f.readlines()
-                found = 0
-                for command in writer.lua_model:
-                    for line in content:
-                        if command[:8] in line:  # we are expecting some differences in \n's due to the file operations
-                            found += 1
-                            break
-                self.assertEqual(len(writer.lua_model), found)
-                del writer
+                counter_test = Counter(content)
+                counter_reference = Counter(writer.lua_model)
+
+                for key in counter_reference.keys():
+                    # print(f'|{key}|', counter_reference[key.rstrip()], counter_test[key + "\n"])
+                    self.assertEqual(counter_reference[key.rstrip()], counter_test[key + "\n"])
+
         except FileNotFoundError:
             self.assertTrue(False)
