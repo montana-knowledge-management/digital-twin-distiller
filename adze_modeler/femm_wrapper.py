@@ -95,7 +95,7 @@ CurrentFlowMaterial = namedtuple(
 # Magnetic Boundary Conditions
 MagneticDirichlet = namedtuple("magnetic_dirichlet", ["name", "a_0", "a_1", "a_2", "phi"])
 MagneticMixed = namedtuple("magnetic_mixed", ["name", "c0", "c1"])
-
+MagneticAnti = namedtuple("magnetic_anti", ["name"])
 # HeatFlow Boundary Conditions
 HeatFlowFixedTemperature = namedtuple("heatflow_fixed_temperature", ["name", "Tset"])
 HeatFlowHeatFlux = namedtuple("heatflow_heat_flux", ["name", "qs"])
@@ -405,6 +405,25 @@ class FemmWriter:
                 c0=boundary.c0,
                 c1=boundary.c1,
                 BdryFormat=2,
+                ia=0,
+                oa=0,
+            )
+
+        if self.field == femm_magnetic and isinstance(boundary, MagneticAnti):
+            cmd = Template(
+                "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, " "$c0, $c1, $BdryFormat, $ia, $oa)"
+            )
+            cmd = cmd.substitute(
+                propname="'" + boundary.name + "'",
+                A0=0,
+                A1=0,
+                A2=0,
+                Phi=0,
+                Mu=0,
+                Sig=0,
+                c0=0,
+                c1=0,
+                BdryFormat=5,
                 ia=0,
                 oa=0,
             )
@@ -971,7 +990,7 @@ class FemmWriter:
 
         """
         cmd = None
-        circuit_name = kwargs.get("circuit_name", "incircuit")
+        circuit_name = kwargs.get("circuit_name", "'<None>'")
         magdirection = kwargs.get("magdirection", 0)
         turns = kwargs.get("turns", 0)
 

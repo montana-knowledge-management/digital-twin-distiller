@@ -24,7 +24,7 @@ class TestMaterialSnapshot(unittest.TestCase):
         coils.region_labels = [a, b, c]
 
         # generates the essential lua script commands
-        cmd = coils.create_block_label()
+        cmd = coils.create_femm_block_label()
 
         self.assertEqual(cmd[1], 'mi_addblocklabel(0.5, 1.0)')
         self.assertEqual(cmd[2], 'mi_selectlabel(0.5, 1.0)')
