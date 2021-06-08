@@ -1,5 +1,7 @@
-import adze_modeler.objects as obj
 import os
+from unittest import TestCase
+
+import adze_modeler.objects as obj
 from adze_modeler.femm_wrapper import CurrentFlowAntiPeriodic
 from adze_modeler.femm_wrapper import CurrentFlowFixedVoltage
 from adze_modeler.femm_wrapper import CurrentFlowMaterial
@@ -29,7 +31,6 @@ from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
 from adze_modeler.geometry import Geometry
-from unittest import TestCase
 
 
 class FemmTester(TestCase):
@@ -659,7 +660,6 @@ class FemmTester(TestCase):
 class TestFemmExecutor(TestCase):
     def test_executor(self):
         exec = FemmExecutor()
-        platform = "eper"
         with open("test.lua", "w") as f:
             f.write("quit()")
         self.assertEqual(None, exec.run_femm("test.lua"))
