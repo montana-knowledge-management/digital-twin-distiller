@@ -1,6 +1,10 @@
-from adze_modeler.femm_wrapper import FemmWriter, femm_magnetic, femm_fields
-from adze_modeler.objects import Line, CircleArc
 from math import asin
+
+from adze_modeler.femm_wrapper import femm_fields
+from adze_modeler.femm_wrapper import femm_magnetic
+from adze_modeler.femm_wrapper import FemmWriter
+from adze_modeler.objects import CircleArc
+from adze_modeler.objects import Line
 
 
 class BoundarySnaphot:
@@ -42,15 +46,17 @@ class BoundarySnaphot:
                     automesh = 1
                     elementsize = self.elementsize
 
-                cmd.append(FemmWriter().set_segment_prop(self.boundary.name,
-                                                         elementsize=elementsize,
-                                                         automesh=automesh,
-                                                         hide=0,
-                                                         group=self.group,
-                                                         inductor=self.in_circuit
-                                                         ))
+                cmd.append(
+                    FemmWriter().set_segment_prop(
+                        self.boundary.name,
+                        elementsize=elementsize,
+                        automesh=automesh,
+                        hide=0,
+                        group=self.group,
+                        inductor=self.in_circuit,
+                    )
+                )
                 cmd.append(FemmWriter().clear_selected())
-
 
             if isinstance(elem, CircleArc):
                 # we should find an internal point of the circle arc

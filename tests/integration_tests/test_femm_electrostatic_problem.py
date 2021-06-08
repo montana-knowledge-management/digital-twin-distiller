@@ -1,10 +1,9 @@
 import unittest
-
-from adze_modeler.femm_wrapper import ElectrostaticMaterial
-from adze_modeler.femm_wrapper import FemmWriter
 from collections import Counter
 
+from adze_modeler.femm_wrapper import ElectrostaticMaterial
 from adze_modeler.femm_wrapper import femm_electrostatic
+from adze_modeler.femm_wrapper import FemmWriter
 from importlib_resources import files
 
 

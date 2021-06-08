@@ -14,6 +14,10 @@ from adze_modeler.femm_wrapper import ElectrostaticMaterial
 from adze_modeler.femm_wrapper import ElectrostaticMixed
 from adze_modeler.femm_wrapper import ElectrostaticPeriodic
 from adze_modeler.femm_wrapper import ElectrostaticSurfaceCharge
+from adze_modeler.femm_wrapper import femm_current_flow
+from adze_modeler.femm_wrapper import femm_electrostatic
+from adze_modeler.femm_wrapper import femm_heat_flow
+from adze_modeler.femm_wrapper import femm_magnetic
 from adze_modeler.femm_wrapper import FemmExecutor
 from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import HeatFlowAntiPeriodic
@@ -23,10 +27,6 @@ from adze_modeler.femm_wrapper import HeatFlowHeatFlux
 from adze_modeler.femm_wrapper import HeatFlowMaterial
 from adze_modeler.femm_wrapper import HeatFlowPeriodic
 from adze_modeler.femm_wrapper import HeatFlowRadiation
-from adze_modeler.femm_wrapper import femm_current_flow
-from adze_modeler.femm_wrapper import femm_electrostatic
-from adze_modeler.femm_wrapper import femm_heat_flow
-from adze_modeler.femm_wrapper import femm_magnetic
 from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
