@@ -1,6 +1,5 @@
 import math
 
-
 class Node:
     """
     A Node identified by (x,y) coordinates, optionally it can contains an id number or a label. The id_number and
@@ -92,6 +91,9 @@ class Line:
         self.end_pt = end_pt
         self.id = id
         self.label = label
+
+    def clone(self):
+        return Line(self.start_pt, self.end_pt, self.id, self.label)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.start_pt!r}, {self.end_pt!r}, id={self.id!r},label={self.label!r})"

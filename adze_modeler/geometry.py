@@ -80,6 +80,23 @@ class Geometry:
             # if node_1.distance_to(node_2) < self.epsilon:
             #    print(i)
 
+    def merge_lines(self):
+        self.merge_points()
+        for i in range(len(self.lines) - 1):
+            for j in range(len(self.lines)-1, i, -1):
+                d1 = self.lines[i].start_pt.distance_to(self.lines[j].start_pt)
+                d2 = self.lines[i].end_pt.distance_to(self.lines[j].end_pt)
+                d3 = self.lines[i].start_pt.distance_to(self.lines[j].end_pt)
+                d4 = self.lines[i].end_pt.distance_to(self.lines[j].start_pt)
+                if (d1 < self.epsilon or d3< self.epsilon) and (d2 < self.epsilon or d4 < self.epsilon):
+                    # delete overlapping lines
+                    del self.lines[j]
+
+                if self.lines[j].start_pt.distance_to(self.lines[j].end_pt) < self.epsilon:
+                    # delete zero length lines
+                    del self.lines[j]
+
+
     def meshi_it(self, mesh_strategy):
         mesh = mesh_strategy(self.nodes, self.lines, self.circle_arcs, self.cubic_beziers)
         return mesh
@@ -175,7 +192,7 @@ class Geometry:
         self.merge_points()
         return
 
-    def get_line_intersetions(line_1: obj.Line, line_2: obj.Line, tol=1e-3):
+    def get_line_intersetions(self, line_1, line_2, tol=1e-3):
         """
         :param line_1: the first line
         :param line_2: second line
@@ -253,6 +270,47 @@ class Geometry:
             p2 = None
 
         return p1, p2
+
+    def sanitize_geometry(self):
+        N = len(self.lines)
+        newlines = list()
+        for i in range(N):
+            line_1 = self.lines[i]
+            intersections = list()
+            distance = lambda a, b: (a.x - b[0]) ** 2 + (a.y - b[1]) ** 2
+
+            for j in range(0, N):  # i+1 is important
+                line_2 = self.lines[j]
+                p1, p2 = self.get_line_intersetions(line_1, line_2)
+
+                if p1 is not None:
+                    if i != j:
+                        # plt.scatter(p1[0], p1[1], c="r", marker="o", s=40)
+                        pass
+                    intersections.append((distance(line_1.start_pt, p1), *p1))
+
+                if p2 is not None:
+                    if i != j:
+                        # plt.scatter(p2[0], p2[1], c="r", marker="o", s=40)
+                        pass
+                    intersections.append((distance(line_1.start_pt, p2), *p2))
+
+            intersections.sort(key=lambda ii: ii[0])
+            for k in range(len(intersections) - 1):
+                start_node = obj.Node(x=intersections[k][1], y=intersections[k][2], id=self.getid())
+                end_node = obj.Node(x=intersections[k + 1][1], y=intersections[k + 1][2], id=self.getid())
+                newlines.append(obj.Line(start_pt=start_node, end_pt=end_node, id=self.getid()))
+
+        self.nodes.clear()
+        self.lines.clear()
+
+        for li in newlines:
+            self.add_line(li)
+
+        self.merge_lines()
+
+    def getid(self):
+        return int(uuid4())
 
 
 # def node_gmsh_point_distance(node, point):
