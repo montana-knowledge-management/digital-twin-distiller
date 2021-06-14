@@ -4,12 +4,13 @@ A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
 import sys
+from uuid import uuid4
 
 import adze_modeler.objects as obj
 import ezdxf
 import numpy as np
 import svgpathtools as svg
-from uuid import uuid4
+from importlib_resources import files
 
 
 class Geometry:
@@ -83,19 +84,21 @@ class Geometry:
     def merge_lines(self):
         self.merge_points()
         for i in range(len(self.lines) - 1):
-            for j in range(len(self.lines)-1, i, -1):
-                d1 = self.lines[i].start_pt.distance_to(self.lines[j].start_pt)
-                d2 = self.lines[i].end_pt.distance_to(self.lines[j].end_pt)
-                d3 = self.lines[i].start_pt.distance_to(self.lines[j].end_pt)
-                d4 = self.lines[i].end_pt.distance_to(self.lines[j].start_pt)
-                if (d1 < self.epsilon or d3< self.epsilon) and (d2 < self.epsilon or d4 < self.epsilon):
-                    # delete overlapping lines
+            try:
+                id1 = self.lines[i].start_pt.id
+                id2 = self.lines[i].end_pt.id
+            except IndexError:
+                pass
+            for j in range(len(self.lines) - 1, i, -1):
+                id3 = self.lines[j].start_pt.id
+                id4 = self.lines[j].end_pt.id
+                l = self.lines[j].start_pt.distance_to(self.lines[j].end_pt)
+
+                if l < self.epsilon:
                     del self.lines[j]
 
-                if self.lines[j].start_pt.distance_to(self.lines[j].end_pt) < self.epsilon:
-                    # delete zero length lines
+                elif {id1, id2} == {id3, id4}:
                     del self.lines[j]
-
 
     def meshi_it(self, mesh_strategy):
         mesh = mesh_strategy(self.nodes, self.lines, self.circle_arcs, self.cubic_beziers)
@@ -192,11 +195,10 @@ class Geometry:
         self.merge_points()
         return
 
-    def get_line_intersetions(self, line_1, line_2, tol=1e-3):
+    def get_line_intersetions(self, line_1, line_2):
         """
         :param line_1: the first line
         :param line_2: second line
-        :param tol: tolerance at which the the 2 lines are considered intersecting
 
         :returns: None, None or tuple(x, y), None or (x1, y1), (x2, y2)
 
@@ -237,12 +239,12 @@ class Geometry:
         t2 = np.dot(p - q, s) / np.dot(s, s)
         t3 = t2 + np.dot(r, s) / np.dot(s, s)
 
-        inrange = lambda x: x > (0 - tol) and x < (1 + tol)
-        distance = lambda x, y: np.sqrt((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2)
+        inrange = lambda x: x > (0 - self.epsilon) and x < (1 + self.epsilon)
+        # distance = lambda x, y: np.sqrt((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2)
 
-        if test1 < tol:
+        if test1 < self.epsilon:
 
-            if test2 < tol:
+            if test2 < self.epsilon:
 
                 if inrange(t0):
                     p1 = tuple(p + t0 * r)
@@ -258,20 +260,20 @@ class Geometry:
 
         else:
             up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
-                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
-                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             if inrange(tp) and inrange(up):
                 p1 = tuple(p + tp * r)
 
-        if (p1 is not None) and (p2 is not None) and (distance(p1, p2) < tol):
-            p2 = None
+        # if (p1 is not None) and (p2 is not None) and (distance(p1, p2) < self.epsilon):
+        #     p2 = None
 
         return p1, p2
 
-    def sanitize_geometry(self):
+    def generate_intersections(self):
         N = len(self.lines)
         newlines = list()
         for i in range(N):
@@ -286,14 +288,14 @@ class Geometry:
                 if p1 is not None:
                     if i != j:
                         # plt.scatter(p1[0], p1[1], c="r", marker="o", s=40)
+                        intersections.append((distance(line_1.start_pt, p1), *p1))
                         pass
-                    intersections.append((distance(line_1.start_pt, p1), *p1))
 
                 if p2 is not None:
                     if i != j:
                         # plt.scatter(p2[0], p2[1], c="r", marker="o", s=40)
+                        intersections.append((distance(line_1.start_pt, p2), *p2))
                         pass
-                    intersections.append((distance(line_1.start_pt, p2), *p2))
 
             intersections.sort(key=lambda ii: ii[0])
             for k in range(len(intersections) - 1):

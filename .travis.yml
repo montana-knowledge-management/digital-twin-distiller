@@ -14,7 +14,7 @@ before_install:
     - sudo apt update
     - sudo apt install --install-recommends winehq-stable
     - winecfg
-    - cd resources
+    - cd svgtests
     - tar -Jxf femm42.tar.xz --directory $HOME/.wine/drive_c/
 
 

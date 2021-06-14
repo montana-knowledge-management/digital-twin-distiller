@@ -1,5 +1,6 @@
 import math
 
+
 class Node:
     """
     A Node identified by (x,y) coordinates, optionally it can contains an id number or a label. The id_number and
