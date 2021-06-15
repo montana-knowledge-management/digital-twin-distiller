@@ -169,22 +169,13 @@ class FemmWriter:
         """
 
         lua_geometry = []
-        minx = min(geometry.nodes, key=lambda ni: ni.x).x
-        miny = min(geometry.nodes, key=lambda ni: ni.y).y
-        maxx = max(geometry.nodes, key=lambda ni: ni.x).x
-        maxy = max(geometry.nodes, key=lambda ni: ni.y).y
-        offsetx = -minx # align to the right side of y axis
-        offsety = -miny-(maxy-miny)/2 # align symmetrically to the x axis
 
         # 1 - generate the nodes
         for node in geometry.nodes:
-            lua_geometry.append(self.add_node(node.x + offsetx, node.y + offsety))
+            lua_geometry.append(self.add_node(node.x, node.y))
 
         for line in geometry.lines:
-            lua_geometry.append(self.add_segment(line.start_pt.x + offsetx,
-                                                 line.start_pt.y + offsety,
-                                                 line.end_pt.x + offsetx,
-                                                 line.end_pt.y + offsety))
+            lua_geometry.append(self.add_segment(line.start_pt.x, line.start_pt.y, line.end_pt.x, line.end_pt.y))
 
         for arc in geometry.circle_arcs:
             # calculate the angle for the femm circle arc generation
@@ -194,11 +185,7 @@ class FemmWriter:
             deg = 2 * round(degrees(asin(clamp / radius)), 2)
 
             lua_geometry.append(
-                self.add_arc(arc.start_pt.x + offsetx,
-                             arc.start_pt.y + offsety,
-                             arc.end_pt.x + offsetx,
-                             arc.end_pt.y + offsety,
-                             angle=deg, maxseg=1)
+                self.add_arc(arc.start_pt.x, arc.start_pt.y, arc.end_pt.x, arc.end_pt.y, angle=deg, maxseg=1)
             )
 
         return lua_geometry
@@ -673,17 +660,19 @@ class FemmWriter:
         with open(file_name) as f:
             h = 0
             b = 0
-            if first_column.lower() == 'h':
+            if first_column.lower() == "h":
                 h = 0
                 b = 1
             else:
                 h = 1
                 b = 0
 
-            next(f)  # skip first row
             for line in f.readlines():
-                line = [float(li) for li in line.strip().split(separator)]
-                cmd += f'mi_addbhpoint("{material.material_name}", {line[b]}, {line[h]})\n'
+                try:
+                    line = [float(li) for li in line.strip().split(separator)]
+                    cmd += f'mi_addbhpoint("{material.material_name}", {line[b]}, {line[h]})\n'
+                except ValueError:
+                    continue
 
         if self.push:
             self.lua_model.append(cmd)
