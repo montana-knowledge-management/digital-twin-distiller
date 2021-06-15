@@ -17,3 +17,11 @@ class TestSvgImport(TestCase):
         self.assertTrue(len(geo.lines) > 0)
         self.assertTrue(len(geo.cubic_beziers) > 0)
         self.assertTrue(len(geo.circle_arcs) == 0)
+
+    def test_approximate_owl(self):
+        eml = files("examples.owl").joinpath("owl-svgrepo-com.svg")
+        geo = Geometry()
+        geo.import_svg(eml.as_posix())
+
+        print(geo.cubic_beziers)
+

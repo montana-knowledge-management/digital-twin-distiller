@@ -43,8 +43,17 @@ class Geometry:
         self.nodes.append(cb.control2)
         self.nodes.append(cb.end_pt)
 
+    def bezier2polygon(self, tolerance=1e-2):
+
+
+
+        return
+
     def delete_hanging_nodes(self):
-        """Delete all nodes, which not part of a another object (Line, Circle, etc) """
+        """
+        Delete all nodes, which not part of a another object (Line, Circle, etc) or the node is the center point of
+        the circle.
+        """
         temp = []
         for node in self.nodes:
             hanging = True
@@ -53,9 +62,9 @@ class Geometry:
                     hanging = False
 
             for arc in self.circle_arcs:
-               if node.id == arc.start_pt.id or \
-                       node.id == arc.end_pt.id:
-                   hanging = False
+                if node.id == arc.start_pt.id or \
+                        node.id == arc.end_pt.id:
+                    hanging = False
 
             if not hanging:
                 temp.append(node)

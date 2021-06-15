@@ -5,3 +5,4 @@ importlib-resources
 pygmsh
 gmsh
 ezdxf
+scipy
