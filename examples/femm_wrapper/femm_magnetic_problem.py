@@ -68,10 +68,10 @@ def air_core_coil_inductance():
     # FEMM inductance =  0.64707 mH
 
     writer = FemmWriter()
-    writer.lua_model.extend(writer.init_problem(out_file="femm_data.csv"))
+    writer.init_problem(out_file="femm_data.csv")
 
     # problem definition
-    writer.lua_model.append(writer.magnetic_problem(0, "inches", "axi"))
+    writer.magnetic_problem(0, "inches", "axi")
 
     # model geometry
     # rectangle (coil) -- ri, -z / 2, ro, z / 2 --
@@ -83,65 +83,65 @@ def air_core_coil_inductance():
 
     # nodes
     z = 0.5 * z
-    writer.lua_model.append(writer.add_node(ri, -z))
-    writer.lua_model.append(writer.add_node(ri, z))
-    writer.lua_model.append(writer.add_node(ro, -z))
-    writer.lua_model.append(writer.add_node(ro, z))
+    writer.add_node(ri, -z)
+    writer.add_node(ri, z)
+    writer.add_node(ro, -z)
+    writer.add_node(ro, z)
 
-    writer.lua_model.append(writer.add_segment(ri, -z, ri, z))
-    writer.lua_model.append(writer.add_segment(ri, z, ro, z))
-    writer.lua_model.append(writer.add_segment(ro, z, ro, -z))
-    writer.lua_model.append(writer.add_segment(ro, -z, ri, -z))
+    writer.add_segment(ri, -z, ri, z)
+    writer.add_segment(ri, z, ro, z)
+    writer.add_segment(ro, z, ro, -z)
+    writer.add_segment(ro, -z, ri, -z)
 
     # air region
-    writer.lua_model.append(writer.add_node(0, -r))
-    writer.lua_model.append(writer.add_node(0, r))
-    writer.lua_model.append(writer.add_segment(0, -r, 0, r))
+    writer.add_node(0, -r)
+    writer.add_node(0, r)
+    writer.add_segment(0, -r, 0, r)
 
-    writer.lua_model.append(writer.add_arc(0.0, -r, 0.0, r, 180, 5))
+    writer.add_arc(0.0, -r, 0.0, r, 180, 5)
 
     # circle properties and material definitions
-    writer.lua_model.append(writer.add_circprop("icoil", 1, 1))
+    writer.add_circprop("icoil", 1, 1)
 
-    writer.lua_model.append(writer.add_blocklabel((ri + ro) / 2, 0))
-    writer.lua_model.append(writer.add_blocklabel(0.75 * r, 0))
+    writer.add_blocklabel((ri + ro) / 2, 0)
+    writer.add_blocklabel(0.75 * r, 0)
 
     # add material properties
     coil = MagneticMaterial("coil", 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
     air = MagneticMaterial("air", 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
 
-    writer.lua_model.append(writer.add_material(coil))
-    writer.lua_model.append(writer.add_material(air))
+    writer.add_material(coil)
+    writer.add_material(air)
 
     # add boundary properties
     mixed_boundary = MagneticMixed("abc", 1.0 / (r * 0.0254 * pi * 4e-7), 0)
-    writer.lua_model.append(FemmWriter().add_boundary(mixed_boundary))
+    FemmWriter().add_boundary(mixed_boundary)
 
     # set coil property
-    writer.lua_model.append(writer.select_label((ri + ro) / 2, 0))
-    writer.lua_model.append(writer.set_blockprop("coil", 0, r / 20, 0, circuit_name="icoil", turns=n, magdirection=0))
-    writer.lua_model.append(writer.clear_selected())
+    writer.select_label((ri + ro) / 2, 0)
+    writer.set_blockprop("coil", 0, r / 20, 0, circuit_name="icoil", turns=n, magdirection=0)
+    writer.clear_selected()
 
     # set air
-    writer.lua_model.append(writer.select_label(0.75 * r, 0))
-    writer.lua_model.append(writer.set_blockprop("air", 0, r / 100, 0, circuit_name="<None>", turns=0, magdirection=0))
-    writer.lua_model.append(writer.clear_selected())
+    writer.select_label(0.75 * r, 0)
+    writer.set_blockprop("air", 0, r / 100, 0, circuit_name="<None>", turns=0, magdirection=0)
+    writer.clear_selected()
 
     # set boundaries
-    writer.lua_model.append(writer.select_arc_segment(r, 0))
-    writer.lua_model.append(writer.set_arc_segment_prop(5, "abc", 0, 0))
+    writer.select_arc_segment(r, 0)
+    writer.set_arc_segment_prop(5, "abc", 0, 0)
 
     # the model have to be saved into a femm format to be used from the FEMM-wrapper script
-    writer.lua_model.append(writer.save_as("test.fem"))
-    writer.lua_model.append(writer.analyze())
-    writer.lua_model.append(writer.load_solution())
-    writer.lua_model.append(writer.get_circuit_properties("icoil", result="current, volt, flux"))
-    writer.lua_model.append(writer.write_out_result("current", "current"))
-    writer.lua_model.append(writer.write_out_result("volt", "volt"))
-    writer.lua_model.append(writer.write_out_result("flux", "flux"))
+    writer.save_as("test.fem")
+    writer.analyze()
+    writer.load_solution()
+    writer.get_circuit_properties("icoil", result="current, volt, flux")
+    writer.write_out_result("current", "current")
+    writer.write_out_result("volt", "volt")
+    writer.write_out_result("flux", "flux")
 
     # print(writer.lua_model)
-    writer.lua_model.extend(writer.close())
+    writer.close()
     writer.write("test.lua")
 
 

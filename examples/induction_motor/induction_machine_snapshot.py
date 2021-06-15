@@ -83,13 +83,13 @@ def create_snapshot():
     femm_model.lua_model += rods.create_femm_block_label()
 
     # coil definitions
-    femm_model.lua_model += create_phase('copper_a', Node(45.5, 3.5), 1, 'A', '1', 44)
-    femm_model.lua_model += create_phase('copper_b', Node(20.0, 43.9), 3, 'B', '-0.5+I*0.8660254037844386', 44)
-    femm_model.lua_model += create_phase('copper_c', Node(39.285, 26.8865), 2, 'C', '-0.5-I*0.866025403784439', -44)
+    femm_model.lua_model += create_phase("copper_a", Node(45.5, 3.5), 1, "A", "1", 44)
+    femm_model.lua_model += create_phase("copper_b", Node(20.0, 43.9), 3, "B", "-0.5+I*0.8660254037844386", 44)
+    femm_model.lua_model += create_phase("copper_c", Node(39.285, 26.8865), 2, "C", "-0.5-I*0.866025403784439", -44)
 
     # boundary conditions
     # dirichlet
-    a0 = MagneticDirichlet('a0', 0, 0, 0, 0)  # "name", "a_0", "a_1", "a_2", "phi"
+    a0 = MagneticDirichlet("a0", 0, 0, 0, 0)  # "name", "a_0", "a_1", "a_2", "phi"
 
     diri = BoundarySnaphot()
     diri.boundary = a0
@@ -105,25 +105,25 @@ def create_snapshot():
     femm_model.lua_model += diri.create_femm_boundaries()
 
     # antiperiodic conditions
-    ap1 = MagneticAnti('ap1')
+    ap1 = MagneticAnti("ap1")
     app1 = BoundarySnaphot()
     app1.boundary = ap1
     app1.group = 2
     app1.field_type = femm_magnetic  # magnetic field with the femm material
 
-    ap2 = MagneticAnti('ap2')
+    ap2 = MagneticAnti("ap2")
     app2 = BoundarySnaphot()
     app2.boundary = ap2
     app2.group = 3
     app2.field_type = femm_magnetic  # magnetic field with the femm material
 
-    ap3 = MagneticAnti('ap3')
+    ap3 = MagneticAnti("ap3")
     app3 = BoundarySnaphot()
     app3.boundary = ap3
     app3.group = 4
     app3.field_type = femm_magnetic  # magnetic field with the femm material
 
-    ap4 = MagneticAnti('ap4')
+    ap4 = MagneticAnti("ap4")
     app4 = BoundarySnaphot()
     app4.boundary = ap4
     app4.group = 5
@@ -177,10 +177,10 @@ def create_snapshot():
     femm_model.lua_model.append(femm_model.load_solution())
 
     # femm_model.lua_model.extend(femm_model.close())
-    femm_model.write('2horse.lua')
+    femm_model.write("2horse.lua")
     return
 
 
 if __name__ == "__main__":
     create_snapshot()
-    FemmExecutor().run_femm('2horse.lua')
+    FemmExecutor().run_femm("2horse.lua")

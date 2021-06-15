@@ -7,7 +7,7 @@ setup(
         "pre-commit",
         "numpy",
         "svgpathtools",
-        "importlib-resources",
+        "importlib-svgtests",
         "pygmsh",
         "gmsh",
         "ezdxf",

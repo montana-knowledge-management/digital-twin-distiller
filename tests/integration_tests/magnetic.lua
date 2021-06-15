@@ -35,11 +35,8 @@ mi_analyze(1)
 mi_loadsolution()
 current, volt, flux = mo_getcircuitproperties('icoil')
 write(file_out, 'current', ', ', current, "\n")
-
 write(file_out, 'volt', ', ', volt, "\n")
-
 write(file_out, 'flux', ', ', flux, "\n")
-
 closefile(file_out)
 mo_close()
 mi_close()

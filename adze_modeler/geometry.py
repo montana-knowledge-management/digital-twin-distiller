@@ -3,12 +3,14 @@ This class realize a layer, where the different elements of the geometry can be 
 A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
-import adze_modeler.objects as obj
 import sys
+from uuid import uuid4
 
+import adze_modeler.objects as obj
 import ezdxf
 import numpy as np
 import svgpathtools as svg
+from importlib_resources import files
 
 
 class Geometry:
@@ -50,10 +52,7 @@ class Geometry:
         return
 
     def delete_hanging_nodes(self):
-        """
-        Delete all nodes, which not part of a another object (Line, Circle, etc) or the node is the center point of
-        the circle.
-        """
+        """Delete all nodes, which not part of a another object (Line, Circle, etc)"""
         temp = []
         for node in self.nodes:
             hanging = True
@@ -62,8 +61,7 @@ class Geometry:
                     hanging = False
 
             for arc in self.circle_arcs:
-                if node.id == arc.start_pt.id or \
-                        node.id == arc.end_pt.id:
+                if node.id == arc.start_pt.id or node.id == arc.end_pt.id:
                     hanging = False
 
             if not hanging:
@@ -88,6 +86,25 @@ class Geometry:
                     del self.nodes[j]
             # if node_1.distance_to(node_2) < self.epsilon:
             #    print(i)
+
+    def merge_lines(self):
+        self.merge_points()
+        for i in range(len(self.lines) - 1):
+            try:
+                id1 = self.lines[i].start_pt.id
+                id2 = self.lines[i].end_pt.id
+            except IndexError:
+                pass
+            for j in range(len(self.lines) - 1, i, -1):
+                id3 = self.lines[j].start_pt.id
+                id4 = self.lines[j].end_pt.id
+                l = self.lines[j].start_pt.distance_to(self.lines[j].end_pt)
+
+                if l < self.epsilon:
+                    del self.lines[j]
+
+                elif {id1, id2} == {id3, id4}:
+                    del self.lines[j]
 
     def meshi_it(self, mesh_strategy):
         mesh = mesh_strategy(self.nodes, self.lines, self.circle_arcs, self.cubic_beziers)
@@ -183,6 +200,126 @@ class Geometry:
 
         self.merge_points()
         return
+
+    def get_line_intersetions(self, line_1, line_2):
+        """
+        :param line_1: the first line
+        :param line_2: second line
+
+        :returns: None, None or tuple(x, y), None or (x1, y1), (x2, y2)
+
+        https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+
+        Conditions:
+        1. If r × s = 0 and (q − p) × r = 0, then the two lines are collinear.
+        2. If r × s = 0 and (q − p) × r ≠ 0, then the two lines are parallel and non-intersecting.
+        3. If r × s ≠ 0 and 0 ≤ t ≤ 1 and 0 ≤ u ≤ 1, the two line segments meet at the point p + t r = q + u s.
+        4. Otherwise, the two line segments are not parallel but do not intersect.
+
+        """
+
+        x1 = line_1.start_pt.x
+        y1 = line_1.start_pt.y
+        x2 = line_1.end_pt.x
+        y2 = line_1.end_pt.y
+
+        x3 = line_2.start_pt.x
+        y3 = line_2.start_pt.y
+        x4 = line_2.end_pt.x
+        y4 = line_2.end_pt.y
+
+        p1 = None
+        p2 = None
+
+        p = np.array([x1, y1])
+        r = np.array([x2 - x1, y2 - y1])
+
+        q = np.array([x3, y3])
+        s = np.array([x4 - x3, y4 - y3])
+
+        test1 = np.abs(np.cross(r, s))
+        test2 = np.abs(np.cross((q - p), r))
+
+        t0 = np.dot(q - p, r) / np.dot(r, r)
+        t1 = t0 + np.dot(s, r) / np.dot(r, r)
+        t2 = np.dot(p - q, s) / np.dot(s, s)
+        t3 = t2 + np.dot(r, s) / np.dot(s, s)
+
+        inrange = lambda x: x > (0 - self.epsilon) and x < (1 + self.epsilon)
+        # distance = lambda x, y: np.sqrt((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2)
+
+        if test1 < self.epsilon:
+
+            if test2 < self.epsilon:
+
+                if inrange(t0):
+                    p1 = tuple(p + t0 * r)
+
+                if inrange(t1):
+                    p2 = tuple(p + t1 * r)
+
+                if inrange(t2):
+                    p1 = tuple(q + t2 * s)
+
+                if inrange(t3):
+                    p2 = tuple(q + t3 * s)
+
+        else:
+            up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+            )
+            tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+            )
+            if inrange(tp) and inrange(up):
+                p1 = tuple(p + tp * r)
+
+        # if (p1 is not None) and (p2 is not None) and (distance(p1, p2) < self.epsilon):
+        #     p2 = None
+
+        return p1, p2
+
+    def generate_intersections(self):
+        N = len(self.lines)
+        newlines = list()
+        for i in range(N):
+            line_1 = self.lines[i]
+            intersections = list()
+            distance = lambda a, b: (a.x - b[0]) ** 2 + (a.y - b[1]) ** 2
+
+            for j in range(0, N):  # i+1 is important
+                line_2 = self.lines[j]
+                p1, p2 = self.get_line_intersetions(line_1, line_2)
+
+                if p1 is not None:
+                    if i != j:
+                        # plt.scatter(p1[0], p1[1], c="r", marker="o", s=40)
+                        intersections.append((distance(line_1.start_pt, p1), *p1))
+                        pass
+
+                if p2 is not None:
+                    if i != j:
+                        # plt.scatter(p2[0], p2[1], c="r", marker="o", s=40)
+                        intersections.append((distance(line_1.start_pt, p2), *p2))
+                        pass
+
+            intersections.sort(key=lambda ii: ii[0])
+            for k in range(len(intersections) - 1):
+                start_node = obj.Node(x=intersections[k][1], y=intersections[k][2], id=self.getid())
+                end_node = obj.Node(x=intersections[k + 1][1], y=intersections[k + 1][2], id=self.getid())
+                newlines.append(obj.Line(start_pt=start_node, end_pt=end_node, id=self.getid()))
+
+        self.nodes.clear()
+        self.lines.clear()
+
+        for li in newlines:
+            self.add_line(li)
+
+        self.merge_lines()
+
+    def getid(self):
+        return int(uuid4())
+
 
 # def node_gmsh_point_distance(node, point):
 #     dx = node.x - point.x[0]

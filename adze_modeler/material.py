@@ -1,9 +1,12 @@
+from adze_modeler.femm_wrapper import femm_fields
+from adze_modeler.femm_wrapper import femm_magnetic
+from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.objects import Node
-from adze_modeler.femm_wrapper import FemmWriter, femm_magnetic, femm_fields
 
 
 # the label positions  will be stored in the material class
 # more then one region can be assigned to a material
+
 
 class MaterialSnapshot:
     """
@@ -32,8 +35,8 @@ class MaterialSnapshot:
 
     def create_femm_block_label(self):
         """
-            Creates the material definition labels for every given region.
-            The circuit properties and material property definitions are merged within this commands.
+        Creates the material definition labels for every given region.
+        The circuit properties and material property definitions are merged within this commands.
         """
         cmds = []
 
@@ -41,9 +44,11 @@ class MaterialSnapshot:
         cmds.append(FemmWriter().add_material(self.material_definition))
 
         if self.circuit_name != "<None>":
-            cmds.append(FemmWriter().add_circprop(circuitname=self.circuit_name,
-                                                  i=self.circuit_current,
-                                                  circuittype=self.circuit_type))
+            cmds.append(
+                FemmWriter().add_circprop(
+                    circuitname=self.circuit_name, i=self.circuit_current, circuittype=self.circuit_type
+                )
+            )
 
         if self.field_type in femm_fields:
             for point in self.region_labels:
@@ -58,16 +63,25 @@ class MaterialSnapshot:
                 # femm command contains special inputs only in the case of magnetic field simulation
                 if self.field_type == femm_magnetic:
 
-                    cmds.append(FemmWriter().set_blockprop(blockname=self.material_definition.material_name,
-                                                           automesh=automesh,
-                                                           meshsize=self.meshsize,
-                                                           group=0,
-                                                           circuit_name=self.circuit_name,
-                                                           magdirection=self.magdirection,
-                                                           turns=self.turn_umber))
+                    cmds.append(
+                        FemmWriter().set_blockprop(
+                            blockname=self.material_definition.material_name,
+                            automesh=automesh,
+                            meshsize=self.meshsize,
+                            group=0,
+                            circuit_name=self.circuit_name,
+                            magdirection=self.magdirection,
+                            turns=self.turn_umber,
+                        )
+                    )
                 else:
-                    cmds.append(FemmWriter().set_blockprop(blockname=self.material_definition.material_name,
-                                                           automesh=automesh,
-                                                           meshsize=self.meshsize, group=0))
+                    cmds.append(
+                        FemmWriter().set_blockprop(
+                            blockname=self.material_definition.material_name,
+                            automesh=automesh,
+                            meshsize=self.meshsize,
+                            group=0,
+                        )
+                    )
                 cmds.append(FemmWriter().clear_selected())
         return cmds

@@ -27,6 +27,13 @@ class Node:
         """Point(x1*x2, y1*y2)"""
         return Node(self.x * scalar, self.y * scalar)
 
+    def __rmul__(self, other):
+        """
+        Dot prduct
+        n1 @ n2
+        """
+        return self.x * other.x + self.y * other.y
+
     def __str__(self):
         return f"({self.x}, {self.y}, id={self.id},label={self.label})"
 
@@ -85,6 +92,9 @@ class Line:
         self.end_pt = end_pt
         self.id = id
         self.label = label
+
+    def clone(self):
+        return Line(self.start_pt, self.end_pt, self.id, self.label)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.start_pt!r}, {self.end_pt!r}, id={self.id!r},label={self.label!r})"
