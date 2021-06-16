@@ -12,4 +12,5 @@ setup(
         "gmsh",
         "ezdxf",
     ],
+    extras_require={"full": [f"agrossuite >= 0.01"]},
 )
