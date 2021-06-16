@@ -17,8 +17,10 @@ class Agros2DWrapper:
         }
         self.coordinate_type = "planar"
         self.mesh_type = "triangle"
+        self.boundary_conditions = {}
 
     def add_field_electrostatic(self, **kwargs):
+        # TODO: fix self.fields update
         """
         :param analysis: 'steady'
         :param solver: 'linear'
@@ -199,7 +201,24 @@ class Agros2DWrapper:
         else:
             raise ValueError(f'There is no "{mesh_type}" type of mesh.')
 
+    def add_boundary_condition(self, name, value, bctype, field):
+        """
+        Define a new boundary condition.
+
+        :param name: name of the boundary condition
+        :param value: The value of the boundary condition
+        :param bctype: 'dirichlet', 'neumann'
+        :param field: 'electrostatic', 'magnetic', 'heat', 'current'
+        """
+        if name not in self.boundary_conditions.keys():
+            self.boundary_conditions[name] = (field, bctype, value)
+        else:
+            raise ValueError(f'There is a boundary condition called "{name}".')
+
 
 if __name__ == "__main__":
     ag = Agros2DWrapper()
-    ag.add_field_electrostatic(analysis="steady")
+    ag.add_field_electrostatic()
+    ag.add_boundary_condition("Source", 10, 'dirichlet', 'electrostatic')
+    ag.add_boundary_condition("Ground", 0, 'dirichlet', 'electrostatic')
+    ag.add_boundary_condition("Neumann", 0, 'neumann', 'electrostatic')

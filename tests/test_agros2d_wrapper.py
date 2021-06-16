@@ -97,3 +97,19 @@ class Agros2DTester(TestCase):
 
 
         self.assertRaises(ValueError, w.set_mesh_type, "eper")
+
+    def test_add_boundary_condition(self):
+        w = Agros2DWrapper()
+
+        w.add_boundary_condition('Vg', 10, 'dirichlet', 'electrostatic')
+        self.assertEqual(w.boundary_conditions['Vg'][0], 'electrostatic')
+        self.assertEqual(w.boundary_conditions['Vg'][1], 'dirichlet')
+        self.assertEqual(w.boundary_conditions['Vg'][2], 10)
+
+        w.add_boundary_condition('n1', 0, 'neumann', 'magnetic')
+        self.assertEqual(w.boundary_conditions['n1'][0], 'magnetic')
+        self.assertEqual(w.boundary_conditions['n1'][1], 'neumann')
+        self.assertEqual(w.boundary_conditions['n1'][2], 0)
+
+        # name, value, bctype, field
+        self.assertRaises(ValueError, w.add_boundary_condition, 'n1', 0, 'dirichlet', 'magnetic')
