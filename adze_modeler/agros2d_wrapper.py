@@ -20,7 +20,6 @@ class Agros2DWrapper:
         self.boundary_conditions = {}
 
     def add_field_electrostatic(self, **kwargs):
-        # TODO: fix self.fields update
         """
         :param analysis: 'steady'
         :param solver: 'linear'
@@ -55,7 +54,12 @@ class Agros2DWrapper:
         if adaptivity not in {"disabled", "h", "p", "hp"}:
             raise ValueError(f"Incorrect value for adaptivity. ({adaptivity})")
 
-        self.fields["electrostatic"].update(kwargs)
+        self.fields["electrostatic"]['analysis'] = analysis
+        self.fields["electrostatic"]['solver'] = solver
+        self.fields["electrostatic"]['matrix_solver'] = matrix_solver
+        self.fields["electrostatic"]['nb_refinements'] = nb_refinements
+        self.fields["electrostatic"]['nb_polyorder'] = nb_polyorder
+        self.fields["electrostatic"]['adaptivity'] = adaptivity
 
     def add_field_magnetic(self, **kwargs):
         """
@@ -92,7 +96,12 @@ class Agros2DWrapper:
         if adaptivity not in {"disabled", "h", "p", "hp"}:
             raise ValueError(f"Incorrect value for adaptivity. ({adaptivity})")
 
-        self.fields["magnetic"].update(kwargs)
+        self.fields["magnetic"]['analysis'] = analysis
+        self.fields["magnetic"]['solver'] = solver
+        self.fields["magnetic"]['matrix_solver'] = matrix_solver
+        self.fields["magnetic"]['nb_refinements'] = nb_refinements
+        self.fields["magnetic"]['nb_polyorder'] = nb_polyorder
+        self.fields["magnetic"]['adaptivity'] = adaptivity
 
     def add_field_heat_transfer(self, **kwargs):
         """
@@ -129,7 +138,12 @@ class Agros2DWrapper:
         if adaptivity not in {"disabled", "h", "p", "hp"}:
             raise ValueError(f"Incorrect value for adaptivity. ({adaptivity})")
 
-        self.fields["heat"].update(kwargs)
+        self.fields["heat"]['analysis'] = analysis
+        self.fields["heat"]['solver'] = solver
+        self.fields["heat"]['matrix_solver'] = matrix_solver
+        self.fields["heat"]['nb_refinements'] = nb_refinements
+        self.fields["heat"]['nb_polyorder'] = nb_polyorder
+        self.fields["heat"]['adaptivity'] = adaptivity
 
     def add_field_current_flow(self, **kwargs):
         """
@@ -166,7 +180,12 @@ class Agros2DWrapper:
         if adaptivity not in {"disabled", "h", "p", "hp"}:
             raise ValueError(f"Incorrect value for adaptivity. ({adaptivity})")
 
-        self.fields["current"].update(kwargs)
+        self.fields["current"]['analysis'] = analysis
+        self.fields["current"]['solver'] = solver
+        self.fields["current"]['matrix_solver'] = matrix_solver
+        self.fields["current"]['nb_refinements'] = nb_refinements
+        self.fields["current"]['nb_polyorder'] = nb_polyorder
+        self.fields["current"]['adaptivity'] = adaptivity
 
     def set_coordinate_type(self, coordinate_type):
         """
