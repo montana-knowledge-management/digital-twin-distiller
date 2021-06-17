@@ -7,12 +7,28 @@ execute a script with gui:
 """
 
 import sys
+from adze_modeler.agros_fields import ElectrostaticField, newline
+from adze_modeler.geometry import Geometry
 
 
 class Agros2DWrapper:
     def __init__(self):
         self.coordinate_type = "planar"
         self.mesh_type = "triangle"
+
+        self.field_e = None  # Electrostatic
+        self.field_m = None  # Magnetic
+        self.field_h = None  # Heat Flow
+        self.field_c = None  # Current Flow
+
+        self.edges = {}
+
+    def add_field(self, type_):
+
+        if type_ == 'e':
+            self.field_e = ElectrostaticField()
+        else:
+            raise NotImplementedError()
 
     def set_coordinate_type(self, coordinate_type):
         """
@@ -47,32 +63,29 @@ class Agros2DWrapper:
         else:
             raise ValueError(f'There is no "{mesh_type}" type of mesh.')
 
-    def add_boundary_condition(self, name, value, bctype, field):
-        """
-        Define a new boundary condition.
-
-        :param name: name of the boundary condition
-        :param value: The value of the boundary condition
-        :param bctype: 'dirichlet', 'neumann'
-        :param field: 'electrostatic', 'magnetic', 'heat', 'current'
-        """
-        if name not in self.boundary_conditions.keys():
-            self.boundary_conditions[name] = (field, bctype, value)
-        else:
-            raise ValueError(f'There is a boundary condition called "{name}".')
-
-    def add_material(self, name, **kwargs):
-        pass
+    def add_geometry(self, geo: Geometry):
+        for ei in geo.lines:
+            key = f'{ei.start_pt.x:.4f}{ei.start_pt.y:.4f}{ei.end_pt.x:.4f}{ei.end_pt.y:.4f}'
+            self.edges[key] = (ei.start_pt.x, ei.start_pt.y, ei.end_pt.x, ei.end_pt.y)
 
 
     def export(self, out_file):
-        # TODO: Add field keywords correcting function
 
-        sys.stdout = open(out_file, 'w')
-        newline = lambda n: print('\n'*(n-1))
+        sys.stdout = open(out_file, "w")
 
         print("import agros2d as a2d")
         newline(2)
         print("# problem")
+        if self.field_e:
+            self.field_e.export()
+
+        if self.field_m:
+            self.field_m.export()
+
+        if self.field_h:
+            self.field_h.export()
+
+        if self.field_c:
+            self.field_c.export()
 
         sys.stdout.close()
