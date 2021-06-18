@@ -7,7 +7,7 @@ execute a script with gui:
 """
 
 import sys
-from adze_modeler.agros_fields import ElectrostaticField, newline
+from adze_modeler.agros_fields import ElectrostaticField, newline, MagneticField
 from adze_modeler.geometry import Geometry
 
 
@@ -16,17 +16,18 @@ class Agros2DWrapper:
         self.coordinate_type = "planar"
         self.mesh_type = "triangle"
 
-        self.field_e = None  # Electrostatic
-        self.field_m = None  # Magnetic
-        self.field_h = None  # Heat Flow
-        self.field_c = None  # Current Flow
+        # TODO: expand field names
+        self.field = None
 
-        self.edges = {}
+        self.edges = list()
+        self.labels = list()
 
     def add_field(self, type_):
 
-        if type_ == 'e':
-            self.field_e = ElectrostaticField()
+        if type_ == "e":
+            self.field = ElectrostaticField()
+        elif type_ == "m":
+            self.field = MagneticField()
         else:
             raise NotImplementedError()
 
@@ -65,27 +66,61 @@ class Agros2DWrapper:
 
     def add_geometry(self, geo: Geometry):
         for ei in geo.lines:
-            key = f'{ei.start_pt.x:.4f}{ei.start_pt.y:.4f}{ei.end_pt.x:.4f}{ei.end_pt.y:.4f}'
-            self.edges[key] = (ei.start_pt.x, ei.start_pt.y, ei.end_pt.x, ei.end_pt.y)
+            self.edges.append((ei.start_pt.x, ei.start_pt.y, ei.end_pt.x, ei.end_pt.y))
 
+    def add_edge(self, start_x, start_y, end_x, end_y, boundary=None):
+        self.edges.append((start_x, start_y, end_x, end_y, boundary))
+
+    def add_block_label(self, x, y, name):
+        self.labels.append((name, x, y))
 
     def export(self, out_file):
 
+        # TODO: check if this is portable
         sys.stdout = open(out_file, "w")
 
         print("import agros2d as a2d")
         newline(2)
         print("# problem")
-        if self.field_e:
-            self.field_e.export()
+        print("problem = a2d.problem(clear=True)")
+        print(f'problem.coordinate_type = "{self.coordinate_type}"')
+        print(f'problem.mesh_type = "{self.mesh_type}"')
+        newline(2)
+        print("# fields")
 
-        if self.field_m:
-            self.field_m.export()
+        self.field.export()
 
-        if self.field_h:
-            self.field_h.export()
+        newline(2)
+        print("# geometry")
+        print("geometry = a2d.geometry")
+        newline()
+        print("# edges")
+        for ei in self.edges:
+            if ei[4]:
+                print(f'geometry.add_edge({ei[0]:.4f}, {ei[1]:.4f}, {ei[2]:.4f}, {ei[3]:.4f}, '
+                      f'boundaries={{"electrostatic": "{ei[4]}"}})')
+            else:
+                print(f"geometry.add_edge({ei[0]:.4f}, {ei[1]:.4f}, {ei[2]:.4f}, {ei[3]:.4f})")
 
-        if self.field_c:
-            self.field_c.export()
+        newline()
+        print("# block labels")
+
+        for bl_i in self.labels:
+            if bl_i[0] in self.field.materials.keys():
+                print(
+                    f'geometry.add_label({bl_i[1]:.4f}, {bl_i[2]:.4f}, materials = {{"electrostatic" : "{bl_i[0]}"}})'
+                )
+            #
+            # elif bl_i[0] in self.field_m.materials.keys():
+            #     print(f'geometry.add_label({bl_i[1]:.4f}, {bl_i[2]:.4f}, materials = {{"magnetic" : "{bl_i[0]}"}})')
+            #
+            # elif bl_i[0] in self.field_c.materials.keys():
+            #     # TODO: check is "current" is proper syntax
+            #     print(f'geometry.add_label({bl_i[1]:.4f}, {bl_i[2]:.4f}, materials = {{"current" : "{bl_i[0]}"}})')
+            #
+            # elif bl_i[0] in self.field_h.materials.keys():
+            #     print(f'geometry.add_label({bl_i[1]:.4f}, {bl_i[2]:.4f}, materials = {{"heat" : "{bl_i[0]}"}})')
+
+        print("a2d.view.zoom_best_fit()")
 
         sys.stdout.close()

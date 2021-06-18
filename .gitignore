@@ -132,3 +132,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 sandbox/
+/examples/agros2d/a2g_electrostatic.py
