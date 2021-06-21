@@ -133,3 +133,4 @@ dmypy.json
 .pyre/
 sandbox/
 /examples/agros2d/a2g_electrostatic.py
+/examples/agros2d/a2g_magnetic.py

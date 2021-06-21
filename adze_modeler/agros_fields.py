@@ -150,6 +150,7 @@ class ElectrostaticField(Field):
 class MagneticField(Field):
     def __init__(self):
         super().__init__()
+        self.name="magnetic"
 
     def set_analysis(self, analysis_type):
         if analysis_type == "steady":
@@ -187,16 +188,13 @@ class MagneticField(Field):
     def add_material(
         self,
         name,
-        total_current_prescribed=False,
-        current_density_external_real=0,
-        current_density_external_imag=0,
-        total_current_real=0,
-        total_current_imag=0,
+        current_density_external=0,
+        total_current=0,
         conductivity=0,
         velocity_x=0,
         velocity_y=0,
         velocity_angular=0,
-        mu_r=1,
+        mur=1,
         remanence_angle=0,
         remanence=0,
         H=None,
@@ -205,18 +203,21 @@ class MagneticField(Field):
     ):
         mu0 = 4 * (1146408 / 364913) * 10 ** -7
         newmaterial = SimpleNamespace(
-            Ipresc=total_current_prescribed,
-            Je=current_density_external_real + 1j * current_density_external_imag,
-            Itot=total_current_real + 1j * total_current_imag,
+            Ipresc=False,
+            Je=current_density_external,
+            Itot=total_current,
             Sigma=conductivity,
             vx=velocity_x,
             vy=velocity_y,
             omega=velocity_angular,
-            mur=mu_r,
+            mur=mur,
             B=None,
             remanence=remanence,
             remanence_angle=remanence_angle,
         )
+
+        if total_current:
+            newmaterial.total_current_prescribed = True
 
         if B and H and isinstance(B, Iterable) and isinstance(H, Iterable) and len(B) == len(H):
             self.set_solver("picard")
@@ -226,7 +227,7 @@ class MagneticField(Field):
 
             interpolation_method = kwargs.get("interpolation", "piecewise")
             newmaterial.interpolation = interpolation_method
-            newmaterial.mu_r = mu_r.copy()
+            newmaterial.mur = mu_r.copy()
             newmaterial.B = B.copy()
 
         self.materials[name] = newmaterial
@@ -258,12 +259,26 @@ class MagneticField(Field):
         for name, bi in self.bc_dirichlet.items():
             bcdict = {
                 "magnetic_potential_real": bi.real,
-                "magnetic_potential_imag": bi.imag,
-                "magnetic_surface_current_real": 0,
-                "magnetic_surface_current_imag": 0,
+                # "magnetic_surface_current_real": 0,
             }
             if self.analysis == 'harmonic':
                 bcdict["magnetic_potential_imag"] = bi.imag
-                bcdict["magnetic_surface_current_imag"] = bi.real
 
-            # TODO: Continue
+            print(f'{self.name}.add_boundary("{name}", "magnetic_potential", {str(bcdict)})')
+
+            for name, bi in self.bc_neumann.items():
+                bcdict = {
+                    "magnetic_surface_current_real": bi.real
+                }
+                if self.analysis == 'harmonic':
+                    bcdict["magnetic_surface_current_imag"] = bi.imag
+
+                print(f'{self.name}.add_boundary("{name}", "magnetic_surface_current", {str(bcdict)})')
+
+
+class HeatFlowField(Field):
+    def __init__(self):
+        super().__init__()
+        self.name = "heat"
+
+

@@ -88,8 +88,11 @@ class Line:
     """A directed line, which is defined by the (start -> end) points"""
 
     def __init__(self, start_pt, end_pt, id=None, label=None):
-        self.start_pt = start_pt
-        self.end_pt = end_pt
+        # sorting the incoming points by coordinate
+        sorted_points = sorted((start_pt, end_pt), key=lambda pi: pi.x) # sorting by x coordinate
+        sorted_points = sorted(sorted_points, key=lambda pi: pi.y) # sorting by y coordinate
+        self.start_pt = sorted_points[0]
+        self.end_pt = sorted_points[-1]
         self.id = id
         self.label = label
 

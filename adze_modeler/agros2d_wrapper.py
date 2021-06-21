@@ -7,7 +7,7 @@ execute a script with gui:
 """
 
 import sys
-from adze_modeler.agros_fields import ElectrostaticField, newline, MagneticField
+from adze_modeler.agros_fields import ElectrostaticField, newline, MagneticField, HeatFlowField
 from adze_modeler.geometry import Geometry
 
 
@@ -28,6 +28,8 @@ class Agros2DWrapper:
             self.field = ElectrostaticField()
         elif type_ == "m":
             self.field = MagneticField()
+        elif type_ == "h":
+            self.field = HeatFlowField()
         else:
             raise NotImplementedError()
 
@@ -98,7 +100,7 @@ class Agros2DWrapper:
         for ei in self.edges:
             if ei[4]:
                 print(f'geometry.add_edge({ei[0]:.4f}, {ei[1]:.4f}, {ei[2]:.4f}, {ei[3]:.4f}, '
-                      f'boundaries={{"electrostatic": "{ei[4]}"}})')
+                      f'boundaries={{"{self.field.name}": "{ei[4]}"}})')
             else:
                 print(f"geometry.add_edge({ei[0]:.4f}, {ei[1]:.4f}, {ei[2]:.4f}, {ei[3]:.4f})")
 
@@ -108,7 +110,7 @@ class Agros2DWrapper:
         for bl_i in self.labels:
             if bl_i[0] in self.field.materials.keys():
                 print(
-                    f'geometry.add_label({bl_i[1]:.4f}, {bl_i[2]:.4f}, materials = {{"electrostatic" : "{bl_i[0]}"}})'
+                    f'geometry.add_label({bl_i[1]:.4f}, {bl_i[2]:.4f}, materials = {{"{self.field.name}" : "{bl_i[0]}"}})'
                 )
             #
             # elif bl_i[0] in self.field_m.materials.keys():
@@ -121,6 +123,7 @@ class Agros2DWrapper:
             # elif bl_i[0] in self.field_h.materials.keys():
             #     print(f'geometry.add_label({bl_i[1]:.4f}, {bl_i[2]:.4f}, materials = {{"heat" : "{bl_i[0]}"}})')
 
+        print("problem.solve()")
         print("a2d.view.zoom_best_fit()")
 
         sys.stdout.close()
