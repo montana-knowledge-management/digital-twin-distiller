@@ -1,6 +1,7 @@
-from abc import ABCMeta, abstractmethod
-from types import SimpleNamespace
+from abc import ABCMeta
+from abc import abstractmethod
 from collections.abc import Iterable
+from types import SimpleNamespace
 
 
 def newline(n=1):
@@ -63,7 +64,6 @@ class Field(metaclass=ABCMeta):
         print("# materials")
         self._export_materials()
 
-
     @abstractmethod
     def set_analysis(self, analysis_type):
         ...
@@ -92,7 +92,7 @@ class Field(metaclass=ABCMeta):
 class ElectrostaticField(Field):
     def __init__(self):
         super().__init__()
-        self.name = 'electrostatic'
+        self.name = "electrostatic"
 
     def set_analysis(self, analysis_type):
         if analysis_type in {"steady", "steadystate", "stationary", "static"}:
@@ -150,7 +150,7 @@ class ElectrostaticField(Field):
 class MagneticField(Field):
     def __init__(self):
         super().__init__()
-        self.name="magnetic"
+        self.name = "magnetic"
 
     def set_analysis(self, analysis_type):
         if analysis_type == "steady":
@@ -249,7 +249,7 @@ class MagneticField(Field):
                 "magnetic_velocity_x": mi.vx,
                 "magnetic_total_current_imag": mi.Itot.imag,
             }
-            if self.analysis != 'harmonic':
+            if self.analysis != "harmonic":
                 mdict.pop("magnetic_total_current_imag")
                 mdict.pop("magnetic_current_density_external_imag")
 
@@ -261,16 +261,14 @@ class MagneticField(Field):
                 "magnetic_potential_real": bi.real,
                 # "magnetic_surface_current_real": 0,
             }
-            if self.analysis == 'harmonic':
+            if self.analysis == "harmonic":
                 bcdict["magnetic_potential_imag"] = bi.imag
 
             print(f'{self.name}.add_boundary("{name}", "magnetic_potential", {str(bcdict)})')
 
             for name, bi in self.bc_neumann.items():
-                bcdict = {
-                    "magnetic_surface_current_real": bi.real
-                }
-                if self.analysis == 'harmonic':
+                bcdict = {"magnetic_surface_current_real": bi.real}
+                if self.analysis == "harmonic":
                     bcdict["magnetic_surface_current_imag"] = bi.imag
 
                 print(f'{self.name}.add_boundary("{name}", "magnetic_surface_current", {str(bcdict)})')
@@ -280,5 +278,3 @@ class HeatFlowField(Field):
     def __init__(self):
         super().__init__()
         self.name = "heat"
-
-

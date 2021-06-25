@@ -5,71 +5,26 @@ from adze_modeler.agros2d_wrapper import Agros2DWrapper
 
 
 class Agros2DTester(TestCase):
-
     def test_add_field_electrostatic(self):
         w = Agros2DWrapper()
 
-        self.assertRaises(ValueError, w.add_field_electrostatic, analysis="eper")
-        self.assertRaises(ValueError, w.add_field_electrostatic, solver="eper")
-        self.assertRaises(ValueError, w.add_field_electrostatic, matrix_solver="eper")
-        self.assertRaises(ValueError, w.add_field_electrostatic, nb_refinements=0.2)
-        self.assertRaises(ValueError, w.add_field_electrostatic, nb_polyorder=-4)
-        self.assertRaises(ValueError, w.add_field_electrostatic, adaptivity="eper")
+        self.assertRaises(NotImplementedError, w.add_field, "eper")
 
-        w.add_field_electrostatic(nb_polyorder=3)
-        self.assertEqual(w.fields['electrostatic']['nb_polyorder'], 3)
-
-    def test_add_field_magnetic(self):
-        w = Agros2DWrapper()
-
-        self.assertRaises(ValueError, w.add_field_magnetic, analysis="eper")
-        self.assertRaises(ValueError, w.add_field_magnetic, solver="eper")
-        self.assertRaises(ValueError, w.add_field_magnetic, matrix_solver="eper")
-        self.assertRaises(ValueError, w.add_field_magnetic, nb_refinements=0.2)
-        self.assertRaises(ValueError, w.add_field_magnetic, nb_polyorder=-4)
-        self.assertRaises(ValueError, w.add_field_magnetic, adaptivity="eper")
-
-        w.add_field_magnetic(analysis='transient')
-        self.assertEqual(w.fields['magnetic']['analysis'], 'transient')
-
-    def test_add_field_heat_transfer(self):
-        w = Agros2DWrapper()
-
-        self.assertRaises(ValueError, w.add_field_heat_transfer, analysis="eper")
-        self.assertRaises(ValueError, w.add_field_heat_transfer, solver="eper")
-        self.assertRaises(ValueError, w.add_field_heat_transfer, matrix_solver="eper")
-        self.assertRaises(ValueError, w.add_field_heat_transfer, nb_refinements=0.2)
-        self.assertRaises(ValueError, w.add_field_heat_transfer, nb_polyorder=-4)
-        self.assertRaises(ValueError, w.add_field_heat_transfer, adaptivity="eper")
-
-        w.add_field_heat_transfer(analysis='transient')
-        self.assertEqual(w.fields['heat']['analysis'], 'transient')
-
-    def test_add_field_current_flow(self):
-        w = Agros2DWrapper()
-
-        self.assertRaises(ValueError, w.add_field_current_flow, analysis="eper")
-        self.assertRaises(ValueError, w.add_field_current_flow, solver="eper")
-        self.assertRaises(ValueError, w.add_field_current_flow, matrix_solver="eper")
-        self.assertRaises(ValueError, w.add_field_current_flow, nb_refinements=0.2)
-        self.assertRaises(ValueError, w.add_field_current_flow, nb_polyorder=-4)
-        self.assertRaises(ValueError, w.add_field_current_flow, adaptivity="eper")
-
-        w.add_field_current_flow(nb_refinement=3)
-        self.assertEqual(w.fields['current']['nb_refinement'], 3)
+        w.add_field('e')
+        w.field.set_polynomial_order(3)
+        self.assertEqual(w.field.polyorder, 3)
 
 
     def test_set_coordinate_type(self):
         w = Agros2DWrapper()
 
-        w.set_coordinate_type('PLANAR')
+        w.set_coordinate_type("planar")
         self.assertEqual(w.coordinate_type, "planar")
 
-        w.set_coordinate_type('Axisymmetric')
+        w.set_coordinate_type("axisymmetric")
         self.assertEqual(w.coordinate_type, "axisymmetric")
 
         self.assertRaises(ValueError, w.set_coordinate_type, "eper")
-
 
     def test_set_mesh_type(self):
         w = Agros2DWrapper()
@@ -95,21 +50,5 @@ class Agros2DTester(TestCase):
         w.set_mesh_type("gmsh_quad_delaunay")
         self.assertEqual(w.mesh_type, "gmsh_quad_delaunay")
 
-
         self.assertRaises(ValueError, w.set_mesh_type, "eper")
 
-    def test_add_boundary_condition(self):
-        w = Agros2DWrapper()
-
-        w.add_boundary_condition('Vg', 10, 'dirichlet', 'electrostatic')
-        self.assertEqual(w.boundary_conditions['Vg'][0], 'electrostatic')
-        self.assertEqual(w.boundary_conditions['Vg'][1], 'dirichlet')
-        self.assertEqual(w.boundary_conditions['Vg'][2], 10)
-
-        w.add_boundary_condition('n1', 0, 'neumann', 'magnetic')
-        self.assertEqual(w.boundary_conditions['n1'][0], 'magnetic')
-        self.assertEqual(w.boundary_conditions['n1'][1], 'neumann')
-        self.assertEqual(w.boundary_conditions['n1'][2], 0)
-
-        # name, value, bctype, field
-        self.assertRaises(ValueError, w.add_boundary_condition, 'n1', 0, 'dirichlet', 'magnetic')

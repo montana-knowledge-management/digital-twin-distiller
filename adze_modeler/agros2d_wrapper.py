@@ -5,9 +5,12 @@ to execture a script use:
 execute a script with gui:
     agros2d -s script.py
 """
-
 import sys
-from adze_modeler.agros_fields import ElectrostaticField, newline, MagneticField, HeatFlowField
+
+from adze_modeler.agros_fields import ElectrostaticField
+from adze_modeler.agros_fields import HeatFlowField
+from adze_modeler.agros_fields import MagneticField
+from adze_modeler.agros_fields import newline
 from adze_modeler.geometry import Geometry
 
 
@@ -99,8 +102,10 @@ class Agros2DWrapper:
         print("# edges")
         for ei in self.edges:
             if ei[4]:
-                print(f'geometry.add_edge({ei[0]:.4f}, {ei[1]:.4f}, {ei[2]:.4f}, {ei[3]:.4f}, '
-                      f'boundaries={{"{self.field.name}": "{ei[4]}"}})')
+                print(
+                    f"geometry.add_edge({ei[0]:.4f}, {ei[1]:.4f}, {ei[2]:.4f}, {ei[3]:.4f}, "
+                    f'boundaries={{"{self.field.name}": "{ei[4]}"}})'
+                )
             else:
                 print(f"geometry.add_edge({ei[0]:.4f}, {ei[1]:.4f}, {ei[2]:.4f}, {ei[3]:.4f})")
 

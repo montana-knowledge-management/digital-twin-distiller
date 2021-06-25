@@ -1433,8 +1433,8 @@ class FemmWriter:
         Symbol      Definition
         ------      ----------
         A           vector potential A or flux φ
-        B1          flux density    Bxif planar,Brif axisymmetric
-        B2          flux density Byif planar, Bzif axisymmetric
+        B1          flux density Bx if planar, Brif axisymmetric
+        B2          flux density By if planar, Bzif axisymmetric
         Sig         electrical conductivity σ
         E           stored energy density
         H1          field intensity Hxif planar,Hrif axisymmetric
