@@ -175,13 +175,14 @@ class Femm(Platform):
             self.write(cmd_i)
         pass
 
-    def execute(self):
+    def execute(self, cleanup=True):
         executor = FemmExecutor()
         try:
             executor.run_femm(self.metadata.file_script_name)
-            femm_files = glob(f'{self.get_script_name()}.*')
-            for file_i in femm_files:
-                os.remove(file_i)
+            if cleanup:
+                femm_files = glob(f'{self.get_script_name()}.*')
+                for file_i in femm_files:
+                    os.remove(file_i)
 
         except Exception as e:
             print(e)

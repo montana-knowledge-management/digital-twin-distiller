@@ -113,10 +113,11 @@ class Agros2D(Platform):
     def export_closing_steps(self):
         self.write('f.close()')
 
-    def execute(self):
+    def execute(self, cleanup=True):
         try:
             subprocess.run(['agros2d_solver', '-s', self.metadata.file_script_name], capture_output=False)
-            os.remove(self.metadata.file_script_name)
-            # os.remove(self.metadata.file_metrics_name)
+            if cleanup:
+                os.remove(self.metadata.file_script_name)
+                # os.remove(self.metadata.file_metrics_name)
         except Exception as e:
             print(e)

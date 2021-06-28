@@ -1,12 +1,12 @@
-import unittest
-
-from adze_modeler.femm_wrapper import femm_magnetic
-from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.material import Material
-from adze_modeler.objects import Node
-
+from copy import copy
+import unittest
 
 class TestMaterial(unittest.TestCase):
     def test_material(self):
-        pass
+        m = Material('air')
+        self.assertEqual(m.name, 'air')
+
+        m1 = copy(m)
+        self.assertEqual(m1.name, m.name)
 

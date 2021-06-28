@@ -9,7 +9,7 @@ class BoundaryCondition:
         "current": [],
     }
 
-    def __init__(self, name, field_type, **kwargs):
+    def __init__(self, name, field_type):
         """
         :param name: name of the boundary condition
         :param field_type: 'electrostatic', 'magnetic', 'heat', 'current'
@@ -19,6 +19,10 @@ class BoundaryCondition:
         self.valuedict = {}
         self.assigned = set()
         self.type = None
+
+        if self.field not in {"electrostatic", "magnetic", "heat", "current"}:
+            raise ValueError(f'There is no "{field_type}" field type. Accepted values are '
+                             f'"electrostatic", "magnetic", "heat", "current".')
 
         # setting initial values to valuedict
         # for key in self.accepted_keys[self.field]:
@@ -41,8 +45,8 @@ class DirichletBoundaryCondition(BoundaryCondition):
     accepted_keys = {
         "electrostatic": ["fixed_voltage"],
         "magnetic": ["magnetic_potential"],
-        "heat": [],
-        "current": [],
+        "heat": ["temperature"],
+        "current": ["fixed_voltage"],
     }
 
     def __init__(self, name, field_type, **kwargs):
@@ -57,10 +61,13 @@ class NeumannBoundaryCondition(BoundaryCondition):
     accepted_keys = {
         "electrostatic": ["surface_charge_density"],
         "magnetic": ["surface_current"],
-        "heat": [],
-        "current": [],
+        "heat": ["heat_flux", "heat_transfer_coeff", "convection", "emissivity", "radiation"],
+        "current": ["current_density"],
     }
 
     def __init__(self, name, field_type, **kwargs):
         super().__init__(name, field_type)
         self.type = "neumann"
+
+        for key, value in kwargs.items():
+            self.set_value(key, value)

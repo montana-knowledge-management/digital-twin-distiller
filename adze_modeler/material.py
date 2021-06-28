@@ -20,7 +20,7 @@ class Material:
         self.meshsize=1.0
 
     def __copy__(self):
-        newmaterial = Material()
+        newmaterial = Material(self.name)
         newmaterial.name = self.name
         newmaterial.mu_r = self.mu_r
         newmaterial.epsioln_r = self.epsioln_r
