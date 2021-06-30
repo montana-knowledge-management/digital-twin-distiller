@@ -1,5 +1,5 @@
 import math
-
+from adze_modeler.utils import getID
 
 class Node:
     """
@@ -10,7 +10,7 @@ class Node:
     def __init__(self, x=0.0, y=0.0, id=None, label=None, precision=6):
         self.x = x
         self.y = y
-        self.id = id  # a node has to got a unique id to be translated or moved
+        self.id = getID()  # a node has to got a unique id to be translated or moved
         self.label = label  # can be used to denote a group of the elements and make some operation with them
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
         self.hanging = True  # if its contained by another object it will be set to False

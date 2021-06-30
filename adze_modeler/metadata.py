@@ -16,7 +16,11 @@ class Metadata(metaclass=ABCMeta):
         self.file_metrics_name = "fem_data.csv"
 
     def validate_file_name(self):
-        dotindex = self.file_script_name.find('.')
+        try:
+            dotindex = self.file_script_name.find('.')
+        except AttributeError:
+            print("script_name is empty!")
+            exit(10)
         if dotindex != -1:
             self.file_script_name = self.file_script_name[:dotindex]
 
@@ -57,7 +61,7 @@ class FemmMetadata(Metadata):
         self.file_suffix = ".lua"
 
         self.frequency = 0.0
-        self.unit = "m"
+        self.unit = "meters"
         self.depth = 1.0
         self.minangle=30
         self.presolven = None

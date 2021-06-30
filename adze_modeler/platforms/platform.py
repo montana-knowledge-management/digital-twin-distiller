@@ -14,8 +14,11 @@ class Platform(metaclass=ABCMeta):
 
 
 
-    def open(self):
-        self.file_script_handle = open(self.metadata.file_script_name, "w")
+    def open(self, fhandle=None):
+        if fhandle:
+            self.file_script_handle = fhandle
+        else:
+            self.file_script_handle = open(self.metadata.file_script_name, "w")
 
     def close(self):
         self.file_script_handle.close()
@@ -68,7 +71,6 @@ class Platform(metaclass=ABCMeta):
     @abstractmethod
     def export_solving_steps(self):
         ...
-
 
     @abstractmethod
     def export_metrics(self, action, entity, variable):

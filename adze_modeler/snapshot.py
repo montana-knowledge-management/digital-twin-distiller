@@ -26,6 +26,8 @@ class Snapshot:
     def add_boundary_condition(self, bc: BoundaryCondition):
         if bc.name in self.boundaries.keys():
             raise ValueError("This boundary is already added")
+        elif bc.field != self.platform.metadata.problem_type:
+            raise TypeError(f"Boundary condition field type != problem field type")
         else:
             self.boundaries[bc.name] = bc
 
@@ -61,8 +63,8 @@ class Snapshot:
     def add_postprocessing(self, action, entity, variable):
         self.metrics.append((action, entity, variable))
 
-    def export(self):
-        self.platform.open()
+    def export(self, customfilehandle=None):
+        self.platform.open(customfilehandle)
         self.platform.export_preamble()
 
         self.platform.newline(1)
