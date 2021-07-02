@@ -7,6 +7,7 @@ from adze_modeler.metadata import Metadata
 from adze_modeler.platforms.platform import Platform
 from adze_modeler.utils import getID
 from adze_modeler.objects import Node, Line
+from collections import defaultdict
 
 
 class Snapshot:
@@ -119,5 +120,17 @@ class Snapshot:
         self.platform.close()
 
 
-    def execute(self):
-        self.platform.execute()
+    def execute(self, cleanup=False):
+        self.platform.execute(cleanup=cleanup)
+
+    def retrive_results(self):
+        results = defaultdict(list)
+        with open(self.platform.metadata.file_metrics_name, "r") as f:
+            for line in f.readlines():
+                line = line.strip().split(',')
+                if len(line) == 2:
+                    results[line[0]] = float(line[1])
+                else:
+                    results[line.pop(0)].append(tuple(float(xi) for xi in line))
+
+        return results

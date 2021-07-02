@@ -109,15 +109,21 @@ class Agros2D(Platform):
             self.write(f'point = {self.metadata.problem_type}.local_values({x}, {y})["{mappings[variable]}"]')
             self.write(f'f.write("{{}}, {x}, {y}, {{}}\\n".format("{variable}", point))', nb_newline=2)
 
+        if action == "mesh_info":
+            self.write(f"info = {self.metadata.problem_type}.solution_mesh_info()")
+            self.write(f'f.write("{{}}, {{}}\\n".format("dofs", info["dofs"]))')
+            self.write(f'f.write("{{}}, {{}}\\n".format("nodes", info["nodes"]))')
+            self.write(f'f.write("{{}}, {{}}\\n".format("elements", info["elements"]))')
+
 
     def export_closing_steps(self):
         self.write('f.close()')
 
-    def execute(self, cleanup=True):
+    def execute(self, cleanup=False):
         try:
-            subprocess.run(['agros2d_solver', '-s', self.metadata.file_script_name], capture_output=False)
+            subprocess.run(['agros2d_solver', '-s', self.metadata.file_script_name], capture_output=True)
             if cleanup:
                 os.remove(self.metadata.file_script_name)
-                # os.remove(self.metadata.file_metrics_name)
+                os.remove(self.metadata.file_metrics_name)
         except Exception as e:
             print(e)

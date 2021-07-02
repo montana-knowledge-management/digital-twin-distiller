@@ -170,12 +170,17 @@ class Femm(Platform):
             self.write(self.writer.get_point_values(x, y))
             self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
+        if action == "mesh_info":
+            fieldmapping = {'electrostatic': 'eo', 'magnetic':'mo', 'heat':'ho', 'current':'co'}
+            self.write(f'write(file_out, "nodes, ", {fieldmapping[self.metadata.problem_type]}_numnodes(), "\\n")')
+            self.write(f'write(file_out, "elements, ", {fieldmapping[self.metadata.problem_type]}_numelements(), "\\n")')
+
     def export_closing_steps(self):
         for cmd_i in self.writer.close():
             self.write(cmd_i)
         pass
 
-    def execute(self, cleanup=True):
+    def execute(self, cleanup=False):
         executor = FemmExecutor()
         try:
             executor.run_femm(self.metadata.file_script_name)

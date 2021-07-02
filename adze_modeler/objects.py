@@ -1,4 +1,6 @@
 import math
+from copy import copy
+
 from adze_modeler.utils import getID
 
 class Node:
@@ -10,7 +12,7 @@ class Node:
     def __init__(self, x=0.0, y=0.0, id=None, label=None, precision=6):
         self.x = x
         self.y = y
-        self.id = getID()  # a node has to got a unique id to be translated or moved
+        self.id = id or getID()  # a node has to got a unique id to be translated or moved
         self.label = label  # can be used to denote a group of the elements and make some operation with them
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
         self.hanging = True  # if its contained by another object it will be set to False
@@ -39,6 +41,9 @@ class Node:
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
+
+    def __copy__(self):
+        return Node(self.x, self.y, id=getID(), label=self.label, precision=self.precision)
 
     def length(self):
         return math.sqrt(self.x ** 2 + self.y ** 2)
@@ -95,11 +100,11 @@ class Line:
         # self.end_pt = sorted_points[-1]
         self.start_pt = start_pt
         self.end_pt = end_pt
-        self.id = id
+        self.id = id or getID()
         self.label = label
 
-    def clone(self):
-        return Line(self.start_pt, self.end_pt, self.id, self.label)
+    def __copy__(self):
+        return Line(copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label)
 
     def distance_to_point(self, px, py):
         """

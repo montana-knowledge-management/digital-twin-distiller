@@ -1512,7 +1512,7 @@ class FemmExecutor:
         if platform == "linux":
             self.femm_command = "wine " + self.femm_path_linux
 
-            lua_path = os.path.abspath(self.script_file)
+            lua_path = os.path.abspath(script_file)
 
             arg = None
             if os.path.isfile(lua_path) and platform == "linux":

@@ -17,6 +17,8 @@ class Metadata(metaclass=ABCMeta):
 
     def validate_file_name(self):
         try:
+            self.file_script_name = str(self.file_metrics_name)
+            self.file_metrics_name = str(self.file_script_name)
             dotindex = self.file_script_name.find('.')
         except AttributeError:
             print("script_name is empty!")
