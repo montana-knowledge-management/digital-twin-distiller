@@ -1,9 +1,9 @@
 """
 to execture a script use:
-    agros2d_solver -s script.py
+    agros2d_solver -s problem_build_legacy.py
 
 execute a script with gui:
-    agros2d -s script.py
+    agros2d -s problem_build_legacy.py
 """
 import sys
 

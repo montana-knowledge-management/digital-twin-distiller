@@ -4,6 +4,7 @@ from adze_modeler.material import Material
 from adze_modeler.boundaries import BoundaryCondition
 from adze_modeler.objects import Node, Line, CircleArc, CubicBezier
 from adze_modeler.metadata import Metadata
+from copy import copy
 
 class Platform(metaclass=ABCMeta):
     def __init__(self, m: Metadata):
@@ -11,8 +12,6 @@ class Platform(metaclass=ABCMeta):
         self.metadata.validate_metadata()
 
         self.file_script_handle = None
-
-
 
     def open(self, fhandle=None):
         if fhandle:
@@ -39,6 +38,10 @@ class Platform(metaclass=ABCMeta):
         dotindex = filename.find('.')
         filename = filename[:dotindex]
         return filename
+
+    @abstractmethod
+    def __copy__(self):
+        ...
 
     @abstractmethod
     def comment(self, str_, nb_newline=1):

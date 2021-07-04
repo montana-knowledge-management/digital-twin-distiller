@@ -197,8 +197,9 @@ class FemmWriter:
         """
 
         cmd_list = []
-        cmd_list.append("showconsole()")  # does nothing if the console is already displayed
-        cmd_list.append("clearconsole()")  # clears both the input and output windows for a fresh start.
+        cmd_list.append("hidepointprops()")
+        # cmd_list.append("showconsole()")  # does nothing if the console is already displayed
+        # cmd_list.append("clearconsole()")  # clears both the input and output windows for a fresh start.
         cmd_list.append(f'remove("{out_file}")')  # get rid of the old data file, if it exists
         if self.field == femm_magnetic:
             cmd_list.append("newdocument(0)")  # the 0 specifies a magnetics problem
@@ -1495,7 +1496,7 @@ class FemmExecutor:
     """
     The goal of this class is to provide a simple and easily configurable FEMM executor.
     This executor uses the Filelink option of FEMM, becuase the slowliness of this file based communication is not critical
-    in the case of larger computations, which can be parallelized by Artap, or other optimizatino frameworks.
+    in the case of larger computations, which can be parallelized by ArtapOptimization, or other optimizatino frameworks.
     """
 
     # Default value of the femm path under linux and under windows.
@@ -1520,7 +1521,7 @@ class FemmExecutor:
 
             cmd_string = self.femm_command + f" -lua-script={arg}"
 
-            out = subprocess.run(cmd_string, shell=True, stdout=subprocess.PIPE)
+            out = subprocess.run(cmd_string, shell=True, capture_output=True)
 
             if out.returncode != 0:
                 err = "Unknown error"

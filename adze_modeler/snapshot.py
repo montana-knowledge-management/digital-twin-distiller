@@ -121,7 +121,7 @@ class Snapshot:
 
 
     def execute(self, cleanup=False):
-        self.platform.execute(cleanup=cleanup)
+        return self.platform.execute(cleanup=cleanup)
 
     def retrive_results(self):
         results = defaultdict(list)

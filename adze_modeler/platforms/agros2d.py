@@ -1,3 +1,6 @@
+from pathlib import Path
+from time import sleep
+
 from adze_modeler.boundaries import BoundaryCondition, DirichletBoundaryCondition
 from adze_modeler.metadata import Metadata
 from adze_modeler.platforms.platform import Platform
@@ -5,6 +8,7 @@ from adze_modeler.material import Material
 from adze_modeler.objects import Node, Line, CircleArc, CubicBezier
 import subprocess
 import os
+from copy import copy
 
 class Agros2D(Platform):
 
@@ -12,6 +16,8 @@ class Agros2D(Platform):
     def __init__(self, m: Metadata):
         super().__init__(m)
 
+    def __copy__(self):
+        return Agros2D(copy(self.metadata))
 
     def comment(self, str_, nb_newline=1):
         self.file_script_handle.write(f"# {str_}")
@@ -31,9 +37,12 @@ class Agros2D(Platform):
         self.write(f'{self.metadata.problem_type}.analysis_type = "{self.metadata.analysis_type}"')
         self.write(f"{self.metadata.problem_type}.number_of_refinements = {self.metadata.nb_refinements}")
         self.write(f"{self.metadata.problem_type}.polynomial_order = {self.metadata.polyorder}")
-        self.write(f'{self.metadata.problem_type}.adaptivity_type = "{self.metadata.adaptivity}"')
         self.write(f'{self.metadata.problem_type}.solver = "{self.metadata.solver}"', nb_newline=2)
         self.write("geometry = a2d.geometry", nb_newline=2)
+        self.write(f'{self.metadata.problem_type}.adaptivity_type = "{self.metadata.adaptivity}"')
+        if self.metadata.adaptivity != "disabled":
+            self.write(f'{self.metadata.problem_type}.adaptivity_parameters["tolerance"] = {self.metadata.adaptivity_tol}')
+            self.write(f'{self.metadata.problem_type}.adaptivity_parameters["steps"] = {self.metadata.adaptivity_steps}')
 
     def export_material_definition(self, mat: Material):
         mdict = {
@@ -122,8 +131,11 @@ class Agros2D(Platform):
     def execute(self, cleanup=False):
         try:
             subprocess.run(['agros2d_solver', '-s', self.metadata.file_script_name], capture_output=True)
+
             if cleanup:
                 os.remove(self.metadata.file_script_name)
                 os.remove(self.metadata.file_metrics_name)
+            return True
         except Exception as e:
             print(e)
+            return False

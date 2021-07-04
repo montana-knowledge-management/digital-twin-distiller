@@ -32,6 +32,10 @@ class Metadata(metaclass=ABCMeta):
     def validate_metadata(self):
         ...
 
+    @abstractmethod
+    def __copy__(self):
+        ...
+
 
 
 class Agros2DMetadata(Metadata):
@@ -44,12 +48,40 @@ class Agros2DMetadata(Metadata):
         self.nb_refinements = 1
         self.polyorder = 2
         self.adaptivity = "disabled"
+        self.adaptivity_steps = 10
+        self.adaptivity_tol = 1.0
         self.solver = "linear"
         self.file_suffix = '.py'
 
 
     def validate_metadata(self):
         self.validate_file_name()
+
+    def __copy__(self):
+        newm = Agros2DMetadata()
+
+        newm.compatible_platform = self.compatible_platform
+        newm.problem_type = self.problem_type
+        newm.analysis_type = self.analysis_type
+        newm.coordinate_type = self.coordinate_type
+        newm.mesh_type = self.mesh_type
+        newm.unit = self.unit
+        newm.precision = self.precision
+        newm.file_suffix = self.file_suffix
+        newm.file_script_name = self.file_script_name
+        newm.file_metrics_name = self.file_metrics_name
+
+        newm.compatible_platform = self.compatible_platform
+        newm.mesh_type = self.mesh_type
+        newm.nb_refinements = self.nb_refinements
+        newm.polyorder = self.polyorder
+        newm.adaptivity = self.adaptivity
+        newm.adaptivity_tol = self.adaptivity_tol
+        newm.adaptivity_steps = self.adaptivity_steps
+        newm.solver = self.solver
+        newm.file_suffix = self.file_suffix
+        return newm
+
 
 
 class FemmMetadata(Metadata):
@@ -78,3 +110,35 @@ class FemmMetadata(Metadata):
 
         if self.unit not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
             raise ValueError(f"There is no {self.unit} unit.")
+
+    def __copy__(self):
+        newm = FemmMetadata()
+
+        newm.compatible_platform = self.compatible_platform
+        newm.problem_type = self.problem_type
+        newm.analysis_type = self.analysis_type
+        newm.coordinate_type = self.coordinate_type
+        newm.mesh_type = self.mesh_type
+        newm.unit = self.unit
+        newm.precision = self.precision
+        newm.file_suffix = self.file_suffix
+        newm.file_script_name = self.file_script_name
+        newm.file_metrics_name = self.file_metrics_name
+
+        newm.compatible_platform = self.compatible_platform
+        newm.problem_type = self.problem_type
+        newm.coordinate_type = self.coordinate_type
+        newm.analysis_type = self.analysis_type
+        newm.file_suffix = self.file_suffix
+        newm.frequency = self.frequency
+        newm.unit = self.unit
+        newm.depth = self.depth
+        newm.minangle = self.minangle
+        newm.presolven = self.presolven
+        newm.timestep = self.timestep
+        newm.acsolver = self.acsolver
+        newm.elementsize = self.elementsize
+        newm.smartmesh = self.smartmesh
+        return newm
+
+

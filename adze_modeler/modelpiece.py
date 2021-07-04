@@ -13,7 +13,7 @@ class ModelPiece():
         self.label_position = [0.5, 0.5] # [0, 1] of bbox  # type: ignore
 
     def load_piece_from_svg(self, file_name):
-        self.geom.import_svg(file_name)
+        self.geom.import_svg(str(file_name))
         self._update_bbox()
 
     def load_piece_from_dxf(self, file_name):

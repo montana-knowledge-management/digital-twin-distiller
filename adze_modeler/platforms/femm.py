@@ -1,5 +1,6 @@
 import os
 from math import asin
+from copy import copy
 
 from adze_modeler.boundaries import BoundaryCondition, DirichletBoundaryCondition
 from adze_modeler.material import Material
@@ -33,6 +34,11 @@ class Femm(Platform):
             self.writer.field = femm_current_flow
         else:
             raise ValueError()
+
+    def __copy__(self):
+        newplatform = Femm(copy(self.metadata))
+        newplatform.writer.field = self.writer.field
+        return newplatform
 
     def comment(self, str_, nb_newline=1):
         self.file_script_handle.write(f"-- {str_}\n")
@@ -189,5 +195,8 @@ class Femm(Platform):
                 for file_i in femm_files:
                     os.remove(file_i)
 
+            return True
+
         except Exception as e:
             print(e)
+            return False
