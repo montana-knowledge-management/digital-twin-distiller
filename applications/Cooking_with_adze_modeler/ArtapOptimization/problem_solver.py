@@ -25,7 +25,10 @@ def build(platform, X, cleanup=True, customid=None):
 
     print( ctime(), model_id, end='....BUILDING...')
     modelpath = export_location / model_id
-    modelpath.mkdir(parents=False, exist_ok=True)
+    if not export_location.exists():
+        export_location.mkdir(parents=True, exist_ok=True)
+
+    modelpath.mkdir(parents=True, exist_ok=True)
     with open(modelpath / "X.csv", "w") as f:
         f.write(','.join([str(i) for i in X]))
 

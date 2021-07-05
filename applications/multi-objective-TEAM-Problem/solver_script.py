@@ -75,14 +75,14 @@ def evaluate(platform, Nx=20, Ny=20):
 
     # aadding postprocessing steps
     # adding measurement points to the core
-    px = linspace(0.01, 4.99, Nx)
-    py = linspace(-4.99, 4.99, Ny)
+    px = linspace(0, 5, Nx)
+    py = linspace(-5, 5, Ny)
     xv, yv = meshgrid(px, py, sparse=False, indexing='xy')
 
     for i in range(Nx):
         for j in range(Ny):
             eval_point = (xv[j, i], yv[j, i])
-            snapshot.add_postprocessing('point_value', eval_point, 'Br')
+            snapshot.add_postprocessing('point_value', eval_point, 'Bz')
 
     snapshot.export()
     snapshot.execute()
@@ -109,8 +109,9 @@ agros_metadata.problem_type = "magnetic"
 agros_metadata.coordinate_type = "axisymmetric"
 agros_metadata.analysis_type = "steadystate"
 agros_metadata.unit = 1e-3
-agros_metadata.nb_refinements = 2
-agros_metadata.adaptivity = "hp"
+agros_metadata.nb_refinements = 0
+agros_metadata.adaptivity = "hp-adaptivity"
+agros_metadata.adaptivity_tol = 0.001
 
 
 femm_metadata = FemmMetadata()
