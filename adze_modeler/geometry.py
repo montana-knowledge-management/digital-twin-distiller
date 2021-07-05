@@ -310,7 +310,8 @@ class Geometry:
         self.lines.clear()
 
         for li in newlines:
-            self.add_line(li)
+            if li.start_pt.distance_to(li.end_pt) > self.epsilon:
+                self.add_line(li)
 
         self.merge_lines()
 

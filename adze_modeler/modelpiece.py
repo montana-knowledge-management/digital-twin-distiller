@@ -9,8 +9,6 @@ class ModelPiece():
         self.id = getID()
         self.geom = Geometry()
         self.bbox = [0, 0, 0, 0]
-        self.center_point = [0, 0]
-        self.label_position = [0.5, 0.5] # [0, 1] of bbox  # type: ignore
 
     def load_piece_from_svg(self, file_name):
         self.geom.import_svg(str(file_name))
@@ -41,8 +39,6 @@ class ModelPiece():
         maxx = max(self.geom.nodes, key=lambda node_i: node_i.x).x
         maxy = max(self.geom.nodes, key=lambda node_i: node_i.y).y
         self.bbox = [minx, miny, maxx, maxy]
-        self.center_point[0] = (maxx-minx) / 2 + minx
-        self.center_point[0] = (maxy-miny) / 2 + miny
 
     def __copy__(self):
         piece = ModelPiece(self.name)

@@ -37,7 +37,7 @@ class Node:
         return self.x * other.x + self.y * other.y
 
     def __str__(self):
-        return f"({self.x}, {self.y}, id={self.id},label={self.label})"
+        return f"({self.x:.0f}, {self.y:.0f}, label={self.label})"
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
@@ -168,7 +168,7 @@ class Line:
         return reqAns
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.start_pt!r}, {self.end_pt!r}, id={self.id!r},label={self.label!r})"
+        return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
 
 
 class CircleArc:

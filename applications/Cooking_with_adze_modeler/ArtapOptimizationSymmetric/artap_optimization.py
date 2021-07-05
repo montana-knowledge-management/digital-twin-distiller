@@ -19,26 +19,16 @@ class CoilOptimizationProblem(Problem):
     def set(self):
         self.name = 'Biobjective Test Problem'
 
-        self.parameters = [{'name': 'r0', 'bounds': [1, 50]},
-                           {'name': 'r1', 'bounds': [1, 50]},
-                           {'name': 'r2', 'bounds': [1, 50]},
-                           {'name': 'r3', 'bounds': [1, 50]},
+        self.parameters = [{'name': 'r0', 'bounds': [5.5, 50]},
+                           {'name': 'r1', 'bounds': [5.5, 50]},
+                           {'name': 'r2', 'bounds': [5.5, 50]},
+                           {'name': 'r3', 'bounds': [5.5, 50]},
                            {'name': 'r4', 'bounds': [1, 50]},
                            {'name': 'r5', 'bounds': [1, 50]},
-                           {'name': 'r6', 'bounds': [5.5, 50]},
-                           {'name': 'r7', 'bounds': [5.5, 50]},
-                           {'name': 'r8', 'bounds': [5.5, 50]},
-                           {'name': 'r9', 'bounds': [5.5, 50]},
-                           {'name': 'r10', 'bounds': [5.5, 50]},
-                           {'name': 'r11', 'bounds': [5.5, 50]},
-                           {'name': 'r12', 'bounds': [5.5, 50]},
-                           {'name': 'r13', 'bounds': [5.5, 50]},
-                           {'name': 'r14', 'bounds': [1, 50]},
-                           {'name': 'r15', 'bounds': [1, 50]},
-                           {'name': 'r16', 'bounds': [1, 50]},
-                           {'name': 'r17', 'bounds': [1, 50]},
-                           {'name': 'r18', 'bounds': [1, 50]},
-                           {'name': 'r19', 'bounds': [1, 50]}
+                           {'name': 'r6', 'bounds': [1, 50]},
+                           {'name': 'r7', 'bounds': [1, 50]},
+                           {'name': 'r8', 'bounds': [1, 50]},
+                           {'name': 'r9', 'bounds': [1, 50]}
                            ]
 
         self.costs = [{'name': 'f_1', 'criteria': 'minimize'},
@@ -65,7 +55,7 @@ class CoilOptimizationProblem(Problem):
         agros_metadata.nb_refinements = 0
         agros_metadata.polyorder = 2
         agros_metadata.adaptivity = "hp-adaptivity"
-        agros_metadata.adaptivity_tol = 0.1
+        agros_metadata.adaptivity_tol = 0.001
         platform_agros = Agros2D(agros_metadata)
 
         platform = platform_agros
@@ -167,5 +157,4 @@ if __name__=='__main__':
             f.write('\n')
 
 
-    # szimmetrikus megoldás keresése
     # surrogate modelles megoldás

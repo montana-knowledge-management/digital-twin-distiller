@@ -1,7 +1,7 @@
 from pathlib import Path
 from time import sleep
 
-from adze_modeler.boundaries import BoundaryCondition, DirichletBoundaryCondition
+from adze_modeler.boundaries import BoundaryCondition, DirichletBoundaryCondition, NeumannBoundaryCondition
 from adze_modeler.metadata import Metadata
 from adze_modeler.platforms.platform import Platform
 from adze_modeler.material import Material
@@ -71,6 +71,13 @@ class Agros2D(Platform):
                 boundary.valuedict['magnetic_potential_real'] = A.real
                 if self.metadata.problem_type == 'harmonic':
                     boundary.valuedict['magnetic_potential_imag'] = A.imag
+
+            if isinstance(boundary, NeumannBoundaryCondition):
+                typename = 'magnetic_surface_current'
+                A = boundary.valuedict.pop('surface_current')
+                boundary.valuedict['magnetic_surface_current_real'] = A.real
+                if self.metadata.problem_type == 'harmonic':
+                    boundary.valuedict['magnetic_surface_current_imag'] = A.imag
 
 
         self.write(f'{self.metadata.problem_type}.add_boundary("{boundary.name}", "{typename}", {str(boundary.valuedict)})')
