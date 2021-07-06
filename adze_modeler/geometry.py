@@ -6,11 +6,14 @@ A general geometrical shape can defined by the following objects:
 import sys
 from uuid import uuid4
 
+import svgpathtools
+
 import adze_modeler.objects as obj
 import ezdxf
 import numpy as np
 import svgpathtools as svg
-from importlib_resources import files
+from adze_modeler.utils import getID
+from copy import copy
 
 
 class Geometry:
@@ -347,20 +350,43 @@ class Geometry:
 
             intersections.sort(key=lambda ii: ii[0])
             for k in range(len(intersections) - 1):
-                start_node = obj.Node(x=intersections[k][1], y=intersections[k][2], id=self.getid())
-                end_node = obj.Node(x=intersections[k + 1][1], y=intersections[k + 1][2], id=self.getid())
-                newlines.append(obj.Line(start_pt=start_node, end_pt=end_node, id=self.getid()))
+                start_node = obj.Node(x=intersections[k][1], y=intersections[k][2], id=getID())
+                end_node = obj.Node(x=intersections[k + 1][1], y=intersections[k + 1][2], id=getID())
+                newlines.append(obj.Line(start_pt=start_node, end_pt=end_node, id=getID()))
 
         self.nodes.clear()
         self.lines.clear()
 
         for li in newlines:
-            self.add_line(li)
+            if li.start_pt.distance_to(li.end_pt) > self.epsilon:
+                self.add_line(li)
 
         self.merge_lines()
 
-    def getid(self):
-        return int(uuid4())
+    def merge_geometry(self, other):
+
+        for li in other.lines:
+            otherline = copy(li)
+            self.nodes.append(otherline.start_pt)
+            self.nodes.append(otherline.end_pt)
+            self.lines.append(otherline)
+
+        # for ca in other.circle_arcs:
+        #     self.circle_arcs.append(copy(ca))
+        #
+        # for cb in other.cubic_beziers:
+        #     self.cubic_beziers.append(copy(cb))
+
+    def export_geom(self, filename):
+        paths = []
+        for li in self.lines:
+            start_pt = li.start_pt.x + li.start_pt.y * 1j
+            end_pt = li.end_pt.x + li.end_pt.y * 1j
+            paths.append(svgpathtools.Line(start_pt, end_pt))
+
+        svg.wsvg(paths, filename=str(filename))
+
+
 
 # def node_gmsh_point_distance(node, point):
 #     dx = node.x - point.x[0]

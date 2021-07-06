@@ -157,7 +157,7 @@ def run():
         diff = round(float(flux[1]), 4) - expected_inductance
 
         os.remove("femm_data.csv")
-        os.remove("test.lua")
+        # os.remove("test.lua")
         os.remove("test.fem")
         os.remove("test.ans")
 

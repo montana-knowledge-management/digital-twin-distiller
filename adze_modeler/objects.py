@@ -1,5 +1,7 @@
 import math
+from copy import copy
 
+from adze_modeler.utils import getID
 
 class Node:
     """
@@ -10,7 +12,7 @@ class Node:
     def __init__(self, x=0.0, y=0.0, id=None, label=None, precision=6):
         self.x = x
         self.y = y
-        self.id = id  # a node has to got a unique id to be translated or moved
+        self.id = id or getID()  # a node has to got a unique id to be translated or moved
         self.label = label  # can be used to denote a group of the elements and make some operation with them
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
         self.hanging = True  # if its contained by another object it will be set to False
@@ -35,10 +37,13 @@ class Node:
         return self.x * other.x + self.y * other.y
 
     def __str__(self):
-        return f"({self.x}, {self.y}, id={self.id},label={self.label})"
+        return f"({self.x:.1f}, {self.y:.1f}, label={self.label})"
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
+
+    def __copy__(self):
+        return Node(self.x, self.y, id=getID(), label=self.label, precision=self.precision)
 
     def length(self):
         return math.sqrt(self.x ** 2 + self.y ** 2)
@@ -88,16 +93,82 @@ class Line:
     """A directed line, which is defined by the (start -> end) points"""
 
     def __init__(self, start_pt, end_pt, id=None, label=None):
+        # sorting the incoming points by coordinate
+        # sorted_points = sorted((start_pt, end_pt), key=lambda pi: pi.x)  # sorting by x coordinate
+        # sorted_points = sorted(sorted_points, key=lambda pi: pi.y)  # sorting by y coordinate
+        # self.start_pt = sorted_points[0]
+        # self.end_pt = sorted_points[-1]
         self.start_pt = start_pt
         self.end_pt = end_pt
-        self.id = id
+        self.id = id or getID()
         self.label = label
 
-    def clone(self):
-        return Line(self.start_pt, self.end_pt, self.id, self.label)
+    def __copy__(self):
+        return Line(copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label)
+
+    def distance_to_point(self, px, py):
+        """
+        This function calculates the minimum distance between a line segment and a point
+        https://www.geeksforgeeks.org/minimum-distance-from-a-point-to-the-line-segment-using-vectors/
+        """
+        A = (self.start_pt.x, self.start_pt.y)
+        B = (self.end_pt.x, self.end_pt.y)
+        E = (px, py)
+
+        # vector AB
+        AB = [None, None];
+        AB[0] = B[0] - A[0];
+        AB[1] = B[1] - A[1];
+
+        # vector BP
+        BE = [None, None];
+        BE[0] = E[0] - B[0];
+        BE[1] = E[1] - B[1];
+
+        # vector AP
+        AE = [None, None];
+        AE[0] = E[0] - A[0];
+        AE[1] = E[1] - A[1];
+
+        # Variables to store dot product
+
+        # Calculating the dot product
+        AB_BE = AB[0] * BE[0] + AB[1] * BE[1];
+        AB_AE = AB[0] * AE[0] + AB[1] * AE[1];
+
+        # Minimum distance from
+        # point E to the line segment
+        reqAns = 0;
+
+        # Case 1
+        if (AB_BE > 0):
+
+            # Finding the magnitude
+            y = E[1] - B[1];
+            x = E[0] - B[0];
+            reqAns = math.sqrt(x * x + y * y);
+
+        # Case 2
+        elif (AB_AE < 0):
+            y = E[1] - A[1];
+            x = E[0] - A[0];
+            reqAns = math.sqrt(x * x + y * y);
+
+        # Case 3
+        else:
+
+            # Finding the perpendicular distance
+            x1 = AB[0];
+            y1 = AB[1];
+            x2 = AE[0];
+            y2 = AE[1];
+            mod = math.sqrt(x1 * x1 + y1 * y1);
+            reqAns = abs(x1 * y2 - y1 * x2) / mod
+
+        return reqAns
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.start_pt!r}, {self.end_pt!r}, id={self.id!r},label={self.label!r})"
+        return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
 
 
 class CircleArc:

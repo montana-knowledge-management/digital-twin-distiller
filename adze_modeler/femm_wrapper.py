@@ -1433,8 +1433,8 @@ class FemmWriter:
         Symbol      Definition
         ------      ----------
         A           vector potential A or flux φ
-        B1          flux density    Bxif planar,Brif axisymmetric
-        B2          flux density Byif planar, Bzif axisymmetric
+        B1          flux density Bx if planar, Brif axisymmetric
+        B2          flux density By if planar, Bzif axisymmetric
         Sig         electrical conductivity σ
         E           stored energy density
         H1          field intensity Hxif planar,Hrif axisymmetric
@@ -1495,7 +1495,7 @@ class FemmExecutor:
     """
     The goal of this class is to provide a simple and easily configurable FEMM executor.
     This executor uses the Filelink option of FEMM, becuase the slowliness of this file based communication is not critical
-    in the case of larger computations, which can be parallelized by Artap, or other optimizatino frameworks.
+    in the case of larger computations, which can be parallelized by ArtapOptimization, or other optimizatino frameworks.
     """
 
     # Default value of the femm path under linux and under windows.
@@ -1512,7 +1512,7 @@ class FemmExecutor:
         if platform == "linux":
             self.femm_command = "wine " + self.femm_path_linux
 
-            lua_path = os.path.abspath(self.script_file)
+            lua_path = os.path.abspath(script_file)
 
             arg = None
             if os.path.isfile(lua_path) and platform == "linux":
@@ -1520,7 +1520,7 @@ class FemmExecutor:
 
             cmd_string = self.femm_command + f" -lua-script={arg}"
 
-            out = subprocess.run(cmd_string, shell=True, stdout=subprocess.PIPE)
+            out = subprocess.run(cmd_string, shell=True, capture_output=True)
 
             if out.returncode != 0:
                 err = "Unknown error"
