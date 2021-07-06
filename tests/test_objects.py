@@ -25,7 +25,7 @@ class TestNodeOperations(TestCase):
 
     def test_strings(self):
         a = Node(1.0, 0.0)
-        self.assertEqual(f"(1.0, 0.0, id={a.id},label=None)", str(a))
+        self.assertEqual(f"(1.0, 0.0, label=None)", str(a))
 
     def test_distance(self):
         a = Node(1.0, 0.0)
@@ -51,8 +51,12 @@ class TestLine(TestCase):
 
         # repr string
         self.assertIn(
-            f"Line(Node(1.0, 0.0, id={a.id},label=None), Node(0.5, 0.0, id={b.id},label=None), id=1,label='test')", str(l)
+            f"Line((1.0, 0.0, label=None), (0.5, 0.0, label=None),label='test')", str(l)
         )
+
+    def test_distance_between_lines(self):
+        l1 = Line(Node(0, 0), Node(1, 0))
+        self.assertAlmostEqual(l1.distance_to_point(0, 1), 1.0, 3)
 
 
 class TestCubicBezier(TestCase):

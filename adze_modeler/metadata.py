@@ -16,17 +16,17 @@ class Metadata(metaclass=ABCMeta):
         self.file_metrics_name = "fem_data.csv"
 
     def validate_file_name(self):
-        try:
-            self.file_script_name = str(self.file_metrics_name)
-            self.file_metrics_name = str(self.file_script_name)
+        if self.file_script_name is not None:
+            self.file_script_name = str(self.file_script_name)
+            self.file_metrics_name = str(self.file_metrics_name)
             dotindex = self.file_script_name.find('.')
-        except AttributeError:
+            if dotindex != -1:
+                self.file_script_name = self.file_script_name[:dotindex]
+
+            self.file_script_name = self.file_script_name + self.file_suffix
+        else:
             print("script_name is empty!")
             exit(10)
-        if dotindex != -1:
-            self.file_script_name = self.file_script_name[:dotindex]
-
-        self.file_script_name = self.file_script_name + self.file_suffix
 
     @abstractmethod
     def validate_metadata(self):

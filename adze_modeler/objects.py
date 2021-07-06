@@ -37,7 +37,7 @@ class Node:
         return self.x * other.x + self.y * other.y
 
     def __str__(self):
-        return f"({self.x:.0f}, {self.y:.0f}, label={self.label})"
+        return f"({self.x:.1f}, {self.y:.1f}, label={self.label})"
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
