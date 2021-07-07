@@ -90,53 +90,53 @@ best_asym = data_asym[:N]
 rest_asym = data_sym[N:]
 
 
-# F1 - F2
-plt.figure()
-plt.scatter(best_sym[:, idxF1], best_sym[:, idxF2], c='b', label='Symmetric')
-plt.scatter(best_asym[:, idxF1], best_asym[:, idxF2], c='r', label='Asymmetric')
-plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
-plt.xlabel(r"F$_1$")
-plt.ylabel(r"F$_2$")
-plt.grid(b=True, which='major', color='#666666', linestyle='-')
-plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
-plt.minorticks_on()
-plt.legend()
-plt.title(f'Best {N} solutions based on F3 sort')
-plt.savefig(path_export_comp / 'svg' / 'bestin-F3-f1-f2.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_comp / 'png' / 'bestin-F3-f1-f2.png', dpi=550, bbox_inches='tight')
-# plt.show()
-
-# F1 - F3
-plt.figure()
-plt.scatter(best_sym[:, idxF1], best_sym[:, idxF3]*2, c='b', label=r'$2 \times$Symmetric')
-plt.scatter(best_asym[:, idxF1], best_asym[:, idxF3], c='r', label='Asymmetric')
-plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
-plt.xlabel(r"F$_1$")
-plt.ylabel(r"F$_3$")
-plt.grid(b=True, which='major', color='#666666', linestyle='-')
-plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
-plt.minorticks_on()
-plt.legend()
-plt.title(f'Best {N} solutions based on F3 sort')
-plt.savefig(path_export_comp / 'svg' / 'bestin-F3-f1-f3.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_comp / 'png' / 'bestin-F3-f1-f3.png', dpi=550, bbox_inches='tight')
-# plt.show()
-
-# F2 - F3
-plt.figure()
-plt.scatter(best_sym[:, idxF2], best_sym[:, idxF3]*3, c='b', label=r'$2 \times$Symmetric')
-plt.scatter(best_asym[:, idxF2], best_asym[:, idxF3], c='r', label='Asymmetric')
-plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
-plt.xlabel(r"F$_2$")
-plt.ylabel(r"F$_3$")
-plt.grid(b=True, which='major', color='#666666', linestyle='-')
-plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
-plt.minorticks_on()
-plt.legend()
-plt.title(f'Best {N} solutions based on F3 sort')
-plt.savefig(path_export_comp / 'svg' / 'bestin-F3-f2-f3.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_comp / 'png' / 'bestin-F3-f2-f3.png', dpi=550, bbox_inches='tight')
-# plt.show()
+# # F1 - F2
+# plt.figure()
+# plt.scatter(best_sym[:, idxF1], best_sym[:, idxF2], c='b', label='Symmetric')
+# plt.scatter(best_asym[:, idxF1], best_asym[:, idxF2], c='r', label='Asymmetric')
+# plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
+# plt.xlabel(r"F$_1$")
+# plt.ylabel(r"F$_2$")
+# plt.grid(b=True, which='major', color='#666666', linestyle='-')
+# plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+# plt.minorticks_on()
+# plt.legend()
+# plt.title(f'Best {N} solutions based on F3 sort')
+# plt.savefig(path_export_comp / 'svg' / 'bestin-F3-f1-f2.svg', format="svg", bbox_inches='tight')
+# plt.savefig(path_export_comp / 'png' / 'bestin-F3-f1-f2.png', dpi=550, bbox_inches='tight')
+# # plt.show()
+#
+# # F1 - F3
+# plt.figure()
+# plt.scatter(best_sym[:, idxF1], best_sym[:, idxF3]*2, c='b', label=r'$2 \times$Symmetric')
+# plt.scatter(best_asym[:, idxF1], best_asym[:, idxF3], c='r', label='Asymmetric')
+# plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
+# plt.xlabel(r"F$_1$")
+# plt.ylabel(r"F$_3$")
+# plt.grid(b=True, which='major', color='#666666', linestyle='-')
+# plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+# plt.minorticks_on()
+# plt.legend()
+# plt.title(f'Best {N} solutions based on F3 sort')
+# plt.savefig(path_export_comp / 'svg' / 'bestin-F3-f1-f3.svg', format="svg", bbox_inches='tight')
+# plt.savefig(path_export_comp / 'png' / 'bestin-F3-f1-f3.png', dpi=550, bbox_inches='tight')
+# # plt.show()
+#
+# # F2 - F3
+# plt.figure()
+# plt.scatter(best_sym[:, idxF2], best_sym[:, idxF3]*3, c='b', label=r'$2 \times$Symmetric')
+# plt.scatter(best_asym[:, idxF2], best_asym[:, idxF3], c='r', label='Asymmetric')
+# plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
+# plt.xlabel(r"F$_2$")
+# plt.ylabel(r"F$_3$")
+# plt.grid(b=True, which='major', color='#666666', linestyle='-')
+# plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+# plt.minorticks_on()
+# plt.legend()
+# plt.title(f'Best {N} solutions based on F3 sort')
+# plt.savefig(path_export_comp / 'svg' / 'bestin-F3-f2-f3.svg', format="svg", bbox_inches='tight')
+# plt.savefig(path_export_comp / 'png' / 'bestin-F3-f2-f3.png', dpi=550, bbox_inches='tight')
+# # plt.show()
 
 ### Violinplot
 df = {f"R{i+1}": list() for i in range(20)}
@@ -155,8 +155,8 @@ df["type"].extend(['Asymmetric']*len(best_asym))
 df = pd.DataFrame(df)
 df = df.melt(value_vars=[f"R{i+1}" for i in range(20)], id_vars='type', var_name='radius_name', value_name='value')
 
-fig, ax = plt.subplots(figsize=(10, 5))
-ax = sns.violinplot(x="radius_name", y="value",
+fig, ax = plt.subplots(figsize=(5, 10))
+ax = sns.violinplot(x="value", y="radius_name",
                     hue="type",
                     data=df,
                     split=True,
@@ -164,26 +164,27 @@ ax = sns.violinplot(x="radius_name", y="value",
                     cut=0,
                     inner=None,
                     linewidth=0.5,
-                    scale="count")
-ax.set_xlabel("ith Coil")
-ax.set_ylabel("Radius [mm]")
+                    width=1)
+
+ax.set_xlabel("Radius [mm]")
+ax.set_ylabel("ith Coil")
 ax.grid(b=True, which='major', color='#666666', linestyle='-')
 ax.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
 ax.minorticks_on()
 plt.savefig(path_export_comp / 'svg' / 'bestin-F3-radius-distribution.svg', format="svg", bbox_inches='tight')
 plt.savefig(path_export_comp / 'png' / 'bestin-F3-radius-distribution.png', dpi=550, bbox_inches='tight')
-# plt.show()
+plt.show()
 
-from mpl_toolkits.mplot3d import Axes3D
-
-fig = plt.figure(figsize=(16,16))
-ax = Axes3D(fig, auto_add_to_figure=False)
-fig.add_axes(ax)
-
-g = ax.scatter(best_sym[:, idxF1], best_sym[:, idxF2], best_sym[:, idxF3]*2, c='b', marker='o', depthshade=True)
-g = ax.scatter(best_asym[:, idxF1], best_asym[:, idxF2], best_asym[:, idxF3], c='r', marker='o', depthshade=True)
-ax.set_xlabel(r'F$_1$')
-ax.set_ylabel(r'F$_2$')
-ax.set_zlabel(r'F$_3$')
-plt.savefig(path_export_comp / 'png' / 'bestin-F3-3D.png', dpi=330, bbox_inches='tight')
-# plt.show()
+# from mpl_toolkits.mplot3d import Axes3D
+#
+# fig = plt.figure(figsize=(16,16))
+# ax = Axes3D(fig, auto_add_to_figure=False)
+# fig.add_axes(ax)
+#
+# g = ax.scatter(best_sym[:, idxF1], best_sym[:, idxF2], best_sym[:, idxF3]*2, c='b', marker='o', depthshade=True)
+# g = ax.scatter(best_asym[:, idxF1], best_asym[:, idxF2], best_asym[:, idxF3], c='r', marker='o', depthshade=True)
+# ax.set_xlabel(r'F$_1$')
+# ax.set_ylabel(r'F$_2$')
+# ax.set_zlabel(r'F$_3$')
+# plt.savefig(path_export_comp / 'png' / 'bestin-F3-3D.png', dpi=330, bbox_inches='tight')
+# # plt.show()

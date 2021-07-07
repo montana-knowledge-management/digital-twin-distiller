@@ -19,16 +19,16 @@ class CoilOptimizationProblem(Problem):
     def set(self):
         self.name = 'Biobjective Test Problem'
 
-        self.parameters = [{'name': 'r0', 'bounds': [5.5, 50]},
-                           {'name': 'r1', 'bounds': [5.5, 50]},
-                           {'name': 'r2', 'bounds': [5.5, 50]},
-                           {'name': 'r3', 'bounds': [5.5, 50]},
-                           {'name': 'r4', 'bounds': [1, 50]},
-                           {'name': 'r5', 'bounds': [1, 50]},
-                           {'name': 'r6', 'bounds': [1, 50]},
-                           {'name': 'r7', 'bounds': [1, 50]},
-                           {'name': 'r8', 'bounds': [1, 50]},
-                           {'name': 'r9', 'bounds': [1, 50]}
+        self.parameters = [{'name': 'r0', 'bounds': [5.5, 15]},
+                           {'name': 'r1', 'bounds': [5.5, 17]},
+                           {'name': 'r2', 'bounds': [5.5, 17]},
+                           {'name': 'r3', 'bounds': [5.5, 17]},
+                           {'name': 'r4', 'bounds': [1, 17]},
+                           {'name': 'r5', 'bounds': [1, 17]},
+                           {'name': 'r6', 'bounds': [1, 17]},
+                           {'name': 'r7', 'bounds': [1, 17]},
+                           {'name': 'r8', 'bounds': [1, 17]},
+                           {'name': 'r9', 'bounds': [1, 17]}
                            ]
 
         self.costs = [{'name': 'f_1', 'criteria': 'minimize'},
@@ -119,19 +119,19 @@ class CoilOptimizationProblem(Problem):
             f.write(','.join([str(i) for i in record]))
             f.write('\n')
 
-        # with open(current_dir / "trainingdata.csv", "a+") as f:
-        #     """
-        #     x, y, r0, r1, r2, ..., r19, Br, Bz
-        #     """
-        #     for x_i, y_i, Br_i, Bz_i in zip(xi, yi, Br, Bz):
-        #         record = [x_i, y_i]
-        #         record.extend(X)
-        #         record.append(Br_i)
-        #         record.append(Bz_i)
-        #         f.write(','.join([str(i) for i in record]))
-        #         f.write('\n')
+        with open(current_dir / "trainingdata.csv", "a+") as f:
+            """
+            x, y, r0, r1, r2, ..., r19, Br, Bz
+            """
+            for x_i, y_i, Br_i, Bz_i in zip(xi, yi, Br, Bz):
+                record = [x_i, y_i]
+                record.extend(X)
+                record.append(Br_i)
+                record.append(Bz_i)
+                f.write(','.join([str(i) for i in record]))
+                f.write('\n')
 
-        # print(F1, F2, F2)
+        print(F1, F2, F2)
         return [F1, F2, F3]
 
 if __name__=='__main__':
@@ -139,8 +139,8 @@ if __name__=='__main__':
     # Perform the optimization iterating over 100 times on 100 individuals.
     problem = CoilOptimizationProblem()
     algorithm = NSGAII(problem)
-    algorithm.options['max_population_number'] = 2
-    algorithm.options['max_population_size'] = 5
+    algorithm.options['max_population_number'] = 250
+    algorithm.options['max_population_size'] = 100
     try:
         algorithm.run()
         res = problem.individuals[-1]
@@ -149,12 +149,12 @@ if __name__=='__main__':
     except KeyboardInterrupt:
         pass
 
-    # with open(Path(__file__).parent / "pareto_front.csv", "w") as f:
-    #     for ind in problem.individuals:
-    #         record = ind.costs.copy()
-    #         record.extend(ind.vector.copy())
-    #         f.write(','.join([str(i) for i in record]))
-    #         f.write('\n')
+    with open(Path(__file__).parent / "pareto_front.csv", "w") as f:
+        for ind in problem.individuals:
+            record = ind.costs.copy()
+            record.extend(ind.vector.copy())
+            f.write(','.join([str(i) for i in record]))
+            f.write('\n')
 
 
     # surrogate modelles megoldás
