@@ -15,7 +15,7 @@ class ModelPiece():
         self._update_bbox()
 
     def load_piece_from_dxf(self, file_name):
-        self.geom.import_dxf(file_name)
+        self.geom.import_dxf(str(file_name))
         self._update_bbox()
 
     def spawn(self):

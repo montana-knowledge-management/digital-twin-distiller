@@ -159,7 +159,7 @@ if __name__=='__main__':
     except KeyboardInterrupt:
         pass
 
-    with open(Path(__file__).parent / "pareto_front.csv", "w") as f:
+    with open(Path(__file__).parent / "statistics.csv", "w") as f:
         for ind in problem.individuals:
             record = ind.costs.copy()
             record.extend(ind.vector.copy())

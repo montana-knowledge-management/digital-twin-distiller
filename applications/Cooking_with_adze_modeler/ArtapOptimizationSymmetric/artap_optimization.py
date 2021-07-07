@@ -55,7 +55,7 @@ class CoilOptimizationProblem(Problem):
         agros_metadata.nb_refinements = 0
         agros_metadata.polyorder = 2
         agros_metadata.adaptivity = "hp-adaptivity"
-        agros_metadata.adaptivity_tol = 0.001
+        agros_metadata.adaptivity_tol = 1
         platform_agros = Agros2D(agros_metadata)
 
         platform = platform_agros
@@ -105,7 +105,7 @@ class CoilOptimizationProblem(Problem):
 
         F2 = max(map(operator.add, deltaBp, deltaBn))
 
-        # Calcukate F3
+        # Calculate F3
         F3 = sum(X)
 
         with open(current_dir / 'statistics.csv', 'a+') as f:
@@ -149,12 +149,12 @@ if __name__=='__main__':
     except KeyboardInterrupt:
         pass
 
-    with open(Path(__file__).parent / "pareto_front.csv", "w") as f:
-        for ind in problem.individuals:
-            record = ind.costs.copy()
-            record.extend(ind.vector.copy())
-            f.write(','.join([str(i) for i in record]))
-            f.write('\n')
+    # with open(Path(__file__).parent / "pareto_front.csv", "w") as f:
+    #     for ind in problem.individuals:
+    #         record = ind.costs.copy()
+    #         record.extend(ind.vector.copy())
+    #         f.write(','.join([str(i) for i in record]))
+    #         f.write('\n')
 
 
     # surrogate modelles megoldás

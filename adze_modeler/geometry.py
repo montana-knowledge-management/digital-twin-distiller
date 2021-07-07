@@ -41,12 +41,19 @@ class Geometry:
         self.nodes.append(arc.center_pt)
 
     def add_cubic_bezier(self, cb):
-        self.cubic_beziers.append(cb)
-
-        self.nodes.append(cb.start_pt)
-        self.nodes.append(cb.control1)
-        self.nodes.append(cb.control2)
-        self.nodes.append(cb.end_pt)
+        # self.cubic_beziers.append(cb)
+        #
+        # self.nodes.append(cb.start_pt)
+        # self.nodes.append(cb.control1)
+        # self.nodes.append(cb.control2)
+        # self.nodes.append(cb.end_pt)
+        r, l = Geometry.casteljau(cb)
+        rr, rl = Geometry.casteljau(r)
+        lr, ll = Geometry.casteljau(l)
+        self.add_line(obj.Line(rr.start_pt, rr.end_pt))
+        self.add_line(obj.Line(rl.start_pt, rl.end_pt))
+        self.add_line(obj.Line(lr.start_pt, lr.end_pt))
+        self.add_line(obj.Line(ll.start_pt, ll.end_pt))
 
     def delete_hanging_nodes(self):
         """Delete all nodes, which not part of a another object (Line, Circle, etc)"""
@@ -207,10 +214,12 @@ class Geometry:
         # exports the lines
         for seg in self.lines:
             path = svg.Path()
-            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y), complex(seg.end_pt.x, seg.end_pt.y)))
+            p1 = complex(seg.start_pt.x, seg.start_pt.y)
+            p2 = complex(seg.end_pt.x, seg.end_pt.y)
+            path.append(svg.Line(p1.conjugate(), p2.conjugate()))
             paths.append(path)
 
-        svg.wsvg(paths, svgwrite_debug=True, filename='output1.svg')
+        svg.wsvg(paths, svgwrite_debug=True, filename=str(file_name))
 
     def import_svg(self, svg_img, *args):
         """Imports the svg file into a new geo object. The function gives an automatic id to the function
