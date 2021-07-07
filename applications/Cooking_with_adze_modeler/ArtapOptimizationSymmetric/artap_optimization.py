@@ -11,6 +11,8 @@ from problem_solver import build
 from adze_modeler.metadata import Agros2DMetadata
 from adze_modeler.metadata import FemmMetadata
 from random import choice, uniform
+import multiprocessing
+from functools import partial
 
 current_dir = Path(__file__).parent
 
@@ -19,16 +21,16 @@ class CoilOptimizationProblem(Problem):
     def set(self):
         self.name = 'Biobjective Test Problem'
 
-        self.parameters = [{'name': 'r0', 'bounds': [5.5, 15]},
-                           {'name': 'r1', 'bounds': [5.5, 17]},
-                           {'name': 'r2', 'bounds': [5.5, 17]},
-                           {'name': 'r3', 'bounds': [5.5, 17]},
-                           {'name': 'r4', 'bounds': [1, 17]},
-                           {'name': 'r5', 'bounds': [1, 17]},
-                           {'name': 'r6', 'bounds': [1, 17]},
-                           {'name': 'r7', 'bounds': [1, 17]},
-                           {'name': 'r8', 'bounds': [1, 17]},
-                           {'name': 'r9', 'bounds': [1, 17]}
+        self.parameters = [{'name': 'r0', 'bounds': [5.5, 20]},
+                           {'name': 'r1', 'bounds': [5.5, 20]},
+                           {'name': 'r2', 'bounds': [5.5, 20]},
+                           {'name': 'r3', 'bounds': [5.5, 20]},
+                           {'name': 'r4', 'bounds': [1, 20]},
+                           {'name': 'r5', 'bounds': [1, 20]},
+                           {'name': 'r6', 'bounds': [1, 20]},
+                           {'name': 'r7', 'bounds': [1, 20]},
+                           {'name': 'r8', 'bounds': [1, 20]},
+                           {'name': 'r9', 'bounds': [1, 20]}
                            ]
 
         self.costs = [{'name': 'f_1', 'criteria': 'minimize'},
@@ -60,12 +62,29 @@ class CoilOptimizationProblem(Problem):
 
         platform = platform_agros
 
+        perturbation = 0.5  # mm
         X = individual.vector
+        Xp = [xi + perturbation for xi in X]
+        Xn = [xi - perturbation for xi in X]
+
         F1 = math.inf
         F2 = math.inf
         F3 = math.inf
 
-        if not (res := build(platform, X)):
+        func = partial(build, platform)
+
+        with multiprocessing.Pool(processes=3) as pool:
+            res, resn, resp = pool.map(func, [X, Xn,Xp])
+
+
+
+        if not res:
+            return [math.inf, math.inf, math.inf]
+
+        if not resp:
+            return [math.inf, math.inf, math.inf]
+
+        if not resn:
             return [math.inf, math.inf, math.inf]
 
         Bz = [pointvalue[2] for pointvalue in res['Bz']] # [x, y, Bz(x, y)]
@@ -79,17 +98,11 @@ class CoilOptimizationProblem(Problem):
         F1 = max(map(lambda Bz_i: abs(Bz_i - B0), Bz))
 
         # Calculate F2
-        perturbation = 0.5 # mm
-        Xp = [xi + perturbation for xi in X]
-        if not (resp := build(platform, Xp)):
-            return [math.inf, math.inf, math.inf]
 
         Bzp = [pointvalue[2] for pointvalue in resp['Bz']]
         Brp = [pointvalue[2] for pointvalue in resp['Br']]
 
-        Xn = [xi - perturbation for xi in X]
-        if not (resn := build(platform, Xn)):
-            return [math.inf, math.inf, math.inf]
+
 
         Bzn = [pointvalue[2] for pointvalue in resn['Bz']]
         Brn = [pointvalue[2] for pointvalue in resn['Br']]
@@ -131,7 +144,7 @@ class CoilOptimizationProblem(Problem):
                 f.write(','.join([str(i) for i in record]))
                 f.write('\n')
 
-        print(F1, F2, F2)
+        print(F1, F2, F3)
         return [F1, F2, F3]
 
 if __name__=='__main__':

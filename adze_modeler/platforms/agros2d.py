@@ -9,6 +9,7 @@ from adze_modeler.objects import Node, Line, CircleArc, CubicBezier
 import subprocess
 import os
 from copy import copy
+import sys
 
 class Agros2D(Platform):
 
@@ -108,7 +109,7 @@ class Agros2D(Platform):
         self.write("problem.solve()")
         self.write("a2d.view.zoom_best_fit()")
 
-        self.write(f'f = open("{self.metadata.file_metrics_name}", "w")')
+        self.write(f'f = open(r"{self.metadata.file_metrics_name}", "w")')
 
     def export_metrics(self, action, entity, variable):
         mappings = {
@@ -137,7 +138,10 @@ class Agros2D(Platform):
 
     def execute(self, cleanup=False):
         try:
-            subprocess.run(['agros2d_solver', '-s', self.metadata.file_script_name], capture_output=True)
+            if sys.platform == 'linux':
+                subprocess.run(['agros2d_solver', '-s', self.metadata.file_script_name], capture_output=True)
+            elif sys.platform == 'win32':
+                subprocess.run(['Solver.exe', '-s', self.metadata.file_script_name], capture_output=True)
 
             if cleanup:
                 os.remove(self.metadata.file_script_name)

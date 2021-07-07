@@ -99,7 +99,7 @@ def build(platform, X, cleanup=True, customid=None):
     geom.export_geom(modelpath / f"{model_id}.svg")
 
     Nx = 10
-    Ny = 10
+    Ny = 5
     px = linspace(0.001, 5, Nx)
     py = linspace(0.001, 5, Ny)
     xv, yv = meshgrid(px, py, sparse=False, indexing='xy')

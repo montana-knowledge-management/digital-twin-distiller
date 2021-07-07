@@ -93,7 +93,7 @@ def build(platform, X, cleanup=True, customid=None):
 
     Nx = 10
     Ny = 10
-    px = linspace(0, 5, Nx)
+    px = linspace(0.001, 5, Nx)
     py = linspace(-5, 5, Ny)
     xv, yv = meshgrid(px, py, sparse=False, indexing='xy')
 
