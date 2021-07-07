@@ -70,82 +70,74 @@ class CoilOptimizationProblem(Problem):
         F1 = math.inf
         F2 = math.inf
         F3 = math.inf
+        try:
+            func = partial(build, platform)
 
-        func = partial(build, platform)
-
-        with multiprocessing.Pool(processes=3) as pool:
-            res, resn, resp = pool.map(func, [X, Xn,Xp])
+            with multiprocessing.Pool(processes=3) as pool:
+                res, resn, resp = pool.map(func, [X, Xn,Xp])
 
 
+            Bz = [pointvalue[2] for pointvalue in res['Bz']] # [x, y, Bz(x, y)]
+            Br = [pointvalue[2] for pointvalue in res['Br']] # [x, y, Br(x, y)]
+            xi = [pointvalue[0] for pointvalue in res['Br']] # [x, y, Br(x, y)]
+            yi = [pointvalue[1] for pointvalue in res['Br']] # [x, y, Br(x, y)]
+            nb_nodes = res['nodes']
 
-        if not res:
-            return [math.inf, math.inf, math.inf]
+            # Calculate F1
+            B0 = 2e-3
+            F1 = max(map(lambda Bz_i: abs(Bz_i - B0), Bz))
 
-        if not resp:
-            return [math.inf, math.inf, math.inf]
+            # Calculate F2
 
-        if not resn:
-            return [math.inf, math.inf, math.inf]
-
-        Bz = [pointvalue[2] for pointvalue in res['Bz']] # [x, y, Bz(x, y)]
-        Br = [pointvalue[2] for pointvalue in res['Br']] # [x, y, Br(x, y)]
-        xi = [pointvalue[0] for pointvalue in res['Br']] # [x, y, Br(x, y)]
-        yi = [pointvalue[1] for pointvalue in res['Br']] # [x, y, Br(x, y)]
-        nb_nodes = res['nodes']
-
-        # Calculate F1
-        B0 = 2e-3
-        F1 = max(map(lambda Bz_i: abs(Bz_i - B0), Bz))
-
-        # Calculate F2
-
-        Bzp = [pointvalue[2] for pointvalue in resp['Bz']]
-        Brp = [pointvalue[2] for pointvalue in resp['Br']]
+            Bzp = [pointvalue[2] for pointvalue in resp['Bz']]
+            Brp = [pointvalue[2] for pointvalue in resp['Br']]
 
 
 
-        Bzn = [pointvalue[2] for pointvalue in resn['Bz']]
-        Brn = [pointvalue[2] for pointvalue in resn['Br']]
+            Bzn = [pointvalue[2] for pointvalue in resn['Bz']]
+            Brn = [pointvalue[2] for pointvalue in resn['Br']]
 
-        deltaBpz = map(operator.abs, map(operator.sub, Bzp, Bz))
-        deltaBpr = map(operator.abs, map(operator.sub, Brp, Br))
-        deltaBp = map(math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBpz, deltaBpr))
+            deltaBpz = map(operator.abs, map(operator.sub, Bzp, Bz))
+            deltaBpr = map(operator.abs, map(operator.sub, Brp, Br))
+            deltaBp = map(math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBpz, deltaBpr))
 
 
-        deltaBnz = map(operator.abs, map(operator.sub, Bzn, Bz))
-        deltaBnr = map(operator.abs, map(operator.sub, Brn, Br))
-        deltaBn = map(math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBnz, deltaBnr))
+            deltaBnz = map(operator.abs, map(operator.sub, Bzn, Bz))
+            deltaBnr = map(operator.abs, map(operator.sub, Brn, Br))
+            deltaBn = map(math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBnz, deltaBnr))
 
-        F2 = max(map(operator.add, deltaBp, deltaBn))
+            F2 = max(map(operator.add, deltaBp, deltaBn))
 
-        # Calculate F3
-        F3 = sum(X)
+            # Calculate F3
+            F3 = sum(X)
 
-        with open(current_dir / 'statistics.csv', 'a+') as f:
-            """
-            platform, F1, F2, F3, nodes, r0, r1, r2, r3, ..., r19
-            """
-            record = [res['platform']]
-            record.extend([F1, F2, F3])
-            record.append(nb_nodes)
-            record.extend(X)
-            f.write(','.join([str(i) for i in record]))
-            f.write('\n')
-
-        with open(current_dir / "trainingdata.csv", "a+") as f:
-            """
-            x, y, r0, r1, r2, ..., r19, Br, Bz
-            """
-            for x_i, y_i, Br_i, Bz_i in zip(xi, yi, Br, Bz):
-                record = [x_i, y_i]
+            with open(current_dir / 'statistics.csv', 'a+') as f:
+                """
+                platform, F1, F2, F3, nodes, r0, r1, r2, r3, ..., r19
+                """
+                record = [res['platform']]
+                record.extend([F1, F2, F3])
+                record.append(nb_nodes)
                 record.extend(X)
-                record.append(Br_i)
-                record.append(Bz_i)
                 f.write(','.join([str(i) for i in record]))
                 f.write('\n')
 
-        print(F1, F2, F3)
-        return [F1, F2, F3]
+            with open(current_dir / "trainingdata.csv", "a+") as f:
+                """
+                x, y, r0, r1, r2, ..., r19, Br, Bz
+                """
+                for x_i, y_i, Br_i, Bz_i in zip(xi, yi, Br, Bz):
+                    record = [x_i, y_i]
+                    record.extend(X)
+                    record.append(Br_i)
+                    record.append(Bz_i)
+                    f.write(','.join([str(i) for i in record]))
+                    f.write('\n')
+
+            print(F1, F2, F3)
+            return [F1, F2, F3]
+        except Exception as e:
+            return [math.inf, math.inf, math.inf]
 
 if __name__=='__main__':
 
