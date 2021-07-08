@@ -53,7 +53,7 @@ def get_snapshot(stator, rotor, di): # add X to arguments
     geom.add_cubic_bezier(CubicBezier(start_1, c1_1, c2_1, end_1))
 
     geom.generate_intersections()
-    # geom.export_svg(exportpath / f"geom-{int(di*1000)}.svg")
+    geom.export_svg(exportpath / f"geom-{int(di*1000)}.svg")
 
     snapshot = Snapshot(platform)
     snapshot.add_geometry(geom)
@@ -72,7 +72,7 @@ if __name__=='__main__':
     rotor.load_piece_from_dxf(basepath / "rotor.dxf")
 
     snapshots = []
-    dis = linspace(0, 50, 51)
+    dis = linspace(0, 50, 3)
 
     func = functools.partial(get_snapshot, stator, rotor)
     t1 = perf_counter()
