@@ -34,7 +34,7 @@ class Platform(metaclass=ABCMeta):
         return self.file_script_handle
 
     def get_script_name(self):
-        filename = self.metadata.file_script_name
+        filename = str(self.metadata.file_script_name)
         dotindex = filename.find('.')
         filename = filename[:dotindex]
         return filename

@@ -119,6 +119,12 @@ class Snapshot:
 
         self.platform.close()
 
+    def __call__(self, *args, **kwargs):
+        try:
+            self.execute()
+            self.retrive_results()
+        except Exception as e:
+            return None
 
     def execute(self, cleanup=False):
         return self.platform.execute(cleanup=cleanup)

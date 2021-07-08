@@ -12,6 +12,7 @@ from adze_modeler.femm_wrapper import  femm_magnetic, femm_electrostatic, femm_h
 from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from glob import glob
+from pathlib import Path
 
 
 class Femm(Platform):
