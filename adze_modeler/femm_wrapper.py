@@ -449,7 +449,7 @@ class FemmWriter:
 
         if self.field == femm_magnetic and isinstance(boundary, MagneticAnti):
             cmd = Template(
-                "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, " "$c0, $c1, $BdryFormat, $ia, $oa)"
+                "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, $c0, $c1, $BdryFormat, $ia, $oa)"
             )
             cmd = cmd.substitute(
                 propname="'" + boundary.name + "'",

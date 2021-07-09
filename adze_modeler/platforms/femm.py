@@ -9,7 +9,7 @@ from adze_modeler.metadata import Metadata
 from adze_modeler.objects import Node, Line, CircleArc
 from adze_modeler.platforms.platform import Platform
 from adze_modeler.femm_wrapper import FemmWriter, FemmExecutor
-from adze_modeler.femm_wrapper import  femm_magnetic, femm_electrostatic, femm_heat_flow, femm_current_flow
+from adze_modeler.femm_wrapper import femm_magnetic, femm_electrostatic, femm_heat_flow, femm_current_flow
 from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from glob import glob
@@ -72,17 +72,18 @@ class Femm(Platform):
 
     def export_material_definition(self, mat: Material):
         if self.metadata.problem_type == 'magnetic':
+            lamtypes = {"inplane":1}
             femm_material = MagneticMaterial(material_name=mat.name,
                                              mu_x=mat.mu_r,
                                              mu_y=mat.mu_r,
                                              H_c=mat.coercivity,
-                                             J=mat.Je / 1.0e6, # A / m2 -> MA / m2
+                                             J=mat.Je / 1.0e6,  # A / m2 -> MA / m2
                                              Cduct=mat.conductivity / 1.0e6,
                                              Lam_d=mat.thickness,
                                              lam_fill=mat.fill_factor,
                                              NStrands=0.0,
                                              WireD=0.0,
-                                             LamType=0,
+                                             LamType=lamtypes.get(mat.lamination_type, 0),
                                              Phi_hmax=0,
                                              Phi_hx=0,
                                              Phi_hy=0)
@@ -96,7 +97,11 @@ class Femm(Platform):
     def export_block_label(self, x, y, mat: Material):
         self.write(self.writer.add_blocklabel(x, y))
         self.write(self.writer.select_label(x, y))
-        self.write(self.writer.set_blockprop(blockname=mat.name, automesh=int(self.metadata.smartmesh), meshsize=mat.meshsize))
+        self.write(self.writer.set_blockprop(blockname=mat.name,
+                                             automesh=int(self.metadata.smartmesh),
+                                             meshsize=mat.meshsize,
+                                             magdirection=mat.remanence_angle
+                                             ))
         self.write(self.writer.clear_selected())
 
     def export_boundary_definition(self, b: BoundaryCondition):
@@ -169,7 +174,6 @@ class Femm(Platform):
         self.write(self.writer.analyze())
         self.write(self.writer.load_solution())
 
-
     def export_metrics(self, action, entity, variable):
         mappings = {
             "Bx": 'B1',
@@ -181,6 +185,8 @@ class Femm(Platform):
             "Hr": 'H1',
             "Hz": 'H2',
         }
+        fieldmapping = {'electrostatic': 'eo', 'magnetic': 'mo', 'heat': 'ho', 'current': 'co'}
+        prefix = fieldmapping[self.metadata.problem_type]
         if action == 'point_value':
             x = entity[0]
             y = entity[1]
@@ -189,9 +195,23 @@ class Femm(Platform):
             self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
         if action == "mesh_info":
-            fieldmapping = {'electrostatic': 'eo', 'magnetic':'mo', 'heat':'ho', 'current':'co'}
+
             self.write(f'write(file_out, "nodes, ", {fieldmapping[self.metadata.problem_type]}_numnodes(), "\\n")')
-            self.write(f'write(file_out, "elements, ", {fieldmapping[self.metadata.problem_type]}_numelements(), "\\n")')
+            self.write(
+                f'write(file_out, "elements, ", {prefix}_numelements(), "\\n")')
+
+        if action=="integration":
+            if self.metadata.problem_type == 'magnetic':
+                # TODO: xx_selectblock for postprocessing is missing in femm_wrapper
+                int_type = {"Fx": 18, "Fy":19}
+                assert variable in int_type.keys(), f"There is no variable '{variable}'"
+                if isinstance(entity, Iterable):
+                    for x,y in entity:
+                        self.write(f'{prefix}_selectblock({x}, {y})')
+
+                self.write(f'{variable} = {prefix}_blockintegral({int_type[variable]})')
+                self.write(f'{prefix}_clearblock()')
+                self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
 
     def export_closing_steps(self):
         for cmd_i in self.writer.close():

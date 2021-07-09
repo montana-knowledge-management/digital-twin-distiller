@@ -1,4 +1,5 @@
 import functools
+from copy import copy
 from pathlib import Path
 from numpy import linspace
 import multiprocessing
@@ -17,8 +18,15 @@ basepath = Path(__file__).parent
 exportpath = basepath / "snapshots"
 exportpath.mkdir(exist_ok=True)
 
+if __name__ == '__main__':
+    t0 = perf_counter()
+    stator = ModelPiece("stator")
+    stator.load_piece_from_dxf(basepath / "stator_stripped.dxf")
+    stator.put(0, 0)
+    rotor = ModelPiece("rotor")
+    rotor.load_piece_from_dxf(basepath / "rotor.dxf")
 
-def get_snapshot(stator, rotor, di):  # add X to arguments
+    di =0
 
     femm_metadata = FemmMetadata()
     femm_metadata.problem_type = "magnetic"
@@ -27,6 +35,7 @@ def get_snapshot(stator, rotor, di):  # add X to arguments
     femm_metadata.file_metrics_name = exportpath / f"femm_solution_{int(di * 1000)}.csv"
     femm_metadata.unit = "millimeters"
     femm_metadata.smartmesh = True
+    femm_metadata.depth = 200
     platform = Femm(femm_metadata)
 
     snapshot = Snapshot(platform)
@@ -62,11 +71,11 @@ def get_snapshot(stator, rotor, di):  # add X to arguments
                0.95, 1, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85,
                1.9, 1.95, 2, 2.05, 2.1, 2.15, 2.2, 2.25, 2.3]
     steel.h = [0, 17.059828, 25.634971, 31.338354, 35.778997, 39.602124, 43.123143, 46.520439, 49.908177, 53.368284,
-              56.966318, 60.760271, 64.806105, 69.161803, 73.890922, 79.066315, 84.774676, 91.122722, 98.246299,
-              106.324591, 115.603417, 126.435124, 139.349759, 155.187082, 175.350538, 202.312017, 240.640455,
-              299.118027, 394.993386, 561.726177, 859.328763, 1375.466888, 2191.246914, 3328.145908, 4760.506172,
-              6535.339449, 8788.970657, 11670.804347, 15385.186211, 20246.553031, 26995.131141, 38724.496369,
-              64917.284463, 101489.309338, 137202.828961, 176835.706764, 216374.283609]
+               56.966318, 60.760271, 64.806105, 69.161803, 73.890922, 79.066315, 84.774676, 91.122722, 98.246299,
+               106.324591, 115.603417, 126.435124, 139.349759, 155.187082, 175.350538, 202.312017, 240.640455,
+               299.118027, 394.993386, 561.726177, 859.328763, 1375.466888, 2191.246914, 3328.145908, 4760.506172,
+               6535.339449, 8788.970657, 11670.804347, 15385.186211, 20246.553031, 26995.131141, 38724.496369,
+               64917.284463, 101489.309338, 137202.828961, 176835.706764, 216374.283609]
     steel.conductivity = 2 * 1e6
     steel.thickness = 0.635
     steel.lamination_type = "inplane"
@@ -77,17 +86,16 @@ def get_snapshot(stator, rotor, di):  # add X to arguments
     snapshot.add_material(steel)
 
     snapshot.assign_material(32.8, 82.85, name="M-27")
-    snapshot.assign_material(di+20, -30, name="M-27")
+    snapshot.assign_material(di + 20, -30, name="M-27")
 
     snapshot.assign_material(3, 37, name="air")
     snapshot.assign_material(23.6, 36.3, name="air")
     snapshot.assign_material(44.7, 36.8, name="air")
     snapshot.assign_material(65.1, 36.9, name="air")
     snapshot.assign_material(0.08, 0.69, name="air")
-    snapshot.assign_material(di+3, -6, name="air")
-    snapshot.assign_material(di+65, -6, name="air")
+    snapshot.assign_material(di + 3, -6, name="air")
+    snapshot.assign_material(di + 65, -6, name="air")
     snapshot.assign_material(di + 32, -6, name="N38")
-
 
     rotor.put(di, -50.75)
     geom = Geometry()
@@ -99,84 +107,57 @@ def get_snapshot(stator, rotor, di):  # add X to arguments
         geom.add_line(Line(Node(67.32, 0.0), Node(di + 67.32, 0.0)))
 
     start_1 = Node(2.0, 0.75)
-    c1_1 = Node(2.5, 0)  # it comes from X
-    c2_1 = Node(3.5, 0)  # it comes from X
+    c1_1 = Node(2.5, 0.75)  # it comes from X
+    c2_1 = Node(3.5, 0.75)  # it comes from X
     end_1 = Node(20.44, 0.75)
     geom.add_cubic_bezier(CubicBezier(start_1, c1_1, c2_1, end_1))
 
     start_1 = Node(24.44, 0.75)
-    c1_1 = Node(30, 0)  # it comes from X
-    c2_1 = Node(35, 0)  # it comes from X
+    c1_1 = Node(30, 0.75)  # it comes from X
+    c2_1 = Node(35, 0.75)  # it comes from X
     end_1 = Node(42.88, 0.75)
     geom.add_cubic_bezier(CubicBezier(start_1, c1_1, c2_1, end_1))
 
     start_1 = Node(46.88, 0.75)
-    c1_1 = Node(50, 0)  # it comes from X
-    c2_1 = Node(60, 0)  # it comes from X
+    c1_1 = Node(50, 0.75)  # it comes from X
+    c2_1 = Node(60, 0.75)  # it comes from X
     end_1 = Node(65.32, 0.75)
     geom.add_cubic_bezier(CubicBezier(start_1, c1_1, c2_1, end_1))
 
     geom.generate_intersections()
-    # geom.export_svg(exportpath / f"geom-{int(di*1000)}.svg")
-
+    geom.export_svg(exportpath / f"geom-{int(di*1000)}.svg")
 
     snapshot.add_geometry(geom)
 
     snapshot.assign_boundary_condition(0, 85, name='PB1')
-    snapshot.assign_boundary_condition(67, 85, name='PB1')
+    snapshot.assign_boundary_condition(67.33, 85, name='PB1')
+
     snapshot.assign_boundary_condition(0, 35, name='PB2')
-    snapshot.assign_boundary_condition(67, 35, name='PB2')
+    snapshot.assign_boundary_condition(67.33, 35, name='PB2')
+
     snapshot.assign_boundary_condition(0, 0.5, name='PB3')
-    snapshot.assign_boundary_condition(67, 0.5, name='PB3')
+    snapshot.assign_boundary_condition(67.33, 0.5, name='PB3')
 
-    snapshot.assign_boundary_condition(0, -0.5, name='PB5')
-    snapshot.assign_boundary_condition(67, -0.5, name='PB5')
+    if di > 0:
+        snapshot.assign_boundary_condition(di*0.5, 0, name='PB4')
+        snapshot.assign_boundary_condition(di*0.5+67.33, 0, name='PB4')
+
+    snapshot.assign_boundary_condition(di, -0.5, name='PB5')
+    snapshot.assign_boundary_condition(di+67.33, -0.45, name='PB5')
+
     snapshot.assign_boundary_condition(di, -6, name='PB6')
-    snapshot.assign_boundary_condition(di+67, -30, name='PB6')
-    # snapshot.assign_boundary_condition(di, -30, name='PB6')
-    # snapshot.assign_boundary_condition(di + 67, -30, name='PB6')
+    snapshot.assign_boundary_condition(di+67.33, -6, name='PB6')
 
-    return snapshot
+    snapshot.assign_boundary_condition(di, -35, name='PB7')
+    snapshot.assign_boundary_condition(di + 67, -35, name='PB7')
 
+    snapshot.assign_boundary_condition(35, 100, name='a0')
+    snapshot.assign_boundary_condition(di + 20, -50, name='a0')
 
-def run_snapshot(s):
-    return s()
+    snapshot.add_postprocessing("integration", [(di + 10, -20),
+                                                (di + 2, -6),
+                                                (di + 65, -6),
+                                                (di + 32, -5)], "Fx")
 
-if __name__ == '__main__':
-    t0 = perf_counter()
-    stator = ModelPiece("stator")
-    stator.load_piece_from_dxf(basepath / "stator_stripped.dxf")
-    stator.put(0, 0)
-    rotor = ModelPiece("rotor")
-    rotor.load_piece_from_dxf(basepath / "rotor.dxf")
-
-    snapshots = []
-    dis = linspace(0, 50, 3)
-
-    func = functools.partial(get_snapshot, stator, rotor)
-    t1 = perf_counter()
-    T0 = t1 - t0
-
-    # for i, di in enumerate(dis):
-    #     # print(i, di)
-    #     snapshots.append(func(di))
-
-    t2 = perf_counter()
-    # print(t2-t0)
-    snapshots.clear()
-    T0 = 0
-    t3 = perf_counter()
-    with multiprocessing.Pool(processes=9) as pool:
-        snapshots = pool.map(func, dis)
-
-        res = pool.map(run_snapshot, snapshots)
-        print(res)
-
-    t4 = perf_counter()
-    print(T0 + t4 - t3)
-
-    # t0 = perf_counter()
-    # for si in snapshots:
-    #     si.export()
-    # t1 = perf_counter()
-    # print(t1-t0)
+    snapshot.export()
+    snapshot.execute()
