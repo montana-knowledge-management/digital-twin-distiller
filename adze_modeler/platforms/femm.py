@@ -1,4 +1,5 @@
 import os
+from collections import Iterable
 from math import asin
 from copy import copy
 
@@ -12,7 +13,8 @@ from adze_modeler.femm_wrapper import  femm_magnetic, femm_electrostatic, femm_h
 from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from glob import glob
-from pathlib import Path
+from adze_modeler.boundaries import AntiPeriodicBoundaryCondition
+from adze_modeler.femm_wrapper import MagneticAnti
 
 
 class Femm(Platform):
@@ -75,17 +77,21 @@ class Femm(Platform):
                                              mu_y=mat.mu_r,
                                              H_c=mat.coercivity,
                                              J=mat.Je / 1.0e6, # A / m2 -> MA / m2
-                                             Cduct=mat.conductivity,
-                                             Lam_d=0,
-                                             lam_fill=0.0,
+                                             Cduct=mat.conductivity / 1.0e6,
+                                             Lam_d=mat.thickness,
+                                             lam_fill=mat.fill_factor,
                                              NStrands=0.0,
                                              WireD=0.0,
-                                             LamType=0.0,
+                                             LamType=0,
                                              Phi_hmax=0,
                                              Phi_hx=0,
                                              Phi_hy=0)
 
-        self.write(self.writer.add_material(femm_material))
+            self.write(self.writer.add_material(femm_material))
+            if isinstance(mat.b, Iterable):
+                assert len(mat.b) == len(mat.h), "B and H should have the same length"
+                for bi, hi in zip(mat.b, mat.h):
+                    self.write(f'mi_addbhpoint("{mat.name}", {bi}, {hi})')
 
     def export_block_label(self, x, y, mat: Material):
         self.write(self.writer.add_blocklabel(x, y))
@@ -102,6 +108,11 @@ class Femm(Platform):
                                                   a_2=b.valuedict['magnetic_potential'],
                                                   phi=0
                                                   )
+
+        if isinstance(b, AntiPeriodicBoundaryCondition):
+            if self.metadata.problem_type == 'magnetic':
+                femm_boundary = MagneticAnti(name=b.name,
+                                             )
 
         self.write(self.writer.add_boundary(femm_boundary))
 

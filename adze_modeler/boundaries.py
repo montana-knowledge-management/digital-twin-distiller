@@ -71,3 +71,28 @@ class NeumannBoundaryCondition(BoundaryCondition):
 
         for key, value in kwargs.items():
             self.set_value(key, value)
+
+class PeriodicBoundaryCondition(BoundaryCondition):
+    accepted_keys = {
+        "electrostatic": [],
+        "magnetic": [],
+        "heat": [],
+        "current": [],
+    }
+
+    def __init__(self, name, field_type, **kwargs):
+        super().__init__(name, field_type)
+        self.type = "neumann"
+
+
+class AntiPeriodicBoundaryCondition(BoundaryCondition):
+    accepted_keys = {
+        "electrostatic": [],
+        "magnetic": [],
+        "heat": [],
+        "current": [],
+    }
+
+    def __init__(self, name, field_type, **kwargs):
+        super().__init__(name, field_type)
+        self.type = "neumann"

@@ -121,8 +121,10 @@ class Snapshot:
 
     def __call__(self, *args, **kwargs):
         try:
-            self.execute()
-            self.retrive_results()
+            self.export()
+            # self.execute()
+            # return self.retrive_results()
+            return 1
         except Exception as e:
             return None
 

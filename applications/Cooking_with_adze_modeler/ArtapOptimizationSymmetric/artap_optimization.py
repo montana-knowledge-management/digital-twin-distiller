@@ -122,17 +122,17 @@ class CoilOptimizationProblem(Problem):
                 f.write(','.join([str(i) for i in record]))
                 f.write('\n')
 
-            with open(current_dir / "trainingdata.csv", "a+") as f:
-                """
-                x, y, r0, r1, r2, ..., r19, Br, Bz
-                """
-                for x_i, y_i, Br_i, Bz_i in zip(xi, yi, Br, Bz):
-                    record = [x_i, y_i]
-                    record.extend(X)
-                    record.append(Br_i)
-                    record.append(Bz_i)
-                    f.write(','.join([str(i) for i in record]))
-                    f.write('\n')
+            # with open(current_dir / "trainingdata.csv", "a+") as f:
+            #     """
+            #     x, y, r0, r1, r2, ..., r19, Br, Bz
+            #     """
+            #     for x_i, y_i, Br_i, Bz_i in zip(xi, yi, Br, Bz):
+            #         record = [x_i, y_i]
+            #         record.extend(X)
+            #         record.append(Br_i)
+            #         record.append(Bz_i)
+            #         f.write(','.join([str(i) for i in record]))
+            #         f.write('\n')
 
             print(F1, F2, F3)
             return [F1, F2, F3]
