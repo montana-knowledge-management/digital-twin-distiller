@@ -162,4 +162,4 @@ if __name__=='__main__':
             f.write('\n')
 
 
-    # surrogate modelles megoldás
+    # kezdes Jul  9 12:18:48
