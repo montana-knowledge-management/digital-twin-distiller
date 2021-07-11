@@ -18,16 +18,7 @@ basepath = Path(__file__).parent
 exportpath = basepath / "snapshots"
 exportpath.mkdir(exist_ok=True)
 
-if __name__ == '__main__':
-    t0 = perf_counter()
-    stator = ModelPiece("stator")
-    stator.load_piece_from_dxf(basepath / "stator_stripped.dxf")
-    stator.put(0, 0)
-    rotor = ModelPiece("rotor")
-    rotor.load_piece_from_dxf(basepath / "rotor.dxf")
-
-    di =0
-
+def generate_snapshot(stator, rotor, X, di):
     femm_metadata = FemmMetadata()
     femm_metadata.problem_type = "magnetic"
     femm_metadata.coordinate_type = "planar"
@@ -107,25 +98,25 @@ if __name__ == '__main__':
         geom.add_line(Line(Node(67.32, 0.0), Node(di + 67.32, 0.0)))
 
     start_1 = Node(2.0, 0.75)
-    c1_1 = Node(2.5, 0.75)  # it comes from X
-    c2_1 = Node(3.5, 0.75)  # it comes from X
+    c1_1 = Node(X[0], X[1])  # it comes from X
+    c2_1 = Node(X[2], X[3])  # it comes from X
     end_1 = Node(20.44, 0.75)
     geom.add_cubic_bezier(CubicBezier(start_1, c1_1, c2_1, end_1))
 
     start_1 = Node(24.44, 0.75)
-    c1_1 = Node(30, 0.75)  # it comes from X
-    c2_1 = Node(35, 0.75)  # it comes from X
+    c1_1 = Node(X[4], X[5])  # it comes from X
+    c2_1 = Node(X[6], X[7])  # it comes from X
     end_1 = Node(42.88, 0.75)
     geom.add_cubic_bezier(CubicBezier(start_1, c1_1, c2_1, end_1))
 
     start_1 = Node(46.88, 0.75)
-    c1_1 = Node(50, 0.75)  # it comes from X
-    c2_1 = Node(60, 0.75)  # it comes from X
+    c1_1 = Node(X[8], X[9])  # it comes from X
+    c2_1 = Node(X[10], X[11])  # it comes from X
     end_1 = Node(65.32, 0.75)
     geom.add_cubic_bezier(CubicBezier(start_1, c1_1, c2_1, end_1))
 
     geom.generate_intersections()
-    geom.export_svg(exportpath / f"geom-{int(di*1000)}.svg")
+    geom.export_svg(exportpath / f"geom-{int(di * 1000)}.svg")
 
     snapshot.add_geometry(geom)
 
@@ -139,14 +130,14 @@ if __name__ == '__main__':
     snapshot.assign_boundary_condition(67.33, 0.5, name='PB3')
 
     if di > 0:
-        snapshot.assign_boundary_condition(di*0.5, 0, name='PB4')
-        snapshot.assign_boundary_condition(di*0.5+67.33, 0, name='PB4')
+        snapshot.assign_boundary_condition(di * 0.5, 0, name='PB4')
+        snapshot.assign_boundary_condition(di * 0.5 + 67.33, 0, name='PB4')
 
     snapshot.assign_boundary_condition(di, -0.5, name='PB5')
-    snapshot.assign_boundary_condition(di+67.33, -0.45, name='PB5')
+    snapshot.assign_boundary_condition(di + 67.33, -0.45, name='PB5')
 
     snapshot.assign_boundary_condition(di, -6, name='PB6')
-    snapshot.assign_boundary_condition(di+67.33, -6, name='PB6')
+    snapshot.assign_boundary_condition(di + 67.33, -6, name='PB6')
 
     snapshot.assign_boundary_condition(di, -35, name='PB7')
     snapshot.assign_boundary_condition(di + 67, -35, name='PB7')
@@ -158,6 +149,59 @@ if __name__ == '__main__':
                                                 (di + 2, -6),
                                                 (di + 65, -6),
                                                 (di + 32, -5)], "Fx")
+
+    return snapshot
+
+
+if __name__ == '__main__':
+    from random import uniform
+
+    t0 = perf_counter()
+    stator = ModelPiece("stator")
+    stator.load_piece_from_dxf(basepath / "stator_stripped.dxf")
+    stator.put(0, 0)
+    rotor = ModelPiece("rotor")
+    rotor.load_piece_from_dxf(basepath / "rotor.dxf")
+
+
+    '''
+    bounds 
+    c11x (2, 12)
+    c11y (0.1, 1)
+    
+    c21x (6, 20.44)
+    c21y (0.1, 1)
+    
+    c12x (24.44, 35.5)
+    c12y (0.1, 1)
+    
+    c22x (30, 42.88)
+    c22y (0.1, 1)
+    
+    c13x (46.88, 60)
+    c13y (0.1, 1)
+    
+    c23x (52, 65.32)
+    c23y (0.1, 1)
+    '''
+
+    bounds = ((2, 12),
+    (0.1, 1),
+    (6, 20.44),
+    (0.1, 1),
+    (24.44, 35.5),
+    (0.1, 1),
+    (30, 42.88),
+    (0.1, 1),
+    (46.88, 60),
+    (0.1, 1),
+    (52, 65.32),
+    (0.1, 1))
+
+    X = [uniform(lower, upper) for lower, upper in bounds]
+
+
+    snapshot = generate_snapshot(stator, rotor, X, 4)
 
     snapshot.export()
     snapshot.execute()

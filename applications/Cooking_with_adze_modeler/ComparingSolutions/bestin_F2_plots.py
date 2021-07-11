@@ -7,29 +7,35 @@ import pandas as pd
 
 path_base = Path(__file__).parent.parent
 path_export_base = Path(__file__).parent / "media"
-path_export_sym = path_export_base / "symmetric"
-path_export_asym = path_export_base / "asymmetric"
-path_export_comp = path_export_base / "comparison"
-path_symmetric_data = path_base / "ArtapOptimizationSymmetric" / "statistics.csv"
-path_asymmetric_data = path_base / "ArtapOptimization" / "statistics.csv"
+path_symmetric_data = path_base / "ArtapOptimizationSymmetric" / "pareto_front.csv"
+path_asymmetric_data = path_base / "ArtapOptimization" / "pareto_front.csv"
 
 
 def get_line_from_file(filename):
     with open(filename, "r") as f:
         yield from f
 
-
 def get_processed_line_asym(filename):
     for line_i in get_line_from_file(filename):
-        platform, *line_i = line_i.strip().split(',')
-        f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
-        yield (f1, f2, f3, *r)
+        # for statistics.csv
+        # platform, *line_i = line_i.strip().split(',')
+        # f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
 
+        # for pareto front.csv
+        line_i = line_i.strip().split(',')
+        f1, f2, f3, *r = (float(ri) for ri in line_i)
+        yield (f1, f2, f3, *r)
 
 def get_processed_line_sym(filename):
     for line_i in get_line_from_file(filename):
-        platform, *line_i = line_i.strip().split(',')
-        f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
+        # for statistics.csv
+        # platform, *line_i = line_i.strip().split(',')
+        # f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
+
+        # for pareto_front.csv
+        line_i = line_i.strip().split(',')
+        f1, f2, f3, *r = (float(ri) for ri in line_i)
+
         r = list(reversed(r))
         r.extend(reversed(r))
         yield (f1, f2, f3, *r)
@@ -82,6 +88,9 @@ plt.style.use(['default', 'seaborn-bright'])
 ###################################################################################################################
 # Plot Symmetric fitness functions
 # Sort the resulst based on F2
+
+data_sym[:, idxF3] = data_sym[:, idxF3] * 2.0
+
 data_sym = array(sorted(data_sym, key=operator.itemgetter(idxF2)))
 data_asym = array(sorted(data_asym, key=operator.itemgetter(idxF2)))
 
@@ -104,8 +113,8 @@ plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
 plt.minorticks_on()
 plt.legend()
 plt.title(f'Best {N} solutions based on F2 sort')
-plt.savefig(path_export_comp / 'svg' / 'bestin-F2-f1-f2.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_comp / 'png' / 'bestin-F2-f1-f2.png', dpi=550, bbox_inches='tight')
+#plt.savefig(path_export_base / 'bestin-F2-f1-f2.svg', format="svg", bbox_inches='tight')
+plt.savefig(path_export_base / 'bestin-F2-f1-f2.png', dpi=550, bbox_inches='tight')
 # plt.show()
 
 # F1 - F3
@@ -120,8 +129,8 @@ plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
 plt.minorticks_on()
 plt.legend()
 plt.title(f'Best {N} solutions based on F2 sort')
-plt.savefig(path_export_comp / 'svg' / 'bestin-F2-f1-f3.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_comp / 'png' / 'bestin-F2-f1-f3.png', dpi=550, bbox_inches='tight')
+#plt.savefig(path_export_base / 'bestin-F2-f1-f3.svg', format="svg", bbox_inches='tight')
+plt.savefig(path_export_base / 'bestin-F2-f1-f3.png', dpi=550, bbox_inches='tight')
 # plt.show()
 
 # F2 - F3
@@ -136,8 +145,8 @@ plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
 plt.minorticks_on()
 plt.legend()
 plt.title(f'Best {N} solutions based on F2 sort')
-plt.savefig(path_export_comp / 'svg' / 'bestin-F2-f2-f3.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_comp / 'png' / 'bestin-F2-f2-f3.png', dpi=550, bbox_inches='tight')
+#plt.savefig(path_export_base / 'bestin-F2-f2-f3.svg', format="svg", bbox_inches='tight')
+plt.savefig(path_export_base / 'bestin-F2-f2-f3.png', dpi=550, bbox_inches='tight')
 # plt.show()
 
 ### Violinplot
@@ -157,7 +166,7 @@ df["type"].extend(['Asymmetric'] * len(best_asym))
 df = pd.DataFrame(df)
 df = df.melt(value_vars=[f"R{i + 1}" for i in range(20)], id_vars='type', var_name='radius_name', value_name='value')
 
-fig, ax = plt.subplots(figsize=(5, 10))
+fig, ax = plt.subplots(figsize=(5, 14))
 ax = sns.violinplot(x="value", y="radius_name",
                     hue="type",
                     data=df,
@@ -166,15 +175,16 @@ ax = sns.violinplot(x="value", y="radius_name",
                     cut=0,
                     inner=None,
                     linewidth=0.5,
-                    width=1)
+                    width=1,
+                    )
 
 ax.set_xlabel("Radius [mm]")
 ax.set_ylabel("ith Coil")
 ax.grid(b=True, which='major', color='#666666', linestyle='-')
 ax.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
 ax.minorticks_on()
-plt.savefig(path_export_comp / 'svg' / 'bestin-F2-radius-distribution.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_comp / 'png' / 'bestin-F2-radius-distribution.png', dpi=550, bbox_inches='tight')
+#plt.savefig(path_export_base / 'bestin-F2-radius-distribution.svg', format="svg", bbox_inches='tight')
+plt.savefig(path_export_base / 'bestin-F2-radius-distribution.png', dpi=550, bbox_inches='tight')
 # plt.show()
 
 # from mpl_toolkits.mplot3d import Axes3D
@@ -190,5 +200,5 @@ plt.savefig(path_export_comp / 'png' / 'bestin-F2-radius-distribution.png', dpi=
 # ax.set_ylabel(r'F$_2$')
 # ax.set_zlabel(r'F$_3$')
 # plt.legend()
-# plt.savefig(path_export_comp / 'png' / 'bestin-F2-3D.png', dpi=330, bbox_inches='tight')
+# plt.savefig(path_export_base / 'bestin-F2-3D.png', dpi=330, bbox_inches='tight')
 # # plt.show()
