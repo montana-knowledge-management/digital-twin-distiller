@@ -175,4 +175,4 @@ if __name__=='__main__':
 
     # szimmetrikus megoldás keresése
     # surrogate modelles megoldás
-    # kezdés 06:58:58
+    # kezdés Jul  9 12:13:41
