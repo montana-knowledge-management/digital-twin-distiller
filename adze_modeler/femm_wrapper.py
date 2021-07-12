@@ -14,6 +14,10 @@ from pathlib import Path
 from string import Template
 from sys import platform
 
+import shlex
+from subprocess import Popen, PIPE
+from threading import Timer
+
 import adze_modeler.geometry as geo
 
 # keywords
@@ -1520,12 +1524,23 @@ class FemmExecutor:
 
             cmd_string = self.femm_command + f" -lua-script={arg}"
 
-            out = subprocess.run(cmd_string, shell=True, capture_output=True)
+            # out = subprocess.run(cmd_string, shell=True, capture_output=True)
+            proc = Popen(shlex.split(cmd_string), stdout=PIPE, stderr=PIPE)
+            timer = Timer(10, proc.kill)
+            try:
+                timer.start()
+                stdout, stderr = proc.communicate()
+            finally:
+                timer.cancel()
 
-            if out.returncode != 0:
+            if proc.returncode != 0:
                 err = "Unknown error"
-                if out.stderr is not None:
-                    err = f"Cannot run FEMM.\n\n {out.stderr}"
+                return None
+                if proc.stderr is not None:
+                    err = f"Cannot run FEMM.\n\n {proc.stderr}"
                     print(err)
+
                 # self.problem.logger.error(err)
                 # raise RuntimeError(err)
+
+            return True

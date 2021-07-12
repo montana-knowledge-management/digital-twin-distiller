@@ -156,7 +156,7 @@ def generate_snapshot(stator, rotor, X, di):
 if __name__ == '__main__':
     from random import uniform
 
-    t0 = perf_counter()
+
     stator = ModelPiece("stator")
     stator.load_piece_from_dxf(basepath / "stator_stripped.dxf")
     stator.put(0, 0)
@@ -198,10 +198,15 @@ if __name__ == '__main__':
     (52, 65.32),
     (0.1, 1))
 
-    X = [uniform(lower, upper) for lower, upper in bounds]
+    X = [uniform(lower*0.1, upper*3) for lower, upper in bounds]
 
 
     snapshot = generate_snapshot(stator, rotor, X, 4)
 
     snapshot.export()
+    t0 = perf_counter()
     snapshot.execute()
+    t1 = perf_counter()
+    res = snapshot.retrive_results()
+    print(res['Fx'])
+    print("computation time:", t1-t0)

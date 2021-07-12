@@ -149,4 +149,4 @@ class Agros2D(Platform):
             return True
         except Exception as e:
             print(e)
-            return False
+            return None
