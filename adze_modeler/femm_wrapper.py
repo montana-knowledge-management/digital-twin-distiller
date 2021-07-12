@@ -1508,7 +1508,7 @@ class FemmExecutor:
     femm_path_linux = home + "/.wine/drive_c/femm42/bin/femm.exe"
     femm_path_windows = r"C:\FEMM42\bin\femm.exe"
 
-    def run_femm(self, script_file):
+    def run_femm(self, script_file, timeout=10):
         """This function runs the femm simulation via filelink"""
 
         self.script_file = os.path.basename(script_file)
@@ -1526,7 +1526,7 @@ class FemmExecutor:
 
             # out = subprocess.run(cmd_string, shell=True, capture_output=True)
             proc = Popen(shlex.split(cmd_string), stdout=PIPE, stderr=PIPE)
-            timer = Timer(10, proc.kill)
+            timer = Timer(timeout, proc.kill)
             try:
                 timer.start()
                 stdout, stderr = proc.communicate()
@@ -1536,11 +1536,12 @@ class FemmExecutor:
             if proc.returncode != 0:
                 err = "Unknown error"
                 return None
-                if proc.stderr is not None:
-                    err = f"Cannot run FEMM.\n\n {proc.stderr}"
-                    print(err)
+            #     if proc.stderr is not None:
+            #         err = f"Cannot run FEMM.\n\n {proc.stderr}"
+            #         print(err)
 
                 # self.problem.logger.error(err)
                 # raise RuntimeError(err)
 
-            return True
+            else:
+                return True

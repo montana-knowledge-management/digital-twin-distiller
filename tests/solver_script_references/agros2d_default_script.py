@@ -30,7 +30,7 @@ geometry.add_label(0.0, 0.0, materials = {'magnetic' : 'air'})
 # SOLVE
 problem.solve()
 a2d.view.zoom_best_fit()
-f = open("agros_solution.csv", "w")
+f = open(r"agros_solution.csv", "w")
 
 # POSTPROCESSING AND EXPORTING
 

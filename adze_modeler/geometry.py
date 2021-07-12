@@ -41,7 +41,7 @@ class Geometry:
         self.nodes.append(arc.center_pt)
 
     def add_cubic_bezier(self, cb):
-        # self.cubic_beziers.append(cb)
+        self.cubic_beziers.append(cb)
         #
         # self.nodes.append(cb.start_pt)
         # self.nodes.append(cb.control1)

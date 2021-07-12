@@ -8,7 +8,7 @@ import pandas as pd
 path_base = Path(__file__).parent.parent
 path_export_base = Path(__file__).parent / "media"
 path_symmetric_data = path_base / "ArtapOptimizationSymmetric" / "pareto_front.csv"
-path_asymmetric_data = path_base / "ArtapOptimization" / "pareto_front.csv"
+path_asymmetric_data = path_base / "ArtapOptimizationAsymmetric" / "pareto_front.csv"
 
 
 def get_line_from_file(filename):

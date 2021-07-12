@@ -1,5 +1,6 @@
 import os
 from unittest import TestCase
+import warnings
 
 import adze_modeler.objects as obj
 from adze_modeler.femm_wrapper import CurrentFlowAntiPeriodic
@@ -31,6 +32,7 @@ from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
 from adze_modeler.geometry import Geometry
+from pathlib import Path
 
 
 class FemmTester(TestCase):
@@ -658,13 +660,21 @@ class FemmTester(TestCase):
 
 
 class TestFemmExecutor(TestCase):
-    def test_executor(self):
+    def test_executor_proper_file(self):
+        testfile = str(Path(__file__).parent / "test.lua")
+        warnings.simplefilter('ignore', ResourceWarning)
         exec = FemmExecutor()
-        with open("test.lua", "w") as f:
+        with open(testfile, "w") as f:
             f.write("quit()")
-        self.assertEqual(None, exec.run_femm("test.lua"))
+        self.assertEqual(True, exec.run_femm(testfile))
 
-        with open("test.lua", "w") as f:
+    def test_executor_invalid_file(self):
+        testfile = str(Path(__file__).parent / "test_invalid.lua")
+        warnings.simplefilter('ignore', ResourceWarning)
+        exec = FemmExecutor()
+
+        with open(testfile, "w") as f:
             f.write("not_existing_command()")
 
-        self.assertEqual(None, exec.run_femm("test.lua"))
+
+        self.assertEqual(None, exec.run_femm(testfile, timeout=2))

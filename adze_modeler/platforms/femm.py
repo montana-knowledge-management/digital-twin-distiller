@@ -1,5 +1,5 @@
 import os
-from collections import Iterable
+from collections.abc import Iterable
 from math import asin
 from copy import copy
 
@@ -218,10 +218,10 @@ class Femm(Platform):
             self.write(cmd_i)
         pass
 
-    def execute(self, cleanup=False):
+    def execute(self, cleanup=False, timeout=10):
         executor = FemmExecutor()
         try:
-            executor.run_femm(self.metadata.file_script_name)
+            executor.run_femm(self.metadata.file_script_name, timeout=timeout)
             if cleanup:
                 femm_files = glob(f'{self.get_script_name()}.*')
                 for file_i in femm_files:

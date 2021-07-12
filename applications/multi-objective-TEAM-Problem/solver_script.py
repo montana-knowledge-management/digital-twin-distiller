@@ -14,7 +14,7 @@ from matplotlib import colors
 from scipy import interpolate
 import os
 
-def evaluate(platform, Nx=20, Ny=20):
+def evaluate(platform, Nx=50, Ny=50):
 
     snapshot = Snapshot(platform)
 
@@ -87,7 +87,7 @@ def evaluate(platform, Nx=20, Ny=20):
     snapshot.export()
     snapshot.execute()
 
-def get_core_points(filename, nb_x=200, nb_y=200):
+def get_core_points(filename, nb_x=250, nb_y=250):
     name, x, y, Bx = genfromtxt(filename, unpack=True, delimiter=',')
     xi = linspace(x.min(), x.max(), nb_x)
     yi = linspace(y.min(), y.max(), nb_y)

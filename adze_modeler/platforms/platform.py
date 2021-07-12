@@ -84,5 +84,5 @@ class Platform(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def execute(self, cleanup=False):
+    def execute(self, cleanup=False, timeout=10):
         ...

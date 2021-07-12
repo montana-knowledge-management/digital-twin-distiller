@@ -164,27 +164,6 @@ if __name__ == '__main__':
     rotor.load_piece_from_dxf(basepath / "rotor.dxf")
 
 
-    '''
-    bounds 
-    c11x (2, 12)
-    c11y (0.1, 1)
-    
-    c21x (6, 20.44)
-    c21y (0.1, 1)
-    
-    c12x (24.44, 35.5)
-    c12y (0.1, 1)
-    
-    c22x (30, 42.88)
-    c22y (0.1, 1)
-    
-    c13x (46.88, 60)
-    c13y (0.1, 1)
-    
-    c23x (52, 65.32)
-    c23y (0.1, 1)
-    '''
-
     bounds = ((2, 12),
     (0.1, 1),
     (6, 20.44),
@@ -198,7 +177,7 @@ if __name__ == '__main__':
     (52, 65.32),
     (0.1, 1))
 
-    X = [uniform(lower*0.1, upper*3) for lower, upper in bounds]
+    X = [uniform(lower, upper) for lower, upper in bounds]
 
 
     snapshot = generate_snapshot(stator, rotor, X, 4)

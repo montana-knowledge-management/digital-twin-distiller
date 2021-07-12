@@ -128,8 +128,8 @@ class Snapshot:
         except Exception as e:
             return None
 
-    def execute(self, cleanup=False):
-        return self.platform.execute(cleanup=cleanup)
+    def execute(self, cleanup=False, timeout=10):
+        return self.platform.execute(cleanup=cleanup, timeout=10)
 
     def retrive_results(self):
         results = defaultdict(list)
