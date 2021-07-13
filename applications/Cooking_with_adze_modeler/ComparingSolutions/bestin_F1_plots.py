@@ -95,10 +95,7 @@ data_asym = array(sorted(data_asym, key=operator.itemgetter(idxF1)))
 
 N = 100
 best_sym = data_sym[:N]
-rest_sym = data_sym[N:]
-
 best_asym = data_asym[:N]
-rest_asym = data_sym[N:]
 
 
 # F1 - F2
