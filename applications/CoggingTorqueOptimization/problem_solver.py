@@ -18,12 +18,13 @@ basepath = Path(__file__).parent
 exportpath = basepath / "snapshots"
 exportpath.mkdir(exist_ok=True)
 
-def generate_snapshot(stator, rotor, X, di):
+def generate_snapshot(stator, rotor, X, di, export_loc = None):
+    export_loc = export_loc or exportpath
     femm_metadata = FemmMetadata()
     femm_metadata.problem_type = "magnetic"
     femm_metadata.coordinate_type = "planar"
-    femm_metadata.file_script_name = exportpath / f"femm_solver_script_{int(di * 1000)}"
-    femm_metadata.file_metrics_name = exportpath / f"femm_solution_{int(di * 1000)}.csv"
+    femm_metadata.file_script_name = export_loc / f"femm_solver_script_{int(di * 1000)}"
+    femm_metadata.file_metrics_name = export_loc / f"femm_solution_{int(di * 1000)}.csv"
     femm_metadata.unit = "millimeters"
     femm_metadata.smartmesh = True
     femm_metadata.depth = 200
@@ -116,7 +117,7 @@ def generate_snapshot(stator, rotor, X, di):
     geom.add_cubic_bezier(CubicBezier(start_1, c1_1, c2_1, end_1))
 
     geom.generate_intersections()
-    geom.export_svg(exportpath / f"geom-{int(di * 1000)}.svg")
+    # geom.export_svg(export_loc / f"geom-{int(di * 1000)}.svg")
 
     snapshot.add_geometry(geom)
 
