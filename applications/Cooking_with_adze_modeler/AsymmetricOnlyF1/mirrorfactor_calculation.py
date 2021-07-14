@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 def get_next_line():
-    with open(Path(__file__).parent / "pareto_front.csv", 'r') as f:
+    with open(Path(__file__).parent / "pareto_front_nsga2.csv", 'r') as f:
         yield from f
 
 def get_next_solution():

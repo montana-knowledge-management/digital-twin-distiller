@@ -8,8 +8,8 @@ from numpy import meshgrid
 
 path_base = Path(__file__).parent.parent
 path_export_base = Path(__file__).parent / "media"
-path_symmetric_data = path_base / "ArtapOptimizationSymmetric" / "pareto_front.csv"
-path_asymmetric_data = path_base / "ArtapOptimizationAsymmetric"/ "pareto_front.csv"
+path_symmetric_data = path_base / "ArtapOptimizationSymmetric" / "pareto_front_nsga2.csv"
+path_asymmetric_data = path_base / "ArtapOptimizationAsymmetric"/ "pareto_front_nsga2.csv"
 
 def get_line_from_file(filename):
     with open(filename, "r") as f:
@@ -17,7 +17,7 @@ def get_line_from_file(filename):
 
 def get_processed_line_asym(filename):
     for line_i in get_line_from_file(filename):
-        # for statistics.csv
+        # for statistics_nsga2.csv
         # platform, *line_i = line_i.strip().split(',')
         # f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
 
@@ -28,11 +28,11 @@ def get_processed_line_asym(filename):
 
 def get_processed_line_sym(filename):
     for line_i in get_line_from_file(filename):
-        # for statistics.csv
+        # for statistics_nsga2.csv
         # platform, *line_i = line_i.strip().split(',')
         # f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
 
-        # for pareto_front.csv
+        # for pareto_front_nsga2.csv
         line_i = line_i.strip().split(',')
         f1, f2, f3, *r = (float(ri) for ri in line_i)
 

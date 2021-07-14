@@ -70,7 +70,7 @@ class CoggingTorqueOptimizationProblem(Problem):
             # print(t1-t0)
             T = [Fi*300/1000*14 for Fi in Fx]
             F1 = sum(map(lambda Ti: Ti * Ti, T))
-            with open(Path(__file__).parent / "statistics.csv", "a+") as f:
+            with open(Path(__file__).parent / "statistics_nsga2.csv", "a+") as f:
                 record = [F1]
                 record.extend(X)
                 f.write(','.join([str(ri) for ri in record]))
@@ -125,7 +125,7 @@ if __name__=='__main__':
     except KeyboardInterrupt:
         pass
 
-    with open(Path(__file__).parent / "pareto_front.csv", "w") as f:
+    with open(Path(__file__).parent / "pareto_front_nsga2.csv", "w") as f:
         for ind in p.individuals:
             record = ind.costs.copy()
             record.extend(ind.vector.copy())

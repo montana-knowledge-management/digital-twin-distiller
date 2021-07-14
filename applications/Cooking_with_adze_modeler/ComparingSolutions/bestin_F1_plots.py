@@ -7,8 +7,8 @@ import pandas as pd
 
 path_base = Path(__file__).parent.parent
 path_export_base = Path(__file__).parent / "media"
-path_symmetric_data = path_base / "ArtapOptimizationSymmetric" / "pareto_front.csv"
-path_asymmetric_data = path_base / "ArtapOptimizationAsymmetric"/ "pareto_front.csv"
+path_symmetric_data = path_base / "ArtapOptimizationSymmetric" / "pareto_front_nsga2.csv"
+path_asymmetric_data = path_base / "ArtapOptimizationAsymmetric"/ "pareto_front_nsga2.csv"
 
 def get_line_from_file(filename):
     with open(filename, "r") as f:
@@ -16,7 +16,7 @@ def get_line_from_file(filename):
 
 def get_processed_line_asym(filename):
     for line_i in get_line_from_file(filename):
-        # for statistics.csv
+        # for statistics_nsga2.csv
         # platform, *line_i = line_i.strip().split(',')
         # f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
 
@@ -27,11 +27,11 @@ def get_processed_line_asym(filename):
 
 def get_processed_line_sym(filename):
     for line_i in get_line_from_file(filename):
-        # for statistics.csv
+        # for statistics_nsga2.csv
         # platform, *line_i = line_i.strip().split(',')
         # f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
 
-        # for pareto_front.csv
+        # for pareto_front_nsga2.csv
         line_i = line_i.strip().split(',')
         f1, f2, f3, *r = (float(ri) for ri in line_i)
 
@@ -111,7 +111,7 @@ plt.minorticks_on()
 plt.legend()
 plt.title(f'Best {N} solutions based on F1 sort')
 #plt.savefig(path_export_base / 'bestin-F1-f1-f2.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_base / 'bestin-F1-f1-f2.png', dpi=550, bbox_inches='tight')
+plt.savefig(path_export_base / 'bestin-F1-f1-f2_nsga2.png', dpi=550, bbox_inches='tight')
 # plt.show()
 
 # F1 - F3
@@ -127,7 +127,7 @@ plt.minorticks_on()
 plt.legend()
 plt.title(f'Best {N} solutions based on F1 sort')
 #plt.savefig(path_export_base / 'bestin-F1-f1-f3.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_base / 'bestin-F1-f1-f3.png', dpi=550, bbox_inches='tight')
+plt.savefig(path_export_base / 'bestin-F1-f1-f3_nsga2.png', dpi=550, bbox_inches='tight')
 # plt.show()
 
 # F2 - F3
@@ -143,7 +143,7 @@ plt.minorticks_on()
 plt.legend()
 plt.title(f'Best {N} solutions based on F1 sort')
 #plt.savefig(path_export_base / 'bestin-F1-f2-f3.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_base / 'bestin-F1-f2-f3.png', dpi=550, bbox_inches='tight')
+plt.savefig(path_export_base / 'bestin-F1-f2-f3_nsga2.png', dpi=550, bbox_inches='tight')
 # plt.show()
 
 ### Violinplot
@@ -180,7 +180,7 @@ ax.grid(b=True, which='major', color='#666666', linestyle='-')
 ax.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
 ax.minorticks_on()
 #plt.savefig(path_export_base / 'bestin-F1-radius-distribution.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_base / 'bestin-F1-radius-distribution.png', dpi=550, bbox_inches='tight')
+plt.savefig(path_export_base / 'bestin-F1-radius-distribution_nsga2.png', dpi=550, bbox_inches='tight')
 # plt.show()
 
 # from mpl_toolkits.mplot3d import Axes3D
@@ -193,5 +193,5 @@ plt.savefig(path_export_base / 'bestin-F1-radius-distribution.png', dpi=550, bbo
 # ax.set_xlabel(r'F$_1$')
 # ax.set_ylabel(r'F$_2$')
 # ax.set_zlabel(r'F$_3$')
-# plt.savefig(path_export_base / 'bestin-F1-3D.png', dpi=330, bbox_inches='tight')
+# plt.savefig(path_export_base / 'bestin-F1-3D_nsga2.png', dpi=330, bbox_inches='tight')
 # plt.show()

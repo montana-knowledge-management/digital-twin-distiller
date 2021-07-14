@@ -111,7 +111,7 @@ class CoilOptimizationProblem(Problem):
             # Calculate F3
             F3 = sum(X)
 
-            with open(current_dir / 'statistics.csv', 'a+') as f:
+            with open(current_dir / 'statistics_nsga2.csv', 'a+') as f:
                 """
                 platform, F1, F2, F3, nodes, r0, r1, r2, r3, ..., r19
                 """
@@ -154,7 +154,7 @@ if __name__=='__main__':
     except KeyboardInterrupt:
         pass
 
-    with open(Path(__file__).parent / "pareto_front.csv", "w") as f:
+    with open(Path(__file__).parent / "pareto_front_nsga2.csv", "w") as f:
         for ind in problem.individuals:
             record = ind.costs.copy()
             record.extend(ind.vector.copy())

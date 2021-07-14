@@ -5,6 +5,7 @@ from artap.results import Results
 import math
 from artap.problem import Problem
 from artap.algorithm_genetic import NSGAII
+from artap.algorithm_nlopt import NLopt, LN_BOBYQA
 
 from adze_modeler.platforms.agros2d import Agros2D
 from adze_modeler.platforms.femm import Femm
@@ -20,26 +21,26 @@ class CoilOptimizationProblem(Problem):
     def set(self):
         self.name = 'Biobjective Test Problem'
 
-        self.parameters = [{'name': 'r0', 'bounds': [1, 20]},
-                           {'name': 'r1', 'bounds': [1, 20]},
-                           {'name': 'r2', 'bounds': [1, 20]},
-                           {'name': 'r3', 'bounds': [1, 20]},
-                           {'name': 'r4', 'bounds': [1, 20]},
-                           {'name': 'r5', 'bounds': [1, 20]},
-                           {'name': 'r6', 'bounds': [5.5, 20]},
-                           {'name': 'r7', 'bounds': [5.5, 20]},
-                           {'name': 'r8', 'bounds': [5.5, 20]},
-                           {'name': 'r9', 'bounds': [5.5, 20]},
-                           {'name': 'r10', 'bounds': [5.5, 20]},
-                           {'name': 'r11', 'bounds': [5.5, 20]},
-                           {'name': 'r12', 'bounds': [5.5, 20]},
-                           {'name': 'r13', 'bounds': [5.5, 20]},
-                           {'name': 'r14', 'bounds': [1, 20]},
-                           {'name': 'r15', 'bounds': [1, 20]},
-                           {'name': 'r16', 'bounds': [1, 20]},
-                           {'name': 'r17', 'bounds': [1, 20]},
-                           {'name': 'r18', 'bounds': [1, 20]},
-                           {'name': 'r19', 'bounds': [1, 20]}
+        self.parameters = [{'name': 'r0', 'bounds': [1, 20], 'initial_value': 10},
+                           {'name': 'r1', 'bounds': [1, 20], 'initial_value': 10},
+                           {'name': 'r2', 'bounds': [1, 20], 'initial_value': 10},
+                           {'name': 'r3', 'bounds': [1, 20], 'initial_value': 10},
+                           {'name': 'r4', 'bounds': [1, 20], 'initial_value': 10},
+                           {'name': 'r5', 'bounds': [1, 20], 'initial_value': 10},
+                           {'name': 'r6', 'bounds': [5.5, 20], 'initial_value': 10},
+                           {'name': 'r7', 'bounds': [5.5, 20], 'initial_value': 10},
+                           {'name': 'r8', 'bounds': [5.5, 20], 'initial_value': 10},
+                           {'name': 'r9', 'bounds': [5.5, 20], 'initial_value': 10},
+                           {'name': 'r10', 'bounds': [5.5, 20], 'initial_value': 10},
+                           {'name': 'r11', 'bounds': [5.5, 20], 'initial_value': 10},
+                           {'name': 'r12', 'bounds': [5.5, 20], 'initial_value': 10},
+                           {'name': 'r13', 'bounds': [5.5, 20], 'initial_value': 10},
+                           {'name': 'r14', 'bounds': [1, 20], 'initial_value': 10},
+                           {'name': 'r15', 'bounds': [1, 20], 'initial_value': 10},
+                           {'name': 'r16', 'bounds': [1, 20], 'initial_value': 10},
+                           {'name': 'r17', 'bounds': [1, 20], 'initial_value': 10},
+                           {'name': 'r18', 'bounds': [1, 20], 'initial_value': 10},
+                           {'name': 'r19', 'bounds': [1, 20], 'initial_value': 10}
                            ]
 
         self.costs = [{'name': 'f_1', 'criteria': 'minimize'}]
@@ -85,7 +86,7 @@ class CoilOptimizationProblem(Problem):
             B0 = 2e-3
             F1 = max(map(lambda Bz_i: abs(Bz_i - B0), Bz))
 
-            with open(current_dir / 'statistics.csv', 'a+') as f:
+            with open(current_dir / 'statistics_bobyqa.csv', 'a+') as f:
                 """
                 platform, F1, nodes, r0, r1, r2, r3, ..., r19
                 """
@@ -106,9 +107,14 @@ if __name__=='__main__':
 
     # Perform the optimization iterating over 100 times on 100 individuals.
     problem = CoilOptimizationProblem()
-    algorithm = NSGAII(problem)
-    algorithm.options['max_population_number'] = 100
-    algorithm.options['max_population_size'] = 100
+    # algorithm = NSGAII(problem)
+    # algorithm.options['max_population_number'] = 100
+    # algorithm.options['max_population_size'] = 100
+
+    algorithm = NLopt(problem)
+    algorithm.options['algorithm'] = LN_BOBYQA
+    algorithm.options['n_iterations'] = 1000
+
     try:
         algorithm.run()
         res = problem.individuals[-1]
@@ -117,7 +123,7 @@ if __name__=='__main__':
     except KeyboardInterrupt:
         pass
 
-    with open(Path(__file__).parent / "pareto_front.csv", "w") as f:
+    with open(Path(__file__).parent / "pareto_front_bobyqa.csv", "w") as f:
         for ind in problem.individuals:
             record = ind.costs.copy()
             record.extend(ind.vector.copy())
