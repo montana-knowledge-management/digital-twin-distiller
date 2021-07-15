@@ -155,7 +155,7 @@ if __name__=='__main__':
     # Perform the optimization iterating over 100 times on 100 individuals.
     problem = CoilOptimizationProblem()
     algorithm = NSGAII(problem)
-    algorithm.options['max_population_number'] = 250
+    algorithm.options['max_population_number'] = 100
     algorithm.options['max_population_size'] = 100
     try:
         algorithm.run()

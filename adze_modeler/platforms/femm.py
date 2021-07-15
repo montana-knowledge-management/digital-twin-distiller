@@ -3,12 +3,13 @@ from collections.abc import Iterable
 from math import asin
 from copy import copy
 
-from adze_modeler.boundaries import BoundaryCondition, DirichletBoundaryCondition
+from adze_modeler.boundaries import BoundaryCondition, DirichletBoundaryCondition, PeriodicBoundaryCondition, \
+    NeumannBoundaryCondition
 from adze_modeler.material import Material
 from adze_modeler.metadata import Metadata
 from adze_modeler.objects import Node, Line, CircleArc
 from adze_modeler.platforms.platform import Platform
-from adze_modeler.femm_wrapper import FemmWriter, FemmExecutor
+from adze_modeler.femm_wrapper import FemmWriter, FemmExecutor, MagneticPeriodic, MagneticMixed
 from adze_modeler.femm_wrapper import femm_magnetic, femm_electrostatic, femm_heat_flow, femm_current_flow
 from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
@@ -114,10 +115,21 @@ class Femm(Platform):
                                                   phi=0
                                                   )
 
+        if isinstance(b, NeumannBoundaryCondition):
+            if self.metadata.problem_type == 'magnetic':
+                femm_boundary = MagneticMixed(name=b.name,
+                                                  c0=0,
+                                                  c1=0,
+                                                  )
+
         if isinstance(b, AntiPeriodicBoundaryCondition):
             if self.metadata.problem_type == 'magnetic':
-                femm_boundary = MagneticAnti(name=b.name,
-                                             )
+                femm_boundary = MagneticAnti(name=b.name)
+
+
+        if isinstance(b, PeriodicBoundaryCondition):
+            if self.metadata.problem_type == 'magnetic':
+                femm_boundary = MagneticPeriodic(name=b.name)
 
         self.write(self.writer.add_boundary(femm_boundary))
 

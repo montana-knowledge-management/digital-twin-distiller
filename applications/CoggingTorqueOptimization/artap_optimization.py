@@ -68,6 +68,7 @@ class CoggingTorqueOptimizationProblem(Problem):
 
             # t1 = perf_counter()
             # print(t1-t0)
+            print(Fx)
             T = [Fi*300/1000*14 for Fi in Fx]
             F1 = sum(map(lambda Ti: Ti * Ti, T))
             with open(Path(__file__).parent / "statistics_nsga2.csv", "a+") as f:

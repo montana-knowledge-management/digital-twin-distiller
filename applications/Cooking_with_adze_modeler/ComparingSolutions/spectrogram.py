@@ -8,8 +8,8 @@ from numpy import meshgrid
 
 path_base = Path(__file__).parent.parent
 path_export_base = Path(__file__).parent / "media"
-path_symmetric_data = path_base / "ArtapOptimizationSymmetric" / "pareto_front_nsga2.csv"
-path_asymmetric_data = path_base / "ArtapOptimizationAsymmetric"/ "pareto_front_nsga2.csv"
+path_symmetric_data = path_base / "Symmetric" / "pareto_front_nsga2.csv"
+path_asymmetric_data = path_base / "Asymmetric"/ "pareto_front_nsga2.csv"
 
 def get_line_from_file(filename):
     with open(filename, "r") as f:

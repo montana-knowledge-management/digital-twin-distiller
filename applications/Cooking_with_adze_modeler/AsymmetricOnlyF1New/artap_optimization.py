@@ -132,6 +132,7 @@ if __name__=='__main__':
     algorithm = NLopt(problem)
     algorithm.options['algorithm'] = LN_BOBYQA
     algorithm.options['n_iterations'] = 1000
+    algorithm.options['ftol_rel'] = 1e-7
 
     try:
         algorithm.run()

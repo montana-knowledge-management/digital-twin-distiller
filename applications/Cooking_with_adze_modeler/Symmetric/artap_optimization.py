@@ -27,10 +27,10 @@ class CoilOptimizationProblem(Problem):
                            {'name': 'r3', 'bounds': [5.5, 20]},
                            {'name': 'r4', 'bounds': [1, 20]},
                            {'name': 'r5', 'bounds': [1, 20]},
-                           {'name': 'r6', 'bounds': [1, 20]},
-                           {'name': 'r7', 'bounds': [1, 20]},
-                           {'name': 'r8', 'bounds': [1, 20]},
-                           {'name': 'r9', 'bounds': [1, 20]}
+                           # {'name': 'r6', 'bounds': [1, 20]},
+                           # {'name': 'r7', 'bounds': [1, 20]},
+                           # {'name': 'r8', 'bounds': [1, 20]},
+                           # {'name': 'r9', 'bounds': [1, 20]}
                            ]
 
         self.costs = [{'name': 'f_1', 'criteria': 'minimize'},
@@ -111,7 +111,7 @@ class CoilOptimizationProblem(Problem):
             # Calculate F3
             F3 = sum(X)
 
-            with open(current_dir / 'statistics_nsga2.csv', 'a+') as f:
+            with open(current_dir / 'statistics_reduced.csv', 'a+') as f:
                 """
                 platform, F1, F2, F3, nodes, r0, r1, r2, r3, ..., r19
                 """
@@ -144,7 +144,7 @@ if __name__=='__main__':
     # Perform the optimization iterating over 100 times on 100 individuals.
     problem = CoilOptimizationProblem()
     algorithm = NSGAII(problem)
-    algorithm.options['max_population_number'] = 250
+    algorithm.options['max_population_number'] = 100
     algorithm.options['max_population_size'] = 100
     try:
         algorithm.run()
@@ -154,12 +154,9 @@ if __name__=='__main__':
     except KeyboardInterrupt:
         pass
 
-    with open(Path(__file__).parent / "pareto_front_nsga2.csv", "w") as f:
+    with open(Path(__file__).parent / "pareto_front_reduced.csv", "w") as f:
         for ind in problem.individuals:
             record = ind.costs.copy()
             record.extend(ind.vector.copy())
             f.write(','.join([str(i) for i in record]))
             f.write('\n')
-
-
-    # kezdes Jul  9 12:18:48

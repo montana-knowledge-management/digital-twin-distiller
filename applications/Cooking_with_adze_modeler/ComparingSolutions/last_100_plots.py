@@ -7,8 +7,8 @@ import pandas as pd
 
 path_base = Path(__file__).parent.parent
 path_export_base = Path(__file__).parent / "media"
-path_symmetric_data = path_base / "ArtapOptimizationSymmetric" / "pareto_front_nsga2.csv"
-path_asymmetric_data = path_base / "ArtapOptimizationAsymmetric"/ "pareto_front_nsga2.csv"
+path_symmetric_data = path_base / "Symmetric" / "pareto_front_nsga2.csv"
+path_asymmetric_data = path_base / "Asymmetric"/ "pareto_front_nsga2.csv"
 
 def get_line_from_file(filename):
     with open(filename, "r") as f:
@@ -70,19 +70,19 @@ idxF3 = 2
 
 # Matplotlib setup
 mm2inch = lambda x: 0.03937007874 * x
-plt.rcParams['figure.figsize'] = mm2inch(160), mm2inch(100)
+plt.rcParams['figure.figsize'] = mm2inch(40), mm2inch(40)
 plt.rcParams['lines.linewidth'] = 1
 SMALL_SIZE = 8
 MEDIUM_SIZE = 10
-BIGGER_SIZE = 12
+BIGGER_SIZE = 14
 
-plt.rc('font', size=SMALL_SIZE)          # contros default text sizes
-plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
-plt.rc('axes', labelsize=SMALL_SIZE)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
-plt.rc('figure', titlesize=SMALL_SIZE)  # fontsize of the figure title
+plt.rc('font', size=BIGGER_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=BIGGER_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 plt.style.use(['default', 'seaborn-bright'])
 
@@ -104,10 +104,11 @@ plt.figure()
 plt.scatter(data_sym[:, idxF1], data_sym[:, idxF2], c='b', label='Symmetric')
 plt.scatter(data_asym[:, idxF1], data_asym[:, idxF2], c='r', label='Asymmetric')
 plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
+plt.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
 plt.xlabel(r"F$_1$")
 plt.ylabel(r"F$_2$")
 plt.grid(b=True, which='major', color='#666666', linestyle='-')
-plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.4)
 plt.minorticks_on()
 plt.legend()
 plt.title('Last 100 individuals')
@@ -124,7 +125,7 @@ plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
 plt.xlabel(r"F$_1$")
 plt.ylabel(r"F$_3$")
 plt.grid(b=True, which='major', color='#666666', linestyle='-')
-plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.4)
 plt.minorticks_on()
 plt.legend()
 plt.title('Last 100 individuals')
@@ -141,7 +142,7 @@ plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
 plt.xlabel(r"F$_2$")
 plt.ylabel(r"F$_3$")
 plt.grid(b=True, which='major', color='#666666', linestyle='-')
-plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.4)
 plt.minorticks_on()
 plt.legend()
 plt.title('Last 100 individuals')
@@ -179,7 +180,7 @@ ax = sns.violinplot(x="value", y="radius_name",
 ax.set_xlabel("Radius [mm]")
 ax.set_ylabel("ith Coil")
 ax.grid(b=True, which='major', color='#666666', linestyle='-')
-ax.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+ax.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.4)
 ax.minorticks_on()
 plt.savefig(path_export_base/'last100-radius-distribution_nsga2.png', dpi=550, bbox_inches='tight')
 
