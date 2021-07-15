@@ -151,6 +151,8 @@ def generate_snapshot(stator, rotor, X, di, export_loc = None):
                                                 (di + 65, -6),
                                                 (di + 32, -5)], "Fx")
 
+    snapshot.add_postprocessing("saveimage", basepath / 'media' / 'gif' / f'step-{int(di * 1000)}', None)
+
     return snapshot
 
 
