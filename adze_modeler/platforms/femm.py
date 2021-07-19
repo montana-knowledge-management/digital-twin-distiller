@@ -225,6 +225,14 @@ class Femm(Platform):
                 self.write(f'{prefix}_clearblock()')
                 self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
 
+        if action=='saveimage':
+            self.write(f"{prefix}_showdensityplot(0, 0, 0.0, 2.0, 'bmag')")
+            self.write(f"{prefix}_showcontourplot(-1)")
+            self.write(f"{prefix}_resize(600, 600)")
+            self.write(f"{prefix}_refreshview()")
+            path = str(entity) + '.bmp'
+            self.write(f'{prefix}_save_bitmap("{path}");')
+
     def export_closing_steps(self):
         for cmd_i in self.writer.close():
             self.write(cmd_i)
