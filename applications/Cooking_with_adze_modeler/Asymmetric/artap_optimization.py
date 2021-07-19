@@ -20,10 +20,10 @@ class CoilOptimizationProblem(Problem):
     def set(self):
         self.name = 'Biobjective Test Problem'
 
-        self.parameters = [{'name': 'r0', 'bounds': [1, 20]},
-                           {'name': 'r1', 'bounds': [1, 20]},
-                           {'name': 'r2', 'bounds': [1, 20]},
-                           {'name': 'r3', 'bounds': [1, 20]},
+        self.parameters = [#{'name': 'r0', 'bounds': [1, 20]},
+        #                    {'name': 'r1', 'bounds': [1, 20]},
+        #                    {'name': 'r2', 'bounds': [1, 20]},
+        #                    {'name': 'r3', 'bounds': [1, 20]},
                            {'name': 'r4', 'bounds': [1, 20]},
                            {'name': 'r5', 'bounds': [1, 20]},
                            {'name': 'r6', 'bounds': [5.5, 20]},
@@ -36,10 +36,10 @@ class CoilOptimizationProblem(Problem):
                            {'name': 'r13', 'bounds': [5.5, 20]},
                            {'name': 'r14', 'bounds': [1, 20]},
                            {'name': 'r15', 'bounds': [1, 20]},
-                           {'name': 'r16', 'bounds': [1, 20]},
-                           {'name': 'r17', 'bounds': [1, 20]},
-                           {'name': 'r18', 'bounds': [1, 20]},
-                           {'name': 'r19', 'bounds': [1, 20]}
+                           # {'name': 'r16', 'bounds': [1, 20]},
+                           # {'name': 'r17', 'bounds': [1, 20]},
+                           # {'name': 'r18', 'bounds': [1, 20]},
+                           # {'name': 'r19', 'bounds': [1, 20]}
                            ]
 
         self.costs = [{'name': 'f_1', 'criteria': 'minimize'},
@@ -121,7 +121,7 @@ class CoilOptimizationProblem(Problem):
             # Calcukate F3
             F3 = sum(X)
 
-            with open(current_dir / 'statistics_nsga2.csv', 'a+') as f:
+            with open(current_dir / 'statistics_reduced.csv', 'a+') as f:
                 """
                 platform, F1, F2, F3, nodes, r0, r1, r2, r3, ..., r19
                 """
@@ -165,14 +165,9 @@ if __name__=='__main__':
     except KeyboardInterrupt:
         pass
 
-    with open(Path(__file__).parent / "pareto_front_nsga2.csv", "w") as f:
+    with open(Path(__file__).parent / "pareto_front_reduced.csv", "w") as f:
         for ind in problem.individuals:
             record = ind.costs.copy()
             record.extend(ind.vector.copy())
             f.write(','.join([str(i) for i in record]))
             f.write('\n')
-
-
-    # szimmetrikus megoldás keresése
-    # surrogate modelles megoldás
-    # kezdés Jul  9 12:13:41

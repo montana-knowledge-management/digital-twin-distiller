@@ -48,7 +48,8 @@ class CoggingTorqueOptimizationProblem(Problem):
     def execute_snapshot(self, s):
         s.export()
         if s.execute(timeout=20) is not None:
-            return s.retrive_results()['Fx']
+            ret =  s.retrive_results()
+            return ret['Fx']
         else:
             raise ValueError("Failed computation")
 
@@ -59,7 +60,7 @@ class CoggingTorqueOptimizationProblem(Problem):
 
         X = individual.vector
         # X=individual.copy()
-        displacement = linspace(0, 50, 25)
+        displacement = linspace(0, 50, 51)
         snapshots = [generate_snapshot(self.stator, self.rotor, X, di, export_loc=computation_dir) for di in displacement]
         try:
             # t0 = perf_counter()

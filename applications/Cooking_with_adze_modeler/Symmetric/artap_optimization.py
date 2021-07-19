@@ -58,6 +58,7 @@ class CoilOptimizationProblem(Problem):
         agros_metadata.polyorder = 2
         agros_metadata.adaptivity = "hp-adaptivity"
         agros_metadata.adaptivity_tol = 1
+        agros_metadata.adaptivity_steps = 100
         platform_agros = Agros2D(agros_metadata)
 
         platform = platform_agros
