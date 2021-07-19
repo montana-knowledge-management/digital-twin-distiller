@@ -82,26 +82,33 @@ def get_line_data(X):
 
     M = evaluate(X)
     M.sort(key=lambda row: row[idxX])
+    scale = 1
+    # scale = 1e-3
 
 
-    Mline = [row for row in M if row[idxY] > 4.9e-3]
+    Mline = [row for row in M if row[idxY] > 4.9*scale]
 
 
     xp = [row[idxX]*1000 for row in Mline]
     yBrp = [row[idxBr]*1000 for row in Mline]
     yBzp = [row[idxBz]*1000 for row in Mline]
 
-    Mline = [row for row in M if (row[idxY] < 2.501e-3) and (row[idxY] > 2.49e-3)]
+    Mline = [row for row in M if (row[idxY] < 2.501*scale) and (row[idxY] > 2.49*scale)]
 
     xm = [row[idxX] * 1000 for row in Mline]
     yBrm = [row[idxBr] * 1000 for row in Mline]
     yBzm = [row[idxBz] * 1000 for row in Mline]
 
-    Mline = [row for row in M if (row[idxY] < 0.01e-3) ]
+    Mline = [row for row in M if (row[idxY] < 0.01*scale) ]
 
     x0 = [row[idxX] * 1000 for row in Mline]
     yBr0 = [row[idxBr] * 1000 for row in Mline]
     yBz0 = [row[idxBz] * 1000 for row in Mline]
+
+    if scale > 0.9:
+        xp = [xpi / 1000 for xpi in xp]
+        xm = [xmi / 1000 for xmi in xm]
+        x0 = [x0i / 1000 for x0i in x0]
 
     return (xp, yBrp, yBzp), (x0, yBr0, yBz0), (xm, yBrm, yBzm)
 

@@ -117,7 +117,7 @@ plt.savefig(path_export_base / 'bestin-F2-f1-f2_nsga2.png', dpi=550, bbox_inches
 
 # F1 - F3
 plt.figure()
-plt.scatter(best_sym[:, idxF1], best_sym[:, idxF3] * 2, c='b', label=r'$2 \times$Symmetric')
+plt.scatter(best_sym[:, idxF1], best_sym[:, idxF3], c='b', label=r'$2 \times$Symmetric')
 plt.scatter(best_asym[:, idxF1], best_asym[:, idxF3], c='r', label='Asymmetric')
 plt.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
 plt.xlabel(r"F$_1$")
@@ -133,7 +133,7 @@ plt.savefig(path_export_base / 'bestin-F2-f1-f3_nsga2.png', dpi=550, bbox_inches
 
 # F2 - F3
 plt.figure()
-plt.scatter(best_sym[:, idxF2], best_sym[:, idxF3] * 3, c='b', label=r'$2 \times$Symmetric')
+plt.scatter(best_sym[:, idxF2], best_sym[:, idxF3], c='b', label=r'$2 \times$Symmetric')
 plt.scatter(best_asym[:, idxF2], best_asym[:, idxF3], c='r', label='Asymmetric')
 plt.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
 plt.xlabel(r"F$_2$")

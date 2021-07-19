@@ -13,13 +13,15 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 from scipy import interpolate
 import os
+from pathlib import Path
+
 
 def evaluate(platform, Nx=50, Ny=50):
 
     snapshot = Snapshot(platform)
 
     geo = Geometry()
-    geo.import_svg("geometry.svg")
+    geo.import_svg(Path(__file__).parent / "geometry.svg")
     geo.generate_intersections()
     snapshot.add_geometry(geo)
 
@@ -110,8 +112,9 @@ agros_metadata.coordinate_type = "axisymmetric"
 agros_metadata.analysis_type = "steadystate"
 agros_metadata.unit = 1e-3
 agros_metadata.nb_refinements = 0
+agros_metadata.polyorder = 2
 agros_metadata.adaptivity = "hp-adaptivity"
-agros_metadata.adaptivity_tol = 0.001
+agros_metadata.adaptivity_tol = 1
 
 
 femm_metadata = FemmMetadata()

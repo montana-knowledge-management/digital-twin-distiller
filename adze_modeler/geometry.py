@@ -229,7 +229,7 @@ class Geometry:
         """
 
         # reads the main objects from an svg file
-        paths = svg.svg2paths(svg_img)
+        paths = svg.svg2paths(str(svg_img))
 
         # id start from the given number
         id = 0

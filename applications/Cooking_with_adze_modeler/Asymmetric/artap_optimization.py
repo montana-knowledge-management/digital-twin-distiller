@@ -24,8 +24,8 @@ class CoilOptimizationProblem(Problem):
         #                    {'name': 'r1', 'bounds': [1, 20]},
         #                    {'name': 'r2', 'bounds': [1, 20]},
         #                    {'name': 'r3', 'bounds': [1, 20]},
-                           {'name': 'r4', 'bounds': [1, 20]},
-                           {'name': 'r5', 'bounds': [1, 20]},
+                           {'name': 'r4', 'bounds': [5.5, 20]},
+                           {'name': 'r5', 'bounds': [5.5, 20]},
                            {'name': 'r6', 'bounds': [5.5, 20]},
                            {'name': 'r7', 'bounds': [5.5, 20]},
                            {'name': 'r8', 'bounds': [5.5, 20]},
@@ -34,8 +34,8 @@ class CoilOptimizationProblem(Problem):
                            {'name': 'r11', 'bounds': [5.5, 20]},
                            {'name': 'r12', 'bounds': [5.5, 20]},
                            {'name': 'r13', 'bounds': [5.5, 20]},
-                           {'name': 'r14', 'bounds': [1, 20]},
-                           {'name': 'r15', 'bounds': [1, 20]},
+                           {'name': 'r14', 'bounds': [5.5, 20]},
+                           {'name': 'r15', 'bounds': [5.5, 20]},
                            # {'name': 'r16', 'bounds': [1, 20]},
                            # {'name': 'r17', 'bounds': [1, 20]},
                            # {'name': 'r18', 'bounds': [1, 20]},
@@ -155,7 +155,7 @@ if __name__=='__main__':
     # Perform the optimization iterating over 100 times on 100 individuals.
     problem = CoilOptimizationProblem()
     algorithm = NSGAII(problem)
-    algorithm.options['max_population_number'] = 100
+    algorithm.options['max_population_number'] = 250
     algorithm.options['max_population_size'] = 100
     try:
         algorithm.run()
