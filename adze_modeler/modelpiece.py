@@ -26,6 +26,11 @@ class ModelPiece():
             line_i.start_pt.move_xy(dx, dy)
             line_i.end_pt.move_xy(dx, dy)
 
+        for arc_i in self.geom.circle_arcs:
+            arc_i.start_pt.move_xy(dx, dy)
+            arc_i.end_pt.move_xy(dx, dy)
+            arc_i.center_pt.move_xy(dx, dy)
+
         self._update_bbox()
 
     def put(self, x, y):

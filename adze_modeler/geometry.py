@@ -38,7 +38,7 @@ class Geometry:
         # save every start and end points for the geoemtry
         self.nodes.append(arc.start_pt)
         self.nodes.append(arc.end_pt)
-        self.nodes.append(arc.center_pt)
+        # self.nodes.append(arc.center_pt)
 
     def add_cubic_bezier(self, cb):
         self.cubic_beziers.append(cb)
@@ -209,7 +209,6 @@ class Geometry:
 
         # every object handled as a separate path
 
-        obj.Line
         paths = []
         # exports the lines
         for seg in self.lines:
@@ -239,8 +238,10 @@ class Geometry:
                 if isinstance(seg, svg.Path):
                     for element in seg:
                         if isinstance(element, svg.Line):
-                            start = obj.Node(element.start.real, element.start.imag, id)
-                            end = obj.Node(element.end.real, element.end.imag, id + 1)
+                            p1 = element.start.conjugate()
+                            p2 = element.end.conjugate()
+                            start = obj.Node(p1.real, p1.imag, id)
+                            end = obj.Node(p2.real, p2.imag, id + 1)
                             self.add_line(obj.Line(start, end, id + 2))
                             id += 3
 
@@ -251,6 +252,16 @@ class Geometry:
                             end = obj.Node(element.end.real, element.end.imag, id + 3)
                             self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4))
                             id += 5
+
+                        if isinstance(element, svg.Arc):
+                            # pass
+                            p1 = element.start.conjugate()
+                            p2 = element.center.conjugate()
+                            p3 = element.end.conjugate()
+                            start = obj.Node(p1.real, p1.imag)
+                            center =  obj.Node(p2.real, p2.imag)
+                            end =  obj.Node(p3.real, p3.imag)
+                            self.add_arc(obj.CircleArc(start, center, end))
 
         self.merge_points()
         return
@@ -380,8 +391,8 @@ class Geometry:
             self.nodes.append(otherline.end_pt)
             self.lines.append(otherline)
 
-        # for ca in other.circle_arcs:
-        #     self.circle_arcs.append(copy(ca))
+        for ca in other.circle_arcs:
+            self.circle_arcs.append(copy(ca))
         #
         # for cb in other.cubic_beziers:
         #     self.cubic_beziers.append(copy(cb))

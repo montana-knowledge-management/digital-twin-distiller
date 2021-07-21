@@ -1,6 +1,6 @@
 import os
 from collections.abc import Iterable
-from math import asin
+from math import asin, pi
 from copy import copy
 
 from adze_modeler.boundaries import BoundaryCondition, DirichletBoundaryCondition, PeriodicBoundaryCondition, \
@@ -160,15 +160,18 @@ class Femm(Platform):
         if isinstance(e, CircleArc):
             # we should find an internal point of the circle arc
             # to achieve this the start node rotated with deg/2
-
             radius = e.start_pt.distance_to(e.center_pt)
             clamp = e.start_pt.distance_to(e.end_pt) / 2.0
-            theta = round(asin(clamp / radius), 2)
-            internal_pt = e.start_pt.rotate_about(e.center_pt, theta)
+            theta = round(asin(clamp / radius) * 180/pi*2, 2)
+            internal_pt = e.start_pt.rotate_about(e.center_pt, theta/2)
 
-            self.write(self.writer.select_arc_segment(m_x, m_y))
-            self.write(self.writer.set_arc_segment_prop(e.max_seg_deg, boundary))
-            self.write(self.writer.clear_selected())
+            self.write(self.writer.add_arc(e.start_pt.x, e.start_pt.y, e.end_pt.x, e.end_pt.y, theta, e.max_seg_deg))
+
+            if boundary:
+                self.write(self.writer.select_arc_segment(internal_pt.x, internal_pt.y))
+                self.write(self.writer.set_arc_segment_prop(e.max_seg_deg, boundary.name, 0, 0))
+                self.write(self.writer.clear_selected())
+
 
     def export_solving_steps(self):
         femm_filename = self.get_script_name()

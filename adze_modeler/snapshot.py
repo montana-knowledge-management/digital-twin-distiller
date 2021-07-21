@@ -19,6 +19,7 @@ class Snapshot:
         self.materials = {}
         self.nodes = {}
         self.lines = {}
+        self.circle_arcs = {}
         self.metrics = []
 
     def set_platform(self, p: Platform):
@@ -61,6 +62,9 @@ class Snapshot:
         for li in geo.lines:
             self.lines[li.id] = li
 
+        for arc_i in geo.circle_arcs:
+            self.circle_arcs[arc_i.id] = arc_i
+
     def add_postprocessing(self, action, entity, variable):
         self.metrics.append((action, entity, variable))
 
@@ -97,6 +101,10 @@ class Snapshot:
         # Export the rest
         for id, line_i in self.lines.items():
             self.platform.export_geometry_element(line_i)
+
+        # Export circle arcs
+        for id, arc_i in self.circle_arcs.items():
+            self.platform.export_geometry_element(arc_i)
 
         self.platform.newline(1)
         self.platform.comment("BLOCK LABELS")

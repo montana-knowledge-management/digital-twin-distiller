@@ -179,8 +179,12 @@ class CircleArc:
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt
-        self.id = id
+        self.id = id or getID()
         self.label = label
+        self.max_seg_deg = 1
+
+    def __copy__(self):
+        return CircleArc(copy(self.start_pt), copy(self.center_pt), copy(self.end_pt))
 
     def __repr__(self):
         return "{}({!r}, {!r}, {!r}, id={!r},label={!r})".format(
