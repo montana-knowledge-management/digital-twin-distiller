@@ -11,7 +11,8 @@ setup(
         "pygmsh",
         "gmsh",
         "ezdxf",
-        "artap"
+        "artap",
+        "fenics",
     ],
     extras_require={"full": [f"agrossuite >= 0.01"]},
 )
