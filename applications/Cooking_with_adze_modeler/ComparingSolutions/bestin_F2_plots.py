@@ -98,6 +98,8 @@ N = 100
 best_sym = data_sym[:N]
 best_asym = data_asym[:N]
 
+
+
 # F1 - F2
 plt.figure()
 plt.scatter(best_sym[:, idxF1], best_sym[:, idxF2], c='b', label='Symmetric')

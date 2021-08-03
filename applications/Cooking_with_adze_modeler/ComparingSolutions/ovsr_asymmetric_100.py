@@ -64,8 +64,8 @@ print("len data_sym_reduced:", data_asym_reduced.shape[0])
 print("-"*30)
 
 # Filtering out duplicate elements
-data_asym = unique(data_asym, axis=0)
-data_asym_reduced = unique(data_asym_reduced, axis=0)
+# data_asym = unique(data_asym, axis=0)
+# data_asym_reduced = unique(data_asym_reduced, axis=0)
 print("len data_sym:", len(data_asym))
 print("len data_sym_reduced:", len(data_asym_reduced))
 print("-"*30)

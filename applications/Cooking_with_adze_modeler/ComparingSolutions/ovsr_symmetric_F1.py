@@ -90,6 +90,17 @@ N = 100
 best_sym = data_sym[:N]
 best_reduced = data_sym_reduced[:N]
 
+original = min(best_sym, key=operator.itemgetter(idxF1))[idxF1]
+reduced = min(best_reduced, key=operator.itemgetter(idxF1))[idxF1]
+print(f'F1: {original-reduced:.3e}')
+
+original = min(best_sym, key=operator.itemgetter(idxF2))[idxF2]
+reduced = min(best_reduced, key=operator.itemgetter(idxF2))[idxF2]
+print(f'F2: {original-reduced:.3e}')
+
+original = min(best_sym, key=operator.itemgetter(idxF3))[idxF3]
+reduced = min(best_reduced, key=operator.itemgetter(idxF3))[idxF3]
+print(f'F3: {original-reduced:.3e}')
 
 # F1 - F2
 plt.figure()

@@ -90,6 +90,17 @@ N = 100
 best_sym = data_sym[:N]
 best_reduced = data_sym_reduced[:N]
 
+original = min(best_sym, key=operator.itemgetter(idxF1))[idxF1]
+reduced = min(best_reduced, key=operator.itemgetter(idxF1))[idxF1]
+print(f'F1: {original-reduced:.3e}')
+
+original = min(best_sym, key=operator.itemgetter(idxF2))[idxF2]
+reduced = min(best_reduced, key=operator.itemgetter(idxF2))[idxF2]
+print(f'F2: {original-reduced:.3e}')
+
+original = min(best_sym, key=operator.itemgetter(idxF3))[idxF3]
+reduced = min(best_reduced, key=operator.itemgetter(idxF3))[idxF3]
+print(f'F3: {original-reduced:.3e}')
 
 # F1 - F2
 plt.figure()
@@ -103,10 +114,8 @@ plt.grid(b=True, which='major', color='#666666', linestyle='-')
 plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.5)
 plt.minorticks_on()
 plt.legend()
-# plt.title(f'Best {N} solutions based on F1 sort')
-#plt.savefig(path_export_base / 'bestin-F1-f1-f2.svg', format="svg", bbox_inches='tight')
 plt.savefig(path_export_base / 'symmetric_bestin-F3-f1-f2_reduced.png', dpi=550, bbox_inches='tight')
-# plt.show()
+plt.show()
 
 # F1 - F3
 plt.figure()
@@ -119,10 +128,8 @@ plt.grid(b=True, which='major', color='#666666', linestyle='-')
 plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.5)
 plt.minorticks_on()
 plt.legend()
-# plt.title(f'Best {N} solutions based on F1 sort')
-#plt.savefig(path_export_base / 'bestin-F1-f1-f3.svg', format="svg", bbox_inches='tight')
 plt.savefig(path_export_base / 'symmetric_bestin-F3-f1-f3_reduced.png', dpi=550, bbox_inches='tight')
-# plt.show()
+plt.show()
 
 # F2 - F3
 plt.figure()
@@ -135,7 +142,18 @@ plt.grid(b=True, which='major', color='#666666', linestyle='-')
 plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.5)
 plt.minorticks_on()
 plt.legend()
-# plt.title(f'Best {N} solutions based on F1 sort')
-#plt.savefig(path_export_base / 'bestin-F1-f2-f3.svg', format="svg", bbox_inches='tight')
 plt.savefig(path_export_base / 'symmetric_bestin-F3-f2-f3_reduced.png', dpi=550, bbox_inches='tight')
+# plt.show()
+#
+# from mpl_toolkits.mplot3d import Axes3D
+#
+# fig = plt.figure(figsize=(16,16))
+# ax = Axes3D(fig, auto_add_to_figure=False)
+# fig.add_axes(ax)
+# g = ax.scatter(best_sym[:, idxF1], best_sym[:, idxF2], best_sym[:, idxF3], c='b', marker='o', depthshade=True)
+# g = ax.scatter(best_reduced[:, idxF1], best_reduced[:, idxF2], best_reduced[:, idxF3], c='r', marker='o', depthshade=True)
+# ax.set_xlabel(r'F$_1$')
+# ax.set_ylabel(r'F$_2$')
+# ax.set_zlabel(r'F$_3$')
+# # plt.savefig(path_export_base / 'bestin-F1-3D_nsga2.png', dpi=330, bbox_inches='tight')
 # plt.show()

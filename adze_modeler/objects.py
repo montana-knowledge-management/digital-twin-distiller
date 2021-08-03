@@ -1,7 +1,9 @@
 import math
+from collections.abc import Iterable
 from copy import copy
 
 from adze_modeler.utils import getID
+
 
 class Node:
     """
@@ -175,13 +177,12 @@ class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
     def __init__(self, start_pt, center_pt, end_pt, id=None, label=None):
-
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt
         self.id = id or getID()
         self.label = label
-        self.max_seg_deg = 1
+        self.max_seg_deg = 20
 
     def __copy__(self):
         return CircleArc(copy(self.start_pt), copy(self.center_pt), copy(self.end_pt))
@@ -205,3 +206,67 @@ class CubicBezier:
         return "{}({!r}, {!r}, {!r}, {!r}, id={!r},label={!r})".format(
             self.__class__.__name__, self.start_pt, self.control1, self.control2, self.end_pt, self.id, self.label
         )
+
+
+class ParametricBezier:
+    def __init__(self, **kwargs):
+        self.p0 = kwargs.get('start_pt', [None, None])
+        self.p1 = kwargs.get('c1', [None, None])
+        self.p2 = kwargs.get('c2', [None, None])
+        self.p3 = kwargs.get('end_pt', [None, None])
+
+    def set(self, **kwargs):
+        self.p0 = kwargs.get('start_pt', self.p0)
+        self.p1 = kwargs.get('c1', self.p1)
+        self.p2 = kwargs.get('c2', self.p2)
+        self.p3 = kwargs.get('end_pt', self.p3)
+
+    def casteljau(self, p0, p1, p2, p3):
+        m = ((p1[0] +p2[0])*0.5,
+             (p1[1] + p2[1]) * 0.5)
+        l0 = p0
+        r3 = p3
+
+        l1=((p0[0]+p1[0])*0.5,
+            (p0[1]+p1[1])*0.5)
+        r2 = ((p2[0]+p3[0])*0.5,
+              (p2[1]+p3[1])*0.5)
+
+        l2 = ((l1[0] + m[0]) * 0.5,
+              (l1[1] + m[1]) * 0.5)
+        r1 = ((r2[0] + m[0]) * 0.5,
+              (r2[1] + m[1]) * 0.5)
+
+        l3 = ((l2[0]+r1[0])*0.5,
+              (l2[1]+r1[1])*0.5)
+        r0 = l3
+
+        return (r0,r1,r2,r3), (l0,l1,l2,l3)
+
+    def approximate(self, nb_iter=0):
+        lines = [(self.p0,self.p1, self.p2, self.p3)]
+        for iter_i in range(nb_iter):
+            templines = []
+            for curve_i in lines:
+                r, l = self.casteljau(*curve_i)
+                templines.append(l)
+                templines.append(r)
+            lines.clear()
+            lines = templines.copy()
+
+        linex = [(ci[0][0], ci[-1][0]) for ci in lines]
+        linex = [item for sublist in linex for item in sublist]
+        liney = [(ci[0][1], ci[-1][1]) for ci in lines]
+        liney = [item for sublist in liney for item in sublist]
+
+        return linex, liney
+
+    def __call__(self, t: float):
+        assert (0 <= t) and (t <= 1), f"t [0, 1] not {t}"
+        X = (1 - t) ** 3 * self.p0[0] + 3 * (1 - t) ** 2 * t * self.p1[0] + 3 * (1 - t) * t ** 2 * self.p2[0] + t ** 3 * \
+            self.p3[0]
+
+        Y = (1 - t) ** 3 * self.p0[1] + 3 * (1 - t) ** 2 * t * self.p1[1] + 3 * (1 - t) * t ** 2 * self.p2[1] + t ** 3 * \
+            self.p3[1]
+
+        return X, Y

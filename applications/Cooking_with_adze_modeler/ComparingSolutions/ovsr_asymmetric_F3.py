@@ -75,7 +75,6 @@ idxF2 = 1
 idxF3 = 2
 
 # Plot Symmetric fitness functions
-# Sort the resulst based on F1
 
 data_asym = array(sorted(data_asym, key=operator.itemgetter(idxF3)))
 data_asym_reduced = array(sorted(data_asym_reduced, key=operator.itemgetter(idxF3)))
@@ -84,55 +83,52 @@ N = 100
 best_sym = data_asym[:N]
 best_reduced = data_asym_reduced[:N]
 
-
 # F1 - F2
-plt.figure()
-plt.scatter(best_sym[:, idxF1], best_sym[:, idxF2], c='b', label='Original')
-plt.scatter(best_reduced[:, idxF1], best_reduced[:, idxF2], c='r', label='Reduced')
-plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
-plt.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
-plt.xlabel(r"F$_1$")
-plt.ylabel(r"F$_2$")
-plt.grid(b=True, which='major', color='#666666', linestyle='-')
-plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.5)
-plt.minorticks_on()
-plt.legend()
-# plt.title(f'Best {N} solutions based on F1 sort')
-#plt.savefig(path_export_base / 'bestin-F1-f1-f2.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_base / 'asymmetric_bestin-F3-f1-f2_reduced.png', dpi=550, bbox_inches='tight')
+# plt.figure()
+# plt.scatter(best_sym[:, idxF1], best_sym[:, idxF2], c='b', label='Original')
+# plt.scatter(best_reduced[:, idxF1], best_reduced[:, idxF2], c='r', label='Reduced')
+# plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
+# plt.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
+# plt.xlabel(r"F$_1$")
+# plt.ylabel(r"F$_2$")
+# plt.grid(b=True, which='major', color='#666666', linestyle='-')
+# plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.5)
+# plt.minorticks_on()
+# plt.legend()
+# # plt.savefig(path_export_base / 'asymmetric_bestin-F3-f1-f2_reduced.png', dpi=550, bbox_inches='tight')
 # plt.show()
-
-# F1 - F3
-plt.figure()
-plt.scatter(best_sym[:, idxF1], best_sym[:, idxF3], c='b', label='Original')
-plt.scatter(best_reduced[:, idxF1], best_reduced[:, idxF3], c='r', label='Reduced')
-plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
-plt.xlabel(r"F$_1$")
-plt.ylabel(r"F$_3$")
-plt.grid(b=True, which='major', color='#666666', linestyle='-')
-plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.5)
-plt.minorticks_on()
-plt.legend()
-# plt.title(f'Best {N} solutions based on F1 sort')
-#plt.savefig(path_export_base / 'bestin-F1-f1-f3.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_base / 'asymmetric_bestin-F3-f1-f3_reduced.png', dpi=550, bbox_inches='tight')
-# plt.show()
-
-# F2 - F3
-plt.figure()
-plt.scatter(best_sym[:, idxF2], best_sym[:, idxF3], c='b', label='Original')
-plt.scatter(best_reduced[:, idxF2], best_reduced[:, idxF3], c='r', label='Reduced')
-plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
-plt.xlabel(r"F$_2$")
-plt.ylabel(r"F$_3$")
-plt.grid(b=True, which='major', color='#666666', linestyle='-')
-plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.5)
-plt.minorticks_on()
-plt.legend()
-# plt.title(f'Best {N} solutions based on F1 sort')
-#plt.savefig(path_export_base / 'bestin-F1-f2-f3.svg', format="svg", bbox_inches='tight')
-plt.savefig(path_export_base / 'asymmetric_bestin-F3-f2-f3_reduced.png', dpi=550, bbox_inches='tight')
-# plt.show()
+#
+# # F1 - F3
+# plt.figure()
+# plt.scatter(best_sym[:, idxF1], best_sym[:, idxF3], c='b', label='Original')
+# plt.scatter(best_reduced[:, idxF1], best_reduced[:, idxF3], c='r', label='Reduced')
+# plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
+# plt.xlabel(r"F$_1$")
+# plt.ylabel(r"F$_3$")
+# plt.grid(b=True, which='major', color='#666666', linestyle='-')
+# plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.5)
+# plt.minorticks_on()
+# plt.legend()
+# # plt.title(f'Best {N} solutions based on F1 sort')
+# #plt.savefig(path_export_base / 'bestin-F1-f1-f3.svg', format="svg", bbox_inches='tight')
+# plt.savefig(path_export_base / 'asymmetric_bestin-F3-f1-f3_reduced.png', dpi=550, bbox_inches='tight')
+# # plt.show()
+#
+# # F2 - F3
+# plt.figure()
+# plt.scatter(best_sym[:, idxF2], best_sym[:, idxF3], c='b', label='Original')
+# plt.scatter(best_reduced[:, idxF2], best_reduced[:, idxF3], c='r', label='Reduced')
+# plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
+# plt.xlabel(r"F$_2$")
+# plt.ylabel(r"F$_3$")
+# plt.grid(b=True, which='major', color='#666666', linestyle='-')
+# plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.5)
+# plt.minorticks_on()
+# plt.legend()
+# # plt.title(f'Best {N} solutions based on F1 sort')
+# #plt.savefig(path_export_base / 'bestin-F1-f2-f3.svg', format="svg", bbox_inches='tight')
+# plt.savefig(path_export_base / 'asymmetric_bestin-F3-f2-f3_reduced.png', dpi=550, bbox_inches='tight')
+# # plt.show()
 
 
 

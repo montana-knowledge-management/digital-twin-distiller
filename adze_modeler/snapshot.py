@@ -68,7 +68,7 @@ class Snapshot:
     def add_postprocessing(self, action, entity, variable):
         self.metrics.append((action, entity, variable))
 
-    def export(self, customfilehandle=None):
+    def export(self, customfilehandle=None, develmode=None):
         self.platform.open(customfilehandle)
         self.platform.export_preamble()
 
@@ -112,18 +112,19 @@ class Snapshot:
             for xi, yi in material_i.assigned:
                 self.platform.export_block_label(xi, yi, material_i)
 
-        self.platform.newline(1)
-        self.platform.comment("SOLVE")
-        self.platform.export_solving_steps()
+        if not develmode:
+            self.platform.newline(1)
+            self.platform.comment("SOLVE")
+            self.platform.export_solving_steps()
 
-        self.platform.newline(1)
-        self.platform.comment("POSTPROCESSING AND EXPORTING")
-        for step in self.metrics:
-            self.platform.export_metrics(step[0], step[1], step[2])
+            self.platform.newline(1)
+            self.platform.comment("POSTPROCESSING AND EXPORTING")
+            for step in self.metrics:
+                self.platform.export_metrics(step[0], step[1], step[2])
 
-        self.platform.newline(1)
-        self.platform.comment("CLOSING STEPS")
-        self.platform.export_closing_steps()
+            self.platform.newline(1)
+            self.platform.comment("CLOSING STEPS")
+            self.platform.export_closing_steps()
 
         self.platform.close()
 
@@ -137,7 +138,7 @@ class Snapshot:
             return None
 
     def execute(self, cleanup=False, timeout=10):
-        return self.platform.execute(cleanup=cleanup, timeout=10)
+        return self.platform.execute(cleanup=cleanup, timeout=timeout)
 
     def retrive_results(self):
         results = defaultdict(list)

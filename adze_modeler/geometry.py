@@ -208,6 +208,7 @@ class Geometry:
         """
 
         # every object handled as a separate path
+        # TODO: add circlearc and bezier
 
         paths = []
         # exports the lines

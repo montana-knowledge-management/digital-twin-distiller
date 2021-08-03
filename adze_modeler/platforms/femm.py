@@ -57,7 +57,7 @@ class Femm(Platform):
             self.write(cmd_i)
 
         type_ = 'axi' if self.metadata.coordinate_type == 'axisymmetric' else 'planar'
-
+        prefix = {'magnetic':'mi', 'electrostatic':'mi'}
         if self.metadata.problem_type == 'magnetic':
             self.write(self.writer.magnetic_problem(freq=self.metadata.frequency,
                                                     unit=self.metadata.unit,
@@ -69,7 +69,7 @@ class Femm(Platform):
                                                     ))
 
         if not self.metadata.smartmesh:
-            self.write("smartmesh(0)")
+            self.write(f"{prefix[self.metadata.problem_type]}_smartmesh(0)")
 
     def export_material_definition(self, mat: Material):
         if self.metadata.problem_type == 'magnetic':
@@ -218,7 +218,7 @@ class Femm(Platform):
         if action=="integration":
             if self.metadata.problem_type == 'magnetic':
                 # TODO: xx_selectblock for postprocessing is missing in femm_wrapper
-                int_type = {"Fx": 18, "Fy":19}
+                int_type = {"Fx": 18, "Fy":19, "Area": 5}
                 assert variable in int_type.keys(), f"There is no variable '{variable}'"
                 if isinstance(entity, Iterable):
                     for x,y in entity:

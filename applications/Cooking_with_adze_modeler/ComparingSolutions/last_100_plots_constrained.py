@@ -9,6 +9,7 @@ path_base = Path(__file__).parent.parent
 path_export_base = Path(__file__).parent / "media"
 path_520 = path_base / "Symmetric" / "pareto_front_520.csv"
 path_unbounded = path_base / "Symmetric" / "pareto_front_nsga2.csv"
+path_reduced = path_base / "Symmetric" / "pareto_front_reduced.csv"
 
 def get_line_from_file(filename):
     with open(filename, "r") as f:
@@ -56,9 +57,9 @@ print("len data_reduced:", data_reduced.shape[0])
 print("-"*30)
 
 # Filtering out duplicate elements
-data_unbounded = unique(data_unbounded, axis=0)
-data_520 = unique(data_520, axis=0)
-data_reduced = unique(data_reduced, axis=0)
+# data_unbounded = unique(data_unbounded, axis=0)
+# data_520 = unique(data_520, axis=0)
+# data_reduced = unique(data_reduced, axis=0)
 print("len data_sym:", len(data_520))
 print("len data_asym:", len(data_unbounded))
 print("len data_reduced:", len(data_reduced))
@@ -97,39 +98,6 @@ plt.style.use(['default', 'seaborn-bright'])
 data_520[:, idxF3] = data_520[:, idxF3] * 2.0
 data_unbounded[:, idxF3] = data_unbounded[:, idxF3] * 2.0
 data_reduced[:, idxF3] = data_reduced[:, idxF3] * 2.0
-
-constrained = min(data_520, key=operator.itemgetter(idxF1))[idxF1]
-unbounded = min(data_unbounded, key=operator.itemgetter(idxF1))[idxF1]
-reduced = min(data_reduced, key=operator.itemgetter(idxF1))[idxF1]
-print(f'{reduced-unbounded=:.3e}')
-print(f'{reduced-constrained=:.3e}')
-print(f'{reduced-unbounded=:.3e}')
-print('--- '*10)
-
-constrained = min(data_520, key=operator.itemgetter(idxF2))[idxF2]
-unbounded = min(data_unbounded, key=operator.itemgetter(idxF2))[idxF2]
-reduced = min(data_reduced, key=operator.itemgetter(idxF2))[idxF2]
-print(f'{reduced-unbounded=:.3e}')
-print(f'{reduced-constrained=:.3e}')
-print(f'{reduced-unbounded=:.3e}')
-print('--- '*10)
-
-constrained = min(data_520, key=operator.itemgetter(idxF3))[idxF3]
-unbounded = min(data_unbounded, key=operator.itemgetter(idxF3))[idxF3]
-reduced = min(data_reduced, key=operator.itemgetter(idxF3))[idxF3]
-print(f'{reduced-unbounded=:.3f}')
-print(f'{reduced-constrained=:.3f}')
-print(f'{reduced-unbounded=:.3f}')
-print('--- '*10)
-
-data_520 = array(sorted(data_520, key=operator.itemgetter(idxF3)))
-data_unbounded = array(sorted(data_unbounded, key=operator.itemgetter(idxF3)))
-data_reduced = array(sorted(data_reduced, key=operator.itemgetter(idxF3)))
-plt.figure()
-plt.plot(data_520[:, idxF3], 'r')
-plt.plot(data_unbounded[:, idxF3], 'g')
-plt.plot(data_reduced[:, idxF3], 'b')
-plt.show()
 
 # # F1 - F2
 # plt.figure()
@@ -204,7 +172,8 @@ ax = sns.violinplot(x="value", y="radius_name",
                     cut=0,
                     inner=None,
                     linewidth=0.5,
-                    width=1)
+                    width=1,
+                    scale='width')
 
 ax.set_xlim(0, 20)
 ax.set_xlabel("Radius [mm]")
@@ -217,20 +186,20 @@ plt.show()
 
 
 
-from mpl_toolkits.mplot3d import Axes3D
-
-fig = plt.figure(figsize=(16, 16))
-ax = Axes3D(fig, auto_add_to_figure=False)
-fig.add_axes(ax)
-g = ax.scatter(data_520[:, idxF1], data_520[:, idxF2], data_520[:, idxF3] * 2, c='b', marker='o', depthshade=True,
-               label='Constrained')
-g = ax.scatter(data_unbounded[:, idxF1], data_unbounded[:, idxF2], data_unbounded[:, idxF3], c='r', marker='o', depthshade=True,
-               label='Unbounded')
-g = ax.scatter(data_reduced[:, idxF1], data_reduced[:, idxF2], data_reduced[:, idxF3], c='g', marker='o', depthshade=True,
-               label='Reduced')
-ax.set_xlabel(r'F$_1$')
-ax.set_ylabel(r'F$_2$')
-ax.set_zlabel(r'F$_3$')
-plt.legend()
-plt.savefig(path_export_base / 'last100_3d.png', dpi=330, bbox_inches='tight')
-plt.show()
+# from mpl_toolkits.mplot3d import Axes3D
+#
+# fig = plt.figure(figsize=(16, 16))
+# ax = Axes3D(fig, auto_add_to_figure=False)
+# fig.add_axes(ax)
+# g = ax.scatter(data_520[:, idxF1], data_520[:, idxF2], data_520[:, idxF3] * 2, c='b', marker='o', depthshade=True,
+#                label='Constrained')
+# g = ax.scatter(data_unbounded[:, idxF1], data_unbounded[:, idxF2], data_unbounded[:, idxF3], c='r', marker='o', depthshade=True,
+#                label='Unbounded')
+# g = ax.scatter(data_reduced[:, idxF1], data_reduced[:, idxF2], data_reduced[:, idxF3], c='g', marker='o', depthshade=True,
+#                label='Reduced')
+# ax.set_xlabel(r'F$_1$')
+# ax.set_ylabel(r'F$_2$')
+# ax.set_zlabel(r'F$_3$')
+# plt.legend()
+# plt.savefig(path_export_base / 'last100_3d.png', dpi=330, bbox_inches='tight')
+# plt.show()

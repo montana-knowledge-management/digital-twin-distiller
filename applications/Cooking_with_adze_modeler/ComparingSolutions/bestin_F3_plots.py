@@ -93,6 +93,7 @@ data_sym[:, idxF3] = data_sym[:, idxF3] * 2.0
 data_sym = array(sorted(data_sym, key=operator.itemgetter(idxF3)))
 data_asym = array(sorted(data_asym, key=operator.itemgetter(idxF3)))
 
+
 N = 100
 
 best_sym = data_sym[:N]
@@ -197,16 +198,3 @@ ax.minorticks_on()
 plt.savefig(path_export_base/'bestin-F3-radius-distribution_nsga2.png', dpi=550, bbox_inches='tight')
 #plt.show()
 
-# from mpl_toolkits.mplot3d import Axes3D
-#
-# fig = plt.figure(figsize=(16,16))
-# ax = Axes3D(fig, auto_add_to_figure=False)
-# fig.add_axes(ax)
-#
-# g = ax.scatter(best_sym[:, idxF1], best_sym[:, idxF2], best_sym[:, idxF3]*2, c='b', marker='o', depthshade=True)
-# g = ax.scatter(best_asym[:, idxF1], best_asym[:, idxF2], best_asym[:, idxF3], c='r', marker='o', depthshade=True)
-# ax.set_xlabel(r'F$_1$')
-# ax.set_ylabel(r'F$_2$')
-# ax.set_zlabel(r'F$_3$')
-# plt.savefig(path_export_base / 'bestin-F3-3D_nsga2.png', dpi=330, bbox_inches='tight')
-# # plt.show()
