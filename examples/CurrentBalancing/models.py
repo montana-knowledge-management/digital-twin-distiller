@@ -2,6 +2,8 @@ from pathlib import Path
 from shutil import rmtree
 from uuid import uuid4
 
+import numpy as np
+
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.geometry import Geometry
 from adze_modeler.material import Material
@@ -18,7 +20,7 @@ class BaseModel:
     dir_resources = dir_current / "resources"
     dir_snapshots = dir_current / "snapshots"
 
-    def __init__(self, X: list, i:int, j:int, exportname:str=None):
+    def __init__(self, X: list, i:int, j:int, Ii=1.0, Ij=1.0, exportname:str=None):
         # paths
         self.name = exportname or str(uuid4())
         self.dir_export = self.dir_snapshots / self.name
@@ -32,7 +34,9 @@ class BaseModel:
 
         # matrix indices
         self.i = i
+        self.Ii = Ii
         self.j = j
+        self.Ij = Ij
 
         # solver setup
         femm_metadata = FemmMetadata()
@@ -58,9 +62,10 @@ class BaseModel:
         hv.Je = 5/(30*1100) * 1e6
 
         ii = Material('Ii')
-        ii.Je = 1.0 / (33 * 62.5) * 1e6
+        ii.Je = self.Ii / (33 * 62.5) * 1e6
+
         ij = Material('Ij')
-        ij.Je = 1.0 / (33 * 62.5) * 1e6
+        ij.Je = self.Ij / (33 * 62.5) * 1e6
 
         self.snapshot.add_material(air)
         self.snapshot.add_material(hv)
@@ -116,7 +121,12 @@ class BaseModel:
         self.snapshot.assign_boundary_condition(996, 644, 'a0')
 
     def add_postprocesssing(self):
-        ...
+        entities = [(605, 699), (523, 1036)]
+        offset = 0.0
+        for k in range(16):
+            offset += 62.5 + self.X[k]
+            entities.append((750+33.0/2, 1280-offset+62.5/2))
+        self.snapshot.add_postprocessing("integration", entities, "Energy")
 
     def __call__(self, cleanup=True, timeout=1e6):
         try:
@@ -128,7 +138,7 @@ class BaseModel:
                 self.snapshot.execute(cleanup=False, timeout=1e6)
             else:
                 self.snapshot.export(develmode=False)
-                self.snapshot.execute(cleanup=True, timeout=timeout)
+                self.snapshot.execute(cleanup=cleanup, timeout=timeout)
 
             res = self.snapshot.retrive_results()
 
@@ -138,7 +148,7 @@ class BaseModel:
             if len(res) == 0:
                 return None
             else:
-                return res
+                return res.get('Energy')
 
         except Exception as e:
             print("sth went woong: ", e)
@@ -149,6 +159,9 @@ class BaseModel:
 
 if __name__=='__main__':
     from random import seed, uniform
+    from numpy import zeros
+    import matplotlib.pyplot as plt
+
 
     seed(42)
     # X = [uniform(3, 6.25) for _ in range(16)]
@@ -156,5 +169,22 @@ if __name__=='__main__':
     # print(X)
     X = [5]*16
     X[0]=114
-    m = BaseModel(X, i=1, j=10, exportname="dev")
-    print(m())
+
+    E = zeros((16, 16))
+    M = zeros((16, 16))
+
+    # m = BaseModel(X, i=1, j=10, exportname="dev")
+    for i in range(0, 16):
+        for j in range(i, 16):
+            m = BaseModel(X, i=i, j=j)
+            Eij = m(cleanup=True)
+            E[i, j] = Eij
+            E[j, i] = Eij
+            print(f'{Eij:.3e}', end=' ')
+        print()
+
+    print(E)
+    np.savetxt(BaseModel.dir_resources/'Em.txt', E)
+    plt.matshow(E)
+    plt.savefig(BaseModel.dir_current / 'docs/media/Ematrix.png')
+    plt.show()

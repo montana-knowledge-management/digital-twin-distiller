@@ -218,7 +218,7 @@ class Femm(Platform):
         if action=="integration":
             if self.metadata.problem_type == 'magnetic':
                 # TODO: xx_selectblock for postprocessing is missing in femm_wrapper
-                int_type = {"Fx": 18, "Fy":19, "Area": 5}
+                int_type = {"Fx": 18, "Fy":19, "Area": 5, "Energy": 2}
                 assert variable in int_type.keys(), f"There is no variable '{variable}'"
                 if isinstance(entity, Iterable):
                     for x,y in entity:
