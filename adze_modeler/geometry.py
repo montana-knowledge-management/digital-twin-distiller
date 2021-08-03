@@ -272,13 +272,12 @@ class Geometry:
         # export the circle arcs
         for arc in self.circle_arcs:
             path = svg.Path()
-            path.append(svg.Arc())
             path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y), complex(seg.end_pt.x, seg.end_pt.y)))
             paths.append(path)
             colors.append('blue')
 
 
-        svg.wsvg(paths, colors=colors,  svgwrite_debug=True, filename=file_name)
+        svg.wsvg(paths, colors=colors,  svgwrite_debug=True, filename=str(file_name))
 
     def import_svg(self, svg_img, *args):
         """Imports the svg file into a new geo object. The function gives an automatic id to the function
@@ -305,11 +304,11 @@ class Geometry:
                             self.add_line(obj.Line(start, end, id + 2))
                             id += 3
 
-                        if isinstance(element, svg.Arc):
-                            start = obj.Node(element.start.real, element.start.imag, id)
-                            end = obj.Node(element.start.real, element.start.imag, id)
-                            center = obj.
-                            self.add_arc(obj.CircleArc(start, center, end, id + 3))
+                        # if isinstance(element, svg.Arc):
+                        #         start = obj.Node(element.start.real, element.start.imag, id)
+                        #         end = obj.Node(element.start.real, element.start.imag, id)
+                        #         center = obj.Node(element.center.real, element.center.imag, id)
+                        #         self.add_arc(obj.CircleArc(start, center, end, id + 3))
 
                         if isinstance(element, svg.CubicBezier):
                             start = obj.Node(element.start.real, element.start.imag, id)
