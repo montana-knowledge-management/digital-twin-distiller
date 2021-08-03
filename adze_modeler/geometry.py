@@ -221,6 +221,65 @@ class Geometry:
 
         svg.wsvg(paths, svgwrite_debug=True, filename=str(file_name))
 
+    @staticmethod
+    def casteljau(bezier: obj.CubicBezier):
+        """
+        Gets a Bezier object and makes only one Casteljau's iteration step on it without the recursion.
+
+        The algorithm splits the bezier into two, smaller parts denoted by r is the 'right-sides' and l denotes the
+        'left sided' one. The algorithm is limited to use cubic beziers only.
+
+        :return: 2 bezier objects, the right and the left one
+
+        """
+        # calculating the mid point [m]
+        m = (bezier.control1 + bezier.control2) * 0.5
+
+        l0 = bezier.start_pt
+        r3 = bezier.end_pt
+
+        l1 = (bezier.start_pt + bezier.control1) * 0.5
+        r2 = (bezier.control2 + bezier.end_pt) * 0.5
+
+        l2 = (l1 + m) * 0.5
+        r1 = (r2 + m) * 0.5
+
+        l3 = (l2 + r1) * 0.5
+        r0 = l3
+
+        r = obj.CubicBezier(start_pt=r0, control1=r1, control2=r2, end_pt=r3)
+        l = obj.CubicBezier(start_pt=l0, control1=l1, control2=l2, end_pt=l3)
+
+        return r, l
+
+    def export_svg(self, file_name='output.svg'):
+        """
+        Creates an svg image from the geometry objects.
+        """
+
+        # every object handled as a separate path
+
+        obj.Line
+        paths = []
+        colors = []
+        # exports the lines
+        for seg in self.lines:
+            path = svg.Path()
+            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y), complex(seg.end_pt.x, seg.end_pt.y)))
+            paths.append(path)
+            colors.append('blue')
+
+        # export the circle arcs
+        for arc in self.circle_arcs:
+            path = svg.Path()
+            path.append(svg.Arc())
+            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y), complex(seg.end_pt.x, seg.end_pt.y)))
+            paths.append(path)
+            colors.append('blue')
+
+
+        svg.wsvg(paths, colors=colors,  svgwrite_debug=True, filename=file_name)
+
     def import_svg(self, svg_img, *args):
         """Imports the svg file into a new geo object. The function gives an automatic id to the function
 
@@ -245,6 +304,12 @@ class Geometry:
                             end = obj.Node(p2.real, p2.imag, id + 1)
                             self.add_line(obj.Line(start, end, id + 2))
                             id += 3
+
+                        if isinstance(element, svg.Arc):
+                            start = obj.Node(element.start.real, element.start.imag, id)
+                            end = obj.Node(element.start.real, element.start.imag, id)
+                            center = obj.
+                            self.add_arc(obj.CircleArc(start, center, end, id + 3))
 
                         if isinstance(element, svg.CubicBezier):
                             start = obj.Node(element.start.real, element.start.imag, id)
@@ -406,7 +471,6 @@ class Geometry:
             paths.append(svgpathtools.Line(start_pt, end_pt))
 
         svg.wsvg(paths, filename=str(filename))
-
 
 
 # def node_gmsh_point_distance(node, point):

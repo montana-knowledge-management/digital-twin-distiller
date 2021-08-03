@@ -7,3 +7,4 @@ gmsh
 ezdxf
 scipy
 artap
+fenics
