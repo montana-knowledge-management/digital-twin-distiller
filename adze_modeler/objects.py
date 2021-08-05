@@ -1,8 +1,7 @@
 import math
+from adze_modeler.utils import getID
 from collections.abc import Iterable
 from copy import copy
-
-from adze_modeler.utils import getID
 
 
 class Node:
@@ -90,6 +89,13 @@ class Node:
         result.move_xy(p.x, p.y)
         return result
 
+    def unit_to(self, other):
+        """
+        This function returns a unit vector that points from self to other
+        """
+        u = other - self
+        return u * (1 / u.length())
+
 
 class Line:
     """A directed line, which is defined by the (start -> end) points"""
@@ -118,53 +124,53 @@ class Line:
         E = (px, py)
 
         # vector AB
-        AB = [None, None];
-        AB[0] = B[0] - A[0];
-        AB[1] = B[1] - A[1];
+        AB = [None, None]
+        AB[0] = B[0] - A[0]
+        AB[1] = B[1] - A[1]
 
         # vector BP
-        BE = [None, None];
-        BE[0] = E[0] - B[0];
-        BE[1] = E[1] - B[1];
+        BE = [None, None]
+        BE[0] = E[0] - B[0]
+        BE[1] = E[1] - B[1]
 
         # vector AP
-        AE = [None, None];
-        AE[0] = E[0] - A[0];
-        AE[1] = E[1] - A[1];
+        AE = [None, None]
+        AE[0] = E[0] - A[0]
+        AE[1] = E[1] - A[1]
 
         # Variables to store dot product
 
         # Calculating the dot product
-        AB_BE = AB[0] * BE[0] + AB[1] * BE[1];
-        AB_AE = AB[0] * AE[0] + AB[1] * AE[1];
+        AB_BE = AB[0] * BE[0] + AB[1] * BE[1]
+        AB_AE = AB[0] * AE[0] + AB[1] * AE[1]
 
         # Minimum distance from
         # point E to the line segment
-        reqAns = 0;
+        reqAns = 0
 
         # Case 1
-        if (AB_BE > 0):
+        if AB_BE > 0:
 
             # Finding the magnitude
-            y = E[1] - B[1];
-            x = E[0] - B[0];
-            reqAns = math.sqrt(x * x + y * y);
+            y = E[1] - B[1]
+            x = E[0] - B[0]
+            reqAns = math.sqrt(x * x + y * y)
 
         # Case 2
-        elif (AB_AE < 0):
-            y = E[1] - A[1];
-            x = E[0] - A[0];
-            reqAns = math.sqrt(x * x + y * y);
+        elif AB_AE < 0:
+            y = E[1] - A[1]
+            x = E[0] - A[0]
+            reqAns = math.sqrt(x * x + y * y)
 
         # Case 3
         else:
 
             # Finding the perpendicular distance
-            x1 = AB[0];
-            y1 = AB[1];
-            x2 = AE[0];
-            y2 = AE[1];
-            mod = math.sqrt(x1 * x1 + y1 * y1);
+            x1 = AB[0]
+            y1 = AB[1]
+            x2 = AE[0]
+            y2 = AE[1]
+            mod = math.sqrt(x1 * x1 + y1 * y1)
             reqAns = abs(x1 * y2 - y1 * x2) / mod
 
         return reqAns
@@ -210,41 +216,35 @@ class CubicBezier:
 
 class ParametricBezier:
     def __init__(self, **kwargs):
-        self.p0 = kwargs.get('start_pt', [None, None])
-        self.p1 = kwargs.get('c1', [None, None])
-        self.p2 = kwargs.get('c2', [None, None])
-        self.p3 = kwargs.get('end_pt', [None, None])
+        self.p0 = kwargs.get("start_pt", [None, None])
+        self.p1 = kwargs.get("c1", [None, None])
+        self.p2 = kwargs.get("c2", [None, None])
+        self.p3 = kwargs.get("end_pt", [None, None])
 
     def set(self, **kwargs):
-        self.p0 = kwargs.get('start_pt', self.p0)
-        self.p1 = kwargs.get('c1', self.p1)
-        self.p2 = kwargs.get('c2', self.p2)
-        self.p3 = kwargs.get('end_pt', self.p3)
+        self.p0 = kwargs.get("start_pt", self.p0)
+        self.p1 = kwargs.get("c1", self.p1)
+        self.p2 = kwargs.get("c2", self.p2)
+        self.p3 = kwargs.get("end_pt", self.p3)
 
     def casteljau(self, p0, p1, p2, p3):
-        m = ((p1[0] +p2[0])*0.5,
-             (p1[1] + p2[1]) * 0.5)
+        m = ((p1[0] + p2[0]) * 0.5, (p1[1] + p2[1]) * 0.5)
         l0 = p0
         r3 = p3
 
-        l1=((p0[0]+p1[0])*0.5,
-            (p0[1]+p1[1])*0.5)
-        r2 = ((p2[0]+p3[0])*0.5,
-              (p2[1]+p3[1])*0.5)
+        l1 = ((p0[0] + p1[0]) * 0.5, (p0[1] + p1[1]) * 0.5)
+        r2 = ((p2[0] + p3[0]) * 0.5, (p2[1] + p3[1]) * 0.5)
 
-        l2 = ((l1[0] + m[0]) * 0.5,
-              (l1[1] + m[1]) * 0.5)
-        r1 = ((r2[0] + m[0]) * 0.5,
-              (r2[1] + m[1]) * 0.5)
+        l2 = ((l1[0] + m[0]) * 0.5, (l1[1] + m[1]) * 0.5)
+        r1 = ((r2[0] + m[0]) * 0.5, (r2[1] + m[1]) * 0.5)
 
-        l3 = ((l2[0]+r1[0])*0.5,
-              (l2[1]+r1[1])*0.5)
+        l3 = ((l2[0] + r1[0]) * 0.5, (l2[1] + r1[1]) * 0.5)
         r0 = l3
 
-        return (r0,r1,r2,r3), (l0,l1,l2,l3)
+        return (r0, r1, r2, r3), (l0, l1, l2, l3)
 
     def approximate(self, nb_iter=0):
-        lines = [(self.p0,self.p1, self.p2, self.p3)]
+        lines = [(self.p0, self.p1, self.p2, self.p3)]
         for iter_i in range(nb_iter):
             templines = []
             for curve_i in lines:
@@ -263,10 +263,217 @@ class ParametricBezier:
 
     def __call__(self, t: float):
         assert (0 <= t) and (t <= 1), f"t [0, 1] not {t}"
-        X = (1 - t) ** 3 * self.p0[0] + 3 * (1 - t) ** 2 * t * self.p1[0] + 3 * (1 - t) * t ** 2 * self.p2[0] + t ** 3 * \
-            self.p3[0]
+        X = (
+            (1 - t) ** 3 * self.p0[0]
+            + 3 * (1 - t) ** 2 * t * self.p1[0]
+            + 3 * (1 - t) * t ** 2 * self.p2[0]
+            + t ** 3 * self.p3[0]
+        )
 
-        Y = (1 - t) ** 3 * self.p0[1] + 3 * (1 - t) ** 2 * t * self.p1[1] + 3 * (1 - t) * t ** 2 * self.p2[1] + t ** 3 * \
-            self.p3[1]
+        Y = (
+            (1 - t) ** 3 * self.p0[1]
+            + 3 * (1 - t) ** 2 * t * self.p1[1]
+            + 3 * (1 - t) * t ** 2 * self.p2[1]
+            + t ** 3 * self.p3[1]
+        )
 
         return X, Y
+
+
+class Rectangle:
+    def __init__(self, x0: float, y0: float, **kwargs):
+        """
+         d --------------------------- [c]
+         |                             |
+         |                             |
+         |                             |
+        [a] -------------------------- b
+
+        a: [x0, y0] is the fixed point of the rectangle
+        c: [x1, y1] is the upper right corner of the rectangle
+
+        keyword arguments:
+            - width, height: width=length of the a-b/d-c line, height=length of the a-d/b-c line, width and height can
+            be negative
+            - x1, y1: specifies the c point
+
+        """
+        # coordinates of the 4 points
+        self.a = Node(x0, y0)
+        self.b = None
+        self.c = None
+        self.d = None
+
+        # center-point of the rectangle
+        self.cp = None
+
+        # length of the line a-b and d-c
+        self.width = 0.0
+
+        # length of the line a-d and b-c
+        self.height = 0.0
+
+        if {"width", "height"}.issubset(kwargs.keys()):
+            w = kwargs["width"]
+            h = kwargs["height"]
+
+            self.b = Node(self.a.x + w, self.a.y)
+            self.c = Node(self.a.x + w, self.a.y + h)
+            self.d = Node(self.a.x, self.a.y + h)
+
+        elif {"x1", "y1"}.issubset(kwargs.keys()):
+            self.c = Node(kwargs["x1"], kwargs["y1"])
+            self.b = Node(self.c.x, self.a.y)
+            self.d = Node(self.a.x, self.c.y)
+
+        else:
+            raise ValueError("Not enough parameters were given.")
+
+        self._calc_centerpoint()
+        self._calc_width_height()
+
+    def rotate(self, phi: float, fx_point=None):
+        """
+        Rotate a Rectangle instance around a point with phi degrees. The default point is the center-point.
+
+        :param fx_point: Sets one of the points as the origin of the rotation. Accepted values are 'a', 'b', 'c', 'd'
+        """
+        phi = phi * math.pi / 180
+        rotation_center = self.cp
+
+        if fx_point is not None:
+            if fx_point == "a":
+                rotation_center = self.a
+            elif fx_point == "b":
+                rotation_center = self.b
+            elif fx_point == "c":
+                rotation_center = self.c
+            elif fx_point == "d":
+                rotation_center = self.d
+            else:
+                raise ValueError(f"Invalid value for fx_point. Got {fx_point=}")
+
+        self.a = self.a.rotate_about(rotation_center, phi)
+        self.b = self.b.rotate_about(rotation_center, phi)
+        self.c = self.c.rotate_about(rotation_center, phi)
+        self.d = self.d.rotate_about(rotation_center, phi)
+
+        self._calc_centerpoint()
+
+    def set_width(self, new_width, fx_point=None):
+        """
+        Sets the width of the rectangle from a fixed point. This point is the center-point by default.
+        """
+        difference = new_width - self.width
+
+        # unit vectors
+        u_ab = self.a.unit_to(self.b)
+        u_dc = self.d.unit_to(self.c)
+
+        if fx_point is None:
+            self.a = self.a - u_ab * (difference / 2)
+            self.b = self.b + u_ab * (difference / 2)
+            self.d = self.d - u_dc * (difference / 2)
+            self.c = self.c + u_dc * (difference / 2)
+        elif fx_point in {"a", "d"}:
+            self.b = self.b + u_ab * difference
+            self.c = self.c + u_dc * difference
+        elif fx_point in {"c", "b"}:
+            self.a = self.a - u_ab * difference
+            self.d = self.d - u_dc * difference
+        else:
+            raise ValueError(f"Invalid value for fx_point. Got {fx_point=}")
+
+        self._calc_width_height()
+
+    def set_height(self, new_height, fx_point=None):
+        """
+        Sets the height of the rectangle from a fixed point. This point is the center-point by default.
+        Other points of the rectangle can be used as a reference.
+
+        :param new_height: the new height of the rectangle
+        :param fx_point: 'a', 'b', 'c', 'd'
+        """
+        difference = new_height - self.height
+        # unit vectors
+        u_ad = self.a.unit_to(self.d)
+        u_bc = self.b.unit_to(self.c)
+
+        if fx_point is None:
+            self.a = self.a - u_ad * (difference / 2)
+            self.b = self.b + u_ad * (difference / 2)
+            self.d = self.d - u_bc * (difference / 2)
+            self.c = self.c + u_bc * (difference / 2)
+        elif fx_point in {"a", "b"}:
+            self.c = self.c + u_bc * difference
+            self.d = self.d + u_ad * difference
+        elif fx_point in {"c", "d"}:
+            self.a = self.a - u_ad * difference
+            self.b = self.b - u_bc * difference
+        else:
+            raise ValueError(f"Invalid value for fx_point. Got {fx_point=}")
+
+        self._calc_width_height()
+
+    def put(self, x, y, fx_point=None):
+        """
+        This function moves the rectangle such that the fx_point touches the (x, y) point. The default fx_point is
+        the center-point.
+        """
+        ref = Node(x, y)
+        difference = None
+
+        if fx_point is None:
+            difference = ref - self.cp
+        elif fx_point == "a":
+            difference = ref - self.a
+        elif fx_point == "b":
+            difference = ref - self.b
+        elif fx_point == "c":
+            difference = ref - self.c
+        elif fx_point == "d":
+            difference = ref - self.d
+        else:
+            raise ValueError(f"Invalid value for fx_point. Got {fx_point=}")
+
+        self.translate(difference.x, difference.y)
+
+    def translate(self, dx=0, dy=0):
+        self.a.move_xy(dx, dy)
+        self.b.move_xy(dx, dy)
+        self.c.move_xy(dx, dy)
+        self.d.move_xy(dx, dy)
+        self.cp.move_xy(dx, dy)
+
+    def _calc_centerpoint(self):
+        """Calculates the center-point of the rectangle."""
+        self.cp = Node((self.a.x + self.b.x + self.c.x + self.d.x) / 4, (self.a.y + self.b.y + self.c.y + self.d.y) / 4)
+
+    def _calc_width_height(self):
+        """Calculates the width and the height of the Rectangle."""
+        self.width = math.hypot(self.b.x - self.a.x, self.b.y - self.a.y)
+        self.height = math.hypot(self.d.x - self.a.x, self.d.y - self.a.y)
+        self._calc_centerpoint()
+
+    def _print_sidelengths(self):
+        """
+        This function is for debugging purposes only. It prints out the side lengths of the rectangle.
+        """
+
+        print("--" * 15)
+        print("ab:", math.hypot(self.b.x - self.a.x, self.b.y - self.a.y))
+        print("dc:", math.hypot(self.d.x - self.c.x, self.d.y - self.c.y))
+        print()
+        print("ad:", math.hypot(self.d.x - self.a.x, self.d.y - self.a.y))
+        print("bc:", math.hypot(self.c.x - self.b.x, self.c.y - self.b.y))
+        print("--" * 15)
+
+    def __iter__(self):
+        yield from (self.a.x, self.a.y, self.b.x, self.b.y, self.c.x, self.c.y, self.d.x, self.d.y)
+
+    def __repr__(self):
+        return (
+            f"a:({self.a.x:.2f}, {self.a.y:.2f}) cp:({self.cp.x:.2f}, {self.cp.y:.2f}) "
+            f"c: ({self.c.x:.2f}, {self.c.y:.2f})"
+            f" w={self.width:.3f}, height={self.height:.3f}"
+        )
