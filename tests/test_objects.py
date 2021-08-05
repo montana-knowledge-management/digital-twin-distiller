@@ -1,9 +1,8 @@
-from math import pi
-from unittest import TestCase
-
 from adze_modeler.objects import CubicBezier
 from adze_modeler.objects import Line
 from adze_modeler.objects import Node
+from math import pi
+from unittest import TestCase
 
 
 class TestNodeOperations(TestCase):
@@ -50,9 +49,7 @@ class TestLine(TestCase):
         self.assertEqual(b, l.end_pt)
 
         # repr string
-        self.assertIn(
-            f"Line((1.0, 0.0, label=None), (0.5, 0.0, label=None),label='test')", str(l)
-        )
+        self.assertIn(f"Line((1.0, 0.0, label=None), (0.5, 0.0, label=None),label='test')", str(l))
 
     def test_distance_between_lines(self):
         l1 = Line(Node(0, 0), Node(1, 0))

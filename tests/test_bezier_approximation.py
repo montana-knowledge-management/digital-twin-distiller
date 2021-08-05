@@ -1,12 +1,14 @@
 import unittest
-from adze_modeler.geometry import Geometry
-from adze_modeler.objects import CubicBezier, Node, Line
-from importlib_resources import files
 import uuid
+from adze_modeler.geometry import Geometry
+from adze_modeler.objects import CubicBezier
+from adze_modeler.objects import Line
+from adze_modeler.objects import Node
+
+from importlib_resources import files
 
 
 class TestBezierApprox(unittest.TestCase):
-
     def test_casteljeu_step(self):
         # Test Nodes
         a = Node(x=0.0, y=0.0, id=1)

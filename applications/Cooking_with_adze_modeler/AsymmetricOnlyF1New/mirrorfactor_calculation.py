@@ -2,12 +2,13 @@ from pathlib import Path
 
 
 def get_next_line():
-    with open(Path(__file__).parent / "pareto_front_nsga2.csv", 'r') as f:
+    with open(Path(__file__).parent / "pareto_front_nsga2.csv") as f:
         yield from f
+
 
 def get_next_solution():
     for line in get_next_line():
-        line = line.strip().split(',')
+        line = line.strip().split(",")
         platform = line.pop(0)
         line = [float(vi) for vi in line]
         f1 = line.pop(0)
@@ -18,7 +19,6 @@ def get_next_solution():
         yield tuple(r)
 
 
-
 mirrorfactors = []
 
 for sol in get_next_solution():
@@ -26,7 +26,7 @@ for sol in get_next_solution():
     right = sol[10:]
     mirrorfactor = 0.0
     for li, ri in zip(left, right):
-        diff = abs(li-ri)
+        diff = abs(li - ri)
         if diff < 0.5:
             diff = 0.0
 
@@ -37,5 +37,5 @@ for sol in get_next_solution():
 
 import matplotlib.pyplot as plt
 
-plt.plot(sorted(mirrorfactors), 'b-')
+plt.plot(sorted(mirrorfactors), "b-")
 plt.show()

@@ -1,25 +1,28 @@
-from pathlib import Path
-from numpy import array, unique
+import operator
 from adze_modeler.geometry import Geometry
 from adze_modeler.modelpiece import ModelPiece
-import operator
+from pathlib import Path
+
+from numpy import array
+from numpy import unique
 
 
 path_base = Path(__file__).parent.parent
 current_dir = Path(__file__).parent
 path_export_base = Path(__file__).parent / "media"
 
+
 def build(X, nb):
 
     mp_bound = ModelPiece("bound")
-    mp_bound.load_piece_from_svg(path_base / "ArtapOptimization"  / 'problem_boundary.svg')
+    mp_bound.load_piece_from_svg(path_base / "ArtapOptimization" / "problem_boundary.svg")
 
     mp_control = ModelPiece("core")
-    mp_control.load_piece_from_svg(path_base / "ArtapOptimization"  / 'core.svg')
+    mp_control.load_piece_from_svg(path_base / "ArtapOptimization" / "core.svg")
     mp_control.put(0, -5)
 
     mp_coil = ModelPiece("coil")
-    mp_coil.load_piece_from_svg(path_base / "ArtapOptimization"  / 'coil.svg')
+    mp_coil.load_piece_from_svg(path_base / "ArtapOptimization" / "coil.svg")
 
     N = len(X)
     h = 1.5
@@ -36,23 +39,27 @@ def build(X, nb):
     geom.generate_intersections()
     geom.export_svg(path_export_base / f"nb-{nb:02d}.svg")
 
+
 def get_line_from_file(filename):
-    with open(filename, "r") as f:
+    with open(filename) as f:
         yield from f
+
 
 def get_processed_line_asym(filename):
     for line_i in get_line_from_file(filename):
-        platform, *line_i = line_i.strip().split(',')
+        platform, *line_i = line_i.strip().split(",")
         f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
         yield (f1, f2, f3, *r)
 
+
 def get_processed_line_sym(filename):
     for line_i in get_line_from_file(filename):
-        platform, *line_i = line_i.strip().split(',')
+        platform, *line_i = line_i.strip().split(",")
         f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
         r = list(reversed(r))
         r.extend(reversed(r))
         yield (f1, f2, f3, *r)
+
 
 sym_data_generator = get_processed_line_sym(Path(__file__).parent / "statistics_sym.csv")
 asym_data_generator = get_processed_line_asym(Path(__file__).parent / "statistics_asym.csv")

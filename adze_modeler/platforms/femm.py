@@ -1,40 +1,49 @@
 import os
-from collections.abc import Iterable
-from math import asin, pi
-from copy import copy
-
-from adze_modeler.boundaries import BoundaryCondition, DirichletBoundaryCondition, PeriodicBoundaryCondition, \
-    NeumannBoundaryCondition
-from adze_modeler.material import Material
-from adze_modeler.metadata import Metadata
-from adze_modeler.objects import Node, Line, CircleArc
-from adze_modeler.platforms.platform import Platform
-from adze_modeler.femm_wrapper import FemmWriter, FemmExecutor, MagneticPeriodic, MagneticMixed
-from adze_modeler.femm_wrapper import femm_magnetic, femm_electrostatic, femm_heat_flow, femm_current_flow
+from adze_modeler.boundaries import AntiPeriodicBoundaryCondition
+from adze_modeler.boundaries import BoundaryCondition
+from adze_modeler.boundaries import DirichletBoundaryCondition
+from adze_modeler.boundaries import NeumannBoundaryCondition
+from adze_modeler.boundaries import PeriodicBoundaryCondition
+from adze_modeler.femm_wrapper import femm_current_flow
+from adze_modeler.femm_wrapper import femm_electrostatic
+from adze_modeler.femm_wrapper import femm_heat_flow
+from adze_modeler.femm_wrapper import femm_magnetic
+from adze_modeler.femm_wrapper import FemmExecutor
+from adze_modeler.femm_wrapper import FemmWriter
+from adze_modeler.femm_wrapper import MagneticAnti
 from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
+from adze_modeler.femm_wrapper import MagneticMixed
+from adze_modeler.femm_wrapper import MagneticPeriodic
+from adze_modeler.material import Material
+from adze_modeler.metadata import Metadata
+from adze_modeler.objects import CircleArc
+from adze_modeler.objects import Line
+from adze_modeler.objects import Node
+from adze_modeler.platforms.platform import Platform
+from collections.abc import Iterable
+from copy import copy
 from glob import glob
-from adze_modeler.boundaries import AntiPeriodicBoundaryCondition
-from adze_modeler.femm_wrapper import MagneticAnti
+from math import asin
+from math import pi
 
 
 class Femm(Platform):
-
     def __init__(self, m: Metadata):
         super().__init__(m)
         self.writer = FemmWriter()
         self.writer.push = False
 
-        if self.metadata.problem_type == 'magnetic':
+        if self.metadata.problem_type == "magnetic":
             self.writer.field = femm_magnetic
 
-        elif self.metadata.problem_type == 'electrostatic':
+        elif self.metadata.problem_type == "electrostatic":
             self.writer.field = femm_electrostatic
 
-        elif self.metadata.problem_type == 'heat':
+        elif self.metadata.problem_type == "heat":
             self.writer.field = femm_heat_flow
 
-        elif self.metadata.problem_type == 'current':
+        elif self.metadata.problem_type == "current":
             self.writer.field = femm_current_flow
         else:
             raise ValueError()
@@ -56,38 +65,43 @@ class Femm(Platform):
         for cmd_i in cmdlist:
             self.write(cmd_i)
 
-        type_ = 'axi' if self.metadata.coordinate_type == 'axisymmetric' else 'planar'
-        prefix = {'magnetic':'mi', 'electrostatic':'mi'}
-        if self.metadata.problem_type == 'magnetic':
-            self.write(self.writer.magnetic_problem(freq=self.metadata.frequency,
-                                                    unit=self.metadata.unit,
-                                                    type=type_,
-                                                    precision=self.metadata.precision,
-                                                    depth=self.metadata.depth,
-                                                    minangle=self.metadata.minangle,
-                                                    acsolver=self.metadata.acsolver
-                                                    ))
+        type_ = "axi" if self.metadata.coordinate_type == "axisymmetric" else "planar"
+        prefix = {"magnetic": "mi", "electrostatic": "mi"}
+        if self.metadata.problem_type == "magnetic":
+            self.write(
+                self.writer.magnetic_problem(
+                    freq=self.metadata.frequency,
+                    unit=self.metadata.unit,
+                    type=type_,
+                    precision=self.metadata.precision,
+                    depth=self.metadata.depth,
+                    minangle=self.metadata.minangle,
+                    acsolver=self.metadata.acsolver,
+                )
+            )
 
         if not self.metadata.smartmesh:
             self.write(f"{prefix[self.metadata.problem_type]}_smartmesh(0)")
 
     def export_material_definition(self, mat: Material):
-        if self.metadata.problem_type == 'magnetic':
-            lamtypes = {"inplane":1}
-            femm_material = MagneticMaterial(material_name=mat.name,
-                                             mu_x=mat.mu_r,
-                                             mu_y=mat.mu_r,
-                                             H_c=mat.coercivity,
-                                             J=mat.Je / 1.0e6,  # A / m2 -> MA / m2
-                                             Cduct=mat.conductivity / 1.0e6,
-                                             Lam_d=mat.thickness,
-                                             lam_fill=mat.fill_factor,
-                                             NStrands=0.0,
-                                             WireD=0.0,
-                                             LamType=lamtypes.get(mat.lamination_type, 0),
-                                             Phi_hmax=0,
-                                             Phi_hx=0,
-                                             Phi_hy=0)
+        if self.metadata.problem_type == "magnetic":
+            lamtypes = {"inplane": 1}
+            femm_material = MagneticMaterial(
+                material_name=mat.name,
+                mu_x=mat.mu_r,
+                mu_y=mat.mu_r,
+                H_c=mat.coercivity,
+                J=mat.Je / 1.0e6,  # A / m2 -> MA / m2
+                Cduct=mat.conductivity / 1.0e6,
+                Lam_d=mat.thickness,
+                lam_fill=mat.fill_factor,
+                NStrands=0.0,
+                WireD=0.0,
+                LamType=lamtypes.get(mat.lamination_type, 0),
+                Phi_hmax=0,
+                Phi_hx=0,
+                Phi_hy=0,
+            )
 
             self.write(self.writer.add_material(femm_material))
             if isinstance(mat.b, Iterable):
@@ -98,37 +112,41 @@ class Femm(Platform):
     def export_block_label(self, x, y, mat: Material):
         self.write(self.writer.add_blocklabel(x, y))
         self.write(self.writer.select_label(x, y))
-        self.write(self.writer.set_blockprop(blockname=mat.name,
-                                             automesh=int(self.metadata.smartmesh),
-                                             meshsize=mat.meshsize,
-                                             magdirection=mat.remanence_angle
-                                             ))
+        self.write(
+            self.writer.set_blockprop(
+                blockname=mat.name,
+                automesh=int(self.metadata.smartmesh),
+                meshsize=mat.meshsize,
+                magdirection=mat.remanence_angle,
+            )
+        )
         self.write(self.writer.clear_selected())
 
     def export_boundary_definition(self, b: BoundaryCondition):
         if isinstance(b, DirichletBoundaryCondition):
-            if self.metadata.problem_type == 'magnetic':
-                femm_boundary = MagneticDirichlet(name=b.name,
-                                                  a_0=b.valuedict['magnetic_potential'],
-                                                  a_1=b.valuedict['magnetic_potential'],
-                                                  a_2=b.valuedict['magnetic_potential'],
-                                                  phi=0
-                                                  )
+            if self.metadata.problem_type == "magnetic":
+                femm_boundary = MagneticDirichlet(
+                    name=b.name,
+                    a_0=b.valuedict["magnetic_potential"],
+                    a_1=b.valuedict["magnetic_potential"],
+                    a_2=b.valuedict["magnetic_potential"],
+                    phi=0,
+                )
 
         if isinstance(b, NeumannBoundaryCondition):
-            if self.metadata.problem_type == 'magnetic':
-                femm_boundary = MagneticMixed(name=b.name,
-                                                  c0=0,
-                                                  c1=0,
-                                                  )
+            if self.metadata.problem_type == "magnetic":
+                femm_boundary = MagneticMixed(
+                    name=b.name,
+                    c0=0,
+                    c1=0,
+                )
 
         if isinstance(b, AntiPeriodicBoundaryCondition):
-            if self.metadata.problem_type == 'magnetic':
+            if self.metadata.problem_type == "magnetic":
                 femm_boundary = MagneticAnti(name=b.name)
 
-
         if isinstance(b, PeriodicBoundaryCondition):
-            if self.metadata.problem_type == 'magnetic':
+            if self.metadata.problem_type == "magnetic":
                 femm_boundary = MagneticPeriodic(name=b.name)
 
         self.write(self.writer.add_boundary(femm_boundary))
@@ -162,8 +180,8 @@ class Femm(Platform):
             # to achieve this the start node rotated with deg/2
             radius = e.start_pt.distance_to(e.center_pt)
             clamp = e.start_pt.distance_to(e.end_pt) / 2.0
-            theta = round(asin(clamp / radius) * 180/pi*2, 2)
-            internal_pt = e.start_pt.rotate_about(e.center_pt, theta/2)
+            theta = round(asin(clamp / radius) * 180 / pi * 2, 2)
+            internal_pt = e.start_pt.rotate_about(e.center_pt, theta / 2)
 
             self.write(self.writer.add_arc(e.start_pt.x, e.start_pt.y, e.end_pt.x, e.end_pt.y, theta, e.max_seg_deg))
 
@@ -172,18 +190,17 @@ class Femm(Platform):
                 self.write(self.writer.set_arc_segment_prop(e.max_seg_deg, boundary.name, 0, 0))
                 self.write(self.writer.clear_selected())
 
-
     def export_solving_steps(self):
         femm_filename = self.get_script_name()
 
-        if self.metadata.problem_type == 'magnetic':
-            femm_filename += '.fem'
-        elif self.metadata.problem_type == 'electrostatic':
-            femm_filename += '.fee'
-        elif self.metadata.problem_type == 'current':
-            femm_filename += '.fec'
-        elif self.metadata.problem_type == 'heat':
-            femm_filename += '.feh'
+        if self.metadata.problem_type == "magnetic":
+            femm_filename += ".fem"
+        elif self.metadata.problem_type == "electrostatic":
+            femm_filename += ".fee"
+        elif self.metadata.problem_type == "current":
+            femm_filename += ".fec"
+        elif self.metadata.problem_type == "heat":
+            femm_filename += ".feh"
 
         self.write(self.writer.save_as(femm_filename))
         self.write(self.writer.analyze())
@@ -191,49 +208,48 @@ class Femm(Platform):
 
     def export_metrics(self, action, entity, variable):
         mappings = {
-            "Bx": 'B1',
-            "By": 'B2',
-            "Br": 'B1',
-            "Bz": 'B2',
-            "Hx": 'H1',
-            "Hy": 'H2',
-            "Hr": 'H1',
-            "Hz": 'H2',
+            "Bx": "B1",
+            "By": "B2",
+            "Br": "B1",
+            "Bz": "B2",
+            "Hx": "H1",
+            "Hy": "H2",
+            "Hr": "H1",
+            "Hz": "H2",
         }
-        fieldmapping = {'electrostatic': 'eo', 'magnetic': 'mo', 'heat': 'ho', 'current': 'co'}
+        fieldmapping = {"electrostatic": "eo", "magnetic": "mo", "heat": "ho", "current": "co"}
         prefix = fieldmapping[self.metadata.problem_type]
-        if action == 'point_value':
+        if action == "point_value":
             x = entity[0]
             y = entity[1]
-            self.write('A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph = ', nb_newline=0)
+            self.write("A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph = ", nb_newline=0)
             self.write(self.writer.get_point_values(x, y))
             self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
         if action == "mesh_info":
 
             self.write(f'write(file_out, "nodes, ", {fieldmapping[self.metadata.problem_type]}_numnodes(), "\\n")')
-            self.write(
-                f'write(file_out, "elements, ", {prefix}_numelements(), "\\n")')
+            self.write(f'write(file_out, "elements, ", {prefix}_numelements(), "\\n")')
 
-        if action=="integration":
-            if self.metadata.problem_type == 'magnetic':
+        if action == "integration":
+            if self.metadata.problem_type == "magnetic":
                 # TODO: xx_selectblock for postprocessing is missing in femm_wrapper
-                int_type = {"Fx": 18, "Fy":19, "Area": 5, "Energy": 2}
+                int_type = {"Fx": 18, "Fy": 19, "Area": 5, "Energy": 2}
                 assert variable in int_type.keys(), f"There is no variable '{variable}'"
                 if isinstance(entity, Iterable):
-                    for x,y in entity:
-                        self.write(f'{prefix}_selectblock({x}, {y})')
+                    for x, y in entity:
+                        self.write(f"{prefix}_selectblock({x}, {y})")
 
-                self.write(f'{variable} = {prefix}_blockintegral({int_type[variable]})')
-                self.write(f'{prefix}_clearblock()')
+                self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
+                self.write(f"{prefix}_clearblock()")
                 self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
 
-        if action=='saveimage':
+        if action == "saveimage":
             self.write(f"{prefix}_showdensityplot(0, 0, 0.0, 2.0, 'bmag')")
             self.write(f"{prefix}_showcontourplot(-1)")
             self.write(f"{prefix}_resize(600, 600)")
             self.write(f"{prefix}_refreshview()")
-            path = str(entity) + '.bmp'
+            path = str(entity) + ".bmp"
             self.write(f'{prefix}_save_bitmap("{path}");')
 
     def export_closing_steps(self):
@@ -246,7 +262,7 @@ class Femm(Platform):
         try:
             executor.run_femm(self.metadata.file_script_name, timeout=timeout)
             if cleanup:
-                femm_files = glob(f'{self.get_script_name()}.*')
+                femm_files = glob(f"{self.get_script_name()}.*")
                 for file_i in femm_files:
                     os.remove(file_i)
 

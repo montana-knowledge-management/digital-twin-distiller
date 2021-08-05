@@ -1,49 +1,51 @@
-import operator
-from functools import partial
-from pathlib import Path
-from artap.results import Results
 import math
-from artap.problem import Problem
-from artap.algorithm_genetic import NSGAII
-from artap.algorithm_nlopt import NLopt, LN_BOBYQA
-
-from adze_modeler.platforms.agros2d import Agros2D
-from adze_modeler.platforms.femm import Femm
-from problem_solver import build
+import multiprocessing
+import operator
 from adze_modeler.metadata import Agros2DMetadata
 from adze_modeler.metadata import FemmMetadata
-import multiprocessing
+from adze_modeler.platforms.agros2d import Agros2D
+from adze_modeler.platforms.femm import Femm
+from functools import partial
+from pathlib import Path
+
+from artap.algorithm_genetic import NSGAII
+from artap.algorithm_nlopt import LN_BOBYQA
+from artap.algorithm_nlopt import NLopt
+from artap.problem import Problem
+from artap.results import Results
+from problem_solver import build
 
 current_dir = Path(__file__).parent
 
+
 class CoilOptimizationProblem(Problem):
-
     def set(self):
-        self.name = 'Biobjective Test Problem'
+        self.name = "Biobjective Test Problem"
 
-        self.parameters = [{'name': 'r0', 'bounds': [1, 20], 'initial_value': 10},
-                           {'name': 'r1', 'bounds': [1, 20], 'initial_value': 10},
-                           {'name': 'r2', 'bounds': [1, 20], 'initial_value': 10},
-                           {'name': 'r3', 'bounds': [1, 20], 'initial_value': 10},
-                           {'name': 'r4', 'bounds': [1, 20], 'initial_value': 10},
-                           {'name': 'r5', 'bounds': [1, 20], 'initial_value': 10},
-                           {'name': 'r6', 'bounds': [5.5, 20], 'initial_value': 10},
-                           {'name': 'r7', 'bounds': [5.5, 20], 'initial_value': 10},
-                           {'name': 'r8', 'bounds': [5.5, 20], 'initial_value': 10},
-                           {'name': 'r9', 'bounds': [5.5, 20], 'initial_value': 10},
-                           {'name': 'r10', 'bounds': [5.5, 20], 'initial_value': 10},
-                           {'name': 'r11', 'bounds': [5.5, 20], 'initial_value': 10},
-                           {'name': 'r12', 'bounds': [5.5, 20], 'initial_value': 10},
-                           {'name': 'r13', 'bounds': [5.5, 20], 'initial_value': 10},
-                           {'name': 'r14', 'bounds': [1, 20], 'initial_value': 10},
-                           {'name': 'r15', 'bounds': [1, 20], 'initial_value': 10},
-                           {'name': 'r16', 'bounds': [1, 20], 'initial_value': 10},
-                           {'name': 'r17', 'bounds': [1, 20], 'initial_value': 10},
-                           {'name': 'r18', 'bounds': [1, 20], 'initial_value': 10},
-                           {'name': 'r19', 'bounds': [1, 20], 'initial_value': 10}
-                           ]
+        self.parameters = [
+            {"name": "r0", "bounds": [1, 20], "initial_value": 10},
+            {"name": "r1", "bounds": [1, 20], "initial_value": 10},
+            {"name": "r2", "bounds": [1, 20], "initial_value": 10},
+            {"name": "r3", "bounds": [1, 20], "initial_value": 10},
+            {"name": "r4", "bounds": [1, 20], "initial_value": 10},
+            {"name": "r5", "bounds": [1, 20], "initial_value": 10},
+            {"name": "r6", "bounds": [5.5, 20], "initial_value": 10},
+            {"name": "r7", "bounds": [5.5, 20], "initial_value": 10},
+            {"name": "r8", "bounds": [5.5, 20], "initial_value": 10},
+            {"name": "r9", "bounds": [5.5, 20], "initial_value": 10},
+            {"name": "r10", "bounds": [5.5, 20], "initial_value": 10},
+            {"name": "r11", "bounds": [5.5, 20], "initial_value": 10},
+            {"name": "r12", "bounds": [5.5, 20], "initial_value": 10},
+            {"name": "r13", "bounds": [5.5, 20], "initial_value": 10},
+            {"name": "r14", "bounds": [1, 20], "initial_value": 10},
+            {"name": "r15", "bounds": [1, 20], "initial_value": 10},
+            {"name": "r16", "bounds": [1, 20], "initial_value": 10},
+            {"name": "r17", "bounds": [1, 20], "initial_value": 10},
+            {"name": "r18", "bounds": [1, 20], "initial_value": 10},
+            {"name": "r19", "bounds": [1, 20], "initial_value": 10},
+        ]
 
-        self.costs = [{'name': 'f_1', 'criteria': 'minimize'}]
+        self.costs = [{"name": "f_1", "criteria": "minimize"}]
 
     def evaluate(self, individual):
         femm_metadata = FemmMetadata()
@@ -76,26 +78,26 @@ class CoilOptimizationProblem(Problem):
 
             res = build(platform, X)
 
-            Bz = [pointvalue[2] for pointvalue in res['Bz']] # [x, y, Bz(x, y)]
-            Br = [pointvalue[2] for pointvalue in res['Br']] # [x, y, Br(x, y)]
-            xi = [pointvalue[0] for pointvalue in res['Br']] # [x, y, Br(x, y)]
-            yi = [pointvalue[1] for pointvalue in res['Br']] # [x, y, Br(x, y)]
-            nb_nodes = res['nodes']
+            Bz = [pointvalue[2] for pointvalue in res["Bz"]]  # [x, y, Bz(x, y)]
+            Br = [pointvalue[2] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+            xi = [pointvalue[0] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+            yi = [pointvalue[1] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+            nb_nodes = res["nodes"]
 
             # Calculate F1
             B0 = 2e-3
             F1 = max(map(lambda Bz_i: abs(Bz_i - B0), Bz))
 
-            with open(current_dir / 'statistics_bobyqa.csv', 'a+') as f:
+            with open(current_dir / "statistics_bobyqa.csv", "a+") as f:
                 """
                 platform, F1, nodes, r0, r1, r2, r3, ..., r19
                 """
-                record = [res['platform']]
+                record = [res["platform"]]
                 record.extend([F1])
                 record.append(nb_nodes)
                 record.extend(X)
-                f.write(','.join([str(i) for i in record]))
-                f.write('\n')
+                f.write(",".join([str(i) for i in record]))
+                f.write("\n")
 
             print(F1)
             return [F1]
@@ -103,7 +105,8 @@ class CoilOptimizationProblem(Problem):
         except Exception as e:
             return [math.inf]
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
 
     # Perform the optimization iterating over 100 times on 100 individuals.
     problem = CoilOptimizationProblem()
@@ -112,9 +115,9 @@ if __name__=='__main__':
     # algorithm.options['max_population_size'] = 100
 
     algorithm = NLopt(problem)
-    algorithm.options['algorithm'] = LN_BOBYQA
-    algorithm.options['n_iterations'] = 1000
-    algorithm.options['ftol_rel'] = 1e-7
+    algorithm.options["algorithm"] = LN_BOBYQA
+    algorithm.options["n_iterations"] = 1000
+    algorithm.options["ftol_rel"] = 1e-7
 
     try:
         algorithm.run()
@@ -128,5 +131,5 @@ if __name__=='__main__':
         for ind in problem.individuals:
             record = ind.costs.copy()
             record.extend(ind.vector.copy())
-            f.write(','.join([str(i) for i in record]))
-            f.write('\n')
+            f.write(",".join([str(i) for i in record]))
+            f.write("\n")

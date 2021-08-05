@@ -21,8 +21,10 @@ class BoundaryCondition:
         self.type = None
 
         if self.field not in {"electrostatic", "magnetic", "heat", "current"}:
-            raise ValueError(f'There is no "{field_type}" field type. Accepted values are '
-                             f'"electrostatic", "magnetic", "heat", "current".')
+            raise ValueError(
+                f'There is no "{field_type}" field type. Accepted values are '
+                f'"electrostatic", "magnetic", "heat", "current".'
+            )
 
         # setting initial values to valuedict
         # for key in self.accepted_keys[self.field]:
@@ -71,6 +73,7 @@ class NeumannBoundaryCondition(BoundaryCondition):
 
         for key, value in kwargs.items():
             self.set_value(key, value)
+
 
 class PeriodicBoundaryCondition(BoundaryCondition):
     accepted_keys = {

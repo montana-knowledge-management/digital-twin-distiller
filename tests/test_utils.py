@@ -1,6 +1,6 @@
+import adze_modeler.utils as u
 import unittest
 
-import adze_modeler.utils as u
 
 class TestUtils(unittest.TestCase):
     def test_get_id(self):

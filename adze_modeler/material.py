@@ -16,13 +16,12 @@ class Material:
         self.vy = 0.0
 
         # Femm realted
-        self.thickness =      0
-        self.lamination_type= 0
-        self.fill_factor =    0
-
+        self.thickness = 0
+        self.lamination_type = 0
+        self.fill_factor = 0
 
         self.assigned = []  # a set of (x, y) tuples
-        self.meshsize=1.0
+        self.meshsize = 1.0
 
     def __copy__(self):
         newmaterial = Material(self.name)

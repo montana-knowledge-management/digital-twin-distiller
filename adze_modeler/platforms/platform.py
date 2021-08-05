@@ -1,10 +1,14 @@
 from abc import ABCMeta
 from abc import abstractmethod
-from adze_modeler.material import Material
 from adze_modeler.boundaries import BoundaryCondition
-from adze_modeler.objects import Node, Line, CircleArc, CubicBezier
+from adze_modeler.material import Material
 from adze_modeler.metadata import Metadata
+from adze_modeler.objects import CircleArc
+from adze_modeler.objects import CubicBezier
+from adze_modeler.objects import Line
+from adze_modeler.objects import Node
 from copy import copy
+
 
 class Platform(metaclass=ABCMeta):
     def __init__(self, m: Metadata):
@@ -27,15 +31,14 @@ class Platform(metaclass=ABCMeta):
         self.newline(nb_newline)
 
     def newline(self, n):
-        self.file_script_handle.write('\n' * n)
-
+        self.file_script_handle.write("\n" * n)
 
     def get_handle(self):
         return self.file_script_handle
 
     def get_script_name(self):
         filename = str(self.metadata.file_script_name)
-        dotindex = filename.find('.')
+        dotindex = filename.find(".")
         filename = filename[:dotindex]
         return filename
 

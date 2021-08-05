@@ -5,20 +5,19 @@ The code generated one snapshot from the created model, which can be run during 
 The original FEMM code has separate scripting commands for the geometry generation in different subfields
 
 """
+import adze_modeler.geometry as geo
 import os
+import shlex
 import subprocess
 from collections import namedtuple
 from math import asin
 from math import degrees
 from pathlib import Path
 from string import Template
+from subprocess import PIPE
+from subprocess import Popen
 from sys import platform
-
-import shlex
-from subprocess import Popen, PIPE
 from threading import Timer
-
-import adze_modeler.geometry as geo
 
 # keywords
 femm_current_flow = "current_flow"
@@ -1560,8 +1559,8 @@ class FemmExecutor:
             #         err = f"Cannot run FEMM.\n\n {proc.stderr}"
             #         print(err)
 
-                # self.problem.logger.error(err)
-                # raise RuntimeError(err)
+            # self.problem.logger.error(err)
+            # raise RuntimeError(err)
 
             else:
                 return True

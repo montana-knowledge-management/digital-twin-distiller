@@ -1,6 +1,6 @@
+from adze_modeler.geometry import Geometry
 from unittest import TestCase
 
-from adze_modeler.geometry import Geometry
 from importlib_resources import files
 
 
@@ -24,4 +24,3 @@ class TestSvgImport(TestCase):
         geo.import_svg(eml.as_posix())
 
         print(geo.cubic_beziers)
-

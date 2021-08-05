@@ -1,4 +1,5 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
+from abc import abstractmethod
 
 
 class Metadata(metaclass=ABCMeta):
@@ -8,7 +9,7 @@ class Metadata(metaclass=ABCMeta):
         self.analysis_type = None
         self.coordinate_type = None
         self.mesh_type = None
-        self.unit = 1.0 # 1 m
+        self.unit = 1.0  # 1 m
         self.precision = 1e-8
 
         self.file_suffix = None
@@ -19,7 +20,7 @@ class Metadata(metaclass=ABCMeta):
         if self.file_script_name is not None:
             self.file_script_name = str(self.file_script_name)
             self.file_metrics_name = str(self.file_metrics_name)
-            dotindex = self.file_script_name.find('.')
+            dotindex = self.file_script_name.find(".")
             if dotindex != -1:
                 self.file_script_name = self.file_script_name[:dotindex]
 
@@ -37,9 +38,7 @@ class Metadata(metaclass=ABCMeta):
         ...
 
 
-
 class Agros2DMetadata(Metadata):
-
     def __init__(self):
         super().__init__()
         self.compatible_platform = "agros2d"
@@ -51,8 +50,7 @@ class Agros2DMetadata(Metadata):
         self.adaptivity_steps = 10
         self.adaptivity_tol = 1.0
         self.solver = "linear"
-        self.file_suffix = '.py'
-
+        self.file_suffix = ".py"
 
     def validate_metadata(self):
         self.validate_file_name()
@@ -83,9 +81,7 @@ class Agros2DMetadata(Metadata):
         return newm
 
 
-
 class FemmMetadata(Metadata):
-
     def __init__(self):
         super().__init__()
         self.compatible_platform = "femm"
@@ -97,13 +93,12 @@ class FemmMetadata(Metadata):
         self.frequency = 0.0
         self.unit = "meters"
         self.depth = 1.0
-        self.minangle=30
+        self.minangle = 30
         self.presolven = None
-        self.timestep=1e-3
+        self.timestep = 1e-3
         self.acsolver = 0
         self.elementsize = None
         self.smartmesh = True
-
 
     def validate_metadata(self):
         self.validate_file_name()
@@ -140,5 +135,3 @@ class FemmMetadata(Metadata):
         newm.elementsize = self.elementsize
         newm.smartmesh = self.smartmesh
         return newm
-
-

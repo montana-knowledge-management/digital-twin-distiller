@@ -1,7 +1,7 @@
+import unittest
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.boundaries import NeumannBoundaryCondition
 
-import unittest
 
 class TestDirichletBoundary(unittest.TestCase):
     def get_bc(self, name, field_type):
@@ -23,8 +23,7 @@ class TestDirichletBoundary(unittest.TestCase):
         bc = DirichletBoundaryCondition("alma", "electrostatic", fixed_voltage=10)
         self.assertEqual(bc.valuedict["fixed_voltage"], 10)
 
-        self.assertRaises(ValueError, DirichletBoundaryCondition, name="alma", field_type='heat', magnetic_potential=10)
-
+        self.assertRaises(ValueError, DirichletBoundaryCondition, name="alma", field_type="heat", magnetic_potential=10)
 
     def test_magnetic_dirichlet_bc(self):
         bc = self.get_bc("a0", "magnetic")
@@ -34,7 +33,6 @@ class TestDirichletBoundary(unittest.TestCase):
         self.assertEqual(42, bc.valuedict["magnetic_potential"])
 
         self.assertRaises(ValueError, bc.set_value, key="falsekey", value=-1)
-
 
     def test_electrostatic_dirichlet_bc(self):
         bc = self.get_bc("Vg", "electrostatic")
@@ -78,8 +76,7 @@ class TestNeumannBoundary(unittest.TestCase):
         bc = NeumannBoundaryCondition("alma", "electrostatic", surface_charge_density=10)
         self.assertEqual(bc.valuedict["surface_charge_density"], 10)
 
-        self.assertRaises(ValueError, NeumannBoundaryCondition, name="alma", field_type='heat', magnetic_potential=10)
-
+        self.assertRaises(ValueError, NeumannBoundaryCondition, name="alma", field_type="heat", magnetic_potential=10)
 
     def test_magnetic_neumann_bc(self):
         bc = self.get_bc("a0", "magnetic")
@@ -89,7 +86,6 @@ class TestNeumannBoundary(unittest.TestCase):
         self.assertEqual(42, bc.valuedict["surface_current"])
 
         self.assertRaises(ValueError, bc.set_value, key="falsekey", value=-1)
-
 
     def test_electrostatic_neumann_bc(self):
         bc = self.get_bc("Vg", "electrostatic")

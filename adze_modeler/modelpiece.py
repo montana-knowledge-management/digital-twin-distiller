@@ -2,8 +2,7 @@ from adze_modeler.geometry import Geometry
 from adze_modeler.utils import getID
 
 
-class ModelPiece():
-
+class ModelPiece:
     def __init__(self, name):
         self.name = name
         self.id = getID()
@@ -50,4 +49,3 @@ class ModelPiece():
         piece.geom.merge_geometry(self.geom)
         piece._update_bbox()
         return piece
-

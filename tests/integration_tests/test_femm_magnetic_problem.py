@@ -1,10 +1,10 @@
 import unittest
-from collections import Counter
-from math import pi
-
 from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
+from collections import Counter
+from math import pi
+
 from importlib_resources import files
 
 

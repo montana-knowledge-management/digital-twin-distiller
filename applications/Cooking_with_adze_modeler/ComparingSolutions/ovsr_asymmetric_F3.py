@@ -1,29 +1,31 @@
 import operator
 from pathlib import Path
+
 import matplotlib.pyplot as plt
-from numpy import array, unique
-import seaborn as sns
 import pandas as pd
+import seaborn as sns
+from numpy import array
+from numpy import unique
 
 ###################################################################################################################
 
 # Matplotlib setup
 mm2inch = lambda x: 0.03937007874 * x
-plt.rcParams['figure.figsize'] = mm2inch(20), mm2inch(20)
-plt.rcParams['lines.linewidth'] = 1
+plt.rcParams["figure.figsize"] = mm2inch(20), mm2inch(20)
+plt.rcParams["lines.linewidth"] = 1
 SMALL_SIZE = 8
 MEDIUM_SIZE = 10
 BIGGER_SIZE = 14
 
-plt.rc('font', size=BIGGER_SIZE)          # controls default text sizes
-plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the axes title
-plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=BIGGER_SIZE)    # legend fontsize
-plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+plt.rc("font", size=BIGGER_SIZE)  # controls default text sizes
+plt.rc("axes", titlesize=BIGGER_SIZE)  # fontsize of the axes title
+plt.rc("axes", labelsize=BIGGER_SIZE)  # fontsize of the x and y labels
+plt.rc("xtick", labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+plt.rc("ytick", labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+plt.rc("legend", fontsize=BIGGER_SIZE)  # legend fontsize
+plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-plt.style.use(['default', 'seaborn-bright'])
+plt.style.use(["default", "seaborn-bright"])
 
 ###################################################################################################################
 
@@ -34,8 +36,9 @@ path_asymmetric_data_reduced = path_base / "Asymmetric" / "pareto_front_reduced.
 
 
 def get_line_from_file(filename):
-    with open(filename, "r") as f:
+    with open(filename) as f:
         yield from f
+
 
 def get_processed_line_asym(filename):
     for line_i in get_line_from_file(filename):
@@ -44,9 +47,10 @@ def get_processed_line_asym(filename):
         # f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
 
         # for pareto front.csv
-        line_i = line_i.strip().split(',')
+        line_i = line_i.strip().split(",")
         f1, f2, f3, *r = (float(ri) for ri in line_i)
         yield (f1, f2, f3, *r)
+
 
 ###################################################################################################################
 # Data acquisition
@@ -61,14 +65,14 @@ data_asym_reduced = array([record for record in asym_data_generator_reduced])
 
 print("len data_sym:", data_asym.shape[0])
 print("len data_sym_reduced:", data_asym_reduced.shape[0])
-print("-"*30)
+print("-" * 30)
 
 # Filtering out duplicate elements
 data_asym = unique(data_asym, axis=0)
 data_asym_reduced = unique(data_asym_reduced, axis=0)
 print("len data_sym:", len(data_asym))
 print("len data_sym_reduced:", len(data_asym_reduced))
-print("-"*30)
+print("-" * 30)
 
 idxF1 = 0
 idxF2 = 1
@@ -129,6 +133,3 @@ best_reduced = data_asym_reduced[:N]
 # #plt.savefig(path_export_base / 'bestin-F1-f2-f3.svg', format="svg", bbox_inches='tight')
 # plt.savefig(path_export_base / 'asymmetric_bestin-F3-f2-f3_reduced.png', dpi=550, bbox_inches='tight')
 # # plt.show()
-
-
-

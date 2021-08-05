@@ -1,11 +1,11 @@
 import unittest
-from collections import Counter
-
 from adze_modeler.femm_wrapper import femm_heat_flow
 from adze_modeler.femm_wrapper import FemmWriter
 from adze_modeler.femm_wrapper import HeatFlowConvection
 from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
 from adze_modeler.femm_wrapper import HeatFlowMaterial
+from collections import Counter
+
 from importlib_resources import files
 
 

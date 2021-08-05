@@ -1,24 +1,28 @@
 import functools
-from copy import copy
-from pathlib import Path
-from numpy import linspace
 import multiprocessing
-
+from adze_modeler.boundaries import AntiPeriodicBoundaryCondition
+from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.geometry import Geometry
+from adze_modeler.material import Material
 from adze_modeler.metadata import FemmMetadata
-from adze_modeler.objects import Node, Line, CubicBezier
+from adze_modeler.modelpiece import ModelPiece
+from adze_modeler.objects import CubicBezier
+from adze_modeler.objects import Line
+from adze_modeler.objects import Node
 from adze_modeler.platforms.femm import Femm
 from adze_modeler.snapshot import Snapshot
-from adze_modeler.modelpiece import ModelPiece
+from copy import copy
+from pathlib import Path
 from time import perf_counter
-from adze_modeler.boundaries import AntiPeriodicBoundaryCondition, DirichletBoundaryCondition
-from adze_modeler.material import Material
+
+from numpy import linspace
 
 basepath = Path(__file__).parent
 exportpath = basepath / "snapshots"
 exportpath.mkdir(exist_ok=True)
 
-def generate_snapshot(stator, rotor, X, di, export_loc = None):
+
+def generate_snapshot(stator, rotor, X, di, export_loc=None):
     export_loc = export_loc or exportpath
     femm_metadata = FemmMetadata()
     femm_metadata.problem_type = "magnetic"
@@ -32,14 +36,14 @@ def generate_snapshot(stator, rotor, X, di, export_loc = None):
 
     snapshot = Snapshot(platform)
 
-    a0 = DirichletBoundaryCondition("a0", field_type='magnetic', magnetic_potential=0.0)
-    pb1 = AntiPeriodicBoundaryCondition('PB1', field_type='magnetic')
-    pb2 = AntiPeriodicBoundaryCondition('PB2', field_type='magnetic')
-    pb3 = AntiPeriodicBoundaryCondition('PB3', field_type='magnetic')
-    pb4 = AntiPeriodicBoundaryCondition('PB4', field_type='magnetic')
-    pb5 = AntiPeriodicBoundaryCondition('PB5', field_type='magnetic')
-    pb6 = AntiPeriodicBoundaryCondition('PB6', field_type='magnetic')
-    pb7 = AntiPeriodicBoundaryCondition('PB7', field_type='magnetic')
+    a0 = DirichletBoundaryCondition("a0", field_type="magnetic", magnetic_potential=0.0)
+    pb1 = AntiPeriodicBoundaryCondition("PB1", field_type="magnetic")
+    pb2 = AntiPeriodicBoundaryCondition("PB2", field_type="magnetic")
+    pb3 = AntiPeriodicBoundaryCondition("PB3", field_type="magnetic")
+    pb4 = AntiPeriodicBoundaryCondition("PB4", field_type="magnetic")
+    pb5 = AntiPeriodicBoundaryCondition("PB5", field_type="magnetic")
+    pb6 = AntiPeriodicBoundaryCondition("PB6", field_type="magnetic")
+    pb7 = AntiPeriodicBoundaryCondition("PB7", field_type="magnetic")
 
     snapshot.add_boundary_condition(a0)
     snapshot.add_boundary_condition(pb1)
@@ -50,24 +54,113 @@ def generate_snapshot(stator, rotor, X, di, export_loc = None):
     snapshot.add_boundary_condition(pb6)
     snapshot.add_boundary_condition(pb7)
 
-    magnet = Material('N38')
+    magnet = Material("N38")
     # magnet.mu_r = 1.05
     magnet.coercivity = 944771
     magnet.conductivity = 0.667 * 1e6
     magnet.remanence_angle = 90
 
-    air = Material('air')
+    air = Material("air")
 
-    steel = Material('M-27')
-    steel.b = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9,
-               0.95, 1, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85,
-               1.9, 1.95, 2, 2.05, 2.1, 2.15, 2.2, 2.25, 2.3]
-    steel.h = [0, 17.059828, 25.634971, 31.338354, 35.778997, 39.602124, 43.123143, 46.520439, 49.908177, 53.368284,
-               56.966318, 60.760271, 64.806105, 69.161803, 73.890922, 79.066315, 84.774676, 91.122722, 98.246299,
-               106.324591, 115.603417, 126.435124, 139.349759, 155.187082, 175.350538, 202.312017, 240.640455,
-               299.118027, 394.993386, 561.726177, 859.328763, 1375.466888, 2191.246914, 3328.145908, 4760.506172,
-               6535.339449, 8788.970657, 11670.804347, 15385.186211, 20246.553031, 26995.131141, 38724.496369,
-               64917.284463, 101489.309338, 137202.828961, 176835.706764, 216374.283609]
+    steel = Material("M-27")
+    steel.b = [
+        0,
+        0.05,
+        0.1,
+        0.15,
+        0.2,
+        0.25,
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.5,
+        0.55,
+        0.6,
+        0.65,
+        0.7,
+        0.75,
+        0.8,
+        0.85,
+        0.9,
+        0.95,
+        1,
+        1.05,
+        1.1,
+        1.15,
+        1.2,
+        1.25,
+        1.3,
+        1.35,
+        1.4,
+        1.45,
+        1.5,
+        1.55,
+        1.6,
+        1.65,
+        1.7,
+        1.75,
+        1.8,
+        1.85,
+        1.9,
+        1.95,
+        2,
+        2.05,
+        2.1,
+        2.15,
+        2.2,
+        2.25,
+        2.3,
+    ]
+    steel.h = [
+        0,
+        17.059828,
+        25.634971,
+        31.338354,
+        35.778997,
+        39.602124,
+        43.123143,
+        46.520439,
+        49.908177,
+        53.368284,
+        56.966318,
+        60.760271,
+        64.806105,
+        69.161803,
+        73.890922,
+        79.066315,
+        84.774676,
+        91.122722,
+        98.246299,
+        106.324591,
+        115.603417,
+        126.435124,
+        139.349759,
+        155.187082,
+        175.350538,
+        202.312017,
+        240.640455,
+        299.118027,
+        394.993386,
+        561.726177,
+        859.328763,
+        1375.466888,
+        2191.246914,
+        3328.145908,
+        4760.506172,
+        6535.339449,
+        8788.970657,
+        11670.804347,
+        15385.186211,
+        20246.553031,
+        26995.131141,
+        38724.496369,
+        64917.284463,
+        101489.309338,
+        137202.828961,
+        176835.706764,
+        216374.283609,
+    ]
     steel.conductivity = 2 * 1e6
     steel.thickness = 0.635
     steel.lamination_type = "inplane"
@@ -121,44 +214,40 @@ def generate_snapshot(stator, rotor, X, di, export_loc = None):
 
     snapshot.add_geometry(geom)
 
-    snapshot.assign_boundary_condition(0, 85, name='PB1')
-    snapshot.assign_boundary_condition(67.33, 85, name='PB1')
+    snapshot.assign_boundary_condition(0, 85, name="PB1")
+    snapshot.assign_boundary_condition(67.33, 85, name="PB1")
 
-    snapshot.assign_boundary_condition(0, 35, name='PB2')
-    snapshot.assign_boundary_condition(67.33, 35, name='PB2')
+    snapshot.assign_boundary_condition(0, 35, name="PB2")
+    snapshot.assign_boundary_condition(67.33, 35, name="PB2")
 
-    snapshot.assign_boundary_condition(0, 0.5, name='PB3')
-    snapshot.assign_boundary_condition(67.33, 0.5, name='PB3')
+    snapshot.assign_boundary_condition(0, 0.5, name="PB3")
+    snapshot.assign_boundary_condition(67.33, 0.5, name="PB3")
 
     if di > 0:
-        snapshot.assign_boundary_condition(di * 0.5, 0, name='PB4')
-        snapshot.assign_boundary_condition(di * 0.5 + 67.33, 0, name='PB4')
+        snapshot.assign_boundary_condition(di * 0.5, 0, name="PB4")
+        snapshot.assign_boundary_condition(di * 0.5 + 67.33, 0, name="PB4")
 
-    snapshot.assign_boundary_condition(di, -0.5, name='PB5')
-    snapshot.assign_boundary_condition(di + 67.33, -0.45, name='PB5')
+    snapshot.assign_boundary_condition(di, -0.5, name="PB5")
+    snapshot.assign_boundary_condition(di + 67.33, -0.45, name="PB5")
 
-    snapshot.assign_boundary_condition(di, -6, name='PB6')
-    snapshot.assign_boundary_condition(di + 67.33, -6, name='PB6')
+    snapshot.assign_boundary_condition(di, -6, name="PB6")
+    snapshot.assign_boundary_condition(di + 67.33, -6, name="PB6")
 
-    snapshot.assign_boundary_condition(di, -35, name='PB7')
-    snapshot.assign_boundary_condition(di + 67, -35, name='PB7')
+    snapshot.assign_boundary_condition(di, -35, name="PB7")
+    snapshot.assign_boundary_condition(di + 67, -35, name="PB7")
 
-    snapshot.assign_boundary_condition(35, 100, name='a0')
-    snapshot.assign_boundary_condition(di + 20, -50, name='a0')
+    snapshot.assign_boundary_condition(35, 100, name="a0")
+    snapshot.assign_boundary_condition(di + 20, -50, name="a0")
 
-    snapshot.add_postprocessing("integration", [(di + 10, -20),
-                                                (di + 2, -6),
-                                                (di + 65, -6),
-                                                (di + 32, -5)], "Fx")
+    snapshot.add_postprocessing("integration", [(di + 10, -20), (di + 2, -6), (di + 65, -6), (di + 32, -5)], "Fx")
 
-    snapshot.add_postprocessing("saveimage", basepath / 'media' / 'gif' / f'step-{int(di * 1000)}', None)
+    snapshot.add_postprocessing("saveimage", basepath / "media" / "gif" / f"step-{int(di * 1000)}", None)
 
     return snapshot
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from random import uniform
-
 
     stator = ModelPiece("stator")
     stator.load_piece_from_dxf(basepath / "stator_stripped.dxf")
@@ -166,22 +255,22 @@ if __name__ == '__main__':
     rotor = ModelPiece("rotor")
     rotor.load_piece_from_dxf(basepath / "rotor.dxf")
 
-
-    bounds = ((2, 12),
-    (0.1, 1),
-    (6, 20.44),
-    (0.1, 1),
-    (24.44, 35.5),
-    (0.1, 1),
-    (30, 42.88),
-    (0.1, 1),
-    (46.88, 60),
-    (0.1, 1),
-    (52, 65.32),
-    (0.1, 1))
+    bounds = (
+        (2, 12),
+        (0.1, 1),
+        (6, 20.44),
+        (0.1, 1),
+        (24.44, 35.5),
+        (0.1, 1),
+        (30, 42.88),
+        (0.1, 1),
+        (46.88, 60),
+        (0.1, 1),
+        (52, 65.32),
+        (0.1, 1),
+    )
 
     X = [uniform(lower, upper) for lower, upper in bounds]
-
 
     snapshot = generate_snapshot(stator, rotor, X, 4)
 
@@ -190,5 +279,5 @@ if __name__ == '__main__':
     snapshot.execute()
     t1 = perf_counter()
     res = snapshot.retrive_results()
-    print(res['Fx'])
-    print("computation time:", t1-t0)
+    print(res["Fx"])
+    print("computation time:", t1 - t0)

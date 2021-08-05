@@ -18,20 +18,56 @@ magnetic.adaptivity_parameters["tolerance"] = 0.0005
 magnetic.adaptivity_parameters["steps"] = 100
 
 # MATERIAL DEFINITIONS
-magnetic.add_material("J+", {'magnetic_remanence_angle': 0.0, 'magnetic_velocity_y': 0.0, 'magnetic_current_density_external_real': 2000000.0, 'magnetic_permeability': 1.0, 'magnetic_conductivity': 0.0, 'magnetic_remanence': 0.0, 'magnetic_velocity_angular': 0.0, 'magnetic_velocity_x': 0.0})
-magnetic.add_material("air", {'magnetic_remanence_angle': 0.0, 'magnetic_velocity_y': 0.0, 'magnetic_current_density_external_real': 0.0, 'magnetic_permeability': 1.0, 'magnetic_conductivity': 0.0, 'magnetic_remanence': 0.0, 'magnetic_velocity_angular': 0.0, 'magnetic_velocity_x': 0.0})
-magnetic.add_material("control", {'magnetic_remanence_angle': 0.0, 'magnetic_velocity_y': 0.0, 'magnetic_current_density_external_real': 0.0, 'magnetic_permeability': 1.0, 'magnetic_conductivity': 0.0, 'magnetic_remanence': 0.0, 'magnetic_velocity_angular': 0.0, 'magnetic_velocity_x': 0.0})
+magnetic.add_material(
+    "J+",
+    {
+        "magnetic_remanence_angle": 0.0,
+        "magnetic_velocity_y": 0.0,
+        "magnetic_current_density_external_real": 2000000.0,
+        "magnetic_permeability": 1.0,
+        "magnetic_conductivity": 0.0,
+        "magnetic_remanence": 0.0,
+        "magnetic_velocity_angular": 0.0,
+        "magnetic_velocity_x": 0.0,
+    },
+)
+magnetic.add_material(
+    "air",
+    {
+        "magnetic_remanence_angle": 0.0,
+        "magnetic_velocity_y": 0.0,
+        "magnetic_current_density_external_real": 0.0,
+        "magnetic_permeability": 1.0,
+        "magnetic_conductivity": 0.0,
+        "magnetic_remanence": 0.0,
+        "magnetic_velocity_angular": 0.0,
+        "magnetic_velocity_x": 0.0,
+    },
+)
+magnetic.add_material(
+    "control",
+    {
+        "magnetic_remanence_angle": 0.0,
+        "magnetic_velocity_y": 0.0,
+        "magnetic_current_density_external_real": 0.0,
+        "magnetic_permeability": 1.0,
+        "magnetic_conductivity": 0.0,
+        "magnetic_remanence": 0.0,
+        "magnetic_velocity_angular": 0.0,
+        "magnetic_velocity_x": 0.0,
+    },
+)
 
 # BOUNDARY DEFINITIONS
-magnetic.add_boundary("a0", "magnetic_potential", {'magnetic_potential_real': 0.0})
+magnetic.add_boundary("a0", "magnetic_potential", {"magnetic_potential_real": 0.0})
 
 # GEOMETRY
-geometry.add_edge(0.07, 0.035, 0.0, 0.035, boundaries={'magnetic': 'a0'})
-geometry.add_edge(0.0, -0.005, 0.0, -0.035, boundaries={'magnetic': 'a0'})
-geometry.add_edge(0.0, -0.035, 0.07, -0.035, boundaries={'magnetic': 'a0'})
-geometry.add_edge(0.0, 0.035, 0.0, 0.005, boundaries={'magnetic': 'a0'})
-geometry.add_edge(0.0, 0.005, 0.0, -0.005, boundaries={'magnetic': 'a0'})
-geometry.add_edge(0.07, -0.035, 0.07, 0.035, boundaries={'magnetic': 'a0'})
+geometry.add_edge(0.07, 0.035, 0.0, 0.035, boundaries={"magnetic": "a0"})
+geometry.add_edge(0.0, -0.005, 0.0, -0.035, boundaries={"magnetic": "a0"})
+geometry.add_edge(0.0, -0.035, 0.07, -0.035, boundaries={"magnetic": "a0"})
+geometry.add_edge(0.0, 0.035, 0.0, 0.005, boundaries={"magnetic": "a0"})
+geometry.add_edge(0.0, 0.005, 0.0, -0.005, boundaries={"magnetic": "a0"})
+geometry.add_edge(0.07, -0.035, 0.07, 0.035, boundaries={"magnetic": "a0"})
 geometry.add_edge(0.0, -0.005, 0.005, -0.005)
 geometry.add_edge(0.005, -0.005, 0.005, 0.005)
 geometry.add_edge(0.005, 0.005, 0.0, 0.005)
@@ -119,33 +155,36 @@ geometry.add_edge(0.0023734340000000002, 0.015, 0.001373434, 0.015)
 geometry.add_edge(0.001373434, 0.015, 0.001373434, 0.0135)
 
 # BLOCK LABELS
-geometry.add_label(0.00182757234384367, -0.01425, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.012831098619021401, -0.012750000000000001, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.00587071874756443, -0.01125, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.0209220140666903, -0.00975, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.017021996038583002, -0.00825, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.00627631142548928, -0.00675, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.0264981784448498, -0.00525, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.01010590470354692, -0.00375, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.0467377661249235, -0.0022500000000000003, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.008151189281054209, -0.00075, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.0111934974707302, 0.00075, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.0392149413574651, 0.0022500000000000003, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.0173763411147178, 0.00375, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.008517935505111929, 0.00525, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.00917543646671979, 0.00675, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.023391502259683703, 0.00825, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.047678319345423, 0.00975, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.0064415104034465905, 0.01125, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.0056652852743515605, 0.012750000000000001, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.00212343445767236, 0.01425, materials = {'magnetic' : 'J+'})
-geometry.add_label(0.03, 0.03, materials = {'magnetic' : 'air'})
-geometry.add_label(0.003, 0.0, materials = {'magnetic' : 'control'})
+geometry.add_label(0.00182757234384367, -0.01425, materials={"magnetic": "J+"})
+geometry.add_label(0.012831098619021401, -0.012750000000000001, materials={"magnetic": "J+"})
+geometry.add_label(0.00587071874756443, -0.01125, materials={"magnetic": "J+"})
+geometry.add_label(0.0209220140666903, -0.00975, materials={"magnetic": "J+"})
+geometry.add_label(0.017021996038583002, -0.00825, materials={"magnetic": "J+"})
+geometry.add_label(0.00627631142548928, -0.00675, materials={"magnetic": "J+"})
+geometry.add_label(0.0264981784448498, -0.00525, materials={"magnetic": "J+"})
+geometry.add_label(0.01010590470354692, -0.00375, materials={"magnetic": "J+"})
+geometry.add_label(0.0467377661249235, -0.0022500000000000003, materials={"magnetic": "J+"})
+geometry.add_label(0.008151189281054209, -0.00075, materials={"magnetic": "J+"})
+geometry.add_label(0.0111934974707302, 0.00075, materials={"magnetic": "J+"})
+geometry.add_label(0.0392149413574651, 0.0022500000000000003, materials={"magnetic": "J+"})
+geometry.add_label(0.0173763411147178, 0.00375, materials={"magnetic": "J+"})
+geometry.add_label(0.008517935505111929, 0.00525, materials={"magnetic": "J+"})
+geometry.add_label(0.00917543646671979, 0.00675, materials={"magnetic": "J+"})
+geometry.add_label(0.023391502259683703, 0.00825, materials={"magnetic": "J+"})
+geometry.add_label(0.047678319345423, 0.00975, materials={"magnetic": "J+"})
+geometry.add_label(0.0064415104034465905, 0.01125, materials={"magnetic": "J+"})
+geometry.add_label(0.0056652852743515605, 0.012750000000000001, materials={"magnetic": "J+"})
+geometry.add_label(0.00212343445767236, 0.01425, materials={"magnetic": "J+"})
+geometry.add_label(0.03, 0.03, materials={"magnetic": "air"})
+geometry.add_label(0.003, 0.0, materials={"magnetic": "control"})
 
 # SOLVE
 problem.solve()
 a2d.view.zoom_best_fit()
-f = open("/home/gadok/work/adze-modeler/applications/Cooking_with_adze_modeler/AgrosvsFemm/snapshots/finest-mesh-solution/agros_solution.csv", "w")
+f = open(
+    "/home/gadok/work/adze-modeler/applications/Cooking_with_adze_modeler/AgrosvsFemm/snapshots/finest-mesh-solution/agros_solution.csv",
+    "w",
+)
 
 # POSTPROCESSING AND EXPORTING
 point = magnetic.local_values(0.005, 0.005)["Brz"]

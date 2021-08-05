@@ -3,17 +3,16 @@ This class realize a layer, where the different elements of the geometry can be 
 A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
-import sys
-from uuid import uuid4
-
-import svgpathtools
-
 import adze_modeler.objects as obj
-import ezdxf
-import numpy as np
-import svgpathtools as svg
+import sys
 from adze_modeler.utils import getID
 from copy import copy
+from uuid import uuid4
+
+import ezdxf
+import numpy as np
+import svgpathtools
+import svgpathtools as svg
 
 
 class Geometry:
@@ -252,7 +251,7 @@ class Geometry:
 
         return r, l
 
-    def export_svg(self, file_name='output.svg'):
+    def export_svg(self, file_name="output.svg"):
         """
         Creates an svg image from the geometry objects.
         """
@@ -267,17 +266,16 @@ class Geometry:
             path = svg.Path()
             path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y), complex(seg.end_pt.x, seg.end_pt.y)))
             paths.append(path)
-            colors.append('blue')
+            colors.append("blue")
 
         # export the circle arcs
         for arc in self.circle_arcs:
             path = svg.Path()
             path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y), complex(seg.end_pt.x, seg.end_pt.y)))
             paths.append(path)
-            colors.append('blue')
+            colors.append("blue")
 
-
-        svg.wsvg(paths, colors=colors,  svgwrite_debug=True, filename=str(file_name))
+        svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename=str(file_name))
 
     def import_svg(self, svg_img, *args):
         """Imports the svg file into a new geo object. The function gives an automatic id to the function
@@ -324,8 +322,8 @@ class Geometry:
                             p2 = element.center.conjugate()
                             p3 = element.end.conjugate()
                             start = obj.Node(p1.real, p1.imag)
-                            center =  obj.Node(p2.real, p2.imag)
-                            end =  obj.Node(p3.real, p3.imag)
+                            center = obj.Node(p2.real, p2.imag)
+                            end = obj.Node(p3.real, p3.imag)
                             self.add_arc(obj.CircleArc(start, center, end))
 
         self.merge_points()
@@ -396,10 +394,10 @@ class Geometry:
 
         else:
             up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
-                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
-                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             if inrange(tp) and inrange(up):
                 p1 = tuple(p + tp * r)

@@ -1,17 +1,17 @@
-from collections.abc import Iterable
-
 from adze_modeler.boundaries import BoundaryCondition
 from adze_modeler.geometry import Geometry
 from adze_modeler.material import Material
 from adze_modeler.metadata import Metadata
+from adze_modeler.objects import Line
+from adze_modeler.objects import Node
 from adze_modeler.platforms.platform import Platform
 from adze_modeler.utils import getID
-from adze_modeler.objects import Node, Line
 from collections import defaultdict
+from collections.abc import Iterable
 
 
 class Snapshot:
-    def __init__(self, p:Platform):
+    def __init__(self, p: Platform):
         self.id = getID()
         self.platform = p
 
@@ -32,7 +32,6 @@ class Snapshot:
             raise TypeError(f"Boundary condition field type != problem field type")
         else:
             self.boundaries[bc.name] = bc
-
 
     def assign_boundary_condition(self, x, y, name):
 
@@ -142,9 +141,9 @@ class Snapshot:
 
     def retrive_results(self):
         results = defaultdict(list)
-        with open(self.platform.metadata.file_metrics_name, "r") as f:
+        with open(self.platform.metadata.file_metrics_name) as f:
             for line in f.readlines():
-                line = line.strip().split(',')
+                line = line.strip().split(",")
                 if len(line) == 2:
                     results[line[0]] = float(line[1])
                 else:

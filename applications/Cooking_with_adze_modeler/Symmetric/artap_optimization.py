@@ -1,41 +1,45 @@
-import operator
-from pathlib import Path
-from artap.results import Results
 import math
-from artap.problem import Problem
-from artap.algorithm_genetic import NSGAII
-
-from adze_modeler.platforms.agros2d import Agros2D
-from adze_modeler.platforms.femm import Femm
-from problem_solver import build
+import multiprocessing
+import operator
 from adze_modeler.metadata import Agros2DMetadata
 from adze_modeler.metadata import FemmMetadata
-from random import choice, uniform
-import multiprocessing
+from adze_modeler.platforms.agros2d import Agros2D
+from adze_modeler.platforms.femm import Femm
 from functools import partial
+from pathlib import Path
+from random import choice
+from random import uniform
+
+from artap.algorithm_genetic import NSGAII
+from artap.problem import Problem
+from artap.results import Results
+from problem_solver import build
 
 current_dir = Path(__file__).parent
 
+
 class CoilOptimizationProblem(Problem):
-
     def set(self):
-        self.name = 'Biobjective Test Problem'
+        self.name = "Biobjective Test Problem"
 
-        self.parameters = [{'name': 'r0', 'bounds': [5.5, 20]},
-                           {'name': 'r1', 'bounds': [5.5, 20]},
-                           {'name': 'r2', 'bounds': [5.5, 20]},
-                           {'name': 'r3', 'bounds': [5.5, 20]},
-                           {'name': 'r4', 'bounds': [5.5, 20]},
-                           {'name': 'r5', 'bounds': [5.5, 20]},
-                           {'name': 'r6', 'bounds': [5.5, 20]},
-                           {'name': 'r7', 'bounds': [5.5, 20]},
-                           {'name': 'r8', 'bounds': [5.5, 20]},
-                           {'name': 'r9', 'bounds': [5.5, 20]}
-                           ]
+        self.parameters = [
+            {"name": "r0", "bounds": [5.5, 20]},
+            {"name": "r1", "bounds": [5.5, 20]},
+            {"name": "r2", "bounds": [5.5, 20]},
+            {"name": "r3", "bounds": [5.5, 20]},
+            {"name": "r4", "bounds": [5.5, 20]},
+            {"name": "r5", "bounds": [5.5, 20]},
+            {"name": "r6", "bounds": [5.5, 20]},
+            {"name": "r7", "bounds": [5.5, 20]},
+            {"name": "r8", "bounds": [5.5, 20]},
+            {"name": "r9", "bounds": [5.5, 20]},
+        ]
 
-        self.costs = [{'name': 'f_1', 'criteria': 'minimize'},
-                      {'name': 'f_2', 'criteria': 'minimize'},
-                      {'name': 'f_3', 'criteria': 'minimize'}]
+        self.costs = [
+            {"name": "f_1", "criteria": "minimize"},
+            {"name": "f_2", "criteria": "minimize"},
+            {"name": "f_3", "criteria": "minimize"},
+        ]
 
     def evaluate(self, individual):
         femm_metadata = FemmMetadata()
@@ -75,14 +79,13 @@ class CoilOptimizationProblem(Problem):
             func = partial(build, platform)
 
             with multiprocessing.Pool(processes=3) as pool:
-                res, resn, resp = pool.map(func, [X, Xn,Xp])
+                res, resn, resp = pool.map(func, [X, Xn, Xp])
 
-
-            Bz = [pointvalue[2] for pointvalue in res['Bz']] # [x, y, Bz(x, y)]
-            Br = [pointvalue[2] for pointvalue in res['Br']] # [x, y, Br(x, y)]
-            xi = [pointvalue[0] for pointvalue in res['Br']] # [x, y, Br(x, y)]
-            yi = [pointvalue[1] for pointvalue in res['Br']] # [x, y, Br(x, y)]
-            nb_nodes = res['nodes']
+            Bz = [pointvalue[2] for pointvalue in res["Bz"]]  # [x, y, Bz(x, y)]
+            Br = [pointvalue[2] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+            xi = [pointvalue[0] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+            yi = [pointvalue[1] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+            nb_nodes = res["nodes"]
 
             # Calculate F1
             B0 = 2e-3
@@ -90,18 +93,15 @@ class CoilOptimizationProblem(Problem):
 
             # Calculate F2
 
-            Bzp = [pointvalue[2] for pointvalue in resp['Bz']]
-            Brp = [pointvalue[2] for pointvalue in resp['Br']]
+            Bzp = [pointvalue[2] for pointvalue in resp["Bz"]]
+            Brp = [pointvalue[2] for pointvalue in resp["Br"]]
 
-
-
-            Bzn = [pointvalue[2] for pointvalue in resn['Bz']]
-            Brn = [pointvalue[2] for pointvalue in resn['Br']]
+            Bzn = [pointvalue[2] for pointvalue in resn["Bz"]]
+            Brn = [pointvalue[2] for pointvalue in resn["Br"]]
 
             deltaBpz = map(operator.abs, map(operator.sub, Bzp, Bz))
             deltaBpr = map(operator.abs, map(operator.sub, Brp, Br))
             deltaBp = map(math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBpz, deltaBpr))
-
 
             deltaBnz = map(operator.abs, map(operator.sub, Bzn, Bz))
             deltaBnr = map(operator.abs, map(operator.sub, Brn, Br))
@@ -112,16 +112,16 @@ class CoilOptimizationProblem(Problem):
             # Calculate F3
             F3 = sum(X)
 
-            with open(current_dir / 'statistics_520.csv', 'a+') as f:
+            with open(current_dir / "statistics_520.csv", "a+") as f:
                 """
                 platform, F1, F2, F3, nodes, r0, r1, r2, r3, ..., r19
                 """
-                record = [res['platform']]
+                record = [res["platform"]]
                 record.extend([F1, F2, F3])
                 record.append(nb_nodes)
                 record.extend(X)
-                f.write(','.join([str(i) for i in record]))
-                f.write('\n')
+                f.write(",".join([str(i) for i in record]))
+                f.write("\n")
 
             # with open(current_dir / "trainingdata.csv", "a+") as f:
             #     """
@@ -140,13 +140,14 @@ class CoilOptimizationProblem(Problem):
         except Exception as e:
             return [math.inf, math.inf, math.inf]
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
 
     # Perform the optimization iterating over 100 times on 100 individuals.
     problem = CoilOptimizationProblem()
     algorithm = NSGAII(problem)
-    algorithm.options['max_population_number'] = 100
-    algorithm.options['max_population_size'] = 100
+    algorithm.options["max_population_number"] = 100
+    algorithm.options["max_population_size"] = 100
     try:
         algorithm.run()
         res = problem.individuals[-1]
@@ -159,5 +160,5 @@ if __name__=='__main__':
         for ind in problem.individuals:
             record = ind.costs.copy()
             record.extend(ind.vector.copy())
-            f.write(','.join([str(i) for i in record]))
-            f.write('\n')
+            f.write(",".join([str(i) for i in record]))
+            f.write("\n")

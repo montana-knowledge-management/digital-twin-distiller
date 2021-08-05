@@ -1,9 +1,11 @@
 import operator
 from pathlib import Path
+
 import matplotlib.pyplot as plt
-from numpy import array, unique
-import seaborn as sns
 import pandas as pd
+import seaborn as sns
+from numpy import array
+from numpy import unique
 
 path_base = Path(__file__).parent.parent
 path_export_base = Path(__file__).parent / "media"
@@ -11,9 +13,11 @@ path_520 = path_base / "Symmetric" / "pareto_front_520.csv"
 path_unbounded = path_base / "Symmetric" / "pareto_front_nsga2.csv"
 path_reduced = path_base / "Symmetric" / "pareto_front_reduced.csv"
 
+
 def get_line_from_file(filename):
-    with open(filename, "r") as f:
+    with open(filename) as f:
         yield from f
+
 
 def get_processed_line_asym(filename):
     for line_i in get_line_from_file(filename):
@@ -22,9 +26,10 @@ def get_processed_line_asym(filename):
         # f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
 
         # for pareto front.csv
-        line_i = line_i.strip().split(',')
+        line_i = line_i.strip().split(",")
         f1, f2, f3, *r = (float(ri) for ri in line_i)
         yield (f1, f2, f3, *r)
+
 
 def get_processed_line_sym(filename):
     for line_i in get_line_from_file(filename):
@@ -33,12 +38,13 @@ def get_processed_line_sym(filename):
         # f1, f2, f3, nodes, *r = (float(ri) for ri in line_i)
 
         # for pareto_front_nsga2.csv
-        line_i = line_i.strip().split(',')
+        line_i = line_i.strip().split(",")
         f1, f2, f3, *r = (float(ri) for ri in line_i)
 
         r = list(reversed(r))
         r.extend(reversed(r))
         yield (f1, f2, f3, *r)
+
 
 ###################################################################################################################
 # Data acquisition
@@ -54,7 +60,7 @@ data_reduced = array([record for record in data_reduced_generator])
 print("len data_520:", data_520.shape[0])
 print("len data_asym:", data_unbounded.shape[0])
 print("len data_reduced:", data_reduced.shape[0])
-print("-"*30)
+print("-" * 30)
 
 # Filtering out duplicate elements
 # data_unbounded = unique(data_unbounded, axis=0)
@@ -63,7 +69,7 @@ print("-"*30)
 print("len data_sym:", len(data_520))
 print("len data_asym:", len(data_unbounded))
 print("len data_reduced:", len(data_reduced))
-print("-"*30)
+print("-" * 30)
 
 data_520 = data_520[-100:]
 data_unbounded = data_unbounded[-100:]
@@ -77,21 +83,21 @@ idxF3 = 2
 
 # Matplotlib setup
 mm2inch = lambda x: 0.03937007874 * x
-plt.rcParams['figure.figsize'] = mm2inch(40), mm2inch(40)
-plt.rcParams['lines.linewidth'] = 1
+plt.rcParams["figure.figsize"] = mm2inch(40), mm2inch(40)
+plt.rcParams["lines.linewidth"] = 1
 SMALL_SIZE = 8
 MEDIUM_SIZE = 10
 BIGGER_SIZE = 14
 
-plt.rc('font', size=BIGGER_SIZE)          # controls default text sizes
-plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the axes title
-plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=BIGGER_SIZE)    # legend fontsize
-plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+plt.rc("font", size=BIGGER_SIZE)  # controls default text sizes
+plt.rc("axes", titlesize=BIGGER_SIZE)  # fontsize of the axes title
+plt.rc("axes", labelsize=BIGGER_SIZE)  # fontsize of the x and y labels
+plt.rc("xtick", labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+plt.rc("ytick", labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+plt.rc("legend", fontsize=BIGGER_SIZE)  # legend fontsize
+plt.rc("figure", titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-plt.style.use(['default', 'seaborn-bright'])
+plt.style.use(["default", "seaborn-bright"])
 
 ###################################################################################################################
 # Plot Symmetric fitness functions
@@ -147,43 +153,45 @@ data_reduced[:, idxF3] = data_reduced[:, idxF3] * 2.0
 #
 ### Violinplot
 df = {f"R{i+1}": list() for i in range(20)}
-df['type'] = list()
+df["type"] = list()
 
 for i in range(3, 23):
     ri = list(data_520[:, i])
     df[f"R{i+1-3}"] = ri.copy()
-df["type"].extend(['Constrained']*len(data_520))
+df["type"].extend(["Constrained"] * len(data_520))
 
 for i in range(3, 23):
     ri = list(data_unbounded[:, i])
     df[f"R{i+1-3}"].extend(ri.copy())
-df["type"].extend(['Unbounded']*len(data_unbounded))
+df["type"].extend(["Unbounded"] * len(data_unbounded))
 
 
 df = pd.DataFrame(df)
-df = df.melt(value_vars=[f"R{i+1}" for i in range(20)], id_vars='type', var_name='radius_name', value_name='value')
+df = df.melt(value_vars=[f"R{i+1}" for i in range(20)], id_vars="type", var_name="radius_name", value_name="value")
 
 fig, ax = plt.subplots(figsize=(5, 14))
-ax = sns.violinplot(x="value", y="radius_name",
-                    hue="type",
-                    data=df,
-                    split=True,
-                    palette=['lightblue', '#F08080'],
-                    cut=0,
-                    inner=None,
-                    linewidth=0.5,
-                    width=1,
-                    scale='width')
+ax = sns.violinplot(
+    x="value",
+    y="radius_name",
+    hue="type",
+    data=df,
+    split=True,
+    palette=["lightblue", "#F08080"],
+    cut=0,
+    inner=None,
+    linewidth=0.5,
+    width=1,
+    scale="width",
+)
 
 ax.set_xlim(0, 20)
 ax.set_xlabel("Radius [mm]")
 ax.set_ylabel("ith Coil")
-ax.grid(b=True, which='major', color='#666666', linestyle='-')
-ax.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.4)
+ax.grid(b=True, which="major", color="#666666", linestyle="-")
+ax.grid(b=True, which="minor", color="#999999", linestyle="-", alpha=0.4)
 ax.minorticks_on()
-plt.savefig(path_export_base/'boundedvsunbounded_last100-radius-distribution.png', dpi=550, bbox_inches='tight')
+plt.savefig(path_export_base / "boundedvsunbounded_last100-radius-distribution.png", dpi=550, bbox_inches="tight")
 plt.show()
-
 
 
 # from mpl_toolkits.mplot3d import Axes3D

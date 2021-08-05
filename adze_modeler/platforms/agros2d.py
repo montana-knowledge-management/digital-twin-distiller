@@ -1,19 +1,22 @@
+import os
+import subprocess
+import sys
+from adze_modeler.boundaries import BoundaryCondition
+from adze_modeler.boundaries import DirichletBoundaryCondition
+from adze_modeler.boundaries import NeumannBoundaryCondition
+from adze_modeler.material import Material
+from adze_modeler.metadata import Metadata
+from adze_modeler.objects import CircleArc
+from adze_modeler.objects import CubicBezier
+from adze_modeler.objects import Line
+from adze_modeler.objects import Node
+from adze_modeler.platforms.platform import Platform
+from copy import copy
 from pathlib import Path
 from time import sleep
 
-from adze_modeler.boundaries import BoundaryCondition, DirichletBoundaryCondition, NeumannBoundaryCondition
-from adze_modeler.metadata import Metadata
-from adze_modeler.platforms.platform import Platform
-from adze_modeler.material import Material
-from adze_modeler.objects import Node, Line, CircleArc, CubicBezier
-import subprocess
-import os
-from copy import copy
-import sys
 
 class Agros2D(Platform):
-
-
     def __init__(self, m: Metadata):
         super().__init__(m)
 
@@ -26,8 +29,6 @@ class Agros2D(Platform):
 
     def export_preamble(self):
         self.write("import agros2d as a2d")
-
-
 
     def export_metadata(self):
         self.write("problem = a2d.problem(clear=True)")
@@ -42,8 +43,12 @@ class Agros2D(Platform):
         self.write("geometry = a2d.geometry", nb_newline=2)
         self.write(f'{self.metadata.problem_type}.adaptivity_type = "{self.metadata.adaptivity}"')
         if self.metadata.adaptivity != "disabled":
-            self.write(f'{self.metadata.problem_type}.adaptivity_parameters["tolerance"] = {self.metadata.adaptivity_tol}')
-            self.write(f'{self.metadata.problem_type}.adaptivity_parameters["steps"] = {self.metadata.adaptivity_steps}')
+            self.write(
+                f'{self.metadata.problem_type}.adaptivity_parameters["tolerance"] = {self.metadata.adaptivity_tol}'
+            )
+            self.write(
+                f'{self.metadata.problem_type}.adaptivity_parameters["steps"] = {self.metadata.adaptivity_steps}'
+            )
 
     def export_material_definition(self, mat: Material):
         mdict = {
@@ -62,26 +67,26 @@ class Agros2D(Platform):
 
         self.write(f'magnetic.add_material("{mat.name}", {str(mdict)})')
 
-
     def export_boundary_definition(self, boundary: BoundaryCondition):
         typename = None
-        if self.metadata.problem_type == 'magnetic':
+        if self.metadata.problem_type == "magnetic":
             if isinstance(boundary, DirichletBoundaryCondition):
-                typename = 'magnetic_potential'
-                A = boundary.valuedict.pop('magnetic_potential')
-                boundary.valuedict['magnetic_potential_real'] = A.real
-                if self.metadata.problem_type == 'harmonic':
-                    boundary.valuedict['magnetic_potential_imag'] = A.imag
+                typename = "magnetic_potential"
+                A = boundary.valuedict.pop("magnetic_potential")
+                boundary.valuedict["magnetic_potential_real"] = A.real
+                if self.metadata.problem_type == "harmonic":
+                    boundary.valuedict["magnetic_potential_imag"] = A.imag
 
             if isinstance(boundary, NeumannBoundaryCondition):
-                typename = 'magnetic_surface_current'
-                A = boundary.valuedict.pop('surface_current')
-                boundary.valuedict['magnetic_surface_current_real'] = A.real
-                if self.metadata.problem_type == 'harmonic':
-                    boundary.valuedict['magnetic_surface_current_imag'] = A.imag
+                typename = "magnetic_surface_current"
+                A = boundary.valuedict.pop("surface_current")
+                boundary.valuedict["magnetic_surface_current_real"] = A.real
+                if self.metadata.problem_type == "harmonic":
+                    boundary.valuedict["magnetic_surface_current_imag"] = A.imag
 
-
-        self.write(f'{self.metadata.problem_type}.add_boundary("{boundary.name}", "{typename}", {str(boundary.valuedict)})')
+        self.write(
+            f'{self.metadata.problem_type}.add_boundary("{boundary.name}", "{typename}", {str(boundary.valuedict)})'
+        )
 
     def export_geometry_element(self, e, boundary=None):
         if isinstance(e, Node):
@@ -97,8 +102,7 @@ class Agros2D(Platform):
             if boundary:
                 self.write(f", boundaries={{'{self.metadata.problem_type}': '{boundary}'}}", nb_newline=0)
 
-            self.write(')')
-
+            self.write(")")
 
     def export_block_label(self, x, y, mat: Material):
         x = self.metadata.unit * x
@@ -118,9 +122,9 @@ class Agros2D(Platform):
             "Br": "Brr",
             "Bz": "Brz",
             "Hx": "Hrx",
-            "Hy":"Hry",
+            "Hy": "Hry",
         }
-        if action == 'point_value':
+        if action == "point_value":
             x = self.metadata.unit * entity[0]
             y = self.metadata.unit * entity[1]
             self.write(f'point = {self.metadata.problem_type}.local_values({x}, {y})["{mappings[variable]}"]')
@@ -132,16 +136,15 @@ class Agros2D(Platform):
             self.write(f'f.write("{{}}, {{}}\\n".format("nodes", info["nodes"]))')
             self.write(f'f.write("{{}}, {{}}\\n".format("elements", info["elements"]))')
 
-
     def export_closing_steps(self):
-        self.write('f.close()')
+        self.write("f.close()")
 
     def execute(self, cleanup=False, timeout=10):
         try:
-            if sys.platform == 'linux':
-                subprocess.run(['agros2d_solver', '-s', self.metadata.file_script_name], capture_output=True)
-            elif sys.platform == 'win32':
-                subprocess.run(['Solver.exe', '-s', self.metadata.file_script_name], capture_output=True)
+            if sys.platform == "linux":
+                subprocess.run(["agros2d_solver", "-s", self.metadata.file_script_name], capture_output=True)
+            elif sys.platform == "win32":
+                subprocess.run(["Solver.exe", "-s", self.metadata.file_script_name], capture_output=True)
 
             if cleanup:
                 os.remove(self.metadata.file_script_name)

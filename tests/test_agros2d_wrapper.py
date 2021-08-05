@@ -1,7 +1,6 @@
 import os
-from unittest import TestCase
-
 from adze_modeler.agros2d_wrapper import Agros2DWrapper
+from unittest import TestCase
 
 
 class Agros2DTester(TestCase):
@@ -10,10 +9,9 @@ class Agros2DTester(TestCase):
 
         self.assertRaises(NotImplementedError, w.add_field, "eper")
 
-        w.add_field('e')
+        w.add_field("e")
         w.field.set_polynomial_order(3)
         self.assertEqual(w.field.polyorder, 3)
-
 
     def test_set_coordinate_type(self):
         w = Agros2DWrapper()
@@ -51,4 +49,3 @@ class Agros2DTester(TestCase):
         self.assertEqual(w.mesh_type, "gmsh_quad_delaunay")
 
         self.assertRaises(ValueError, w.set_mesh_type, "eper")
-

@@ -1,12 +1,15 @@
-from random import seed, uniform, choice
+import math
+import operator
 from adze_modeler.metadata import Agros2DMetadata
 from adze_modeler.metadata import FemmMetadata
-import operator
 from adze_modeler.platforms.agros2d import Agros2D
 from adze_modeler.platforms.femm import Femm
-import math
-from problem_solver import build
 from pathlib import Path
+from random import choice
+from random import seed
+from random import uniform
+
+from problem_solver import build
 
 
 def evaluate(X, tol):
@@ -38,32 +41,49 @@ def evaluate(X, tol):
 
     res = build(platform, X, tol, cleanup=True)
 
-    Bz = [pointvalue[2] for pointvalue in res['Bz']]  # [x, y, Bz(x, y)]
-    Br = [pointvalue[2] for pointvalue in res['Br']]  # [x, y, Br(x, y)]
-    xi = [pointvalue[0] for pointvalue in res['Br']]  # [x, y, Br(x, y)]
-    yi = [pointvalue[1] for pointvalue in res['Br']]  # [x, y, Br(x, y)]
-    nb_nodes = int(res['nodes'])
+    Bz = [pointvalue[2] for pointvalue in res["Bz"]]  # [x, y, Bz(x, y)]
+    Br = [pointvalue[2] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+    xi = [pointvalue[0] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+    yi = [pointvalue[1] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+    nb_nodes = int(res["nodes"])
     Bz_ = Bz[0]
     Br_ = Br[0]
 
-    with open(Path(__file__).parent / 'results.csv', 'a+') as f:
+    with open(Path(__file__).parent / "results.csv", "a+") as f:
         """
         platform, Br, Bz, nodes
         """
-        record = [res['platform']]
+        record = [res["platform"]]
         record.extend([Br_, Bz_, nb_nodes])
 
-        f.write(','.join([str(i) for i in record]))
-        f.write('\n')
+        f.write(",".join([str(i) for i in record]))
+        f.write("\n")
 
     return [Br_, Bz_, nb_nodes]
 
 
-X = [1.07757234384367, 12.0810986190214, 5.12071874756443, 20.1720140666903, 16.271996038583, 5.52631142548928,
-     25.7481784448498, 9.35590470354692, 45.9877661249235, 7.40118928105421, 10.4434974707302,
-     38.4649413574651, 16.6263411147178, 7.76793550511193, 8.42543646671979, 22.6415022596837, 46.928319345423,
-     5.69151040344659, 4.91528527435156, 1.37343445767236
-     ]
+X = [
+    1.07757234384367,
+    12.0810986190214,
+    5.12071874756443,
+    20.1720140666903,
+    16.271996038583,
+    5.52631142548928,
+    25.7481784448498,
+    9.35590470354692,
+    45.9877661249235,
+    7.40118928105421,
+    10.4434974707302,
+    38.4649413574651,
+    16.6263411147178,
+    7.76793550511193,
+    8.42543646671979,
+    22.6415022596837,
+    46.928319345423,
+    5.69151040344659,
+    4.91528527435156,
+    1.37343445767236,
+]
 
 for i in range(20):
     tol = uniform(1, 3)
