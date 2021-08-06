@@ -471,6 +471,16 @@ class Rectangle:
     def __iter__(self):
         yield from (self.a.x, self.a.y, self.b.x, self.b.y, self.c.x, self.c.y, self.d.x, self.d.y)
 
+    def __copy__(self):
+        r = Rectangle(self.a.x, self.a.y, width=1.0, height=1.0)
+        r.a = copy(self.a)
+        r.b = copy(self.b)
+        r.c = copy(self.c)
+        r.d = copy(self.d)
+        r._calc_width_height()
+        r._calc_centerpoint()
+        return r
+
     def __repr__(self):
         return (
             f"a:({self.a.x:.2f}, {self.a.y:.2f}) cp:({self.cp.x:.2f}, {self.cp.y:.2f}) "
