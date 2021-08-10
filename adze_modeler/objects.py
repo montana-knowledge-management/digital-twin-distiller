@@ -46,6 +46,9 @@ class Node:
     def __copy__(self):
         return Node(self.x, self.y, id=getID(), label=self.label, precision=self.precision)
 
+    def __iter__(self):
+        yield from (self.x, self.y)
+
     def length(self):
         return math.sqrt(self.x ** 2 + self.y ** 2)
 
@@ -281,7 +284,7 @@ class ParametricBezier:
 
 
 class Rectangle:
-    def __init__(self, x0: float, y0: float, **kwargs):
+    def __init__(self, x0: float = 0.0, y0: float = 0.0, **kwargs):
         """
          d --------------------------- [c]
          |                             |

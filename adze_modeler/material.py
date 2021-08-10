@@ -21,7 +21,7 @@ class Material:
         self.fill_factor = 0
 
         self.assigned = []  # a set of (x, y) tuples
-        self.meshsize = 1.0
+        self.meshsize = 0
 
     def __copy__(self):
         newmaterial = Material(self.name)

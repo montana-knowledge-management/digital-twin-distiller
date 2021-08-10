@@ -34,6 +34,7 @@ class Agros2D(Platform):
         self.write("problem = a2d.problem(clear=True)")
         self.write(f'problem.coordinate_type = "{self.metadata.coordinate_type}"')
         self.write(f'problem.mesh_type = "{self.metadata.mesh_type}"', nb_newline=2)
+        self.write(f"problem.frequency = {self.metadata.frequency}")
 
         self.write(f'{self.metadata.problem_type} = a2d.field("{self.metadata.problem_type}")')
         self.write(f'{self.metadata.problem_type}.analysis_type = "{self.metadata.analysis_type}"')
@@ -135,6 +136,12 @@ class Agros2D(Platform):
             self.write(f'f.write("{{}}, {{}}\\n".format("dofs", info["dofs"]))')
             self.write(f'f.write("{{}}, {{}}\\n".format("nodes", info["nodes"]))')
             self.write(f'f.write("{{}}, {{}}\\n".format("elements", info["elements"]))')
+
+        if action == "integration":
+            if self.metadata.problem_type == "magnetic":
+                mapping = {"Energy": "Wm"}
+                self.write(f"val={self.metadata.problem_type}.volume_integrals({entity})[{mapping[variable]!r}]")
+                self.write(f'f.write("{variable}, {{}}\\n".format(val))')
 
     def export_closing_steps(self):
         self.write("f.close()")

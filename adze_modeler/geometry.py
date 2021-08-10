@@ -54,12 +54,12 @@ class Geometry:
         self.add_line(obj.Line(lr.start_pt, lr.end_pt))
         self.add_line(obj.Line(ll.start_pt, ll.end_pt))
 
-    def add_rectangle(self, r:obj.Rectangle):
+    def add_rectangle(self, r: obj.Rectangle):
         p = list(r)
-        self.add_line(obj.Line(obj.Node(p[0]), obj.Node(p[1])))
-        self.add_line(obj.Line(obj.Node(p[2]), obj.Node(p[3])))
-        self.add_line(obj.Line(obj.Node(p[4]), obj.Node(p[5])))
-        self.add_line(obj.Line(obj.Node(p[6]), obj.Node(p[7])))
+        self.add_line(obj.Line(obj.Node(p[0], p[1]), obj.Node(p[2], p[3])))
+        self.add_line(obj.Line(obj.Node(p[2], p[3]), obj.Node(p[4], p[5])))
+        self.add_line(obj.Line(obj.Node(p[4], p[5]), obj.Node(p[6], p[7])))
+        self.add_line(obj.Line(obj.Node(p[6], p[7]), obj.Node(p[0], p[1])))
 
     def delete_hanging_nodes(self):
         """Delete all nodes, which not part of a another object (Line, Circle, etc)"""

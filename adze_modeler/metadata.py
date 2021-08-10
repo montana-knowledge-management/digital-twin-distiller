@@ -11,6 +11,7 @@ class Metadata(metaclass=ABCMeta):
         self.mesh_type = None
         self.unit = 1.0  # 1 m
         self.precision = 1e-8
+        self.frequency = 0.0
 
         self.file_suffix = None
         self.file_script_name = None
@@ -90,7 +91,6 @@ class FemmMetadata(Metadata):
         self.analysis_type = "steadysate"
         self.file_suffix = ".lua"
 
-        self.frequency = 0.0
         self.unit = "meters"
         self.depth = 1.0
         self.minangle = 30
