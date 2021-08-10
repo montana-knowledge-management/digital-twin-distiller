@@ -41,11 +41,12 @@ class BaseModel:
         # solver setup
         femm_metadata = FemmMetadata()
         femm_metadata.problem_type = "magnetic"
-        femm_metadata.coordinate_type = "axisymmetric"
+        femm_metadata.coordinate_type = "planar"
+        femm_metadata.depth = 1000 # or 1 ???
         femm_metadata.file_script_name = self.file_solver_script
         femm_metadata.file_metrics_name = self.file_solution
         femm_metadata.unit = "millimeters"
-        femm_metadata.smartmesh = True
+        femm_metadata.smartmesh = False
         self.platform = Femm(femm_metadata)
 
         self.snapshot = Snapshot(self.platform)
@@ -57,9 +58,11 @@ class BaseModel:
 
     def define_materials(self):
         air = Material("air")
+        # air.meshsize = 0.5
         hv = Material("Primary")
-        hv.Je = 30e3 / (30 * 1100) * 1e6
-        hv.Je = 5 / (30 * 1100) * 1e6
+        # hv.Je = 30e3 / (30 * 1100) * 1e6
+        # hv.Je = 1 / (30 * 1100) * 1e6
+        hv.Je = 0.0
 
         ii = Material("Ii")
         ii.Je = self.Ii / (33 * 62.5) * 1e6
@@ -79,12 +82,12 @@ class BaseModel:
     def init_geometry(self):
         air = ModelPiece("air")
         air.load_piece_from_svg(self.dir_resources / "air.svg")
-        air.put(495, 0)
+        air.put(495/2, 0)
         self.g.merge_geometry(air.geom)
 
         hv_coil = ModelPiece("hv_coil")
         hv_coil.load_piece_from_svg(self.dir_resources / "hv_coil.svg")
-        hv_coil.put(595, 80)
+        hv_coil.put(595/2, 80)
         self.g.merge_geometry(hv_coil.geom)
 
         lv_coil = ModelPiece("lv_coil")
@@ -94,7 +97,7 @@ class BaseModel:
         for k in range(16):
             coil = lv_coil.spawn()
             offset += 62.5 + self.X[k]
-            coil.put(750, 1280 - offset)
+            coil.put(750/2, 1280 - offset)
             self.g.merge_geometry(coil.geom)
 
         self.g.merge_lines()
@@ -102,30 +105,30 @@ class BaseModel:
         self.g.export_svg(self.dir_export / "geom.svg")
 
     def assign_blocklabels(self):
-        self.snapshot.assign_material(605, 699, "Primary")
-        self.snapshot.assign_material(523, 1036, "air")
+        self.snapshot.assign_material(605/2, 699, "Primary")
+        self.snapshot.assign_material(523/2, 1036, "air")
         offset = 0.0
         for k in range(16):
             offset += 62.5 + self.X[k]
             if k == self.i:
-                self.snapshot.assign_material(750 + 33.0 / 2, 1280 - offset + 62.5 / 2, "Ii")
+                self.snapshot.assign_material((750 + 33.0 / 2)/2, 1280 - offset + 62.5 / 2, "Ii")
             elif k == self.j:
-                self.snapshot.assign_material(750 + 33.0 / 2, 1280 - offset + 62.5 / 2, "Ij")
+                self.snapshot.assign_material((750 + 33.0 / 2)/2, 1280 - offset + 62.5 / 2, "Ij")
             else:
-                self.snapshot.assign_material(750 + 33.0 / 2, 1280 - offset + 62.5 / 2, "air")
+                self.snapshot.assign_material((750 + 33.0 / 2)/2, 1280 - offset + 62.5 / 2, "air")
 
     def assign_boundary_conditions(self):
-        self.snapshot.assign_boundary_condition(493, 695, "a0")
-        self.snapshot.assign_boundary_condition(758, 1280, "a0")
-        self.snapshot.assign_boundary_condition(758, 0, "a0")
-        self.snapshot.assign_boundary_condition(996, 644, "a0")
+        self.snapshot.assign_boundary_condition(493/2, 695, "a0")
+        self.snapshot.assign_boundary_condition(758/2, 1280, "a0")
+        self.snapshot.assign_boundary_condition(758/2, 0, "a0")
+        self.snapshot.assign_boundary_condition(996/2, 644, "a0")
 
     def add_postprocesssing(self):
-        entities = [(605, 699), (523, 1036)]
+        entities = [(605/2, 699), (523/2, 1036)]
         offset = 0.0
         for k in range(16):
             offset += 62.5 + self.X[k]
-            entities.append((750 + 33.0 / 2, 1280 - offset + 62.5 / 2))
+            entities.append(((750 + 33.0 / 2)/2, 1280 - offset + 62.5 / 2))
         self.snapshot.add_postprocessing("integration", entities, "Energy")
 
     def __call__(self, cleanup=True, timeout=1e6):
@@ -138,7 +141,7 @@ class BaseModel:
                 self.snapshot.execute(cleanup=False, timeout=1e6)
             else:
                 self.snapshot.export(develmode=False)
-                self.snapshot.execute(cleanup=cleanup, timeout=timeout)
+                self.snapshot.execute(cleanup=False, timeout=timeout)
 
             res = self.snapshot.retrive_results()
 
@@ -167,21 +170,78 @@ if __name__ == "__main__":
     X = [5] * 16
     X[0] = 114
 
-    E = zeros((16, 16))
-    M = zeros((16, 16))
+    E = zeros((17, 17))
+    M = zeros((17, 17))
 
     # m = BaseModel(X, i=1, j=10, exportname="dev")
-    for i in range(0, 16):
-        for j in range(i, 16):
-            m = BaseModel(X, i=i, j=j)
-            Eij = m(cleanup=True)
-            E[i, j] = Eij
-            E[j, i] = Eij
-            print(f"{Eij:.3e}", end=" ")
-        print()
+    # for i in range(0, 16):
+    #     for j in range(i, 17):
+    #         m = BaseModel(X, i=i, j=j)
+    #
+    #         if j==16:
+    #             # m.snapshot.materials['Ii'].Je = 0.0
+    #             m.snapshot.materials['Ij'].Je = 0.0
+    #             m.snapshot.materials['Primary'].Je = 1 / (30 * 1100) * 1e6
+    #
+    #         Eij = 2 * m(cleanup=True)
+    #         E[i, j] = Eij
+    #         E[j, i] = Eij
+    #         print(f"{Eij:.3e}", end=" ")
+    #     print()
+    #
+    # m = BaseModel(X, i=0, j=0)
+    # m.snapshot.materials['Ii'].Je = 0.0
+    # m.snapshot.materials['Ij'].Je = 0.0
+    # m.snapshot.materials['Primary'].Je = 1 / (30 * 1100) * 1e6
+    # E[16, 16] = 2 * m(cleanup=True)
+    #
+    #
+    # np.savetxt(BaseModel.dir_resources / "E.txt", E)
 
-    print(E)
-    np.savetxt(BaseModel.dir_resources / "Em.txt", E)
-    plt.matshow(E)
-    plt.savefig(BaseModel.dir_current / "docs/media/Ematrix.png")
+    E = np.loadtxt(BaseModel.dir_resources / "E.txt")
+    M = np.zeros_like(E)
+
+    for i in range(16):
+        M[i, i] = 2 * E[i, i] / (1.0 ** 2)
+
+    for j in range(16):
+        for k in range(j+1, 16):
+            M[j, k] = (E[j, k] - (M[j, j] + M[k, k])) / (1.0 * 1.0)
+            M[k, j] = M[j, k]
+
+    # plt.matshow(M)
+    # plt.savefig(BaseModel.dir_current / "docs/media/Mmatrix.png")
+    # plt.colorbar()
+    # plt.show()
+    #
+    plt.figure()
+    plt.bar(range(16), M[0, :-1])
     plt.show()
+
+    # B = np.ones((16, 16))
+    # B[:, ::2] = B[:, ::2]-2
+    # B = np.eye(17)
+    # B[16, 16] = -16
+    # M = M * 2 * np.pi * 50
+    # Zm = np.dot(B, np.dot(M, B.T))
+    #
+    #
+    # Minv = np.linalg.inv(M)
+    # V = np.ones(16)*1
+    # plt.bar(range(16), np.dot(Zm, V))
+    # plt.show()
+
+    # m = BaseModel(X, i=0, j=0, exportname="djev")
+    # m(cleanup=False)
+
+    # Wm =[]
+    # for j in range(10):
+    #     m = BaseModel(X, i=0, j=j)
+    #     Wm.append(2 * m(cleanup=True))
+    #
+    #
+    # plt.bar(range(10), Wm)
+    # plt.show()
+
+    # m = BaseModel(X, i=1, j=10, exportname="deawdv")
+    # m(cleanup=False)
