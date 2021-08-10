@@ -159,7 +159,7 @@ class BaseModel:
 
 
 if __name__ == "__main__":
-    from random import seed, uniform
+    from random import seed
     from numpy import zeros
     import matplotlib.pyplot as plt
 
@@ -173,7 +173,7 @@ if __name__ == "__main__":
     E = zeros((17, 17))
     M = zeros((17, 17))
 
-    # m = BaseModel(X, i=1, j=10, exportname="dev")
+    m = BaseModel(X, i=1, j=10, exportname="dev")
     # for i in range(0, 16):
     #     for j in range(i, 17):
     #         m = BaseModel(X, i=i, j=j)
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     #             m.snapshot.materials['Ij'].Je = 0.0
     #             m.snapshot.materials['Primary'].Je = 1 / (30 * 1100) * 1e6
     #
-    #         Eij = 2 * m(cleanup=True)
+    #         Eij = 2*m(cleanup=True)
     #         E[i, j] = Eij
     #         E[j, i] = Eij
     #         print(f"{Eij:.3e}", end=" ")
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     # m.snapshot.materials['Ii'].Je = 0.0
     # m.snapshot.materials['Ij'].Je = 0.0
     # m.snapshot.materials['Primary'].Je = 1 / (30 * 1100) * 1e6
-    # E[16, 16] = 2 * m(cleanup=True)
+    # E[16, 16] = m(cleanup=True)
     #
     #
     # np.savetxt(BaseModel.dir_resources / "E.txt", E)
@@ -206,7 +206,7 @@ if __name__ == "__main__":
 
     for j in range(16):
         for k in range(j+1, 16):
-            M[j, k] = (E[j, k] - (M[j, j] + M[k, k])) / (1.0 * 1.0)
+            M[j, k] = (E[j, k] - 0.5*(M[j, j] + M[k, k])) / (1.0 * 1.0)
             M[k, j] = M[j, k]
 
     # plt.matshow(M)

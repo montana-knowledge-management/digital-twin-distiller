@@ -16,7 +16,6 @@ def gmsh_writer(nodes, lines, arcs, cubic_beziers):
         points = []
         for node in nodes:
             temp = geom.add_point([node.x, node.y], lcar)
-            # temp._id = node.id
             points.append(temp)
 
         # add lines

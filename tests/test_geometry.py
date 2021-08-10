@@ -73,24 +73,6 @@ class TestGeometry(TestCase):
         self.assertEqual(len(g.nodes), 34)
         self.assertEqual(len(g.lines), 52)
 
-        # plot our results
-        # need matplotlib for that
-        # import matplotlib.pyplot as plt
-        # plt.figure(figsize=(12, 12))
-        # for li in g.lines:
-        #     plt.scatter([li.start_pt.x, li.end_pt.x], [li.start_pt.y, li.end_pt.y])
-        #
-        # plt.axis("equal")
-        # for i, li in enumerate(g.lines):
-        #     plt.plot([li.start_pt.x, li.end_pt.x], [li.start_pt.y, li.end_pt.y], linewidth=2, label=i)
-        #     plt.scatter([li.start_pt.x, li.end_pt.x], [li.start_pt.y, li.end_pt.y], c='k')
-        #     # plt.savefig(f"temp/temp-{i}.png", dpi=330)
-        #
-        # plt.savefig(f"svgtests/rect.png", dpi=330)
-        # plt.cla()
-        # plt.clf()
-        # plt.close()
-
 
 class TestMeshing(TestCase):
     def test_mesh_the_triangle(self):
