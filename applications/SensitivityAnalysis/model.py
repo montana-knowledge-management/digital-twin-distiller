@@ -19,7 +19,7 @@ class PriusMotor(BaseModel):
         femm_metadata.coordinate_type = "planar"
         femm_metadata.file_script_name = self.file_solver_script
         femm_metadata.file_metrics_name = self.file_solution
-        femm_metadata.unit = "meters"
+        femm_metadata.unit = "millimeters"
         femm_metadata.smartmesh = True
         self.platform = Femm(femm_metadata)
         self.snapshot = Snapshot(self.platform)
@@ -55,10 +55,21 @@ class PriusMotor(BaseModel):
         ...
 
     def build_geometry(self):
-       ... 
+        rotor_slice = ModelPiece('rotor_slice')
+        rotor_slice.load_piece_from_dxf(self.dir_resources / "rotor_slice.dxf")
+        rotor_slice.put(-30.6912, 51.27)
+
+        stator_slice = ModelPiece('rotor_slice')
+        stator_slice.load_piece_from_dxf(self.dir_resources / "stator_slice.dxf")
+        stator_slice.put(-51.5168, 75)
+
+
+        self.geom.merge_geometry(rotor_slice.geom)
+        self.geom.merge_geometry(stator_slice.geom)
+        self.snapshot.add_geometry(self.geom)
 
 
 
 if __name__ == "__main__":
     m = PriusMotor()
-    print(m(cleanup=False, devmode=True)
+    print(m(cleanup=False, devmode=True))

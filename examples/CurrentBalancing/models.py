@@ -230,13 +230,14 @@ if __name__ == "__main__":
     Zinv = np.linalg.inv(Ze)
     V = np.ones(16)*1
     I = np.dot(Zinv, V)
-    plt.bar(xticks, I, color='b')
+    A = 33 * 62.5
+    plt.bar(xticks, I / A, color='b')
     plt.xticks(xticks)
     plt.xlabel('Coils')
-    plt.ylabel('Current [A]')
+    plt.ylabel('Current [A/mm2]')
     plt.grid(alpha=0.5)
     plt.savefig(BaseModel.dir_current / "docs/media/current_distribution.png")
     plt.show()
 
-    m = BaseModel(X, i=1, j=10, exportname="wdev")
-    m(cleanup=False)
+    # m = BaseModel(X, i=1, j=10, exportname="wdev")
+    # m(cleanup=False)
