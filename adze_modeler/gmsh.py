@@ -1,5 +1,20 @@
 import pygmsh.geo as gmsh
 
+"""
+The goal of this class is to export the model geometry into a msh file with pygmsh, this mesh file can be 
+translated into various formats with the meshio  [1]. 
+
+https://github.com/nschloe/meshio
+"""
+
+
+class GMSHModel:
+
+    def __init__(self, geometry, boundaries=None, materials=None):
+        self.geo = geometry
+        self.materials = materials
+        self.boundaries = boundaries
+
 
 def node_gmsh_point_distance(node, point):
     dx = node.x - point.x[0]

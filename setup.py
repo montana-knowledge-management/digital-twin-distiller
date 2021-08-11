@@ -12,7 +12,7 @@ setup(
         "gmsh",
         "ezdxf",
         "artap",
-        "fenics",
+        "fenics_poisson_subdomain",
     ],
     extras_require={"full": [f"agrossuite >= 0.01"]},
 )
