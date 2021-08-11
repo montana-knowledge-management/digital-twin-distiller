@@ -41,8 +41,7 @@ class BaseModel:
         # solver setup
         femm_metadata = FemmMetadata()
         femm_metadata.problem_type = "magnetic"
-        femm_metadata.coordinate_type = "planar"
-        femm_metadata.depth = 1000 # or 1 ???
+        femm_metadata.coordinate_type = "axisymmetric"
         femm_metadata.file_script_name = self.file_solver_script
         femm_metadata.file_metrics_name = self.file_solution
         femm_metadata.unit = "millimeters"
@@ -60,7 +59,6 @@ class BaseModel:
         air = Material("air")
         # air.meshsize = 0.5
         hv = Material("Primary")
-        # hv.Je = 30e3 / (30 * 1100) * 1e6
         # hv.Je = 1 / (30 * 1100) * 1e6
         hv.Je = 0.0
 
@@ -170,10 +168,11 @@ if __name__ == "__main__":
     X = [5] * 16
     X[0] = 114
 
-    E = zeros((17, 17))
-    M = zeros((17, 17))
 
-    m = BaseModel(X, i=1, j=10, exportname="dev")
+
+    # m = BaseModel(X, i=1, j=10, exportname="dev")
+    # E = zeros((17, 17))
+    # M = zeros((17, 17))
     # for i in range(0, 16):
     #     for j in range(i, 17):
     #         m = BaseModel(X, i=i, j=j)
@@ -209,39 +208,35 @@ if __name__ == "__main__":
             M[j, k] = (E[j, k] - 0.5*(M[j, j] + M[k, k])) / (1.0 * 1.0)
             M[k, j] = M[j, k]
 
+    M = M[:-1, :-1]
+    xticks = range(1, 17)
     # plt.matshow(M)
-    # plt.savefig(BaseModel.dir_current / "docs/media/Mmatrix.png")
     # plt.colorbar()
+    # plt.savefig(BaseModel.dir_current / "docs/media/inductance_matrix.png")
     # plt.show()
     #
     plt.figure()
-    plt.bar(range(16), M[0, :-1])
+    plt.bar(xticks, M[0], color='b')
+    plt.xticks(xticks)
+    plt.xlabel('Coils')
+    plt.ylabel('Inductance [H]')
+    plt.grid(alpha=0.5)
+    plt.savefig(BaseModel.dir_current / "docs/media/inductance_change.png")
     plt.show()
 
-    # B = np.ones((16, 16))
-    # B[:, ::2] = B[:, ::2]-2
-    # B = np.eye(17)
-    # B[16, 16] = -16
-    # M = M * 2 * np.pi * 50
-    # Zm = np.dot(B, np.dot(M, B.T))
-    #
-    #
-    # Minv = np.linalg.inv(M)
-    # V = np.ones(16)*1
-    # plt.bar(range(16), np.dot(Zm, V))
-    # plt.show()
 
-    # m = BaseModel(X, i=0, j=0, exportname="djev")
-    # m(cleanup=False)
+    omega = 2 * np.pi * 50
+    Ze = M * omega
+    Zinv = np.linalg.inv(Ze)
+    V = np.ones(16)*1
+    I = np.dot(Zinv, V)
+    plt.bar(xticks, I, color='b')
+    plt.xticks(xticks)
+    plt.xlabel('Coils')
+    plt.ylabel('Current [A]')
+    plt.grid(alpha=0.5)
+    plt.savefig(BaseModel.dir_current / "docs/media/current_distribution.png")
+    plt.show()
 
-    # Wm =[]
-    # for j in range(10):
-    #     m = BaseModel(X, i=0, j=j)
-    #     Wm.append(2 * m(cleanup=True))
-    #
-    #
-    # plt.bar(range(10), Wm)
-    # plt.show()
-
-    # m = BaseModel(X, i=1, j=10, exportname="deawdv")
-    # m(cleanup=False)
+    m = BaseModel(X, i=1, j=10, exportname="wdev")
+    m(cleanup=False)
