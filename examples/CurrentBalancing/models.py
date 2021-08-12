@@ -41,7 +41,8 @@ class BaseModel:
         # solver setup
         femm_metadata = FemmMetadata()
         femm_metadata.problem_type = "magnetic"
-        femm_metadata.coordinate_type = "axisymmetric"
+        femm_metadata.coordinate_type = "planar"
+        femm_metadata.depth = 1000
         femm_metadata.file_script_name = self.file_solver_script
         femm_metadata.file_metrics_name = self.file_solution
         femm_metadata.unit = "millimeters"
@@ -182,7 +183,7 @@ if __name__ == "__main__":
     #             m.snapshot.materials['Ij'].Je = 0.0
     #             m.snapshot.materials['Primary'].Je = 1 / (30 * 1100) * 1e6
     #
-    #         Eij = 2*m(cleanup=True)
+    #         Eij = m(cleanup=True)
     #         E[i, j] = Eij
     #         E[j, i] = Eij
     #         print(f"{Eij:.3e}", end=" ")
@@ -208,22 +209,22 @@ if __name__ == "__main__":
             M[j, k] = (E[j, k] - 0.5*(M[j, j] + M[k, k])) / (1.0 * 1.0)
             M[k, j] = M[j, k]
 
-    M = M[:-1, :-1]
+    np.savetxt(BaseModel.dir_resources / "M.txt", M)
+    # M = M[:-1, :-1]
     xticks = range(1, 17)
-    # plt.matshow(M)
-    # plt.colorbar()
-    # plt.savefig(BaseModel.dir_current / "docs/media/inductance_matrix.png")
-    # plt.show()
+    plt.matshow(M)
+    plt.colorbar()
+    plt.savefig(BaseModel.dir_current / "docs/media/inductance_matrix.png")
+    plt.show()
     #
     plt.figure()
-    plt.bar(xticks, M[0], color='b')
+    plt.bar(xticks, M[0, :-1], color='b')
     plt.xticks(xticks)
     plt.xlabel('Coils')
     plt.ylabel('Inductance [H]')
     plt.grid(alpha=0.5)
     plt.savefig(BaseModel.dir_current / "docs/media/inductance_change.png")
     plt.show()
-
 
     omega = 2 * np.pi * 50
     Ze = M * omega

@@ -1,5 +1,5 @@
 import math
-from adze_modeler.utils import getID
+from adze_modeler.utils import getID, mirror_point
 from collections.abc import Iterable
 from copy import copy
 
@@ -30,7 +30,10 @@ class Node:
         """Point(x1*x2, y1*y2)"""
         return Node(self.x * scalar, self.y * scalar)
 
-    def __rmul__(self, other):
+    def __rmul__(self, scalar):
+        return self * scalar
+
+    def __matmul__(self, other):
         """
         Dot prduct
         n1 @ n2
@@ -48,6 +51,9 @@ class Node:
 
     def __iter__(self):
         yield from (self.x, self.y)
+
+    def __abs__(self):
+        return self.length()
 
     def length(self):
         return math.sqrt(self.x ** 2 + self.y ** 2)
@@ -286,6 +292,7 @@ class ParametricBezier:
 class Rectangle:
     def __init__(self, x0: float = 0.0, y0: float = 0.0, **kwargs):
         """
+
          d --------------------------- [c]
          |                             |
          |                             |
@@ -447,6 +454,16 @@ class Rectangle:
         self.c.move_xy(dx, dy)
         self.d.move_xy(dx, dy)
         self.cp.move_xy(dx, dy)
+    
+    def mirror(self, p1=(0, 0), p2=(0, 1)):
+        p1 = Node(*p1)
+        p2 = Node(*p2)
+        self.a = mirror_point(p1, p2, self.a)
+        self.b = mirror_point(p1, p2, self.b)
+        self.c = mirror_point(p1, p2, self.c)
+        self.d = mirror_point(p1, p2, self.d)
+        self._calc_centerpoint()
+
 
     def _calc_centerpoint(self):
         """Calculates the center-point of the rectangle."""

@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from adze_modeler import objects as obj
 from adze_modeler.geometry import Geometry
 from adze_modeler.snapshot import Snapshot
@@ -7,7 +7,7 @@ from uuid import uuid4
 from pathlib import Path
 import sys
 
-class BaseModel:
+class BaseModel(metaclass=ABCMeta):
 
     def __init__(self, exportname=None): 
         self.name = exportname or str(uuid4())
@@ -29,7 +29,7 @@ class BaseModel:
         self._init_directories()
 
     def add_line(self, x0, y0, x1, y1):
-        self.g.add_line(obj.Line(obj.Node(x0, y0), obj.Node(x1, y1)))
+        self.geom.add_line(obj.Line(obj.Node(x0, y0), obj.Node(x1, y1)))
 
     def _init_directories(self):
         self.dir_resources.mkdir(exist_ok=True)
