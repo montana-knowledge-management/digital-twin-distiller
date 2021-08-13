@@ -46,8 +46,8 @@ class Geometry:
         self.cubic_beziers.append(cb)
         #
         self.nodes.append(cb.start_pt)
-        #self.nodes.append(cb.control1)
-        #self.nodes.append(cb.control2)
+        # self.nodes.append(cb.control1)
+        # self.nodes.append(cb.control2)
         self.nodes.append(cb.end_pt)
 
     def add_rectangle(self, r: obj.Rectangle):
@@ -82,6 +82,7 @@ class Geometry:
                 if self.nodes[i].distance_to(self.nodes[j]) < self.epsilon:
 
                     # renumber the start/end points of the different shape elements
+                    # 1/ lines
                     for line in self.lines:
                         if line.start_pt.id == self.nodes[j].id:
                             line.start_pt.id = self.nodes[i].id
@@ -89,9 +90,29 @@ class Geometry:
                         if line.end_pt.id == self.nodes[j].id:
                             line.end_pt.id = self.nodes[i].id
 
+                    # 2/ arcs
+                    for arcs in self.circle_arcs:
+                        if arcs.start_pt.id == self.nodes[j].id:
+                            arcs.start_pt.id = self.nodes[i].id
+
+                        if arcs.end_pt.id == self.nodes[j].id:
+                            line.end_pt.id = self.nodes[i].id
+
+                    # 3/ bezier curves
+                    for cb in self.cubic_beziers:
+                        if cb.start_pt.id == self.nodes[j].id:
+                            cb.start_pt.id = self.nodes[i].id
+
+                        if cb.control1.id == self.nodes[j].id:
+                            cb.control1.id = self.nodes[i].id
+
+                        if cb.control2.id == self.nodes[j].id:
+                            cb.control2.id = self.nodes[i].id
+
+                        if cb.end_pt.id == self.nodes[j].id:
+                            cb.end_pt.id = self.nodes[i].id
+
                     del self.nodes[j]
-            # if node_1.distance_to(node_2) < self.epsilon:
-            #    print(i)
 
     def merge_lines(self):
         self.merge_points()
@@ -272,7 +293,6 @@ class Geometry:
                         #         self.add_arc(obj.CircleArc(start, center, end, id + 3))
 
                         if isinstance(element, svg.CubicBezier):
-
                             s1 = element.start.conjugate()
                             s2 = element.end.conjugate()
                             c1 = element.control1.conjugate()
