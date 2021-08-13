@@ -46,17 +46,9 @@ class Geometry:
         self.cubic_beziers.append(cb)
         #
         self.nodes.append(cb.start_pt)
-        # self.nodes.append(cb.control1)
-        # self.nodes.append(cb.control2)
+        #self.nodes.append(cb.control1)
+        #self.nodes.append(cb.control2)
         self.nodes.append(cb.end_pt)
-
-        # r, l = Geometry.casteljau(cb)
-        # rr, rl = Geometry.casteljau(r)
-        # lr, ll = Geometry.casteljau(l)
-        # self.add_line(obj.Line(rr.start_pt, rr.end_pt))
-        # self.add_line(obj.Line(rl.start_pt, rl.end_pt))
-        # self.add_line(obj.Line(lr.start_pt, lr.end_pt))
-        # self.add_line(obj.Line(ll.start_pt, ll.end_pt))
 
     def add_rectangle(self, r: obj.Rectangle):
         p = list(r)
@@ -280,10 +272,16 @@ class Geometry:
                         #         self.add_arc(obj.CircleArc(start, center, end, id + 3))
 
                         if isinstance(element, svg.CubicBezier):
-                            start = obj.Node(element.start.real, element.start.imag, id)
-                            control1 = obj.Node(element.control1.real, element.control1.imag, id + 1)
-                            control2 = obj.Node(element.control2.real, element.control2.imag, id + 2)
-                            end = obj.Node(element.end.real, element.end.imag, id + 3)
+
+                            s1 = element.start.conjugate()
+                            s2 = element.end.conjugate()
+                            c1 = element.control1.conjugate()
+                            c2 = element.control2.conjugate()
+
+                            start = obj.Node(s1.real, s1.imag, id)
+                            control1 = obj.Node(c1.real, c1.imag, id + 1)
+                            control2 = obj.Node(c2.real, c2.imag, id + 2)
+                            end = obj.Node(s2.real, s2.imag, id + 3)
                             self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4))
                             id += 5
 
@@ -458,6 +456,7 @@ class Geometry:
             Graph.add_edge(cb.start_pt.id, cb.end_pt.id)
 
         nx.draw_networkx(Graph, with_labels=False)
+        print(nx.cycle_basis(Graph))
         # Set margins for the axes so that nodes aren't clipped
         ax = plt.gca()
         ax.margins(0.20)

@@ -8,9 +8,9 @@ eml = files("examples.owl").joinpath("owl-shape.svg")
 geo = Geometry()
 geo.import_svg(eml.as_posix())
 # set the tolerance to merge the given lines
-geo.epsilon = 1e-6
+geo.epsilon = 1e-5
+geo.merge_points()
 print(geo)
-#geo.merge_points()
 
 geo.find_surfaces()
 geo.export_svg('bagoly.svg')
