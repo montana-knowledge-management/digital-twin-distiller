@@ -17,6 +17,8 @@ import numpy as np
 import svgpathtools
 import svgpathtools as svg
 
+import matplotlib.pyplot as plt
+
 
 class Geometry:
     def __init__(self):
@@ -238,23 +240,23 @@ class Geometry:
         # exports the lines
         for seg in self.lines:
             path = svg.Path()
-            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y), complex(seg.end_pt.x, seg.end_pt.y)))
+            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y).conjugate(), complex(seg.end_pt.x, seg.end_pt.y).conjugate()))
             paths.append(path)
             colors.append("blue")
 
         # export the circle arcs
         for arc in self.circle_arcs:
             path = svg.Path()
-            path.append(svg.Line(complex(arc.start_pt.x, arc.start_pt.y), complex(arc.end_pt.x, arc.end_pt.y)))
+            path.append(svg.Line(complex(arc.start_pt.x, arc.start_pt.y).conjugate(), complex(arc.end_pt.x, arc.end_pt.y).conjugate()))
             paths.append(path)
             colors.append("blue")
 
         for cb in self.cubic_beziers:
             path = svg.Path()
-            p1 = complex(cb.start_pt.x, cb.start_pt.y)
-            p2 = complex(cb.end_pt.x, cb.end_pt.y)
-            c1 = complex(cb.control1.x, cb.control1.y)
-            c2 = complex(cb.control2.x, cb.control2.y)
+            p1 = complex(cb.start_pt.x, cb.start_pt.y).conjugate()
+            p2 = complex(cb.end_pt.x, cb.end_pt.y).conjugate()
+            c1 = complex(cb.control1.x, cb.control1.y).conjugate()
+            c2 = complex(cb.control2.x, cb.control2.y).conjugate()
             path.append(svg.CubicBezier(p1, c1, c2, p2))
             paths.append(path)
             colors.append("blue")
@@ -458,10 +460,59 @@ class Geometry:
 
         svg.wsvg(paths, filename=str(filename))
 
+    def find_edges(self, nodes: list):
+        """Search for the edges with the given direction """
+
+        surface = []
+        for i, node in enumerate(nodes[:-1]):
+            if i % 2 == 0:
+                # lines
+                for line in self.lines:
+                    if line.end_pt.id == node and line.start_pt.id == nodes[i + 1]:
+                        surface.append(-line.id)
+                    if line.start_pt.id == node and line.end_pt.id == nodes[i + 1]:
+                        surface.append(line.id)
+
+                # arcs
+                for arc in self.circle_arcs:
+                    if arc.end_pt.id == node and arc.start_pt.id == nodes[i + 1]:
+                        surface.append(-arc.id)
+                    if arc.start_pt.id == node and arc.end_pt.id == nodes[i + 1]:
+                        surface.append(arc.id)
+
+                # cubic bezier
+                for cb in self.cubic_beziers:
+                    if cb.end_pt.id == node and cb.start_pt.id == nodes[i + 1]:
+                        surface.append(-cb.id)
+                    if cb.start_pt.id == node and cb.end_pt.id == nodes[i + 1]:
+                        surface.append(cb.id)
+
+            else:
+                # lines
+                for line in self.lines:
+                    if line.end_pt.id == node and line.start_pt.id == nodes[i + 1]:
+                        surface.append(line.id)
+                    if line.start_pt.id == node and line.end_pt.id == nodes[i + 1]:
+                        surface.append(-line.id)
+
+                # arcs
+                for arc in self.circle_arcs:
+                    if arc.end_pt.id == node and arc.start_pt.id == nodes[i + 1]:
+                        surface.append(arc.id)
+                    if arc.start_pt.id == node and arc.end_pt.id == nodes[i + 1]:
+                        surface.append(-arc.id)
+
+                # cubic bezier
+                for cb in self.cubic_beziers:
+                    if cb.end_pt == node and cb.start_pt == nodes[i + 1]:
+                        surface.append(cb.id)
+                    if cb.start_pt == node and cb.end_pt == nodes[i + 1]:
+                        surface.append(-cb.id)
+
+        return surface
+
     def find_surfaces(self):
         """Builds a networkx graph from the given geometry and search for the closed surfaces with networkx."""
-
-        import matplotlib.pyplot as plt
 
         Graph = nx.Graph()
 
@@ -475,8 +526,29 @@ class Geometry:
         for cb in self.cubic_beziers:
             Graph.add_edge(cb.start_pt.id, cb.end_pt.id)
 
+        closed_loops = nx.cycle_basis(Graph)
+
+        surface = self.find_edges(closed_loops[0])
+
+        print(closed_loops)
+        print(len(nx.cycle_basis(Graph)[0]))
+        print(surface)
+    def plot_connection_graph(self):
+        """Plots the connection graph of the given task. """
+        Graph = nx.Graph()
+
+        # add edges to the graph from the different entities: lines, circles, cubic_bezier
+        for line in self.lines:
+            Graph.add_edge(line.start_pt.id, line.end_pt.id)
+
+        for circles in self.circle_arcs:
+            Graph.add_edge(circles.start_pt.id, circles.end_pt.id)
+
+        for cb in self.cubic_beziers:
+            Graph.add_edge(cb.start_pt.id, cb.end_pt.id)
+
         nx.draw_networkx(Graph, with_labels=False)
-        print(nx.cycle_basis(Graph))
+
         # Set margins for the axes so that nodes aren't clipped
         ax = plt.gca()
         ax.margins(0.20)
