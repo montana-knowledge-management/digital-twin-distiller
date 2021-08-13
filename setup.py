@@ -13,6 +13,7 @@ setup(
         "ezdxf",
         "artap",
         "fenics_poisson_subdomain",
+        "networkx"
     ],
     extras_require={"full": [f"agrossuite >= 0.01"]},
 )

@@ -4,6 +4,8 @@ This class realize a layer, where the different elements of the geometry can be 
 A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
+import networkx as nx
+
 import adze_modeler.objects as obj
 import sys
 from adze_modeler.utils import getID
@@ -43,17 +45,18 @@ class Geometry:
     def add_cubic_bezier(self, cb):
         self.cubic_beziers.append(cb)
         #
-        # self.nodes.append(cb.start_pt)
+        self.nodes.append(cb.start_pt)
         # self.nodes.append(cb.control1)
         # self.nodes.append(cb.control2)
-        # self.nodes.append(cb.end_pt)
-        r, l = Geometry.casteljau(cb)
-        rr, rl = Geometry.casteljau(r)
-        lr, ll = Geometry.casteljau(l)
-        self.add_line(obj.Line(rr.start_pt, rr.end_pt))
-        self.add_line(obj.Line(rl.start_pt, rl.end_pt))
-        self.add_line(obj.Line(lr.start_pt, lr.end_pt))
-        self.add_line(obj.Line(ll.start_pt, ll.end_pt))
+        self.nodes.append(cb.end_pt)
+
+        # r, l = Geometry.casteljau(cb)
+        # rr, rl = Geometry.casteljau(r)
+        # lr, ll = Geometry.casteljau(l)
+        # self.add_line(obj.Line(rr.start_pt, rr.end_pt))
+        # self.add_line(obj.Line(rl.start_pt, rl.end_pt))
+        # self.add_line(obj.Line(lr.start_pt, lr.end_pt))
+        # self.add_line(obj.Line(ll.start_pt, ll.end_pt))
 
     def add_rectangle(self, r: obj.Rectangle):
         p = list(r)
@@ -209,56 +212,6 @@ class Geometry:
 
         return r, l
 
-    def export_svg(self, file_name):
-        """
-        Creates an svg image from the geometry objects.
-        """
-
-        # every object handled as a separate path
-        # TODO: add circlearc and bezier
-
-        paths = []
-        # exports the lines
-        for seg in self.lines:
-            path = svg.Path()
-            p1 = complex(seg.start_pt.x, seg.start_pt.y)
-            p2 = complex(seg.end_pt.x, seg.end_pt.y)
-            path.append(svg.Line(p1.conjugate(), p2.conjugate()))
-            paths.append(path)
-
-        svg.wsvg(paths, svgwrite_debug=True, filename=str(file_name))
-
-    @staticmethod
-    def casteljau(bezier: obj.CubicBezier):
-        """
-        Gets a Bezier object and makes only one Casteljau's iteration step on it without the recursion.
-
-        The algorithm splits the bezier into two, smaller parts denoted by r is the 'right-sides' and l denotes the
-        'left sided' one. The algorithm is limited to use cubic beziers only.
-
-        :return: 2 bezier objects, the right and the left one
-
-        """
-        # calculating the mid point [m]
-        m = (bezier.control1 + bezier.control2) * 0.5
-
-        l0 = bezier.start_pt
-        r3 = bezier.end_pt
-
-        l1 = (bezier.start_pt + bezier.control1) * 0.5
-        r2 = (bezier.control2 + bezier.end_pt) * 0.5
-
-        l2 = (l1 + m) * 0.5
-        r1 = (r2 + m) * 0.5
-
-        l3 = (l2 + r1) * 0.5
-        r0 = l3
-
-        r = obj.CubicBezier(start_pt=r0, control1=r1, control2=r2, end_pt=r3)
-        l = obj.CubicBezier(start_pt=l0, control1=l1, control2=l2, end_pt=l3)
-
-        return r, l
-
     def export_svg(self, file_name="output.svg"):
         """
         Creates an svg image from the geometry objects.
@@ -279,7 +232,17 @@ class Geometry:
         # export the circle arcs
         for arc in self.circle_arcs:
             path = svg.Path()
-            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y), complex(seg.end_pt.x, seg.end_pt.y)))
+            path.append(svg.Line(complex(arc.start_pt.x, arc.start_pt.y), complex(arc.end_pt.x, arc.end_pt.y)))
+            paths.append(path)
+            colors.append("blue")
+
+        for cb in self.cubic_beziers:
+            path = svg.Path()
+            p1 = complex(cb.start_pt.x, cb.start_pt.y)
+            p2 = complex(cb.end_pt.x, cb.end_pt.y)
+            c1 = complex(cb.control1.x, cb.control1.y)
+            c2 = complex(cb.control2.x, cb.control2.y)
+            path.append(svg.CubicBezier(p1, c1, c2, p2))
             paths.append(path)
             colors.append("blue")
 
@@ -402,10 +365,10 @@ class Geometry:
 
         else:
             up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
-                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
-                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             if inrange(tp) and inrange(up):
                 p1 = tuple(p + tp * r)
@@ -477,3 +440,26 @@ class Geometry:
 
         svg.wsvg(paths, filename=str(filename))
 
+    def find_surfaces(self):
+        """Builds a networkx graph from the given geometry and search for the closed surfaces with networkx."""
+
+        import matplotlib.pyplot as plt
+
+        Graph = nx.Graph()
+
+        # add edges to the graph from the different entities: lines, circles, cubic_bezier
+        for line in self.lines:
+            Graph.add_edge(line.start_pt.id, line.end_pt.id)
+
+        for circles in self.circle_arcs:
+            Graph.add_edge(circles.start_pt.id, circles.end_pt.id)
+
+        for cb in self.cubic_beziers:
+            Graph.add_edge(cb.start_pt.id, cb.end_pt.id)
+
+        nx.draw_networkx(Graph, with_labels=False)
+        # Set margins for the axes so that nodes aren't clipped
+        ax = plt.gca()
+        ax.margins(0.20)
+        plt.axis("off")
+        plt.show()

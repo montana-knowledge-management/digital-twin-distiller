@@ -8,3 +8,4 @@ ezdxf
 scipy
 artap
 fenics
+networkx

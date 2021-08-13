@@ -32,12 +32,12 @@ class GMSHModel:
             print(self.gmsh_geometry.add_point([node.x, node.y], self.lcar))
 
 
-    def add_lines(self):
-        # add lines to the internal pygmsh object
-        for line in self.geometry.lines:
-            start_pt = self.gmsh_geometry.add_point([line.start_pt.x, line.start_pt.y], self.lcar)
-            end_pt = self.gmsh_geometry.add_point([line.end_pt.x, line.end_pt.y], self.lcar)
-            self.gmsh_geometry.add_line(p0=start_pt, p1=end_pt)
+    #def add_lines(self):
+    #    # add lines to the internal pygmsh object
+    #    for line in self.geometry.lines:
+    #        start_pt = self.gmsh_geometry.add_point([line.start_pt.x, line.start_pt.y], self.lcar)
+    #        end_pt = self.gmsh_geometry.add_point([line.end_pt.x, line.end_pt.y], self.lcar)
+    #s        self.gmsh_geometry.add_line(p0=start_pt, p1=end_pt)
 
     def gmsh_writer(self):
         with gmsh.Geometry() as geom:
@@ -46,6 +46,7 @@ class GMSHModel:
                 end_pt = geom.add_point([line.end_pt.x, line.end_pt.y], self.lcar)
                 geom.add_line(p0=start_pt, p1=end_pt)
                 geom.save_geometry('helo.geo_unrolled')
+
 # implemented into the geometry class
 # def node_gmsh_point_distance(node, point):
 #    dx = node.x - point.x[0]
