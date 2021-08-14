@@ -240,14 +240,16 @@ class Geometry:
         # exports the lines
         for seg in self.lines:
             path = svg.Path()
-            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y).conjugate(), complex(seg.end_pt.x, seg.end_pt.y).conjugate()))
+            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y).conjugate(),
+                                 complex(seg.end_pt.x, seg.end_pt.y).conjugate()))
             paths.append(path)
             colors.append("blue")
 
         # export the circle arcs
         for arc in self.circle_arcs:
             path = svg.Path()
-            path.append(svg.Line(complex(arc.start_pt.x, arc.start_pt.y).conjugate(), complex(arc.end_pt.x, arc.end_pt.y).conjugate()))
+            path.append(svg.Line(complex(arc.start_pt.x, arc.start_pt.y).conjugate(),
+                                 complex(arc.end_pt.x, arc.end_pt.y).conjugate()))
             paths.append(path)
             colors.append("blue")
 
@@ -287,12 +289,6 @@ class Geometry:
                             end = obj.Node(p2.real, p2.imag, id + 1)
                             self.add_line(obj.Line(start, end, id + 2))
                             id += 3
-
-                        # if isinstance(element, svg.Arc):
-                        #         start = obj.Node(element.start.real, element.start.imag, id)
-                        #         end = obj.Node(element.start.real, element.start.imag, id)
-                        #         center = obj.Node(element.center.real, element.center.imag, id)
-                        #         self.add_arc(obj.CircleArc(start, center, end, id + 3))
 
                         if isinstance(element, svg.CubicBezier):
                             s1 = element.start.conjugate()
@@ -528,11 +524,14 @@ class Geometry:
 
         closed_loops = nx.cycle_basis(Graph)
 
-        surface = self.find_edges(closed_loops[0])
+        surfaces = []
 
-        print(closed_loops)
-        print(len(nx.cycle_basis(Graph)[0]))
-        print(surface)
+        for loop in closed_loops:
+            surface = self.find_edges(loop)
+            surfaces.append(surface)
+
+        return surfaces
+
     def plot_connection_graph(self):
         """Plots the connection graph of the given task. """
         Graph = nx.Graph()

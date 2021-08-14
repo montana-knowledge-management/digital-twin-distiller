@@ -24,28 +24,44 @@ class GMSHModel:
         # sets the
         self.lcar = 5.0
 
-    def add_nodes(self):
-        # add the adze-nodes to the internal pygmsh-writer object
-        # and collects the points into the appropriate format
-        for node in self.geometry.nodes:
-            self.gmsh_geometry.add_point([node.x, node.y], self.lcar)
-            print(self.gmsh_geometry.add_point([node.x, node.y], self.lcar))
-
-
-    #def add_lines(self):
-    #    # add lines to the internal pygmsh object
-    #    for line in self.geometry.lines:
-    #        start_pt = self.gmsh_geometry.add_point([line.start_pt.x, line.start_pt.y], self.lcar)
-    #        end_pt = self.gmsh_geometry.add_point([line.end_pt.x, line.end_pt.y], self.lcar)
-    #s        self.gmsh_geometry.add_line(p0=start_pt, p1=end_pt)
-
     def gmsh_writer(self):
         with gmsh.Geometry() as geom:
-            for line in self.geometry.lines:
-                start_pt = geom.add_point([line.start_pt.x, line.start_pt.y], self.lcar)
-                end_pt = geom.add_point([line.end_pt.x, line.end_pt.y], self.lcar)
-                geom.add_line(p0=start_pt, p1=end_pt)
-                geom.save_geometry('helo.geo_unrolled')
+            self.geometry.merge_points()
+            surfaces = self.geometry.find_surfaces()
+
+            for sf in surfaces:
+                for edge_id in sf:
+                    # lines
+                    for line in self.geometry.lines:
+
+                        if line.id == edge_id:
+                            start_pt = geom.add_point([line.start_pt.x, line.start_pt.y], self.lcar)
+                            end_pt = geom.add_point([line.end_pt.x, line.end_pt.y], self.lcar)
+                            geom.add_line(p0=start_pt, p1=end_pt)
+
+                        if line.id == -edge_id:
+                            end_pt = geom.add_point([line.start_pt.x, line.start_pt.y], self.lcar)
+                            start_pt = geom.add_point([line.end_pt.x, line.end_pt.y], self.lcar)
+                            geom.add_line(p0=start_pt, p1=end_pt)
+
+                    # for cb in self.geometry.cubic_beziers:
+                    #     for i in range(len(points)):
+                    #         if node_gmsh_point_distance(cb.start_pt, points[i]) < epsilon:
+                    #             start_pt = points[i]
+                    #         if node_gmsh_point_distance(cb.end_pt, points[i]) < epsilon:
+                    #             end_pt = points[i]
+                    #         if node_gmsh_point_distance(cb.control1, points[i]) < epsilon:
+                    #             control1 = points[i]
+                    #         if node_gmsh_point_distance(cb.control2, points[i]) < epsilon:
+                    #             control2 = points[i]
+
+                    #temp = geom.add_bspline([start_pt, control1, control2, end_pt])
+                    #gbeziers.append(temp)
+
+            geom.save_geometry('helo.geo_unrolled')
+
+#def gmsh_writer(self):
+# iterates over all of the closed loops of the geometry
 
 # implemented into the geometry class
 # def node_gmsh_point_distance(node, point):
