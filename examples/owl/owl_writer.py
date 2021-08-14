@@ -4,7 +4,7 @@ from adze_modeler.gmsh import GMSHModel
 from importlib_resources import files
 
 # open the owl svg
-eml = files("examples.owl").joinpath("test1.svg")
+eml = files("examples.owl").joinpath("test0.svg")
 geo = Geometry()
 geo.import_svg(eml.as_posix())
 # set the tolerance to merge the given lines
