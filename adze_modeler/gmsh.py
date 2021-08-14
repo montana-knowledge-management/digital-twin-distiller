@@ -44,19 +44,6 @@ class GMSHModel:
                             start_pt = geom.add_point([line.end_pt.x, line.end_pt.y], self.lcar)
                             geom.add_line(p0=start_pt, p1=end_pt)
 
-                    # for cb in self.geometry.cubic_beziers:
-                    #     for i in range(len(points)):
-                    #         if node_gmsh_point_distance(cb.start_pt, points[i]) < epsilon:
-                    #             start_pt = points[i]
-                    #         if node_gmsh_point_distance(cb.end_pt, points[i]) < epsilon:
-                    #             end_pt = points[i]
-                    #         if node_gmsh_point_distance(cb.control1, points[i]) < epsilon:
-                    #             control1 = points[i]
-                    #         if node_gmsh_point_distance(cb.control2, points[i]) < epsilon:
-                    #             control2 = points[i]
-
-                    #temp = geom.add_bspline([start_pt, control1, control2, end_pt])
-                    #gbeziers.append(temp)
 
             geom.save_geometry('helo.geo_unrolled')
 

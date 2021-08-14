@@ -460,50 +460,29 @@ class Geometry:
         """Search for the edges with the given direction """
 
         surface = []
+        # we are looking for a closed loop, therefore the first and the last item should create an edge
+        nodes.append(nodes[0])
         for i, node in enumerate(nodes[:-1]):
-            if i % 2 == 0:
-                # lines
-                for line in self.lines:
-                    if line.end_pt.id == node and line.start_pt.id == nodes[i + 1]:
-                        surface.append(-line.id)
-                    if line.start_pt.id == node and line.end_pt.id == nodes[i + 1]:
-                        surface.append(line.id)
+            # lines
+            for line in self.lines:
+                if line.end_pt.id == node and line.start_pt.id == nodes[i + 1]:
+                    surface.append(-line.id)
+                if line.start_pt.id == node and line.end_pt.id == nodes[i + 1]:
+                    surface.append(line.id)
 
-                # arcs
-                for arc in self.circle_arcs:
-                    if arc.end_pt.id == node and arc.start_pt.id == nodes[i + 1]:
-                        surface.append(-arc.id)
-                    if arc.start_pt.id == node and arc.end_pt.id == nodes[i + 1]:
-                        surface.append(arc.id)
+            # arcs
+            for arc in self.circle_arcs:
+                if arc.end_pt.id == node and arc.start_pt.id == nodes[i + 1]:
+                    surface.append(-arc.id)
+                if arc.start_pt.id == node and arc.end_pt.id == nodes[i + 1]:
+                    surface.append(arc.id)
 
-                # cubic bezier
-                for cb in self.cubic_beziers:
-                    if cb.end_pt.id == node and cb.start_pt.id == nodes[i + 1]:
-                        surface.append(-cb.id)
-                    if cb.start_pt.id == node and cb.end_pt.id == nodes[i + 1]:
-                        surface.append(cb.id)
-
-            else:
-                # lines
-                for line in self.lines:
-                    if line.end_pt.id == node and line.start_pt.id == nodes[i + 1]:
-                        surface.append(line.id)
-                    if line.start_pt.id == node and line.end_pt.id == nodes[i + 1]:
-                        surface.append(-line.id)
-
-                # arcs
-                for arc in self.circle_arcs:
-                    if arc.end_pt.id == node and arc.start_pt.id == nodes[i + 1]:
-                        surface.append(arc.id)
-                    if arc.start_pt.id == node and arc.end_pt.id == nodes[i + 1]:
-                        surface.append(-arc.id)
-
-                # cubic bezier
-                for cb in self.cubic_beziers:
-                    if cb.end_pt == node and cb.start_pt == nodes[i + 1]:
-                        surface.append(cb.id)
-                    if cb.start_pt == node and cb.end_pt == nodes[i + 1]:
-                        surface.append(-cb.id)
+            # cubic bezier
+            for cb in self.cubic_beziers:
+                if cb.end_pt.id == node and cb.start_pt.id == nodes[i + 1]:
+                    surface.append(-cb.id)
+                if cb.start_pt.id == node and cb.end_pt.id == nodes[i + 1]:
+                    surface.append(cb.id)
 
         return surface
 

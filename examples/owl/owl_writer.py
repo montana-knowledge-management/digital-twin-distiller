@@ -14,7 +14,7 @@ print(geo)
 
 surfaces = geo.find_surfaces()
 print('surfaces', surfaces)
-#geo.plot_connection_graph()
+geo.plot_connection_graph()
 geo.export_svg('bagoly.svg')
 # create a gmsh mesh from the given geometry
 gmsh = GMSHModel(geo)
