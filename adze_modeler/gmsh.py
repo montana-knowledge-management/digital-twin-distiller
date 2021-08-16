@@ -35,23 +35,33 @@ class GMSHModel:
             self.geometry.merge_points()
             surfaces = self.geometry.find_surfaces()
 
+            # the code iterates over the different element types
             for sf in surfaces:
                 for edge in sf:
                     # iterate over the line elements
-
                     if isinstance(edge, obj.Line):
                         # this step can be done during the previous
-                        if edge.id>0:
-                            start_pt = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
-                            end_pt = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
-                            geom.add_line(p0=start_pt, p1=end_pt)
+                        start_pt = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
+                        end_pt = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
 
+                        if edge.id > 0:
+                            geom.add_line(p0=start_pt, p1=end_pt)
                         else:
-                            end_pt = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
-                            start_pt = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
-                            geom.add_line(p0=start_pt, p1=end_pt)
+                            geom.add_line(p0=end_pt, p1=start_pt)
 
-            geom.save_geometry('helo.geo_unrolled')
+                    #
+                    if isinstance(edge, obj.CircleArc):
+                        # this step can be done during the previous
+                        start_pt = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
+                        center_pt = geom.add_point([edge.center_pt.x, edge.center_pt.y], self.lcar)
+                        end_pt = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
+
+                        if edge.id > 0:
+                            geom.add_circle_arc(start=start_pt, center=center_pt, end=end_pt)
+                        else:
+                            geom.add_circle(start=end_pt, center=center_pt, end=start_pt)
+
+            geom.save_geometry(file_name + '.geo_unrolled')
 
 # def gmsh_writer(self):
 # iterates over all of the closed loops of the geometry
