@@ -395,6 +395,7 @@ class Geometry:
         return p1, p2
 
     def generate_intersections(self):
+        """Todo: generate intersections """
         N = len(self.lines)
         newlines = list()
         for i in range(N):
@@ -434,7 +435,7 @@ class Geometry:
         self.merge_lines()
 
     def merge_geometry(self, other):
-
+        """Todo: description """
         for li in other.lines:
             otherline = copy(li)
             self.nodes.append(otherline.start_pt)
@@ -466,23 +467,36 @@ class Geometry:
             # lines
             for line in self.lines:
                 if line.end_pt.id == node and line.start_pt.id == nodes[i + 1]:
-                    surface.append(-line.id)
+                    # direction: from end -> to start
+                    temp = copy(line)
+                    temp.id = -temp.id
+                    surface.append(temp)
+
                 if line.start_pt.id == node and line.end_pt.id == nodes[i + 1]:
-                    surface.append(line.id)
+                    # direction: from start -> to end
+                    surface.append(copy(line))
 
             # arcs
             for arc in self.circle_arcs:
                 if arc.end_pt.id == node and arc.start_pt.id == nodes[i + 1]:
-                    surface.append(-arc.id)
+                    # direction: from end -> to start
+                    temp = copy(arc)
+                    temp.id = -temp.id
+                    surface.append(temp)
+
                 if arc.start_pt.id == node and arc.end_pt.id == nodes[i + 1]:
-                    surface.append(arc.id)
+                    # direction: from start -> to end
+                    surface.append(copy(arc))
 
             # cubic bezier
             for cb in self.cubic_beziers:
                 if cb.end_pt.id == node and cb.start_pt.id == nodes[i + 1]:
+                    # direction: from end -> to start
                     surface.append(-cb.id)
+
                 if cb.start_pt.id == node and cb.end_pt.id == nodes[i + 1]:
-                    surface.append(cb.id)
+                    # direction: from start -> to end
+                    surface.append(copy(cb))
 
         return surface
 

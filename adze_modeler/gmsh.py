@@ -1,4 +1,5 @@
 import pygmsh.geo as gmsh
+import adze_modeler.objects as obj
 from adze_modeler.geometry import Geometry
 
 """
@@ -30,24 +31,24 @@ class GMSHModel:
             surfaces = self.geometry.find_surfaces()
 
             for sf in surfaces:
-                for edge_id in sf:
-                    # lines
-                    for line in self.geometry.lines:
+                for edge in sf:
+                    # iterate over the line elements
 
-                        if line.id == edge_id:
-                            start_pt = geom.add_point([line.start_pt.x, line.start_pt.y], self.lcar)
-                            end_pt = geom.add_point([line.end_pt.x, line.end_pt.y], self.lcar)
+                    if isinstance(edge, obj.Line):
+                        # this step can be done during the previous
+                        if edge.id>0:
+                            start_pt = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
+                            end_pt = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
                             geom.add_line(p0=start_pt, p1=end_pt)
 
-                        if line.id == -edge_id:
-                            end_pt = geom.add_point([line.start_pt.x, line.start_pt.y], self.lcar)
-                            start_pt = geom.add_point([line.end_pt.x, line.end_pt.y], self.lcar)
+                        else:
+                            end_pt = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
+                            start_pt = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
                             geom.add_line(p0=start_pt, p1=end_pt)
-
 
             geom.save_geometry('helo.geo_unrolled')
 
-#def gmsh_writer(self):
+# def gmsh_writer(self):
 # iterates over all of the closed loops of the geometry
 
 # implemented into the geometry class
