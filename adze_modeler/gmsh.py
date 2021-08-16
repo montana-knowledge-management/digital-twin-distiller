@@ -25,7 +25,12 @@ class GMSHModel:
         # sets the
         self.lcar = 5.0
 
-    def gmsh_writer(self):
+    def gmsh_writer(self, file_name):
+        """
+        Writes out the previously defined surfaces from the geo object
+
+        :parameter file_name: the
+        """
         with gmsh.Geometry() as geom:
             self.geometry.merge_points()
             surfaces = self.geometry.find_surfaces()
