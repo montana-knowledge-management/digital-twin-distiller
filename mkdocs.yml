@@ -1,0 +1,49 @@
+site_name: Adze-modeler 
+site_url: https://github.com/robust-design-stack/adze-modeler
+repo_url: https://github.com/robust-design-stack/adze-modeler
+repo_name: robust-design-stack/adze-modeler
+
+nav:
+  - Home: index.md
+
+
+
+theme:
+  language: en
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.expand
+    - navigation.top
+    - content.code.annotate
+
+  palette:
+    - primary: teal
+
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+      clickable_checkbox: true
+  - pymdownx.snippets
+  - pymdownx.highlight:
+      use_pygments: true
+      linenums: true
+      linenums_style: pymdownx-inline
+  - pymdownx.superfences
+  - pymdownx.keys
+  - admonition
+
+plugins:
+  - search:
+      lang: en
+
+  - git-revision-date
+
+extra_javascript:
+  - javascripts/config.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
