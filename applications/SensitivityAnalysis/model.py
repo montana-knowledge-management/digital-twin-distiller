@@ -38,9 +38,6 @@ class PriusMotor(BaseModel):
 
         self.airgap = 0.5
 
-        self.label_queue = []
-        self.boundary_queue = []
-        self.boundary_arc_queue = []
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -136,10 +133,6 @@ class PriusMotor(BaseModel):
         self.snapshot.add_material(core)
         self.snapshot.add_material(magnet)
 
-    def assign_materials(self):
-        while self.label_queue:
-            self.snapshot.assign_material(*self.label_queue.pop())
-
     def define_boundary_conditions(self):
         a0 = DirichletBoundaryCondition("a0", field_type="magnetic", magnetic_potential=0.0)
         pb1 = AntiPeriodicBoundaryCondition("PB1", field_type="magnetic")
@@ -154,13 +147,6 @@ class PriusMotor(BaseModel):
         self.snapshot.add_boundary_condition(pb3)
         self.snapshot.add_boundary_condition(pb4)
         self.snapshot.add_boundary_condition(apb)
-
-    def assign_boundary_conditions(self):
-        while self.boundary_queue:
-            self.snapshot.assign_boundary_condition(*self.boundary_queue.pop())
-
-        while self.boundary_arc_queue:
-            self.snapshot.assign_arc_boundary_condition(*self.boundary_arc_queue.pop())
 
     def _add_slice(self, r_outer, r_inner):
         origin = Node(0.0, 0.0)

@@ -8,6 +8,7 @@ nav:
   - Examples:
     - Current Balancing: examples/CurrentBalancing/readme.md
     - Transformer Fast Transients: examples/TransformerFasttransients/readme.md
+    - Team 35 Benchmark Problem: examples/Team35/readme.md
 
 
 

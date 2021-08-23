@@ -16,7 +16,7 @@ class BaseModel(metaclass=ABCMeta):
         self.dir_current = Path(sys.modules[self.__module__].__file__).parent
         self.dir_resources = self.dir_current / "resources"
         self.dir_snapshots = self.dir_current / "snapshots"
-        self.dir_media = self.dir_current / "docs" / "media"
+        self.dir_media = self.dir_current / "media"
         self.dir_data = self.dir_current / "data"
         self.dir_export = self.dir_snapshots / self.name
 
@@ -26,6 +26,10 @@ class BaseModel(metaclass=ABCMeta):
 
         self.snapshot: Snapshot = None
         self.geom = Geometry()
+
+        self.label_queue = []
+        self.boundary_queue = []
+        self.boundary_arc_queue = []
 
         self._init_directories()
 
@@ -40,6 +44,20 @@ class BaseModel(metaclass=ABCMeta):
         self.dir_snapshots.mkdir(exist_ok=True)
         self.dir_export.mkdir(exist_ok=True)
 
+
+    def _assign_materials(self):
+
+        while self.label_queue:
+            self.snapshot.assign_material(*self.label_queue.pop())
+
+
+    def _assign_boundary_conditions(self):
+        while self.boundary_queue:
+            self.snapshot.assign_boundary_condition(*self.boundary_queue.pop())
+
+        while self.boundary_arc_queue:
+            self.snapshot.assign_arc_boundary_condition(*self.boundary_arc_queue.pop())
+
     @abstractmethod
     def setup_solver(self):
         ...
@@ -51,17 +69,9 @@ class BaseModel(metaclass=ABCMeta):
     @abstractmethod
     def define_materials(self):
         ...
-
-    @abstractmethod
-    def assign_materials(self):
-        ...
         
     @abstractmethod
     def define_boundary_conditions(self):
-        ...
-
-    @abstractmethod
-    def assign_boundary_conditions(self):
         ...
 
     @abstractmethod
@@ -74,8 +84,8 @@ class BaseModel(metaclass=ABCMeta):
             self.define_materials()
             self.define_boundary_conditions()
             self.build_geometry()
-            self.assign_materials()
-            self.assign_boundary_conditions()
+            self._assign_materials()
+            self._assign_boundary_conditions()
             self.add_postprocessing()
 
             if devmode:
