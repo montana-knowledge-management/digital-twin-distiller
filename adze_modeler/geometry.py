@@ -3,6 +3,8 @@ This class realize a layer, where the different elements of the geometry can be 
 A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
+from math import acos
+
 import adze_modeler.objects as obj
 import sys
 from adze_modeler.utils import getID
@@ -24,20 +26,20 @@ class Geometry:
         self.epsilon = 1.0e-5
 
     def add_node(self, node):
-        self.nodes.append(node)
+        self.nodes.append(copy(node))
 
     def add_line(self, line):
         self.lines.append(line)
         # save every start and end points for the geoemtry
-        self.nodes.append(line.start_pt)
-        self.nodes.append(line.end_pt)
+        self.add_node(line.start_pt)
+        self.add_node(line.end_pt)
 
     def add_arc(self, arc):
         self.circle_arcs.append(arc)
         # save every start and end points for the geoemtry
-        self.nodes.append(arc.start_pt)
-        self.nodes.append(arc.end_pt)
-        # self.nodes.append(arc.center_pt)
+        self.add_node(arc.start_pt)
+        self.add_node(arc.end_pt)
+        # self.add_node(arc.center_pt)
 
     def add_cubic_bezier(self, cb):
         self.cubic_beziers.append(cb)
@@ -155,6 +157,7 @@ class Geometry:
         id = 0
 
         msp = doc.modelspace()
+        C,D,E,F = list(msp)[-4:]
         for e in msp:
             if e.dxftype() == "LINE":
                 start = obj.Node(e.dxf.start[0], e.dxf.start[1], id)
@@ -163,10 +166,13 @@ class Geometry:
                 id += 3
 
             if e.dxftype() == "ARC":
-                start = obj.Node(e.start_point.x, e.start_point.y, id)
-                end = obj.Node(e.end_point.x, e.end_point.y, id + 1)
-                center = obj.Node(e.dxf.center[0], e.dxf.center[0], id + 2)
-                self.add_arc(obj.CircleArc(start, center, end, id + 3))
+                start = obj.Node(e.start_point.x, e.start_point.y)
+                end = obj.Node(e.end_point.x, e.end_point.y)
+                import matplotlib.pyplot as plt
+                center = obj.Node(e.dxf.center[0], e.dxf.center[1])
+
+                self.add_arc(obj.CircleArc(start, center, end))
+
                 id += 4
 
             if e.dxftype() == "POLYLINE":
@@ -455,6 +461,9 @@ class Geometry:
 
     def merge_geometry(self, other):
 
+        for ni in other.nodes:
+            self.nodes.append(copy(ni))
+
         for li in other.lines:
             otherline = copy(li)
             self.nodes.append(otherline.start_pt)
@@ -473,6 +482,13 @@ class Geometry:
             start_pt = li.start_pt.x + li.start_pt.y * 1j
             end_pt = li.end_pt.x + li.end_pt.y * 1j
             paths.append(svgpathtools.Line(start_pt, end_pt))
+
+        for bz in self.cubic_beziers:
+            start_pt = complex(*bz.start_pt)
+            control1 = complex(*bz.control1)
+            control2 = complex(*bz.control2)
+            end_pt = complex(*bz.end_pt)
+            paths.append(svgpathtools.CubicBezier(start_pt, control1, control2, end_pt))
 
         svg.wsvg(paths, filename=str(filename))
 

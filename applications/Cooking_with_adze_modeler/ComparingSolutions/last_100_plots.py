@@ -50,33 +50,35 @@ def get_processed_line_sym(filename):
 
 data_520_generator = get_processed_line_sym(path_520)
 data_unbounded_generator = get_processed_line_sym(path_unbounded)
-data_reduced_generator = get_processed_line_sym(path_reduced)
+# data_reduced_generator = get_processed_line_sym(path_reduced)
 
 data_520 = array([record for record in data_520_generator])
 data_unbounded = array([record for record in data_unbounded_generator])
-data_reduced = array([record for record in data_reduced_generator])
+# data_reduced = array([record for record in data_reduced_generator])
 
 print("len data_520:", data_520.shape[0])
 print("len data_asym:", data_unbounded.shape[0])
-print("len data_reduced:", data_reduced.shape[0])
+# print("len data_reduced:", data_reduced.shape[0])
 print("-" * 30)
 
 # Filtering out duplicate elements
 data_unbounded = unique(data_unbounded, axis=0)
 data_520 = unique(data_520, axis=0)
-data_reduced = unique(data_reduced, axis=0)
+# data_reduced = unique(data_reduced, axis=0)
 print("len data_sym:", len(data_520))
 print("len data_asym:", len(data_unbounded))
-print("len data_reduced:", len(data_reduced))
+# print("len data_reduced:", len(data_reduced))
 print("-" * 30)
 
 data_520 = data_520[-100:]
 data_unbounded = data_unbounded[-100:]
-data_reduced = data_reduced[-100:]
+# data_reduced = data_reduced[-100:]
 
 idxF1 = 0
 idxF2 = 1
 idxF3 = 2
+
+print(data_unbounded[-1])
 
 ###################################################################################################################
 

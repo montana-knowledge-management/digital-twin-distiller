@@ -102,6 +102,7 @@ MagneticDirichlet = namedtuple("magnetic_dirichlet", ["name", "a_0", "a_1", "a_2
 MagneticMixed = namedtuple("magnetic_mixed", ["name", "c0", "c1"])
 MagneticAnti = namedtuple("magnetic_anti", ["name"])
 MagneticPeriodic = namedtuple("magnetic_periodic", ["name"])
+MagneticAntiPeriodicAirgap = namedtuple("magnetic_antiperiodic_airgap", ["name", "inner", "outer"])
 
 # HeatFlow Boundary Conditions
 HeatFlowFixedTemperature = namedtuple("heatflow_fixed_temperature", ["name", "Tset"])
@@ -470,24 +471,44 @@ class FemmWriter:
                 oa=0,
             )
 
-            if self.field == femm_magnetic and isinstance(boundary, MagneticPeriodic):
-                cmd = Template(
-                    "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, $c0, $c1, $BdryFormat, $ia, $oa)"
-                )
-                cmd = cmd.substitute(
-                    propname="'" + boundary.name + "'",
-                    A0=0,
-                    A1=0,
-                    A2=0,
-                    Phi=0,
-                    Mu=0,
-                    Sig=0,
-                    c0=0,
-                    c1=0,
-                    BdryFormat=4,
-                    ia=0,
-                    oa=0,
-                )
+        if self.field == femm_magnetic and isinstance(boundary, MagneticPeriodic):
+            cmd = Template(
+                "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, $c0, $c1, $BdryFormat, $ia, $oa)"
+            )
+            cmd = cmd.substitute(
+                propname="'" + boundary.name + "'",
+                A0=0,
+                A1=0,
+                A2=0,
+                Phi=0,
+                Mu=0,
+                Sig=0,
+                c0=0,
+                c1=0,
+                BdryFormat=4,
+                ia=0,
+                oa=0,
+            )
+        if self.field == femm_magnetic and isinstance(boundary, MagneticAntiPeriodicAirgap):
+            cmd = Template(
+                "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, $c0, $c1, $BdryFormat, $ia, $oa)"
+            )
+            cmd = cmd.substitute(
+                propname="'" + boundary.name + "'",
+                A0=0,
+                A1=0,
+                A2=0,
+                Phi=0,
+                Mu=0,
+                Sig=0,
+                c0=0,
+                c1=0,
+                BdryFormat=7,
+                ia=boundary.inner,
+                oa=boundary.outer,
+            )
+
+
 
         # HEATFLOW
 

@@ -1,10 +1,10 @@
 import os
-from adze_modeler.boundaries import AntiPeriodicBoundaryCondition
+from adze_modeler.boundaries import AntiPeriodicBoundaryCondition, AntiPeriodicAirGap
 from adze_modeler.boundaries import BoundaryCondition
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.boundaries import NeumannBoundaryCondition
 from adze_modeler.boundaries import PeriodicBoundaryCondition
-from adze_modeler.femm_wrapper import femm_current_flow
+from adze_modeler.femm_wrapper import femm_current_flow, MagneticAntiPeriodicAirgap
 from adze_modeler.femm_wrapper import femm_electrostatic
 from adze_modeler.femm_wrapper import femm_heat_flow
 from adze_modeler.femm_wrapper import femm_magnetic
@@ -85,7 +85,7 @@ class Femm(Platform):
 
     def export_material_definition(self, mat: Material):
         if self.metadata.problem_type == "magnetic":
-            lamtypes = {"inplane": 1}
+            lamtypes = {"inplane": 1, "magnetwire": 3}
             femm_material = MagneticMaterial(
                 material_name=mat.name,
                 mu_x=mat.mu_r,
@@ -96,7 +96,7 @@ class Femm(Platform):
                 Lam_d=mat.thickness,
                 lam_fill=mat.fill_factor,
                 NStrands=0.0,
-                WireD=0.0,
+                WireD=mat.diameter,
                 LamType=lamtypes.get(mat.lamination_type, 0),
                 Phi_hmax=0,
                 Phi_hx=0,
@@ -149,6 +149,11 @@ class Femm(Platform):
             if self.metadata.problem_type == "magnetic":
                 femm_boundary = MagneticPeriodic(name=b.name)
 
+        if isinstance(b, AntiPeriodicAirGap):
+            if self.metadata.problem_type == "magnetic":
+                femm_boundary = MagneticAntiPeriodicAirgap(name=b.name, inner=b.inner_angle, outer=b.outer_angle)
+
+
         self.write(self.writer.add_boundary(femm_boundary))
 
     def export_geometry_element(self, e, boundary=None):
@@ -186,8 +191,8 @@ class Femm(Platform):
             self.write(self.writer.add_arc(e.start_pt.x, e.start_pt.y, e.end_pt.x, e.end_pt.y, theta, e.max_seg_deg))
 
             if boundary:
-                self.write(self.writer.select_arc_segment(internal_pt.x, internal_pt.y))
-                self.write(self.writer.set_arc_segment_prop(e.max_seg_deg, boundary.name, 0, 0))
+                self.write(self.writer.select_arc_segment(e.apex_pt.x, e.apex_pt.y))
+                self.write(self.writer.set_arc_segment_prop(e.max_seg_deg, boundary, 0, 0))
                 self.write(self.writer.clear_selected())
 
     def export_solving_steps(self):
@@ -234,7 +239,7 @@ class Femm(Platform):
         if action == "integration":
             if self.metadata.problem_type == "magnetic":
                 # TODO: xx_selectblock for postprocessing is missing in femm_wrapper
-                int_type = {"Fx": 18, "Fy": 19, "Area": 5, "Energy": 2}
+                int_type = {"Fx": 18, "Fy": 19, "Area": 5, "Energy": 2, "Torque": 22}
                 assert variable in int_type.keys(), f"There is no variable '{variable}'"
                 if isinstance(entity, Iterable):
                     for x, y in entity:

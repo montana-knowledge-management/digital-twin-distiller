@@ -1,4 +1,5 @@
 import math
+from sys import base_exec_prefix
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.geometry import Geometry
 from adze_modeler.material import Material
@@ -18,11 +19,11 @@ from uuid import uuid4
 from numpy import linspace
 from numpy import meshgrid
 
-export_location = Path(__file__).parent / "snapshots"
+base_dir = Path(__file__).parent
+export_location = base_dir / "snapshots"
 
 
 def build(platform, X, msize, cleanup=True, customid=None):
-
     p = copy(platform)
     model_id = customid or str(uuid4())
 
@@ -104,7 +105,7 @@ def build(platform, X, msize, cleanup=True, customid=None):
     snapshot.export()
     print(f"EXECUTING({snapshot.platform.metadata.compatible_platform})", end="...")
     try:
-        snapshot.execute()
+        snapshot.execute(timeout=1000)
     except Exception as e:
         print("FAILED TO SOLVE")
         return None

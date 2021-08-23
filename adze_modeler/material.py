@@ -1,3 +1,6 @@
+from copy import deepcopy
+
+
 class Material:
     def __init__(self, name):
         self.name = name
@@ -19,18 +22,21 @@ class Material:
         self.thickness = 0
         self.lamination_type = 0
         self.fill_factor = 0
+        self.diameter = 1.0
 
         self.assigned = []  # a set of (x, y) tuples
         self.meshsize = 0
 
     def __copy__(self):
-        newmaterial = Material(self.name)
-        newmaterial.name = self.name
-        newmaterial.mu_r = self.mu_r
-        newmaterial.epsioln_r = self.epsioln_r
-        newmaterial.conductivity = self.conductivity
-        newmaterial.b = self.b.copy() or []
-        newmaterial.h = self.h.copy() or []
-        newmaterial.Je = self.Je
-        newmaterial.Rho = self.Rho
-        return newmaterial
+        # newmaterial = Material(self.name)
+        # newmaterial.name = self.name
+        # newmaterial.mu_r = self.mu_r
+        # newmaterial.epsioln_r = self.epsioln_r
+        # newmaterial.conductivity = self.conductivity
+        # newmaterial.b = self.b.copy() or []
+        # newmaterial.h = self.h.copy() or []
+        # newmaterial.Je = self.Je
+        # newmaterial.Rho = self.Rho
+        # return newmaterial
+
+        return deepcopy(self)

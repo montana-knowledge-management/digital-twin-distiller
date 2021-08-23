@@ -20,7 +20,10 @@ class Node:
 
     def __add__(self, p):
         """Point(x1+x2, y1+y2)"""
-        return Node(self.x + p.x, self.y + p.y)
+        if isinstance(p, Node):
+            return Node(self.x + p.x, self.y + p.y)
+        else:
+            return Node(self.x + p, self.y + p)
 
     def __sub__(self, p):
         """Point(x1-x2, y1-y2)"""
@@ -32,6 +35,9 @@ class Node:
 
     def __rmul__(self, scalar):
         return self * scalar
+
+    def __truediv__(self, scalar):
+        return Node(self.x / scalar, self.y / scalar)
 
     def __matmul__(self, other):
         """
@@ -191,13 +197,30 @@ class Line:
 class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, center_pt, end_pt, id=None, label=None):
+    def __init__(self, start_pt, center_pt, end_pt, id=None, label=None, max_seg_deg=20):
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt
         self.id = id or getID()
         self.label = label
-        self.max_seg_deg = 20
+        self.max_seg_deg = max_seg_deg
+
+        self.radius = self.start_pt.distance_to(self.center_pt)
+        clamp = self.start_pt.distance_to(self.end_pt) / 2.0
+        self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
+        self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
+
+    def distance_to_point(self, x, y):
+        """
+        This function returns the minimum distance between p and the circle arcs points:
+        start, end, center and apex point.
+        """
+        p = Node(x, y)
+        d1 = self.start_pt.distance_to(p)
+        d2 = self.center_pt.distance_to(p)
+        d3 = self.end_pt.distance_to(p)
+        d4 = self.apex_pt.distance_to(p)
+        return min(d1, d2, d3, d4)
 
     def __copy__(self):
         return CircleArc(copy(self.start_pt), copy(self.center_pt), copy(self.end_pt))

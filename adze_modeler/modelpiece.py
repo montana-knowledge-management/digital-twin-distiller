@@ -30,6 +30,9 @@ class ModelPiece:
         return self.__copy__()
 
     def translate(self, dx, dy):
+        for i, node_i in enumerate(self.geom.nodes):
+            self.geom.nodes[i].move_xy(dx, dy)
+
         for line_i in self.geom.lines:
             line_i.start_pt.move_xy(dx, dy)
             line_i.end_pt.move_xy(dx, dy)
@@ -89,9 +92,12 @@ class ModelPiece:
             self.geom.nodes[i] = mirror_point(p1, p2, self.geom.nodes[i])
 
         for i in range(len(self.geom.circle_arcs)):
-            self.geom.circle_arcs[i].start_pt = mirror_point(p1, p2, self.geom.circle_arcs[i].start_pt)
+            # when mirroring the start and end points are going to be swapped to preserve the arc direction
+            start = mirror_point(p1, p2, self.geom.circle_arcs[i].start_pt)
+            end = mirror_point(p1, p2, self.geom.circle_arcs[i].end_pt)
+            self.geom.circle_arcs[i].start_pt = end
             self.geom.circle_arcs[i].center_pt = mirror_point(p1, p2, self.geom.circle_arcs[i].center_pt)
-            self.geom.circle_arcs[i].end_pt = mirror_point(p1, p2, self.geom.circle_arcs[i].end_pt)
+            self.geom.circle_arcs[i].end_pt = start
 
         for i in range(len(self.geom.lines)):
             self.geom.lines[i].start_pt = mirror_point(p1, p2, self.geom.lines[i].start_pt)
@@ -117,8 +123,29 @@ class ModelPiece:
             self.geom.lines[i].end_pt = self.geom.lines[i].end_pt.rotate_about(ref_point, alpha)
 
         self._update_bbox()
+    
+    def scale(self, sx, sy):
+        for i in range(len(self.geom.nodes)):
+            self.geom.nodes[i].x *= sx
+            self.geom.nodes[i].y *= sy
 
+        for i in range(len(self.geom.lines)):
+            self.geom.lines[i].start_pt.x *= sx
+            self.geom.lines[i].start_pt.y *= sy
 
+            self.geom.lines[i].end_pt.x *= sx
+            self.geom.lines[i].end_pt.y *= sy
+
+        for i in range(len(self.geom.circle_arcs)):
+            self.geom.circle_arcs[i].start_pt.x *= sx
+            self.geom.circle_arcs[i].start_pt.y *= sy
+
+            self.geom.circle_arcs[i].center_pt.x *= sx
+            self.geom.circle_arcs[i].center_pt.y *= sy
+
+            self.geom.circle_arcs[i].end_pt.x *= sx
+            self.geom.circle_arcs[i].end_pt.y *= sy
+        
     def _update_bbox(self):
         minx = min(self.geom.nodes, key=lambda node_i: node_i.x).x
         miny = min(self.geom.nodes, key=lambda node_i: node_i.y).y

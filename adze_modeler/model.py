@@ -6,6 +6,7 @@ from shutil import rmtree
 from uuid import uuid4
 from pathlib import Path
 import sys
+import traceback
 
 class BaseModel(metaclass=ABCMeta):
 
@@ -96,4 +97,5 @@ class BaseModel(metaclass=ABCMeta):
 
         except Exception as e:
             print("something went wrong: ", e)
+            print(traceback.format_exc())
             return None

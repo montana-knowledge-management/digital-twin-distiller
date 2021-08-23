@@ -1,4 +1,6 @@
 import math
+import operator
+
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.geometry import Geometry
 from adze_modeler.material import Material
@@ -41,6 +43,7 @@ def build(platform, X, cleanup=True, customid=None):
 
     mp_bound = ModelPiece("bound")
     mp_bound.load_piece_from_svg(current_dir / "problem_boundary.svg")
+    mp_bound.put(0, 0)
 
     mp_control = ModelPiece("core")
     mp_control.load_piece_from_svg(current_dir / "core.svg")
@@ -133,6 +136,40 @@ def build(platform, X, cleanup=True, customid=None):
 
     return res
 
+def get_objective_functions(X, resn, res, resp):
+    Bz = [pointvalue[2] for pointvalue in res["Bz"]]  # [x, y, Bz(x, y)]
+    Br = [pointvalue[2] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+    xi = [pointvalue[0] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+    yi = [pointvalue[1] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
+    nb_nodes = res["nodes"]
+
+    # Calculate F1
+    B0 = 2e-3
+    F1 = max(map(lambda Bz_i: abs(Bz_i - B0), Bz))
+
+    # Calculate F2
+
+    Bzp = [pointvalue[2] for pointvalue in resp["Bz"]]
+    Brp = [pointvalue[2] for pointvalue in resp["Br"]]
+
+    Bzn = [pointvalue[2] for pointvalue in resn["Bz"]]
+    Brn = [pointvalue[2] for pointvalue in resn["Br"]]
+
+    deltaBpz = map(operator.abs, map(operator.sub, Bzp, Bz))
+    deltaBpr = map(operator.abs, map(operator.sub, Brp, Br))
+    deltaBp = map(math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBpz, deltaBpr))
+
+    deltaBnz = map(operator.abs, map(operator.sub, Bzn, Bz))
+    deltaBnr = map(operator.abs, map(operator.sub, Brn, Br))
+    deltaBn = map(math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBnz, deltaBnr))
+
+    F2 = max(map(operator.add, deltaBp, deltaBn))
+
+    # Calcukate F3
+    F3 = sum(X)
+
+    return [F1, F2, F3]
+
 
 if __name__ == "__main__":
     femm_metadata = FemmMetadata()
@@ -150,9 +187,9 @@ if __name__ == "__main__":
     agros_metadata.coordinate_type = "axisymmetric"
     agros_metadata.analysis_type = "steadystate"
     agros_metadata.unit = 1e-3
-    agros_metadata.nb_refinements = 2
+    agros_metadata.nb_refinements = 0
     agros_metadata.adaptivity = "hp-adaptivity"
-    agros_metadata.adaptivity_tol = 0.2
+    agros_metadata.adaptivity_tol = 1
 
     platform_femm = Femm(femm_metadata)
     platform_agros = Agros2D(agros_metadata)
@@ -163,6 +200,17 @@ if __name__ == "__main__":
     X.extend([uniform(5, 50) for _ in range(12)])
     X.extend([uniform(1, 50) for _ in range(6)])
 
-    for i in range(10):
-        resf = build(platform_femm, X, cleanup=False, customid="nodes-F1")
-        resa = build(platform_agros, X, cleanup=False, customid="nodes-F1")
+    # for i in range(10):
+    #     resf = build(platform_femm, X, cleanup=False, customid="nodes-F1")
+    #     resa = build(platform_agros, X, cleanup=False, customid="nodes-F1")
+
+    X = [1.16, 1.12, 1.01, 1.67, 1.15, 4.35, 5.84, 6.07, 5.96, 6.71, 6.08, 6.49, 6.38, 5.94, 1.3, 3.15, 1.17, 1.08,
+         1.03, 1]
+
+    Xp =[xi + 0.5 for xi in X]
+    Xn =[xi - 0.5 for xi in X]
+    res_m = build(platform_agros, Xn, cleanup=False, customid="alma_minus")
+    resa_0 = build(platform_agros, X, cleanup=False, customid="alma_0")
+    resa_p = build(platform_agros, Xp, cleanup=False, customid="alma_plus")
+    print(get_objective_functions(X, res_m, resa_0, resa_p))
+

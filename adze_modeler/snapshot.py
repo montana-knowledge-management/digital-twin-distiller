@@ -42,6 +42,15 @@ class Snapshot:
 
         self.boundaries[name].assigned.add(closest_line.id)
 
+    def assign_arc_boundary_condition(self, x, y, name):
+
+        if name not in self.boundaries.keys():
+            raise ValueError(f'There is no boundary condition called "{name}"')
+
+        closest_arc = min(self.circle_arcs.values(), key=lambda arc_i: arc_i.distance_to_point(x, y))
+
+        self.boundaries[name].assigned.add(closest_arc.id)
+
     def add_material(self, mat: Material):
         if mat.name in self.materials.keys():
             raise ValueError("This material is already added")
@@ -94,8 +103,14 @@ class Snapshot:
         # Export the boundaries first
         for name_i, boundary_i in self.boundaries.items():
             for id_i in boundary_i.assigned:
-                line_i = self.lines.pop(id_i)
-                self.platform.export_geometry_element(line_i, boundary=name_i)
+                if id_i in self.lines.keys():
+                    line_i = self.lines.pop(id_i)
+                    self.platform.export_geometry_element(line_i, boundary=name_i)
+                elif id_i in self.circle_arcs.keys():
+                    arc_i = self.circle_arcs.pop(id_i)
+                    self.platform.export_geometry_element(arc_i, boundary=name_i)
+                else:
+                    raise ValueError("There is no line with the id:", id_i, "boundary:", boundary_i.name)
 
         # Export the rest
         for id, line_i in self.lines.items():
