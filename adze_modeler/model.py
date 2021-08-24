@@ -31,8 +31,6 @@ class BaseModel(metaclass=ABCMeta):
         self.boundary_queue = []
         self.boundary_arc_queue = []
 
-        self._init_directories()
-
     def add_line(self, x0, y0, x1, y1):
         self.geom.add_line(obj.Line(obj.Node(x0, y0), obj.Node(x1, y1)))
 

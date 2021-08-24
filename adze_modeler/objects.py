@@ -18,6 +18,9 @@ class Node:
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
         self.hanging = True  # if its contained by another object it will be set to False
 
+    def __eq__(self, other):
+        return abs(self.x - other.x) < 1e-5 and abs(self.y - other.y) < 1e-5
+
     def __add__(self, p):
         """Point(x1+x2, y1+y2)"""
         if isinstance(p, Node):
@@ -47,10 +50,12 @@ class Node:
         return self.x * other.x + self.y * other.y
 
     def __str__(self):
-        return f"({self.x:.1f}, {self.y:.1f}, label={self.label})"
+        # return f"({self.x:.1f}, {self.y:.1f}, label={self.label})"
+        return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
+        # return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
+        return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
 
     def __copy__(self):
         return Node(self.x, self.y, id=getID(), label=self.label, precision=self.precision)
@@ -205,10 +210,13 @@ class CircleArc:
         self.label = label
         self.max_seg_deg = max_seg_deg
 
-        self.radius = self.start_pt.distance_to(self.center_pt)
-        clamp = self.start_pt.distance_to(self.end_pt) / 2.0
-        self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
-        self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
+        try:
+            self.radius = self.start_pt.distance_to(self.center_pt)
+            clamp = self.start_pt.distance_to(self.end_pt) / 2.0
+            self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
+            self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
+        except ValueError as e:
+            print(e)
 
     def distance_to_point(self, x, y):
         """
@@ -223,7 +231,7 @@ class CircleArc:
         return min(d1, d2, d3, d4)
 
     def __copy__(self):
-        return CircleArc(copy(self.start_pt), copy(self.center_pt), copy(self.end_pt))
+        return CircleArc(copy(self.start_pt), copy(self.center_pt), copy(self.end_pt), max_seg_deg=self.max_seg_deg)
 
     def __repr__(self):
         return "{}({!r}, {!r}, {!r}, id={!r},label={!r})".format(

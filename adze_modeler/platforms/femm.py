@@ -110,6 +110,8 @@ class Femm(Platform):
                     self.write(f'mi_addbhpoint("{mat.name}", {bi}, {hi})')
 
     def export_block_label(self, x, y, mat: Material):
+        x = float(x)
+        y = float(y)
         self.write(self.writer.add_blocklabel(x, y))
         self.write(self.writer.select_label(x, y))
         self.write(

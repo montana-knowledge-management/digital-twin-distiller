@@ -74,41 +74,41 @@ class TestGeometry(TestCase):
         self.assertEqual(len(g.lines), 52)
 
 
-class TestMeshing(TestCase):
-    def test_mesh_the_triangle(self):
-        path = files("examples.triangle").joinpath("triangle.svg")
-        # print(path)
-        geo = Geometry()
-        geo.import_svg(path.as_posix())
-
-        node = Node(555, -555)
-        geo.add_node(node)
-
-        res = geo.__str__()
-        self.assertIn(node.__str__(), res)
-        print(res)
-        gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
-
-        try:
-            os.remove("test.geo_unrolled")
-        except FileNotFoundError:
-            try:
-                # running tox
-                os.remove("tests\test.geo_unrolled")
-            except FileNotFoundError:
-                self.assertTrue(False)
-
-    def test_mesh_the_owl(self):
-        path = files("examples.owl").joinpath("owl-shape.svg")
-        geo = Geometry()
-        geo.import_svg(path.as_posix())
-        gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
-
-        try:
-            os.remove("test.geo_unrolled")
-        except FileNotFoundError:
-            try:
-                # running tox
-                os.remove("tests\test.geo_unrolled")
-            except FileNotFoundError:
-                self.assertTrue(False)
+# class TestMeshing(TestCase):
+#     def test_mesh_the_triangle(self):
+#         path = files("examples.triangle").joinpath("triangle.svg")
+#         # print(path)
+#         geo = Geometry()
+#         geo.import_svg(path.as_posix())
+#
+#         node = Node(555, -555)
+#         geo.add_node(node)
+#
+#         res = geo.__str__()
+#         self.assertIn(node.__str__(), res)
+#         print(res)
+#         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
+#
+#         try:
+#             os.remove("test.geo_unrolled")
+#         except FileNotFoundError:
+#             try:
+#                 # running tox
+#                 os.remove("tests\test.geo_unrolled")
+#             except FileNotFoundError:
+#                 self.assertTrue(False)
+#
+#     def test_mesh_the_owl(self):
+#         path = files("examples.owl").joinpath("owl-shape.svg")
+#         geo = Geometry()
+#         geo.import_svg(path.as_posix())
+#         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
+#
+#         try:
+#             os.remove("test.geo_unrolled")
+#         except FileNotFoundError:
+#             try:
+#                 # running tox
+#                 os.remove("tests\test.geo_unrolled")
+#             except FileNotFoundError:
+#                 self.assertTrue(False)

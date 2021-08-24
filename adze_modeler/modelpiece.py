@@ -30,17 +30,37 @@ class ModelPiece:
         return self.__copy__()
 
     def translate(self, dx, dy):
+        updated = set()
         for i, node_i in enumerate(self.geom.nodes):
             self.geom.nodes[i].move_xy(dx, dy)
+            updated.add(node_i.id)
 
-        for line_i in self.geom.lines:
-            line_i.start_pt.move_xy(dx, dy)
-            line_i.end_pt.move_xy(dx, dy)
+        for i, li in enumerate(self.geom.lines):
+            if li.start_pt.id not in updated:
+                self.geom.lines[i].start_pt.move_xy(dx, dy)
+                updated.add(li.start_pt.id)
 
-        for arc_i in self.geom.circle_arcs:
-            arc_i.start_pt.move_xy(dx, dy)
-            arc_i.end_pt.move_xy(dx, dy)
-            arc_i.center_pt.move_xy(dx, dy)
+            if li.end_pt.id not in updated:
+                self.geom.lines[i].end_pt.move_xy(dx, dy)
+                updated.add(li.end_pt.id)
+
+
+        for i, ai in enumerate(self.geom.circle_arcs):
+            if ai.start_pt.id not in updated:
+                self.geom.circle_arcs[i].start_pt.move_xy(dx, dy)
+                updated.add(ai.start_pt.id)
+
+            if ai.center_pt.id not in updated:
+                self.geom.circle_arcs[i].center_pt.move_xy(dx, dy)
+                updated.add(ai.center_pt.id)
+
+            if ai.apex_pt.id not in updated:
+                self.geom.circle_arcs[i].apex_pt.move_xy(dx, dy)
+                updated.add(ai.apex_pt.id)
+
+            if ai.end_pt.id not in updated:
+                self.geom.circle_arcs[i].end_pt.move_xy(dx, dy)
+                updated.add(ai.end_pt.id)
 
         self._update_bbox()
 

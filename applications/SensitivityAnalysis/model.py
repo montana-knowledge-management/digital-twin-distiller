@@ -23,6 +23,7 @@ class PriusMotor(BaseModel):
 
     def __init__(self, rotorangle=0, exportname=None):
         super(PriusMotor, self).__init__(exportname=exportname)
+        self._init_directories()
 
         self.rotorangle = rotorangle
 
@@ -268,4 +269,5 @@ class PriusMotor(BaseModel):
 
 
 if __name__ == "__main__":
-    import matplotlib.pyplot as plt
+    m = PriusMotor(rotorangle=0, exportname='dev')
+    print(m(cleanup=False, devmode=True))

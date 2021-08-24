@@ -11,7 +11,7 @@ class TestSvgImport(TestCase):
         geo.import_svg(eml.as_posix())
 
         # checks the first coordinate of the first node
-        self.assertEqual(445.642, geo.nodes[0].x)
+        self.assertTrue(abs(442.466-geo.nodes[0].x) < 1e-3)
         # self.assertEqual(635, geo.nodes[-1].id)
         # the number of lines and cubicbeziers should be larger than 0
         self.assertTrue(len(geo.lines) > 0)

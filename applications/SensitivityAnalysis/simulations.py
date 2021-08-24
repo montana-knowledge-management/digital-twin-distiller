@@ -45,17 +45,17 @@ def curve_fit(x, y, order=3):
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    m = PriusMotor(rotorangle=0, exportname='pathtest')
-    # print(m(cleanup=False, devmode=False))
-    theta, T = read_results(m.dir_data/'torque0.csv')
-    T1 = curve_fit(theta, T, order=15)
-
-    theta_fine = np.linspace(0, 1, 1001) * 360
-    plt.figure(figsize=(6,4))
-    plt.plot(theta_fine, T1(theta_fine), 'b-')
-    plt.grid()
-    plt.xlim(45, 45+180)
-    plt.xlabel('Rotor angle [°]')
-    plt.ylabel('Torque [Nm]')
-    plt.show()
+    m = PriusMotor(rotorangle=0, exportname='dev')
+    print(m(cleanup=False, devmode=False))
+    # theta, T = read_results(m.dir_data/'torque0.csv')
+    # T1 = curve_fit(theta, T, order=15)
+    #
+    # theta_fine = np.linspace(0, 1, 1001) * 360
+    # plt.figure(figsize=(6,4))
+    # plt.plot(theta_fine, T1(theta_fine), 'b-')
+    # plt.grid()
+    # plt.xlim(45, 45+180)
+    # plt.xlabel('Rotor angle [°]')
+    # plt.ylabel('Torque [Nm]')
+    # plt.show()
 
