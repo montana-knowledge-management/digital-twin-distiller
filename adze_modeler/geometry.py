@@ -26,7 +26,7 @@ class Geometry:
         self.epsilon = 1.0e-5
 
     def add_node(self, node):
-        self.nodes.append(node)
+        self.nodes.append(copy(node))
 
     def add_line(self, line):
         self.lines.append(line)
@@ -100,23 +100,32 @@ class Geometry:
             #    print(i)
 
     def merge_lines(self):
+        # self.merge_points()
+        # for i in range(len(self.lines) - 1):
+        #     try:
+        #         id1 = self.lines[i].start_pt.id
+        #         id2 = self.lines[i].end_pt.id
+        #     except IndexError:
+        #         pass
+        #     for j in range(len(self.lines) - 1, i, -1):
+        #         id3 = self.lines[j].start_pt.id
+        #         id4 = self.lines[j].end_pt.id
+        #         l = self.lines[j].start_pt.distance_to(self.lines[j].end_pt)
+        #
+        #         if l < self.epsilon:
+        #             del self.lines[j]
+        #
+        #         elif {id1, id2} == {id3, id4}:
+        #             del self.lines[j]
+        lines = self.lines.copy()
+        self.nodes.clear()
+        self.lines.clear()
+
+        for li in lines:
+            if li not in self.lines:
+                self.add_line(li)
+
         self.merge_points()
-        for i in range(len(self.lines) - 1):
-            try:
-                id1 = self.lines[i].start_pt.id
-                id2 = self.lines[i].end_pt.id
-            except IndexError:
-                pass
-            for j in range(len(self.lines) - 1, i, -1):
-                id3 = self.lines[j].start_pt.id
-                id4 = self.lines[j].end_pt.id
-                l = self.lines[j].start_pt.distance_to(self.lines[j].end_pt)
-
-                if l < self.epsilon:
-                    del self.lines[j]
-
-                elif {id1, id2} == {id3, id4}:
-                    del self.lines[j]
 
     def meshi_it(self, mesh_strategy):
         mesh = mesh_strategy(self.nodes, self.lines, self.circle_arcs, self.cubic_beziers)
@@ -278,23 +287,23 @@ class Geometry:
                         if isinstance(element, svg.Line):
                             p1 = element.start.conjugate()
                             p2 = element.end.conjugate()
-                            start = obj.Node(p1.real, p1.imag, id)
-                            end = obj.Node(p2.real, p2.imag, id + 1)
-                            self.add_line(obj.Line(start, end, id + 2))
+                            start = obj.Node(p1.real, p1.imag)
+                            end = obj.Node(p2.real, p2.imag)
+                            self.add_line(obj.Line(start, end))
                             id += 3
 
                         # if isinstance(element, svg.Arc):
-                        #         start = obj.Node(element.start.real, element.start.imag, id)
-                        #         end = obj.Node(element.start.real, element.start.imag, id)
-                        #         center = obj.Node(element.center.real, element.center.imag, id)
-                        #         self.add_arc(obj.CircleArc(start, center, end, id + 3))
+                        #         start = obj.Node(element.start.real, element.start.imag)
+                        #         end = obj.Node(element.start.real, element.start.imag)
+                        #         center = obj.Node(element.center.real, element.center.imag)
+                        #         self.add_arc(obj.CircleArc(start, center, end))
 
                         if isinstance(element, svg.CubicBezier):
-                            start = obj.Node(element.start.real, element.start.imag, id)
-                            control1 = obj.Node(element.control1.real, element.control1.imag, id + 1)
-                            control2 = obj.Node(element.control2.real, element.control2.imag, id + 2)
-                            end = obj.Node(element.end.real, element.end.imag, id + 3)
-                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4))
+                            start = obj.Node(element.start.real, element.start.imag)
+                            control1 = obj.Node(element.control1.real, element.control1.imag)
+                            control2 = obj.Node(element.control2.real, element.control2.imag)
+                            end = obj.Node(element.end.real, element.end.imag)
+                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end))
                             id += 5
 
                         if isinstance(element, svg.Arc):
@@ -440,6 +449,8 @@ class Geometry:
         for cb in other.cubic_beziers:
             self.add_cubic_bezier(copy(cb))
             # self.cubic_beziers.append(copy(cb))
+
+        # self.merge_points()
 
     def export_geom(self, filename):
         paths = []

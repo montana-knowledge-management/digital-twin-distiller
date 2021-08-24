@@ -195,8 +195,20 @@ class Line:
 
         return reqAns
 
+    def __eq__(self, other):
+        d1 = self.start_pt.distance_to(other.start_pt)
+        d2 = self.start_pt.distance_to(other.end_pt)
+        d3 = self.end_pt.distance_to(other.start_pt)
+        d4 = self.end_pt.distance_to(other.end_pt)
+        distances = sorted([d1, d2, d3, d4])
+        if distances[0] < 1e-5 and distances[1] < 1e-5:
+            return True
+        else:
+            return False
+
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
+        # return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
+        return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt}, id={hex(self.id)[-5:]})"
 
 
 class CircleArc:
@@ -210,13 +222,12 @@ class CircleArc:
         self.label = label
         self.max_seg_deg = max_seg_deg
 
-        try:
-            self.radius = self.start_pt.distance_to(self.center_pt)
-            clamp = self.start_pt.distance_to(self.end_pt) / 2.0
-            self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
-            self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
-        except ValueError as e:
-            print(e)
+
+        self.radius = self.start_pt.distance_to(self.center_pt)
+        clamp = self.start_pt.distance_to(self.end_pt) / 2.0
+        self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
+        self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
+
 
     def distance_to_point(self, x, y):
         """

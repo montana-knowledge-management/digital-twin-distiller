@@ -33,34 +33,35 @@ class ModelPiece:
         updated = set()
         for i, node_i in enumerate(self.geom.nodes):
             self.geom.nodes[i].move_xy(dx, dy)
-            updated.add(node_i.id)
+            updated.add(hex(node_i.id)[-5:])
 
         for i, li in enumerate(self.geom.lines):
             if li.start_pt.id not in updated:
                 self.geom.lines[i].start_pt.move_xy(dx, dy)
-                updated.add(li.start_pt.id)
+                updated.add(hex(li.start_pt.id)[-5:])
 
             if li.end_pt.id not in updated:
                 self.geom.lines[i].end_pt.move_xy(dx, dy)
-                updated.add(li.end_pt.id)
-
+                updated.add(hex(li.end_pt.id)[-5:])
 
         for i, ai in enumerate(self.geom.circle_arcs):
             if ai.start_pt.id not in updated:
                 self.geom.circle_arcs[i].start_pt.move_xy(dx, dy)
-                updated.add(ai.start_pt.id)
+                updated.add(hex(ai.start_pt.id)[-5:])
+
 
             if ai.center_pt.id not in updated:
                 self.geom.circle_arcs[i].center_pt.move_xy(dx, dy)
-                updated.add(ai.center_pt.id)
+                updated.add(hex(ai.center_pt.id)[-5:])
 
             if ai.apex_pt.id not in updated:
                 self.geom.circle_arcs[i].apex_pt.move_xy(dx, dy)
-                updated.add(ai.apex_pt.id)
+                updated.add(hex(ai.apex_pt.id)[-5:])
 
             if ai.end_pt.id not in updated:
                 self.geom.circle_arcs[i].end_pt.move_xy(dx, dy)
-                updated.add(ai.end_pt.id)
+                updated.add(hex(ai.end_pt.id)[-5:])
+
 
         self._update_bbox()
 

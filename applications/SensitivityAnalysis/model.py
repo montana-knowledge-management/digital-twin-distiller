@@ -65,8 +65,6 @@ class PriusMotor(BaseModel):
 
     def define_materials(self):
         air = Material("air")
-        core = Material("core")
-        magnet = Material("magnet")
 
         awg2 = Material("20 AWG")
         awg2.lamination_type = "magnetwire"
@@ -131,8 +129,6 @@ class PriusMotor(BaseModel):
         self.snapshot.add_material(m19_29gsf094)
         self.snapshot.add_material(n36z_50_right)
         self.snapshot.add_material(n36z_50_left)
-        self.snapshot.add_material(core)
-        self.snapshot.add_material(magnet)
 
     def define_boundary_conditions(self):
         a0 = DirichletBoundaryCondition("a0", field_type="magnetic", magnetic_potential=0.0)
@@ -269,5 +265,5 @@ class PriusMotor(BaseModel):
 
 
 if __name__ == "__main__":
-    m = PriusMotor(rotorangle=0, exportname='dev')
-    print(m(cleanup=False, devmode=True))
+    m = PriusMotor(rotorangle=45, exportname='dev')
+    print(m(cleanup=False, devmode=False))

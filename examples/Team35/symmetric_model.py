@@ -124,12 +124,8 @@ class SymmetircModel(BaseModel):
             self.geom.merge_geometry(coil.geom)
             self.label_queue.append((ri + w / 2, offsetz + h / 2, "J+"))
 
-        print(len(self.geom.nodes), len(self.geom.lines))
-        self.geom.merge_points()
         self.geom.generate_intersections()
-        self.geom.merge_lines()
-
-        print(len(self.geom.nodes), len(self.geom.lines))
+        self.geom.export_svg(self.dir_export/'geom.svg')
         self.snapshot.add_geometry(self.geom)
 
 
