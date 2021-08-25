@@ -75,15 +75,15 @@ class PriusMotor(BaseModel):
         J = 25 / coil_area
         phase_A = copy(awg2)
         phase_A.name = "A+"
-        phase_A.Je = - J / 2
+        phase_A.Je = J / 2
 
         phase_B = copy(awg2)
         phase_B.name = "B-"
-        phase_B.Je = J
+        phase_B.Je = - J
 
         phase_C = copy(awg2)
         phase_C.name = "C+"
-        phase_C.Je = - J / 2
+        phase_C.Je = J / 2
 
         m19_29g = Material("M19_29G")
         m19_29g.conductivity = 1.9e6
@@ -241,7 +241,7 @@ class PriusMotor(BaseModel):
         self.label_queue.append((*label1, "A+"))
         self.label_queue.append((*label2, "air"))
 
-        labels = ['A+', 'A+', 'B-', 'B-', 'C+', 'C+']
+        labels = ['A+', 'B-', 'B-', 'C+', 'C+', 'A-']
         for i in range(1, 6):
             slit_i = slit.spawn()
             slit_i.rotate(alpha=-i * 7.5)

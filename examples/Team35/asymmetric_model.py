@@ -13,12 +13,10 @@ class AsymmetircModel(BaseModel):
     """docstring for SymmetircModel"""
     def __init__(self, X, exportname=None):
         assert len(X) == 20
-        self.X = X
+        self.X = X.copy()
 
         super(AsymmetircModel, self).__init__(exportname=exportname)
         self._init_directories()
-
-
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -47,9 +45,7 @@ class AsymmetircModel(BaseModel):
         self.snapshot = Snapshot(self.platform)
 
     def define_boundary_conditions(self):
-        b1 = DirichletBoundaryCondition(
-            name="a0", field_type=self.platform.metadata.problem_type, magnetic_potential=0.0
-        )
+        b1 = DirichletBoundaryCondition(name="a0", field_type='magnetic', magnetic_potential=0.0)
 
         self.snapshot.add_boundary_condition(b1)
 
@@ -60,8 +56,6 @@ class AsymmetircModel(BaseModel):
         self.boundary_queue.append((70, 70, "a0"))
         self.boundary_queue.append((70, -70, "a0"))
         self.boundary_queue.append((140, 0, "a0"))
-
-
 
     def define_materials(self):
         exctitation = Material("J+")
@@ -128,9 +122,43 @@ class AsymmetircModel(BaseModel):
 
 
 if __name__ == "__main__":
+    from scipy.interpolate import griddata
+    import numpy as np
+    import matplotlib.pyplot as plt
 
-    X = [10]*20
+    X = [10.0]*20
     print(X)
 
-    m = AsymmetircModel(X, exportname='dev')
-    print(m(cleanup=False, devmode=False))
+    model = AsymmetircModel(X)
+    result = model(cleanup=False)
+
+    x = [pointvalue[0] * 1000 for pointvalue in result["Br"]]  # [x, y, Br(x, y)]
+    y = [pointvalue[1] * 1000 for pointvalue in result["Br"]]  # [x, y, Br(x, y)]
+    
+    x_fine = np.linspace(min(x), max(x), 100)
+    y_fine = np.linspace(min(y), max(y), 100)
+
+
+    Bz = [pointvalue[2] * 1000 for pointvalue in result["Bz"]]  # [x, y, Bz(x, y)]
+    Br = [pointvalue[2] * 1000 for pointvalue in result["Br"]]  # [x, y, Br(x, y)]
+
+    
+    Bz_fine = griddata((x, y), Bz, (x_fine[None, :], y_fine[:, None]), method='linear')
+    Br_fine = griddata((x, y), Br, (x_fine[None, :], y_fine[:, None]), method='linear')
+
+    plt.figure(figsize=(6, 6))
+    plt.contourf(x_fine, y_fine, Bz_fine)
+    plt.xlabel('r [mm]')
+    plt.ylabel('z [mm]')
+    plt.title(r'B$_z$ [mT]')
+    plt.colorbar()
+    plt.show()
+
+
+    plt.figure(figsize=(6, 6))
+    plt.contourf(x_fine, y_fine, Br_fine)
+    plt.xlabel('r [mm]')
+    plt.ylabel('z [mm]')
+    plt.title(r'B$_r$ [mT]')
+    plt.colorbar()
+    plt.show()

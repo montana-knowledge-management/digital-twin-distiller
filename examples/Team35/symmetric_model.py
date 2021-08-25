@@ -1,3 +1,4 @@
+from IPython.core.pylabtools import figsize
 from adze_modeler.material import Material
 from adze_modeler.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
 from adze_modeler.snapshot import Snapshot
@@ -39,20 +40,18 @@ class SymmetircModel(BaseModel):
         agros_metadata.unit = 1e-3
         agros_metadata.nb_refinements = 0
         agros_metadata.adaptivity = "hp-adaptivity"
-        agros_metadata.adaptivity_tol = 1
+        agros_metadata.polyorder = 2
+        agros_metadata.adaptivity_tol = 0.001
 
         platform_femm = Femm(femm_metadata)
         platform_agros = Agros2D(agros_metadata)
 
-        self.platform = platform_agros
-        self.snapshot = Snapshot(self.platform)
+        platform = platform_agros
+        self.snapshot = Snapshot(platform)
 
     def define_boundary_conditions(self):
-        b1 = DirichletBoundaryCondition(
-            name="a0", field_type=self.platform.metadata.problem_type, magnetic_potential=0.0
-        )
-        n0 = NeumannBoundaryCondition(name="n0", field_type=self.platform.metadata.problem_type,
-                                      surface_current=0.0)
+        b1 = DirichletBoundaryCondition(name="a0", field_type='magnetic', magnetic_potential=0.0)
+        n0 = NeumannBoundaryCondition(name="n0", field_type='magnetic', surface_current=0.0)
 
         self.snapshot.add_boundary_condition(b1)
         self.snapshot.add_boundary_condition(n0)
@@ -62,10 +61,14 @@ class SymmetircModel(BaseModel):
         self.boundary_queue.append((40, 140, "a0"))
         self.boundary_queue.append((140, 40, "a0"))
 
-        self.boundary_queue.append((2, 0, "n0"))
-        self.boundary_queue.append(((self.X[0] + 5)/2, 0, "n0"))
-        self.boundary_queue.append((130, 0, "n0"))
-        self.boundary_queue.append((self.X[0] + 0.5, 0, "n0"))
+        p0 = (2.5, 0.0)
+        p1 = ((self.X[0] + 5)/2, 0.0)
+        p2 = (self.X[0] + 0.5, 0.0)
+        p3 = ((self.X[0] + 1.0 + 140) /2 , 0.0)
+        self.boundary_queue.append((p0[0], p0[1], "n0"))
+        self.boundary_queue.append((p1[0], p1[1], "n0"))
+        self.boundary_queue.append((p2[0], p2[1], "n0"))
+        self.boundary_queue.append((p3[0], p3[1], "n0"))
 
     def define_materials(self):
         exctitation = Material("J+")
@@ -130,9 +133,43 @@ class SymmetircModel(BaseModel):
 
 
 if __name__ == "__main__":
+    from scipy.interpolate import griddata
+    import numpy as np
+    import matplotlib.pyplot as plt
 
-    X = [10]*10
+    X = [10.0]*10
     print(X)
 
-    m = SymmetircModel(X, exportname='dev')
-    print(m(cleanup=False, devmode=False))
+    model = SymmetircModel(X)
+    result = model(cleanup=False)
+
+    x = [pointvalue[0] * 1000 for pointvalue in result["Br"]]  # [x, y, Br(x, y)]
+    y = [pointvalue[1] * 1000 for pointvalue in result["Br"]]  # [x, y, Br(x, y)]
+    
+    x_fine = np.linspace(min(x), max(x), 100)
+    y_fine = np.linspace(min(y), max(y), 100)
+
+
+    Bz = [pointvalue[2] * 1000 for pointvalue in result["Bz"]]  # [x, y, Bz(x, y)]
+    Br = [pointvalue[2] * 1000 for pointvalue in result["Br"]]  # [x, y, Br(x, y)]
+
+    
+    Bz_fine = griddata((x, y), Bz, (x_fine[None, :], y_fine[:, None]), method='linear')
+    Br_fine = griddata((x, y), Br, (x_fine[None, :], y_fine[:, None]), method='linear')
+
+    plt.figure(figsize=(6, 6))
+    plt.contourf(x_fine, y_fine, Bz_fine)
+    plt.xlabel('r [mm]')
+    plt.ylabel('z [mm]')
+    plt.title(r'B$_z$ [mT]')
+    plt.colorbar()
+    plt.show()
+
+
+    plt.figure(figsize=(6, 6))
+    plt.contourf(x_fine, y_fine, Br_fine)
+    plt.xlabel('r [mm]')
+    plt.ylabel('z [mm]')
+    plt.title(r'B$_r$ [mT]')
+    plt.colorbar()
+    plt.show()
