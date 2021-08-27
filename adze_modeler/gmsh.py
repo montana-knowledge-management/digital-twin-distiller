@@ -23,7 +23,7 @@ class GMSHModel:
         self.gmsh_geometry = gmsh.Geometry()
 
         # sets the
-        self.lcar = 5.0
+        self.lcar = 5.0  # caracteristic length
 
     def gmsh_writer(self, file_name):
         """
@@ -31,90 +31,65 @@ class GMSHModel:
 
         :parameter file_name: the
         """
+        gmsh_edges = []  # the id numbers for the gmsh edges
+
         with gmsh.Geometry() as geom:
             self.geometry.merge_points()
             surfaces = self.geometry.find_surfaces()
 
             # the code iterates over the different element types
             for sf in surfaces:
-                for edge in sf:
-                    # iterate over the line elements
+
+                # firstly, we have to build a closed loop from the edges of the surface, this closed loop should be
+                # a directed graph, therefore it is important to write out the lines in the right order
+                closed_loop = []
+                start_point = None
+                end_point = None
+                for index, edge in enumerate(sf):
+
+                    # firstly, the code ordering the lines into the right order, to form a directed closed loop
+                    if not start_point:
+                        if edge.id > 0:
+                            start_point = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
+                            end_point = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
+
+                        else:
+                            start_point = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
+                            end_point = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
+
+                        first_point = start_point
+                    else:
+                        start_point = end_point
+                        # closing the loop if this is the final edge in the list
+                        if index == len(sf) - 1:
+                            end_point = first_point
+                        else:
+                            if edge.id > 0:
+                                end_point = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
+                            else:
+                                end_point = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
+
+                    # in the case of a line
                     if isinstance(edge, obj.Line):
-                        # this step can be done during the previous
-                        start_pt = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
-                        end_pt = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
+                        line_nr = geom.add_line(p0=start_point, p1=end_point)
+                        gmsh_edges.append(line_nr)
 
-                        if edge.id > 0:
-                            geom.add_line(p0=start_pt, p1=end_pt)
-                        else:
-                            geom.add_line(p0=end_pt, p1=start_pt)
-
-                    #
+                    # circle arcs
                     if isinstance(edge, obj.CircleArc):
-                        # this step can be done during the previous
-                        start_pt = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
                         center_pt = geom.add_point([edge.center_pt.x, edge.center_pt.y], self.lcar)
-                        end_pt = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
+                        arc_nr = geom.add_circle(start=start_point, center=center_pt, end=end_point)
 
-                        if edge.id > 0:
-                            geom.add_circle_arc(start=start_pt, center=center_pt, end=end_pt)
-                        else:
-                            geom.add_circle(start=end_pt, center=center_pt, end=start_pt)
+                        gmsh_edges.append(arc_nr)
 
+
+            ll = geom.add_curve_loop(gmsh_edges)
+            pl = geom.add_plane_surface(ll)
             geom.save_geometry(file_name + '.geo_unrolled')
-
-# def gmsh_writer(self):
-# iterates over all of the closed loops of the geometry
-
-# implemented into the geometry class
-# def node_gmsh_point_distance(node, point):
-#    dx = node.x - point.x[0]
-#    dy = node.y - point.x[1]
-#
-#    return (dx ** 2.0 + dy ** 2.0) ** 0.5
+            mesh = geom.generate_mesh()
+            mesh.write(file_name + ".vtk")
 
 
-# def gmsh_writer(nodes, lines, arcs, cubic_beziers):
-#     lcar = 5.0
-#     epsilon = 1e-6
-#     with gmsh.Geometry() as geom:
-#         ## add nodes
-#         # points = []
-#         # for node in nodes:
-#         #    temp = geom.add_point([node.x, node.y], lcar)
-#         #    points.append(temp)
-#
-#         # add lines
-#         #glines = []
-#         #for line in lines:
-#         #    for i in range(len(points)):
-#         #         if node_gmsh_point_distance(line.start_pt, points[i]) < epsilon:
-#         #             start_pt = points[i]
-#         #
-#         #         if node_gmsh_point_distance(line.end_pt, points[i]) < epsilon:
-#         #             end_pt = points[i]
-#         #
-#         #     temp = geom.add_line(p0=start_pt, p1=end_pt)
-#         #     glines.append(temp)
-#
-#         # add cubic beziers
-#         gbeziers = []
-#         for cb in cubic_beziers:
-#             for i in range(len(points)):
-#                 if node_gmsh_point_distance(cb.start_pt, points[i]) < epsilon:
-#                     start_pt = points[i]
-#                 if node_gmsh_point_distance(cb.end_pt, points[i]) < epsilon:
-#                     end_pt = points[i]
-#                 if node_gmsh_point_distance(cb.control1, points[i]) < epsilon:
-#                     control1 = points[i]
-#                 if node_gmsh_point_distance(cb.control2, points[i]) < epsilon:
-#                     control2 = points[i]
-#
-#             temp = geom.add_bspline([start_pt, control1, control2, end_pt])
-#             gbeziers.append(temp)
-#         # ll = geom.add_curve_loop(glines)
-#         # pl = geom.add_plane_surface(ll)
-#
-#         geom.save_geometry("test.geo_unrolled")
-#         # mesh = geom.generate_mesh()
-#         # mesh.write("test.vtk")
+            ###    # plotting out the mesh
+            ###    import pyvista as pv
+            ###    msh = pv.read(file_name + '.vtk')
+            ###    msh.plot(show_edges=True)

@@ -9,3 +9,4 @@ scipy
 artap
 fenics
 networkx
+pyvista
