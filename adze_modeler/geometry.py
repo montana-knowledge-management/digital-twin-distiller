@@ -3,12 +3,11 @@ This class realize a layer, where the different elements of the geometry can be 
 A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
-from math import acos
-
 import adze_modeler.objects as obj
 import sys
 from adze_modeler.utils import getID
 from copy import copy
+from math import acos
 from uuid import uuid4
 
 import ezdxf
@@ -166,7 +165,7 @@ class Geometry:
         id = 0
 
         msp = doc.modelspace()
-        C,D,E,F = list(msp)[-4:]
+        C, D, E, F = list(msp)[-4:]
         for e in msp:
             if e.dxftype() == "LINE":
                 start = obj.Node(e.dxf.start[0], e.dxf.start[1])
@@ -445,10 +444,9 @@ class Geometry:
 
         for i, ca in enumerate(other.circle_arcs):
             self.add_arc(copy(ca))
-        #
+
         for cb in other.cubic_beziers:
             self.add_cubic_bezier(copy(cb))
-            # self.cubic_beziers.append(copy(cb))
 
         # self.merge_points()
 
@@ -467,6 +465,11 @@ class Geometry:
             paths.append(svgpathtools.CubicBezier(start_pt, control1, control2, end_pt))
 
         svg.wsvg(paths, filename=str(filename))
+
+    def __copy__(self):
+        g = Geometry()
+        g.merge_geometry(self)
+        return g
 
 
 # def node_gmsh_point_distance(node, point):

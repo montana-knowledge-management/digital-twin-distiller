@@ -508,8 +508,6 @@ class FemmWriter:
                 oa=boundary.outer,
             )
 
-
-
         # HEATFLOW
 
         if self.field == femm_heat_flow and isinstance(boundary, HeatFlowFixedTemperature):

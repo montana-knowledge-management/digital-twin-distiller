@@ -1,12 +1,13 @@
-from abc import ABCMeta, abstractmethod
+import sys
+import traceback
+from abc import ABCMeta
+from abc import abstractmethod
 from adze_modeler import objects as obj
 from adze_modeler.geometry import Geometry
 from adze_modeler.snapshot import Snapshot
+from pathlib import Path
 from shutil import rmtree
 from uuid import uuid4
-from pathlib import Path
-import sys
-import traceback
 
 
 class BaseModel(metaclass=ABCMeta):
@@ -56,6 +57,16 @@ class BaseModel(metaclass=ABCMeta):
         """
         self.geom.add_line(obj.Line(obj.Node(x0, y0), obj.Node(x1, y1)))
 
+    def build(self):
+
+        self.setup_solver()
+        self.define_materials()
+        self.define_boundary_conditions()
+        self.build_geometry()
+        self._assign_materials()
+        self._assign_boundary_conditions()
+        self.add_postprocessing()
+
     def _init_directories(self):
         """
         Make the specified directories. This function will not raise an exception when a directory is already present.
@@ -75,24 +86,24 @@ class BaseModel(metaclass=ABCMeta):
         Iterate over the `label_queue` and assign the materials in the `snapshot` attribute.
         """
 
-        while self.label_queue:
-            self.snapshot.assign_material(*self.label_queue.pop())
+        for li in self.label_queue:
+            self.snapshot.assign_material(*li)
 
     def _assign_boundary_conditions(self):
         """
         Iterate over the boundary conditions and assign them in the `snapshot` attribute.
         """
 
-        while self.boundary_queue:
-            self.snapshot.assign_boundary_condition(*self.boundary_queue.pop())
+        for bi in self.boundary_queue:
+            self.snapshot.assign_boundary_condition(*bi)
 
-        while self.boundary_arc_queue:
-            self.snapshot.assign_arc_boundary_condition(*self.boundary_arc_queue.pop())
+        for abi in self.boundary_arc_queue:
+            self.snapshot.assign_arc_boundary_condition(*abi)
 
     @abstractmethod
     def setup_solver(self):
         """
-        In this function you have to initialize the `snapshot` variable with the FEM solver of your choice. You have to 
+        In this function you have to initialize the `snapshot` variable with the FEM solver of your choice. You have to
         create a metadata object that holds the setups for the particular problem. Then using this object you have to initialize a
         platform object that fits the metadata (Agros2DMetadata for Agros2D platform). Then use this platform object to initialize
         the `snapshot` variable.
@@ -123,7 +134,7 @@ class BaseModel(metaclass=ABCMeta):
     @abstractmethod
     def build_geometry(self):
         """
-        This is function is responsible for building the geometry. After the building is done, use the `snapshot.add_geometry` method to merge 
+        This is function is responsible for building the geometry. After the building is done, use the `snapshot.add_geometry` method to merge
         your geometry into the snapshot.
         """
         ...
@@ -138,13 +149,7 @@ class BaseModel(metaclass=ABCMeta):
                      is automatically set to `False`.
         """
         try:
-            self.setup_solver()
-            self.define_materials()
-            self.define_boundary_conditions()
-            self.build_geometry()
-            self._assign_materials()
-            self._assign_boundary_conditions()
-            self.add_postprocessing()
+            self.build()
 
             if devmode:
                 self.snapshot.export(develmode=True)

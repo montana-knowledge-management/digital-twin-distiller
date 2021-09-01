@@ -1,6 +1,5 @@
 import math
 import operator
-
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.boundaries import NeumannBoundaryCondition
 from adze_modeler.geometry import Geometry
@@ -141,6 +140,7 @@ def build(platform, X, cleanup=True, customid=None):
 
     return res
 
+
 def calculate_objective_functions(X, resn, res, resp):
     Bz = [pointvalue[2] for pointvalue in res["Bz"]]  # [x, y, Bz(x, y)]
     Br = [pointvalue[2] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
@@ -174,6 +174,7 @@ def calculate_objective_functions(X, resn, res, resp):
     F3 = sum(X)
 
     return [F1, F2, F3]
+
 
 if __name__ == "__main__":
     from random import seed, uniform
@@ -237,7 +238,6 @@ if __name__ == "__main__":
     # f2: 4.050306334556429
     # f3: 0.0561797752808877
 
-
     X = [7.71, 9.93, 16.9, 6.19, 18.3, 8.41, 7.19, 14.1, 8.91, 10.32]
     fd1, fd2, fd3 = 7.28e-5, 1.91e-4, 108
     # FEMM
@@ -251,7 +251,6 @@ if __name__ == "__main__":
     # f1: 14.808593749999806
     # f2: -6.6372475683339305
     # f3: -0.037037037037055985
-
 
     # X = [11, 8, 14, 10, 6, 11, 8, 11, 13, 13]
     # fd1, fd2, fd3 = 3.16e-5, 1.21e-5, 105
@@ -291,16 +290,13 @@ if __name__ == "__main__":
     resa_0 = build(platform_agros, X, cleanup=False, customid="alma_0")
     resa_p = build(platform_agros, Xp, cleanup=False, customid="alma_plus")
 
-    f1,f2,f3 = calculate_objective_functions(X, res_m, resa_0, resa_p)
+    f1, f2, f3 = calculate_objective_functions(X, res_m, resa_0, resa_p)
 
-
-
-    print(f'{f1=:.2e}, {f2=:.2e}, {f3=:.2e}')
-    print('f1:', (f1-fd1)/fd1*100)
-    print('f2:', (f2-fd2)/fd2*100)
-    print('f3:', (f3-fd3)/fd3*100)
+    print(f"{f1=:.2e}, {f2=:.2e}, {f3=:.2e}")
+    print("f1:", (f1 - fd1) / fd1 * 100)
+    print("f2:", (f2 - fd2) / fd2 * 100)
+    print("f3:", (f3 - fd3) / fd3 * 100)
     """
     B0 = 2e-3
     print((f1-B0)/B0*100)
     """
-

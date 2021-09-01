@@ -61,6 +61,7 @@ def evaluate(X, tol):
 
     return [Br_, Bz_, nb_nodes]
 
+
 if __name__ == "__main__":
 
     X = [
@@ -90,5 +91,5 @@ if __name__ == "__main__":
     #     tol = uniform(1, 3)
     #     print(i + 1, tol, evaluate(X, tol))
 
-    tol=0.1
+    tol = 0.1
     print(1, tol, evaluate(X, tol))

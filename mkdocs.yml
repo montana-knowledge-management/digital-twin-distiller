@@ -1,4 +1,4 @@
-site_name: Adze-modeler 
+site_name: Adze-modeler
 site_url: https://github.com/robust-design-stack/adze-modeler
 repo_url: https://github.com/robust-design-stack/adze-modeler
 repo_name: robust-design-stack/adze-modeler
@@ -10,7 +10,9 @@ nav:
   - Examples:
     - Current Balancing: examples/CurrentBalancing/readme.md
     - Transformer Fast Transients: examples/TransformerFasttransients/readme.md
-    - Team 35 Benchmark Problem: examples/Team35/readme.md
+    - Distributed winding coil: examples/DistributedWinding/readme.md
+  - Applications:
+    - Team 35 Benchmark Optimization: applications/Team35/readme.md
 
 
 
@@ -49,7 +51,7 @@ plugins:
       lang: en
   - git-revision-date
   - mkdocstrings:
-      handlers: 
+      handlers:
         python:
           rendering:
             show_root_toc_entry: false

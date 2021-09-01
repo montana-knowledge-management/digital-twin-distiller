@@ -737,7 +737,7 @@ AcDbBlockBegin
   3
 *MODEL_SPACE
   1
- 
+
   0
 ENDBLK
   5
@@ -777,7 +777,7 @@ AcDbBlockBegin
   3
 *PAPER_SPACE
   1
- 
+
   0
 ENDBLK
   5

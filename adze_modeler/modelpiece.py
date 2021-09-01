@@ -1,7 +1,8 @@
 import operator
-from adze_modeler.objects import Node
 from adze_modeler.geometry import Geometry
-from adze_modeler.utils import getID, mirror_point
+from adze_modeler.objects import Node
+from adze_modeler.utils import getID
+from adze_modeler.utils import mirror_point
 from math import pi
 
 
@@ -49,7 +50,6 @@ class ModelPiece:
                 self.geom.circle_arcs[i].start_pt.move_xy(dx, dy)
                 updated.add(hex(ai.start_pt.id)[-5:])
 
-
             if ai.center_pt.id not in updated:
                 self.geom.circle_arcs[i].center_pt.move_xy(dx, dy)
                 updated.add(hex(ai.center_pt.id)[-5:])
@@ -62,47 +62,45 @@ class ModelPiece:
                 self.geom.circle_arcs[i].end_pt.move_xy(dx, dy)
                 updated.add(hex(ai.end_pt.id)[-5:])
 
-
         self._update_bbox()
 
-    def put(self, x, y, bbox_ref='lower-left'):
-        if bbox_ref == 'lower-left':
+    def put(self, x, y, bbox_ref="lower-left"):
+        if bbox_ref == "lower-left":
             deltax = x - self.bbox[0]
             deltay = y - self.bbox[1]
 
-        elif bbox_ref == 'lower-right':
+        elif bbox_ref == "lower-right":
             deltax = x - self.bbox[2]
             deltay = y - self.bbox[1]
 
-        elif bbox_ref == 'upper-left':
+        elif bbox_ref == "upper-left":
             deltax = x - self.bbox[0]
             deltay = y - self.bbox[3]
 
-        elif bbox_ref == 'upper-right':
+        elif bbox_ref == "upper-right":
             deltax = x - self.bbox[2]
             deltay = y - self.bbox[3]
-        
-        elif bbox_ref=='upper':
+
+        elif bbox_ref == "upper":
             deltax = x - self.upper.x
             deltay = y - self.upper.y
 
-        elif bbox_ref=='lower':
+        elif bbox_ref == "lower":
             deltax = x - self.lower.x
             deltay = y - self.lower.y
 
-        elif bbox_ref=='right':
+        elif bbox_ref == "right":
             deltax = x - self.right.x
             deltay = y - self.right.y
 
-        elif bbox_ref=='left':
+        elif bbox_ref == "left":
             deltax = x - self.left.x
             deltay = y - self.left.y
         else:
             raise ValueError()
 
-
         self.translate(deltax, deltay)
-    
+
     def mirror(self, p1=(0, 0), p2=(0, 1)):
         """
         This function mirrors all the geometry point on a line defined by p1 and p2.
@@ -144,7 +142,7 @@ class ModelPiece:
             self.geom.lines[i].end_pt = self.geom.lines[i].end_pt.rotate_about(ref_point, alpha)
 
         self._update_bbox()
-    
+
     def scale(self, sx, sy):
         for i in range(len(self.geom.nodes)):
             self.geom.nodes[i].x *= sx
@@ -166,7 +164,7 @@ class ModelPiece:
 
             self.geom.circle_arcs[i].end_pt.x *= sx
             self.geom.circle_arcs[i].end_pt.y *= sy
-        
+
     def _update_bbox(self):
         minx = min(self.geom.nodes, key=lambda node_i: node_i.x).x
         miny = min(self.geom.nodes, key=lambda node_i: node_i.y).y
@@ -174,13 +172,13 @@ class ModelPiece:
         maxy = max(self.geom.nodes, key=lambda node_i: node_i.y).y
         self.bbox = [minx, miny, maxx, maxy]
         self._update_extreme_points()
-    
+
     def _update_extreme_points(self):
-        self.upper = max(self.geom.nodes, key=operator.attrgetter('y'))
-        self.lower = min(self.geom.nodes, key=operator.attrgetter('y'))
-        self.right = max(self.geom.nodes, key=operator.attrgetter('x'))
-        self.left = min(self.geom.nodes, key=operator.attrgetter('x'))
-    
+        self.upper = max(self.geom.nodes, key=operator.attrgetter("y"))
+        self.lower = min(self.geom.nodes, key=operator.attrgetter("y"))
+        self.right = max(self.geom.nodes, key=operator.attrgetter("x"))
+        self.left = min(self.geom.nodes, key=operator.attrgetter("x"))
+
     def __copy__(self):
         piece = ModelPiece(self.name)
         piece.geom.merge_geometry(self.geom)

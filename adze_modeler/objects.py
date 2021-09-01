@@ -1,5 +1,6 @@
 import math
-from adze_modeler.utils import getID, mirror_point
+from adze_modeler.utils import getID
+from adze_modeler.utils import mirror_point
 from collections.abc import Iterable
 from copy import copy
 
@@ -54,8 +55,8 @@ class Node:
         return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
 
     def __repr__(self):
-        # return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
-        return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
+        return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
+        # return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
 
     def __copy__(self):
         return Node(self.x, self.y, id=getID(), label=self.label, precision=self.precision)
@@ -115,6 +116,13 @@ class Node:
         """
         u = other - self
         return u * (1 / u.length())
+
+    def angle_to(self, other):
+        """
+        This function returns the angle between self and an another Node
+        instance.
+        """
+        return math.acos((self @ other) / (self.length() * other.length()))
 
 
 class Line:
@@ -207,8 +215,8 @@ class Line:
             return False
 
     def __repr__(self):
-        # return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
-        return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt}, id={hex(self.id)[-5:]})"
+        return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
+        # return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt}, id={hex(self.id)[-5:]})"
 
 
 class CircleArc:
@@ -222,12 +230,10 @@ class CircleArc:
         self.label = label
         self.max_seg_deg = max_seg_deg
 
-
         self.radius = self.start_pt.distance_to(self.center_pt)
         clamp = self.start_pt.distance_to(self.end_pt) / 2.0
         self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
         self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
-
 
     def distance_to_point(self, x, y):
         """
@@ -496,7 +502,7 @@ class Rectangle:
         self.c.move_xy(dx, dy)
         self.d.move_xy(dx, dy)
         self.cp.move_xy(dx, dy)
-    
+
     def mirror(self, p1=(0, 0), p2=(0, 1)):
         p1 = Node(*p1)
         p2 = Node(*p2)
@@ -505,7 +511,6 @@ class Rectangle:
         self.c = mirror_point(p1, p2, self.c)
         self.d = mirror_point(p1, p2, self.d)
         self._calc_centerpoint()
-
 
     def _calc_centerpoint(self):
         """Calculates the center-point of the rectangle."""

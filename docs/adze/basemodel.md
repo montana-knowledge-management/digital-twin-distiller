@@ -9,7 +9,7 @@ will be set based on the `exportname` argumnet given to the constructor.
 ### Paths and files
 
 `dir_current`
-: This is the path where the subclass of this class is being instantiated. 
+: This is the path where the subclass of this class is being instantiated.
 
 `dir_resources`
 : This directory contains any additional files that is needed for the  model creation.
@@ -50,7 +50,7 @@ For example: different parts of the geometry in different *.dxf or *.svg files o
 Label queues are simple python lists. They hold the the label positions and label names for the different regions of the models. You can reach
 these variables from any method. This is useful because some labels are easier to specify during the initialization of the model while others during the
 geometry generation. To add a new label use ```.append(newlabel)``` format on any of the label queues. The `newlabel` is a 3 element tuple with the
-structure: 
+structure:
 ```py
 newlabel= (label_position_x, label_position_y, label_name)
 
@@ -59,7 +59,7 @@ self.label_queue.append((0.5, 1.5, "air"))
 ```
 
 `label_queue`
-: This list contains the labels for the different materials. 
+: This list contains the labels for the different materials.
 
 `boundary_queue`
 : This list holds the points for the boundary conditions.
@@ -69,8 +69,8 @@ self.label_queue.append((0.5, 1.5, "air"))
 
 !!! note "Specifying boundary conditions"
     To specify a boundary condition you have to provide a point and a name. The closest line to the point will be selected and the boundary condition
-    will be assigned to it. There are 2 types of boundary label queues because the distance calculation is different for lines and circle arcs. For lines 
-    the perpendicular distance is used. For circle arcs the distance is going to be the minimum distance from the arcs characteristic points, namely the 
+    will be assigned to it. There are 2 types of boundary label queues because the distance calculation is different for lines and circle arcs. For lines
+    the perpendicular distance is used. For circle arcs the distance is going to be the minimum distance from the arcs characteristic points, namely the
     start point, end point and the apex point (halfway point on the arc).
 
 
@@ -80,4 +80,3 @@ self.label_queue.append((0.5, 1.5, "air"))
     handler: python
     rendering:
       heading_level: 3
-

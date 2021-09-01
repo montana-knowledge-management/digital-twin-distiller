@@ -136,3 +136,4 @@ sandbox/
 /examples/agros2d/a2g_magnetic.py
 /applications/BoschTopSecret/
 /applications/BoschTopSecretClasses/
+/applications/*/snapshots/

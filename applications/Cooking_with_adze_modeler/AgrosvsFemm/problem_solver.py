@@ -1,5 +1,4 @@
 import math
-from sys import base_exec_prefix
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.geometry import Geometry
 from adze_modeler.material import Material
@@ -13,6 +12,7 @@ from copy import copy
 from pathlib import Path
 from random import uniform
 from shutil import rmtree
+from sys import base_exec_prefix
 from time import ctime
 from uuid import uuid4
 

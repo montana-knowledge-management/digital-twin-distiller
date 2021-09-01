@@ -1,6 +1,5 @@
 import math
 import operator
-
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.geometry import Geometry
 from adze_modeler.material import Material
@@ -136,6 +135,7 @@ def build(platform, X, cleanup=True, customid=None):
 
     return res
 
+
 def get_objective_functions(X, resn, res, resp):
     Bz = [pointvalue[2] for pointvalue in res["Bz"]]  # [x, y, Bz(x, y)]
     Br = [pointvalue[2] for pointvalue in res["Br"]]  # [x, y, Br(x, y)]
@@ -204,13 +204,32 @@ if __name__ == "__main__":
     #     resf = build(platform_femm, X, cleanup=False, customid="nodes-F1")
     #     resa = build(platform_agros, X, cleanup=False, customid="nodes-F1")
 
-    X = [1.16, 1.12, 1.01, 1.67, 1.15, 4.35, 5.84, 6.07, 5.96, 6.71, 6.08, 6.49, 6.38, 5.94, 1.3, 3.15, 1.17, 1.08,
-         1.03, 1]
+    X = [
+        1.16,
+        1.12,
+        1.01,
+        1.67,
+        1.15,
+        4.35,
+        5.84,
+        6.07,
+        5.96,
+        6.71,
+        6.08,
+        6.49,
+        6.38,
+        5.94,
+        1.3,
+        3.15,
+        1.17,
+        1.08,
+        1.03,
+        1,
+    ]
 
-    Xp =[xi + 0.5 for xi in X]
-    Xn =[xi - 0.5 for xi in X]
+    Xp = [xi + 0.5 for xi in X]
+    Xn = [xi - 0.5 for xi in X]
     res_m = build(platform_agros, Xn, cleanup=False, customid="alma_minus")
     resa_0 = build(platform_agros, X, cleanup=False, customid="alma_0")
     resa_p = build(platform_agros, Xp, cleanup=False, customid="alma_plus")
     print(get_objective_functions(X, res_m, resa_0, resa_p))
-

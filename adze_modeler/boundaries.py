@@ -100,6 +100,7 @@ class AntiPeriodicBoundaryCondition(BoundaryCondition):
         super().__init__(name, field_type)
         self.type = "neumann"
 
+
 class AntiPeriodicAirGap(BoundaryCondition):
     accepted_keys = {
         "electrostatic": [],

@@ -34,7 +34,7 @@ class Agros2D(Platform):
         self.write("problem = a2d.problem(clear=True)")
         self.write(f'problem.coordinate_type = "{self.metadata.coordinate_type}"')
         self.write(f'problem.mesh_type = "{self.metadata.mesh_type}"', nb_newline=2)
-        if self.metadata.analysis_type=='harmonic':
+        if self.metadata.analysis_type == "harmonic":
             self.write(f"problem.frequency = {self.metadata.frequency}")
 
         self.write(f'{self.metadata.problem_type} = a2d.field("{self.metadata.problem_type}")')
