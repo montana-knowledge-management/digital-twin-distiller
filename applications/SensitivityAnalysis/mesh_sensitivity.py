@@ -94,6 +94,9 @@ if __name__ == "__main__":
 
     # get_x = lambda: [random.uniform(0.2, 1.5) for _ in range(5)]
     # analyze_cogging(get_x())
+    '''
+    T: p-p
+    '''
 
     cfglist = []
     with open(dir_data / "data" / "mesh_sensitivity" / "config.csv") as f:

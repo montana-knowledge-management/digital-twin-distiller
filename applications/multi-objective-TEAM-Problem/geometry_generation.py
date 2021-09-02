@@ -13,8 +13,10 @@ def get_rectangle(h, w, radii, offsetz, printlabel=True):
     rectangle = rectangle.translated(radii + offsetz * 1j)
 
     xmin, xmax, ymin, ymax = rectangle.bbox()
-    label_x = (xmax - xmin) / 2 + xmin
-    label_y = (ymax - ymin) / 2 + ymin
+    # label_x = (xmin+xmax)/2
+    # label_y = (ymin+ymax)/2
+    label_x = radii + w/2
+    label_y = -(offsetz + h/2)
     if printlabel:
         print(f"snapshot.assign_material({label_x:.3f}, {label_y:.3f}, name='J+')")
 

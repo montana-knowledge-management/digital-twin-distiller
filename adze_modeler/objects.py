@@ -147,61 +147,14 @@ class Line:
         This function calculates the minimum distance between a line segment and a point
         https://www.geeksforgeeks.org/minimum-distance-from-a-point-to-the-line-segment-using-vectors/
         """
-        A = (self.start_pt.x, self.start_pt.y)
-        B = (self.end_pt.x, self.end_pt.y)
-        E = (px, py)
+        p = Node(px, py)
+        center_pt = (self.start_pt + self.end_pt) / 2
+        d1 = self.start_pt.distance_to(p)
+        d2 = center_pt.distance_to(p)
+        d3 = self.end_pt.distance_to(p)
+        return min(d1, d2, d3)
 
-        # vector AB
-        AB = [None, None]
-        AB[0] = B[0] - A[0]
-        AB[1] = B[1] - A[1]
 
-        # vector BP
-        BE = [None, None]
-        BE[0] = E[0] - B[0]
-        BE[1] = E[1] - B[1]
-
-        # vector AP
-        AE = [None, None]
-        AE[0] = E[0] - A[0]
-        AE[1] = E[1] - A[1]
-
-        # Variables to store dot product
-
-        # Calculating the dot product
-        AB_BE = AB[0] * BE[0] + AB[1] * BE[1]
-        AB_AE = AB[0] * AE[0] + AB[1] * AE[1]
-
-        # Minimum distance from
-        # point E to the line segment
-        reqAns = 0
-
-        # Case 1
-        if AB_BE > 0:
-
-            # Finding the magnitude
-            y = E[1] - B[1]
-            x = E[0] - B[0]
-            reqAns = math.sqrt(x * x + y * y)
-
-        # Case 2
-        elif AB_AE < 0:
-            y = E[1] - A[1]
-            x = E[0] - A[0]
-            reqAns = math.sqrt(x * x + y * y)
-
-        # Case 3
-        else:
-
-            # Finding the perpendicular distance
-            x1 = AB[0]
-            y1 = AB[1]
-            x2 = AE[0]
-            y2 = AE[1]
-            mod = math.sqrt(x1 * x1 + y1 * y1)
-            reqAns = abs(x1 * y2 - y1 * x2) / mod
-
-        return reqAns
 
     def __eq__(self, other):
         d1 = self.start_pt.distance_to(other.start_pt)
