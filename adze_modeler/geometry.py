@@ -491,7 +491,9 @@ class Geometry:
             for cb in self.cubic_beziers:
                 if cb.end_pt.id == node and cb.start_pt.id == nodes[i + 1]:
                     # direction: from end -> to start
-                    surface.append(-cb.id)
+                    temp = copy(cb)
+                    temp.id = -temp.id
+                    surface.append(temp)
 
                 if cb.start_pt.id == node and cb.end_pt.id == nodes[i + 1]:
                     # direction: from start -> to end

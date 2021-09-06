@@ -23,7 +23,7 @@ class GMSHModel:
         self.gmsh_geometry = gmsh.Geometry()
 
         # sets the
-        self.lcar = 5.0  # caracteristic length
+        self.lcar = 1.0  # caracteristic length
 
     def gmsh_writer(self, file_name):
         """
@@ -82,10 +82,10 @@ class GMSHModel:
 
                     # bezier curves
                     if isinstance(edge, obj.CubicBezier):
-                        center_pt = geom.add_point([edge.center_pt.x, edge.center_pt.y], self.lcar)
-                        bezier = geom.add_bspline(start=start_point, center=center_pt, end=end_point)
+                        control1 = geom.add_point([edge.control1.x, edge.control1.y], self.lcar)
+                        control2 = geom.add_point([edge.control2.x, edge.control2.y], self.lcar)
+                        bezier = geom.add_bspline(control_points=[start_point, control1, control2,end_point])
                         gmsh_edges.append(bezier)
-
 
             ll = geom.add_curve_loop(gmsh_edges)
             pl = geom.add_plane_surface(ll)
