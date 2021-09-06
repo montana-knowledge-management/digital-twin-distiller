@@ -33,17 +33,18 @@ class PriusMotor(BaseModel):
 
         self.rotorangle = rotorangle
 
-        self.S1 = 134.62
-        self.S2 = 80.95
+        self.S1 = 269/2
+        self.S2 = 161.93/2
         self.S4 = 1.92953
-        self.R1 = 80.2
-        self.R3 = 140
+        self.R1 = 160.47/2
+        self.R3 = 145
         self.R4 = 6.5
         self.R5 = 18.9
         self.R6 = 70.08
-        self.R7 = 55.5
+        self.R7 = 111/2
 
-        self.airgap = 0.5
+        self.airgap = 0.73
+        self.offset = 0.1
 
         coil_area = 0.000143002
         Nturns = 9
@@ -61,8 +62,7 @@ class PriusMotor(BaseModel):
         femm_metadata.file_metrics_name = self.file_solution
         femm_metadata.unit = "millimeters"
         femm_metadata.smartmesh = False
-        femm_metadata.depth = 84
-        femm_metadata.precision = 1e-9
+        femm_metadata.depth = 83.6
         self.platform = Femm(femm_metadata)
         self.snapshot = Snapshot(self.platform)
 
@@ -106,65 +106,65 @@ class PriusMotor(BaseModel):
         phase_W_negative.name = "W-"
         phase_W_negative.Je = -self.JW
 
-        m19_29g = Material("M19_29G")
-        m19_29g.conductivity = 1.9e6
-        m19_29g.thickness = 0.34
-        m19_29g.fill_factor = 0.94
-        m19_29g.b = [
-            0.000000,
-            0.050000,
-            0.100000,
-            0.150000,
-            0.360000,
-            0.540000,
-            0.650000,
-            0.990000,
-            1.200000,
-            1.280000,
-            1.330000,
-            1.360000,
-            1.440000,
-            1.520000,
-            1.580000,
-            1.630000,
-            1.670000,
-            1.800000,
-            1.900000,
-            2.000000,
-            2.100000,
-            2.300000,
-            2.500000,
-            2.563994,
-            3.779890,
-        ]
-
-        m19_29g.h = [
-            0.000000,
-            22.280000,
-            25.460000,
-            31.830000,
-            47.740000,
-            63.660000,
-            79.570000,
-            159.150000,
-            318.300000,
-            477.460000,
-            636.610000,
-            795.770000,
-            1591.500000,
-            3183.000000,
-            4774.600000,
-            6366.100000,
-            7957.700000,
-            15915.000000,
-            31830.000000,
-            111407.000000,
-            190984.000000,
-            350135.000000,
-            509252.000000,
-            560177.200000,
-            1527756.000000,
-        ]
+        # m19_29g = Material("M19_29G")
+        # m19_29g.conductivity = 1.9e6
+        # m19_29g.thickness = 0.34
+        # m19_29g.fill_factor = 0.94
+        # m19_29g.b = [
+        #     0.000000,
+        #     0.050000,
+        #     0.100000,
+        #     0.150000,
+        #     0.360000,
+        #     0.540000,
+        #     0.650000,
+        #     0.990000,
+        #     1.200000,
+        #     1.280000,
+        #     1.330000,
+        #     1.360000,
+        #     1.440000,
+        #     1.520000,
+        #     1.580000,
+        #     1.630000,
+        #     1.670000,
+        #     1.800000,
+        #     1.900000,
+        #     2.000000,
+        #     2.100000,
+        #     2.300000,
+        #     2.500000,
+        #     2.563994,
+        #     3.779890,
+        # ]
+        #
+        # m19_29g.h = [
+        #     0.000000,
+        #     22.280000,
+        #     25.460000,
+        #     31.830000,
+        #     47.740000,
+        #     63.660000,
+        #     79.570000,
+        #     159.150000,
+        #     318.300000,
+        #     477.460000,
+        #     636.610000,
+        #     795.770000,
+        #     1591.500000,
+        #     3183.000000,
+        #     4774.600000,
+        #     6366.100000,
+        #     7957.700000,
+        #     15915.000000,
+        #     31830.000000,
+        #     111407.000000,
+        #     190984.000000,
+        #     350135.000000,
+        #     509252.000000,
+        #     560177.200000,
+        #     1527756.000000,
+        # ]
 
         m19_29gsf094 = Material("M19_29GSF094")
         m19_29gsf094.conductivity = 1.9e6
@@ -244,7 +244,7 @@ class PriusMotor(BaseModel):
         self.snapshot.add_material(phase_V_negative)
         self.snapshot.add_material(phase_W_positive)
         self.snapshot.add_material(phase_W_negative)
-        self.snapshot.add_material(m19_29g)
+        # self.snapshot.add_material(m19_29g)
         self.snapshot.add_material(m19_29gsf094)
         self.snapshot.add_material(n36z_50_right)
         self.snapshot.add_material(n36z_50_left)
@@ -281,18 +281,18 @@ class PriusMotor(BaseModel):
 
     def _add_slices(self):
         # Stator slice
-        r_outer = self.S1
-        r_inner = self.S2
+        r_outer = self.S1+self.offset
+        r_inner = self.S2+self.offset
         ul, ur = self._add_slice(r_outer, r_inner)
-        self.label_queue.append((0, self.S1 - 10, "M19_29GSF094"))
+        self.label_queue.append((0, self.S1 - 10+self.offset, "M19_29GSF094"))
         self.boundary_queue.append((*ul * (r_outer + r_inner) / 2, "PB1"))
         self.boundary_queue.append((*ur * (r_outer + r_inner) / 2, "PB1"))
 
         # stator self.airgap/2 slice
-        r_outer = self.S2
-        r_inner = self.S2 - self.airgap / 2
+        r_outer = self.S2+self.offset
+        r_inner = self.S2 - self.airgap / 2 + self.offset
         ul, ur = self._add_slice(r_outer, r_inner)
-        self.label_queue.append((0, self.S2 - self.airgap / 4, "airgap"))
+        self.label_queue.append((0, self.S2 - self.airgap / 4+self.offset, "airgap"))
         self.boundary_queue.append((*ul * (r_outer + r_inner) / 2, "PB2"))
         self.boundary_queue.append((*ur * (r_outer + r_inner) / 2, "PB2"))
         self.boundary_arc_queue.append((0, r_inner, "APairgap"))
@@ -353,7 +353,7 @@ class PriusMotor(BaseModel):
         slit.geom.add_line(Line(Node(self.S4 / 2, 0), Node(self.S4 / 2, 1.02579)))
         slit.geom.add_line(Line(Node(-self.S4 / 2, 0), Node(-self.S4 / 2, 1.02579)))
 
-        slit.translate(0, -slit.lower.y + self.S2 - 6.5e-3 + 1.02579)
+        slit.translate(0, -slit.lower.y + self.S2 - 6.5e-3 + 1.02579+self.offset)
         slit.rotate(alpha=45 / 2 - 3.75)
         label1 = Node((slit.bbox[0] + slit.bbox[2]) / 2, (slit.bbox[1] + slit.bbox[3]) / 2)
         label2 = slit.lower + 1
@@ -386,3 +386,4 @@ class PriusMotor(BaseModel):
 if __name__ == "__main__":
     m = PriusMotor(rotorangle=1.5, I0=250, alpha=22.5, exportname="dev")
     results = m(cleanup=False, devmode=True)
+    print(results)

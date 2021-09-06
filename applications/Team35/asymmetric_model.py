@@ -45,7 +45,7 @@ class AsymmetircModel(BaseModel):
         platform_femm = Femm(femm_metadata)
         platform_agros = Agros2D(agros_metadata)
 
-        self.platform = platform_femm
+        self.platform = platform_agros
         self.snapshot = Snapshot(self.platform)
 
     def define_boundary_conditions(self):
@@ -54,8 +54,8 @@ class AsymmetircModel(BaseModel):
         self.snapshot.add_boundary_condition(b1)
 
         self.boundary_queue.append((0, 0, "a0"))
-        self.boundary_queue.append((0, -20, "a0"))
-        self.boundary_queue.append((0, 20, "a0"))
+        self.boundary_queue.append((0, -40, "a0"))
+        self.boundary_queue.append((0, 40, "a0"))
 
         self.boundary_queue.append((70, 70, "a0"))
         self.boundary_queue.append((70, -70, "a0"))

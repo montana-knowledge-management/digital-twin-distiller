@@ -1,21 +1,16 @@
 import unittest
-
-from adze_modeler.boundaries import DirichletBoundaryCondition
-from adze_modeler.material import Material
 from adze_modeler.model import BaseModel
 from adze_modeler.platforms.agros2d import Agros2D
 from adze_modeler.metadata import Agros2DMetadata
 from adze_modeler.snapshot import Snapshot
 from pathlib import Path
-from shutil import rmtree
 
 class MockModel(BaseModel):
     def __init__(self, exportname: str = None):
         super().__init__(exportname)
 
     def setup_solver(self):
-        super(MockModel, self).setup_solver()
-        # Agros2D
+# Agros2D
         agros_metadata = Agros2DMetadata()
         agros_metadata.file_script_name = self.file_solver_script
         agros_metadata.file_metrics_name = self.file_solution
@@ -30,30 +25,16 @@ class MockModel(BaseModel):
         self.snapshot = Snapshot(platform_agros)
 
     def add_postprocessing(self):
-        super(MockModel, self).add_postprocessing()
-        self.snapshot.add_postprocessing('point_value', [(0, 0)], 'Bx')
+        pass
 
     def define_materials(self):
-        super(MockModel, self).define_materials()
-        m = Material('air')
-        self.label_queue.append([5, 5, 'air'])
-        self.snapshot.add_material(m)
-
+        pass
 
     def define_boundary_conditions(self):
-        super(MockModel, self).define_boundary_conditions()
-        b = DirichletBoundaryCondition('a0', field_type='magnetic', magnetic_potential=0)
-        self.boundary_queue.append([0, 0, 'a0'])
-
-        self.snapshot.add_boundary_condition(b)
+        pass
 
     def build_geometry(self):
-        super(MockModel, self).build_geometry()
-        self.add_line(0, 0, 1, 0)
-        self.add_line(1, 0, 1, 1)
-        self.add_line(1, 1, 0, 1)
-        self.add_line(0, 1, 0, 0)
-        self.snapshot.add_geometry(self.geom)
+        pass
 
 
 class TestModel(unittest.TestCase):
@@ -85,11 +66,10 @@ class TestModel(unittest.TestCase):
         self.assertTrue(self.dir_data.exists())
         self.assertTrue(self.dir_export.exists())
 
-        # m(cleanup=True, timeout=1)
-        m.build()
+        m(cleanup=True, timeout=1)
 
         # teardown
-        rmtree(self.dir_snapshots)
+        self.dir_snapshots.rmdir()
         self.dir_resources.rmdir()
         self.dir_media.rmdir()
         self.dir_data.rmdir()

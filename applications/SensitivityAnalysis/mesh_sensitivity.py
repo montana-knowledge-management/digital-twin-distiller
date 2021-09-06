@@ -7,6 +7,8 @@ from pathlib import Path
 from statistics import fmean
 
 import matplotlib.pyplot as plt
+from numpy import polyfit, poly1d
+
 from model import PriusMotor
 from numpy.core.function_base import linspace
 
@@ -32,7 +34,6 @@ class ParametricPriusMotor(PriusMotor):
         self.snapshot.materials["V-"].meshsize = self.size_coil
         self.snapshot.materials["W+"].meshsize = self.size_coil
         self.snapshot.materials["W-"].meshsize = self.size_coil
-        self.snapshot.materials["M19_29G"].meshsize = self.size_steel
         self.snapshot.materials["M19_29GSF094"].meshsize = self.size_steel
         self.snapshot.materials["N36Z_50_r"].meshsize = self.size_magnet
         self.snapshot.materials["N36Z_50_l"].meshsize = self.size_magnet
@@ -42,20 +43,22 @@ class ParametricPriusMotor(PriusMotor):
         self.snapshot.add_postprocessing("mesh_info", None, None)
 
     def __repr__(self):
-        return f"{self.rotorangle:.3f} {self.size_airgap} {self.size_steel} {self.size_coil} {self.size_magnet} {self.size_air}"
+        return f"{self.rotorangle:.3f}° {self.size_airgap} {self.size_steel} {self.size_coil} {self.size_magnet} {self.size_air}"
 
 
 def execute_model(model: ParametricPriusMotor):
     res = model(timeout=2000)
     torque = res["Torque"]
     nb_elements = int(res["elements"])
-    print(f"{model} {torque:.3e}: - {nb_elements}")
+    print(f"{model}: {torque*8:.3f} Nm - {nb_elements}")
     return model.rotorangle, torque, nb_elements
 
 
 def analyze_cogging(X):
+    X = [round(float(xi), 3) for xi in X]
+    print(X)
     dir_data = Path(__file__).parent / "data"
-    rotorangles = linspace(0, 1, 51) * 45 / 8 * 2
+    rotorangles = linspace(0, 360/48, 31)
     models = [ParametricPriusMotor(X, rotorangle=ri) for ri in rotorangles]
 
     res = []
@@ -64,6 +67,8 @@ def analyze_cogging(X):
 
     nb_elements = int(fmean({ri[2] for ri in res}))
     max_T = max(res, key=lambda ri: ri[1])[1]
+    min_T = min(res, key=lambda ri: ri[1])[1]
+    T_pp = max_T*8-min_T*8
 
     filename = dir_data / "mesh_sensitivity" / f"{uuid.uuid4()}.csv"
 
@@ -78,7 +83,7 @@ def analyze_cogging(X):
         "size_magnet": X[3],
         "size_air": X[4],
         "nb_elements": nb_elements,
-        "peak_cogging": max_T,
+        "peak_cogging": T_pp,
         "filename": str(filename.relative_to(Path(__file__).parent)),
     }
 
@@ -92,11 +97,18 @@ if __name__ == "__main__":
 
     dir_data = Path(__file__).parent
 
-    # get_x = lambda: [random.uniform(0.2, 1.5) for _ in range(5)]
+    # get_x = lambda: [random.uniform(0.1, 0.5) for _ in range(5)]
     # analyze_cogging(get_x())
-    '''
-    T: p-p
-    '''
+    analyze_cogging([1, 0.1, 1, 1, 1])
+
+    #
+    # analyze_cogging([1, 1, 1, 1, 1])
+    # analyze_cogging([0.6, 1, 1, 1, 1])
+    # analyze_cogging([0.5, 1, 1, 1, 1])
+    # analyze_cogging([0.4, 1, 1, 1, 1])
+    # analyze_cogging([0.3, 1, 1, 1, 1])
+    # analyze_cogging([0.2, 1, 1, 1, 1])
+    # analyze_cogging([0.1, 1, 1, 1, 1])
 
     cfglist = []
     with open(dir_data / "data" / "mesh_sensitivity" / "config.csv") as f:
@@ -110,10 +122,11 @@ if __name__ == "__main__":
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    cm = plt.get_cmap("brg")
-    ax.set_prop_cycle(color=[cm(1.0 * i / NUM_COLORS) for i in range(NUM_COLORS)])
+    cm = plt.get_cmap("binary")
+    ax.set_prop_cycle(color=[cm(1.0 * i / NUM_COLORS) for i in range(2, NUM_COLORS+2)])
 
-    for cfg_i in cfglist:
+    N = len(cfglist)
+    for i, cfg_i in enumerate(cfglist):
         theta = []
         T = []
         nb_elements.append(cfg_i["nb_elements"])
@@ -124,7 +137,16 @@ if __name__ == "__main__":
                 theta.append(theta_i)
                 T.append(Ti * 8)
 
-        plt.plot(theta, T, "-o", label=int(cfg_i["nb_elements"]))
+        p = poly1d(polyfit(theta, T, 11))
+        theta_fine = linspace(min(theta), max(theta), 501)
+
+        if i==0:
+            plt.plot(theta_fine, p(theta_fine), "b-", label=int(cfg_i["nb_elements"]), linewidth=2)
+            # plt.plot(theta, T, "r-", label=int(cfg_i["nb_elements"]))
+        elif i==N-1:
+            plt.plot(theta_fine, p(theta_fine),  "r-", label=int(cfg_i["nb_elements"]), linewidth=2)
+        else:
+            plt.plot(theta_fine, p(theta_fine), linestyle='dashdot', label=int(cfg_i["nb_elements"]))
 
     plt.grid()
     plt.xlabel("Rotor Angle [°]")
