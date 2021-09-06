@@ -88,7 +88,6 @@ class TestGMSHWriter(TestCase):
 
         # there is only one described surface exists in the given geometry
         surfaces = geo.find_surfaces()
-        #geo.plot_connection_graph()
 
         gmsh = GMSHModel(geo)
         gmsh.gmsh_writer('test3')

@@ -1,6 +1,8 @@
 import pygmsh.geo as gmsh
 import adze_modeler.objects as obj
 from adze_modeler.geometry import Geometry
+# from meshio._helpers import read, write
+import meshio
 
 """
 The goal of this class is to export the model geometry into a msh file with pygmsh, this mesh file can be 
@@ -12,7 +14,7 @@ https://github.com/nschloe/meshio
 
 class GMSHModel:
 
-    def __init__(self, geo, name='dev'):
+    def __init__(self, geo, name='dev', msh_format='vtk'):
         self.name = name
         self.boundaries = {}
         self.materials = {}
@@ -24,6 +26,7 @@ class GMSHModel:
 
         # sets the
         self.lcar = 1.0  # caracteristic length
+        self.msh_format = msh_format
 
     def gmsh_writer(self, file_name):
         """
@@ -77,7 +80,7 @@ class GMSHModel:
                     # circle arcs
                     if isinstance(edge, obj.CircleArc):
                         center_pt = geom.add_point([edge.center_pt.x, edge.center_pt.y], self.lcar)
-                        #arc_nr = geom.add_circle(start=start_point, center=center_pt, end=end_point)
+                        # arc_nr = geom.add_circle(start=start_point, center=center_pt, end=end_point)
                         arc_nr = geom.add_circle_arc(start=start_point, center=center_pt, end=end_point)
                         gmsh_edges.append(arc_nr)
 
@@ -85,23 +88,11 @@ class GMSHModel:
                     if isinstance(edge, obj.CubicBezier):
                         control1 = geom.add_point([edge.control1.x, edge.control1.y], self.lcar)
                         control2 = geom.add_point([edge.control2.x, edge.control2.y], self.lcar)
-                        bezier = geom.add_bspline(control_points=[start_point, control1, control2,end_point])
+                        bezier = geom.add_bspline(control_points=[start_point, control1, control2, end_point])
                         gmsh_edges.append(bezier)
 
             ll = geom.add_curve_loop(gmsh_edges)
             pl = geom.add_plane_surface(ll)
             geom.save_geometry(file_name + '.geo_unrolled')
             mesh = geom.generate_mesh()
-            mesh.write(file_name + ".vtk")
-
-            # for testing the code
-            # # plotting out the mesh
-            # import pyvista as pv
-            # from meshio._helpers import read
-            #
-            # msh = pv.read(file_name + '.vtk')
-            # msh.plot(show_edges=True)
-            #
-            #
-            #
-            # print(read(file_name + '.vtk'))
+            mesh.write(file_name + ".vtk")  # + ".vtk")

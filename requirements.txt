@@ -10,3 +10,4 @@ artap
 fenics
 networkx
 pyvista
+h5py

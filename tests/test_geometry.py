@@ -99,7 +99,7 @@ class TestMeshing(TestCase):
                 self.assertTrue(False)
 
     def test_mesh_the_owl(self):
-        path = files("examples.owl").joinpath("owl-shape.svg")
+        path = files("examples.gmsh-arbitrary-surface").joinpath("gmsh-arbitrary-surface-shape.svg")
         geo = Geometry()
         geo.import_svg(path.as_posix())
         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
