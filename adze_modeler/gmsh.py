@@ -1,4 +1,5 @@
 import pygmsh.geo as gmsh
+import gmsh as std_gmsh
 import adze_modeler.objects as obj
 from adze_modeler.geometry import Geometry
 # from meshio._helpers import read, write
@@ -95,4 +96,5 @@ class GMSHModel:
             pl = geom.add_plane_surface(ll)
             geom.save_geometry(file_name + '.geo_unrolled')
             mesh = geom.generate_mesh()
-            mesh.write(file_name + ".vtk")  # + ".vtk")
+            std_gmsh.write(file_name + ".msh")
+            #mesh.write(file_name + ".xdmf")  # + ".vtk")

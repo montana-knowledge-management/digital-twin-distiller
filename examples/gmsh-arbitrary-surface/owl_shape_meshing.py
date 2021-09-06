@@ -26,5 +26,5 @@ gmsh.lcar = 10.0  # the characteristic length of the applied mesh can be set man
 gmsh.gmsh_writer('owl_shape')
 
 # plotting out the resulting mesh by pyvista
-msh = pv.read('owl_shape.vtk')
+msh = pv.read('owl_shape.msh')
 msh.plot(show_edges=True, cpos="xy")
