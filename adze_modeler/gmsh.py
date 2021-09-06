@@ -77,7 +77,8 @@ class GMSHModel:
                     # circle arcs
                     if isinstance(edge, obj.CircleArc):
                         center_pt = geom.add_point([edge.center_pt.x, edge.center_pt.y], self.lcar)
-                        arc_nr = geom.add_circle(start=start_point, center=center_pt, end=end_point)
+                        #arc_nr = geom.add_circle(start=start_point, center=center_pt, end=end_point)
+                        arc_nr = geom.add_circle_arc(start=start_point, center=center_pt, end=end_point)
                         gmsh_edges.append(arc_nr)
 
                     # bezier curves

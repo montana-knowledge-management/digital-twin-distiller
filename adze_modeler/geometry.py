@@ -98,7 +98,7 @@ class Geometry:
                             arcs.start_pt.id = self.nodes[i].id
 
                         if arcs.end_pt.id == self.nodes[j].id:
-                            line.end_pt.id = self.nodes[i].id
+                            arcs.end_pt.id = self.nodes[i].id
 
                     # 3/ bezier curves
                     for cb in self.cubic_beziers:
