@@ -78,8 +78,13 @@ class GMSHModel:
                     if isinstance(edge, obj.CircleArc):
                         center_pt = geom.add_point([edge.center_pt.x, edge.center_pt.y], self.lcar)
                         arc_nr = geom.add_circle(start=start_point, center=center_pt, end=end_point)
-
                         gmsh_edges.append(arc_nr)
+
+                    # bezier curves
+                    if isinstance(edge, obj.CubicBezier):
+                        center_pt = geom.add_point([edge.center_pt.x, edge.center_pt.y], self.lcar)
+                        bezier = geom.add_bspline(start=start_point, center=center_pt, end=end_point)
+                        gmsh_edges.append(bezier)
 
 
             ll = geom.add_curve_loop(gmsh_edges)
@@ -88,8 +93,14 @@ class GMSHModel:
             mesh = geom.generate_mesh()
             mesh.write(file_name + ".vtk")
 
-
-            ###    # plotting out the mesh
-            ###    import pyvista as pv
-            ###    msh = pv.read(file_name + '.vtk')
-            ###    msh.plot(show_edges=True)
+            # for testing the code
+            # # plotting out the mesh
+            # import pyvista as pv
+            # from meshio._helpers import read
+            #
+            # msh = pv.read(file_name + '.vtk')
+            # msh.plot(show_edges=True)
+            #
+            #
+            #
+            # print(read(file_name + '.vtk'))

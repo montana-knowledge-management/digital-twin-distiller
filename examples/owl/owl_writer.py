@@ -4,7 +4,7 @@ from adze_modeler.gmsh import GMSHModel
 from importlib_resources import files
 
 # test - 0
-eml = files("examples.owl").joinpath("test1.svg")
+eml = files("examples.owl").joinpath("test_lines.svg")
 geo = Geometry()
 geo.import_svg(eml.as_posix())
 # set the tolerance to merge the given lines
@@ -15,13 +15,13 @@ geo.merge_points()
 surfaces = geo.find_surfaces()
 #print('surfaces', surfaces)
 geo.plot_connection_graph()
-geo.export_svg('test1.svg')
+geo.export_svg('test_lines.svg')
 # create a gmsh mesh from the given geometry
 gmsh = GMSHModel(geo)
 gmsh.gmsh_writer('test1')
 
 # # test - 1
-# eml = files("examples.owl").joinpath("test2.svg")
+# eml = files("examples.owl").joinpath("test_bezier.svg")
 # geo = Geometry()
 # geo.import_svg(eml.as_posix())
 # # set the tolerance to merge the given lines

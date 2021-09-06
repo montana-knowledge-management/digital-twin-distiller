@@ -415,7 +415,6 @@ class Geometry:
 
                 if p2 is not None:
                     if i != j:
-                        # plt.scatter(p2[0], p2[1], c="r", marker="o", s=40)
                         intersections.append((distance(line_1.start_pt, p2), *p2))
                         pass
 
