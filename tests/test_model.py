@@ -1,16 +1,19 @@
 import unittest
+from adze_modeler.metadata import Agros2DMetadata
 from adze_modeler.model import BaseModel
 from adze_modeler.platforms.agros2d import Agros2D
-from adze_modeler.metadata import Agros2DMetadata
 from adze_modeler.snapshot import Snapshot
 from pathlib import Path
+from shutil import rmtree
+
 
 class MockModel(BaseModel):
     def __init__(self, exportname: str = None):
         super().__init__(exportname)
 
     def setup_solver(self):
-# Agros2D
+        super().setup_solver()
+        # Agros2D
         agros_metadata = Agros2DMetadata()
         agros_metadata.file_script_name = self.file_solver_script
         agros_metadata.file_metrics_name = self.file_solution
@@ -25,21 +28,21 @@ class MockModel(BaseModel):
         self.snapshot = Snapshot(platform_agros)
 
     def add_postprocessing(self):
-        pass
+        super().add_postprocessing()
 
     def define_materials(self):
-        pass
+        super().define_materials()
 
     def define_boundary_conditions(self):
-        pass
+        super().define_boundary_conditions()
 
     def build_geometry(self):
-        pass
+        super().build_geometry()
 
 
 class TestModel(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(TestModel, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.dir_current = Path(__file__).parent
         self.dir_resources = self.dir_current / "resources"
         self.dir_snapshots = self.dir_current / "snapshots"
@@ -49,7 +52,7 @@ class TestModel(unittest.TestCase):
         self.dir_export = self.dir_snapshots
 
     def test_model_paths(self):
-        m = MockModel(exportname='test_name')
+        m = MockModel(exportname="test_name")
         self.assertEqual(self.dir_current, m.dir_current)
         self.assertEqual(self.dir_resources, m.dir_resources)
         self.assertEqual(self.dir_snapshots, m.dir_snapshots)
@@ -66,10 +69,10 @@ class TestModel(unittest.TestCase):
         self.assertTrue(self.dir_data.exists())
         self.assertTrue(self.dir_export.exists())
 
-        m(cleanup=True, timeout=1)
+        m(cleanup=True, timeout=0)
+        rmtree(m.dir_snapshots)
 
         # teardown
-        self.dir_snapshots.rmdir()
         self.dir_resources.rmdir()
         self.dir_media.rmdir()
         self.dir_data.rmdir()

@@ -1,8 +1,10 @@
-from copy import copy
-
-from adze_modeler.objects import CubicBezier, ParametricBezier
+from adze_modeler.objects import CircleArc
+from adze_modeler.objects import CubicBezier
 from adze_modeler.objects import Line
 from adze_modeler.objects import Node
+from adze_modeler.objects import ParametricBezier
+from adze_modeler.objects import Rectangle
+from copy import copy
 from math import pi
 from unittest import TestCase
 
@@ -17,7 +19,7 @@ class TestNodeOperations(TestCase):
         n1 = Node(-5, 1)
         n0 = n0 + n1
         self.assertEqual(n0, Node(0, 0))
-        self.assertEqual(n0+6, Node(6, 6))
+        self.assertEqual(n0 + 6, Node(6, 6))
 
     def test_iter(self):
         n0 = Node(9, 6)
@@ -62,7 +64,7 @@ class TestNodeOperations(TestCase):
     def test_angles(self):
         n0 = Node(1, 0)
         n1 = Node(0, 1)
-        self.assertAlmostEqual(n0.angle_to(n1), 355/113/2, 3)
+        self.assertAlmostEqual(n0.angle_to(n1), 355 / 113 / 2, 3)
 
 
 class TestLine(TestCase):
@@ -89,6 +91,39 @@ class TestLine(TestCase):
     def test_distance_between_lines(self):
         l1 = Line(Node(0, 0), Node(1, 0))
         self.assertAlmostEqual(l1.distance_to_point(0, 1), 1.0, 3)
+        self.assertAlmostEqual(l1.distance_to_point(0.5, 1), 1.0, 3)
+        self.assertAlmostEqual(l1.distance_to_point(1, 1), 1.0, 3)
+        self.assertAlmostEqual(l1.distance_to_point(2, 0), 1.0, 3)
+        self.assertAlmostEqual(l1.distance_to_point(-1, 0), 1.0, 3)
+
+
+class TestArc(TestCase):
+    def test_creation(self):
+        c = CircleArc(start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0))
+
+        self.assertEqual(c.start_pt, Node(-1, 0))
+        self.assertEqual(c.center_pt, Node(0, 0))
+        self.assertEqual(c.end_pt, Node(1, 0))
+        self.assertEqual(c.apex_pt, Node(0, -1))
+        self.assertAlmostEqual(c.radius, 1.0, 5)
+
+    def test_copy(self):
+        c = CircleArc(start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0))
+        c1 = copy(c)
+
+        for attr_i in c.__dict__:
+            if attr_i != "id":
+                self.assertEqual(getattr(c, attr_i), getattr(c1, attr_i))
+
+        self.assertNotEqual(c.id, c1.id)
+
+    def test_distance(self):
+        c = CircleArc(start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0))
+
+        self.assertAlmostEqual(c.distance_to_point(0, 0), 1.0, 5)
+        self.assertAlmostEqual(c.distance_to_point(5, 0), 4.0, 5)
+        self.assertAlmostEqual(c.distance_to_point(-5, 0), 4.0, 5)
+        self.assertAlmostEqual(c.distance_to_point(0, -5), 4.0, 5)
 
 
 class TestCubicBezier(TestCase):
@@ -115,23 +150,148 @@ class TestCubicBezier(TestCase):
 
 class TestParametricBezier(TestCase):
     def test_init(self):
-        bz = ParametricBezier(start_pt=(1, 0),
-                              end_pt=(10, 0),
-                              c1=(2, 2),
-                              c2=(5, 5))
+        bz = ParametricBezier(start_pt=(1, 0), end_pt=(10, 0), c1=(2, 2), c2=(5, 5))
         self.assertEqual(bz.p0, (1, 0))
         self.assertEqual(bz.p1, (2, 2))
         self.assertEqual(bz.p2, (5, 5))
         self.assertEqual(bz.p3, (10, 0))
 
     def test_set(self):
-        bz = ParametricBezier(start_pt=(1, 0),
-                              end_pt=(10, 0),
-                              c1=(2, 2),
-                              c2=(5, 5))
+        bz = ParametricBezier(start_pt=(1, 0), end_pt=(10, 0), c1=(2, 2), c2=(5, 5))
 
         bz.set(start_pt=(0, 0))
         self.assertEqual(bz.p0, (0, 0))
         self.assertEqual(bz.p1, (2, 2))
         self.assertEqual(bz.p2, (5, 5))
         self.assertEqual(bz.p3, (10, 0))
+
+    def test_approximate(self):
+        bz = ParametricBezier(start_pt=(0, 0), end_pt=(10, 0), c1=(2.5, 0), c2=(7.5, 0))
+
+        xref, yref = [0, 5.0, 5.0, 10], [0, 0.0, 0.0, 0]
+        xapp, yapp = bz.approximate(1)
+        for xi_r, xi_app in zip(xref, xapp):
+            self.assertAlmostEqual(xi_r, xi_app)
+
+        for yi_r, yi_app in zip(yref, yapp):
+            self.assertAlmostEqual(yi_r, yi_app)
+
+    def test_call(self):
+        bz = ParametricBezier(start_pt=(0, 0), end_pt=(10, 0), c1=(2.5, 0), c2=(7.5, 0))
+        x, y = bz(0)
+        self.assertAlmostEqual(x, 0.0, 5)
+        self.assertAlmostEqual(y, 0.0, 5)
+
+        x, y = bz(0.5)
+        self.assertAlmostEqual(x, 5.0, 5)
+        self.assertAlmostEqual(y, 0.0, 5)
+
+        x, y = bz(1)
+        self.assertAlmostEqual(x, 10.0, 5)
+        self.assertAlmostEqual(y, 0.0, 5)
+
+        with self.assertRaises(AssertionError):
+            x, y = bz(5)
+
+
+class TesRectangle(TestCase):
+    def test_creation(self):
+        r = Rectangle(x0=0, y0=0, width=1, height=2)
+        self.assertEqual(r.a, Node(0, 0))
+        self.assertEqual(r.b, Node(1, 0))
+        self.assertEqual(r.c, Node(1, 2))
+        self.assertEqual(r.d, Node(0, 2))
+
+        r = Rectangle(x0=0, y0=0, x1=1, y1=2)
+        self.assertEqual(r.a, Node(0, 0))
+        self.assertEqual(r.b, Node(1, 0))
+        self.assertEqual(r.c, Node(1, 2))
+        self.assertEqual(r.d, Node(0, 2))
+
+        with self.assertRaises(ValueError):
+            r = Rectangle(x0=0, y0=0, width=5)
+
+    def test_rotation(self):
+        r = Rectangle(x0=0, y0=0, width=1, height=2)
+        r._print_sidelengths()
+        r.rotate(360)
+        r.rotate(180, fx_point="a")
+        r.rotate(180, fx_point="b")
+        r.rotate(180, fx_point="c")
+        r.rotate(180, fx_point="d")
+        print(r)
+
+        self.assertEqual(r.a, Node(0, 0))
+        self.assertEqual(r.b, Node(1, 0))
+        self.assertEqual(r.c, Node(1, 2))
+        self.assertEqual(r.d, Node(0, 2))
+
+        with self.assertRaises(ValueError):
+            r.rotate(3, fx_point="falspoint")
+
+    def test_set_width(self):
+        r = Rectangle(x0=0, y0=0, width=1, height=2)
+
+        r.set_width(5, fx_point="a")
+        r.set_width(10, fx_point="c")
+        r.set_width(1)
+
+        self.assertEqual(r.a, Node(-0.5, 0))
+        self.assertEqual(r.b, Node(0.5, 0))
+        self.assertEqual(r.c, Node(0.5, 2))
+        self.assertEqual(r.d, Node(-0.5, 2))
+
+        with self.assertRaises(ValueError):
+            r.set_width(1, fx_point="false_point")
+
+    def test_set_height(self):
+        r = Rectangle(x0=0, y0=0, width=1, height=2)
+
+        r.set_height(5, fx_point="a")
+        r.set_height(10, fx_point="c")
+        r.set_height(1)
+
+        self.assertEqual(r.a, Node(0, -0.5))
+        self.assertEqual(r.b, Node(1, -0.5))
+        self.assertEqual(r.c, Node(1, 0.5))
+        self.assertEqual(r.d, Node(0, 0.5))
+
+        with self.assertRaises(ValueError):
+            r.set_height(1, fx_point="false_point")
+
+    def test_put(self):
+        r = Rectangle(x0=0, y0=0, width=1, height=2)
+
+        r.put(10, 40)
+        r.put(40, -20, fx_point="b")
+        r.put(7, 0.76, fx_point="c")
+        r.put(-65, 5555, fx_point="d")
+        r.put(0, 0, fx_point="a")
+
+        self.assertEqual(r.a, Node(0, 0))
+        self.assertEqual(r.b, Node(1, 0))
+        self.assertEqual(r.c, Node(1, 2))
+        self.assertEqual(r.d, Node(0, 2))
+
+        with self.assertRaises(ValueError):
+            r.put(0, 0, fx_point="invalid")
+
+    def test_mirror(self):
+        r = Rectangle(x0=1, y0=1, width=1, height=2)
+        r.mirror(p1=(0, 0), p2=(0, 1))
+
+        self.assertEqual(r.a, Node(-1, 1))
+        self.assertEqual(r.b, Node(-2, 1))
+        self.assertEqual(r.c, Node(-2, 3))
+        self.assertEqual(r.d, Node(-1, 3))
+
+    def test_copy(self):
+        r = Rectangle(x0=0, y0=0, width=1, height=2)
+        r1 = copy(r)
+
+        self.assertEqual(r.a, r1.a)
+        self.assertEqual(r.b, r1.b)
+        self.assertEqual(r.c, r1.c)
+        self.assertEqual(r.d, r1.d)
+        self.assertAlmostEqual(r.width, r1.width, 5)
+        self.assertAlmostEqual(r.height, r1.height, 5)

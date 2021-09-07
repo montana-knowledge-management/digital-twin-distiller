@@ -30,8 +30,11 @@ class Geometry:
     def add_line(self, line):
         self.lines.append(line)
         # save every start and end points for the geoemtry
-        self.add_node(line.start_pt)
-        self.add_node(line.end_pt)
+        if line.start_pt not in self.nodes:
+            self.add_node(line.start_pt)
+
+        if line.end_pt not in self.nodes:
+            self.add_node(line.end_pt)
 
     def add_arc(self, arc):
         self.circle_arcs.append(arc)
@@ -152,7 +155,7 @@ class Geometry:
 
     def import_dxf(self, dxf_file):
         try:
-            doc = ezdxf.readfile(dxf_file)
+            doc = ezdxf.readfile(str(dxf_file))
         except OSError:
             print("Not a DXF file or a generic I/O error.")
             sys.exit(1)
@@ -165,7 +168,6 @@ class Geometry:
         id = 0
 
         msp = doc.modelspace()
-        C, D, E, F = list(msp)[-4:]
         for e in msp:
             if e.dxftype() == "LINE":
                 start = obj.Node(e.dxf.start[0], e.dxf.start[1])

@@ -1,6 +1,7 @@
 import csv
-import matplotlib.pyplot as plt
 from pathlib import Path
+
+import matplotlib.pyplot as plt
 
 
 def setup_matplotlib():
@@ -20,6 +21,7 @@ def setup_matplotlib():
     plt.rc("ytick", labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
     plt.rc("legend", fontsize=MEDIUM_SIZE)  # legend fontsize
     plt.rc("figure", titlesize=MEDIUM_SIZE)  # fontsize of the figure title
+
 
 def plot_torque():
     setup_matplotlib()
@@ -42,21 +44,21 @@ def plot_torque():
     for file_ref, file_sim in zip(files_ref, files_sim):
         label_ref = label = getlabel(file_ref)
         label_sim = label = getlabel(file_sim)
-        assert label_sim==label_ref
+        assert label_sim == label_ref
 
         theta_sim = []
         T_sim = []
         theta_ref = []
         T_ref = []
 
-        with open(file_ref, 'r') as f_ref, open(file_sim, 'r') as f_sim:
+        with open(file_ref) as f_ref, open(file_sim) as f_sim:
             for theta_i, Ti in csv.reader(f_ref, quoting=csv.QUOTE_NONNUMERIC):
-                theta_ref.append((theta_i-90)*4)
+                theta_ref.append((theta_i - 90) * 4)
                 T_ref.append(Ti)
 
             for theta_i, Ti in csv.reader(f_sim, quoting=csv.QUOTE_NONNUMERIC):
                 theta_sim.append(theta_i)
-                T_sim.append(Ti*8)
+                T_sim.append(Ti * 8)
 
         max_T_ref = max(T_ref)
         max_T_sim = max(T_sim)
@@ -69,14 +71,15 @@ def plot_torque():
 
         p = plt.plot(theta_sim, T_sim, label=f"{label} A")
         ci = p[-1].get_color()
-        plt.plot(theta_ref, T_ref, color=ci, linestyle='--')
+        plt.plot(theta_ref, T_ref, color=ci, linestyle="--")
 
         plt.scatter(theta_max_ref, max_T_ref, c=ci)
         plt.scatter(theta_max_sim, max_T_sim, c=ci)
 
-        print(f"I = {label:>4} A\t {max_T_ref=:>6.2f} Nm\t {max_T_sim=:>6.2f} Nm\t"
-              f"{theta_max_ref=:.1f} °\t {theta_max_sim=:.1f} °")
-
+        print(
+            f"I = {label:>4} A\t {max_T_ref=:>6.2f} Nm\t {max_T_sim=:>6.2f} Nm\t"
+            f"{theta_max_ref=:.1f} °\t {theta_max_sim=:.1f} °"
+        )
 
     plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
@@ -87,10 +90,9 @@ def plot_torque():
     plt.savefig(dir_media / "torque.png", dpi=550, bbox_inches="tight")
     plt.show()
 
-
     plt.figure()
-    plt.plot(I, T_max_sims, '-o', label='Simulation')
-    plt.plot(I, T_max_refs, '-o', label='Reference')
+    plt.plot(I, T_max_sims, "-o", label="Simulation")
+    plt.plot(I, T_max_refs, "-o", label="Reference")
     plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     plt.minorticks_on()
@@ -101,8 +103,6 @@ def plot_torque():
     plt.show()
 
 
-
-
-if __name__=='__main__':
+if __name__ == "__main__":
     # TODO: ref interpolation
     plot_torque()

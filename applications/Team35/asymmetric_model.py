@@ -50,10 +50,10 @@ class AsymmetircModel(BaseModel):
 
     def define_boundary_conditions(self):
         b1 = DirichletBoundaryCondition(name="a0", field_type="magnetic", magnetic_potential=0.0)
-
         self.snapshot.add_boundary_condition(b1)
 
         self.boundary_queue.append((0, 0, "a0"))
+
         self.boundary_queue.append((0, -40, "a0"))
         self.boundary_queue.append((0, 40, "a0"))
 

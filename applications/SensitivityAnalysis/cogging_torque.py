@@ -2,9 +2,9 @@ import multiprocessing
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from cycler import cycler
 from model import PriusMotor
 from numpy import linspace
-from cycler import cycler
 
 """
 http://phdengineeringem.blogspot.com/2018/06/toyota-prius-femm-cogging-torque.html

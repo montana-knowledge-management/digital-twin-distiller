@@ -153,7 +153,7 @@ class Line:
         # d2 = center_pt.distance_to(p)
         # d3 = self.end_pt.distance_to(p)
         # return min(d1, d2, d3)
-        
+
         A = (self.start_pt.x, self.start_pt.y)
         B = (self.end_pt.x, self.end_pt.y)
         E = (px, py)
@@ -210,7 +210,6 @@ class Line:
 
         return reqAns
 
-
     def __eq__(self, other):
         d1 = self.start_pt.distance_to(other.start_pt)
         d2 = self.start_pt.distance_to(other.end_pt)
@@ -250,10 +249,9 @@ class CircleArc:
         """
         p = Node(x, y)
         d1 = self.start_pt.distance_to(p)
-        d2 = self.center_pt.distance_to(p)
+        d2 = self.apex_pt.distance_to(p)
         d3 = self.end_pt.distance_to(p)
-        d4 = self.apex_pt.distance_to(p)
-        return min(d1, d2, d3, d4)
+        return min(d1, d2, d3)
 
     def __copy__(self):
         return CircleArc(copy(self.start_pt), copy(self.center_pt), copy(self.end_pt), max_seg_deg=self.max_seg_deg)
@@ -437,10 +435,10 @@ class Rectangle:
         u_dc = self.d.unit_to(self.c)
 
         if fx_point is None:
-            self.a = self.a - u_ab * (difference / 2)
-            self.b = self.b + u_ab * (difference / 2)
-            self.d = self.d - u_dc * (difference / 2)
-            self.c = self.c + u_dc * (difference / 2)
+            self.a = self.a - u_ab * difference / 2
+            self.b = self.b + u_ab * difference / 2
+            self.d = self.d - u_dc * difference / 2
+            self.c = self.c + u_dc * difference / 2
         elif fx_point in {"a", "d"}:
             self.b = self.b + u_ab * difference
             self.c = self.c + u_dc * difference
@@ -466,10 +464,10 @@ class Rectangle:
         u_bc = self.b.unit_to(self.c)
 
         if fx_point is None:
-            self.a = self.a - u_ad * (difference / 2)
-            self.b = self.b + u_ad * (difference / 2)
-            self.d = self.d - u_bc * (difference / 2)
-            self.c = self.c + u_bc * (difference / 2)
+            self.a = self.a - u_ad * difference / 2
+            self.b = self.b - u_ad * difference / 2
+            self.c = self.c + u_bc * difference / 2
+            self.d = self.d + u_bc * difference / 2
         elif fx_point in {"a", "b"}:
             self.c = self.c + u_bc * difference
             self.d = self.d + u_ad * difference

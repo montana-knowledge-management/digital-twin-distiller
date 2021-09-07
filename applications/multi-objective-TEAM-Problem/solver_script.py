@@ -29,7 +29,7 @@ def evaluate(platform, Nx=20, Ny=20):
     snapshot.add_geometry(geo)
 
     # boundaries
-    b1 = DirichletBoundaryCondition(name="a0", field_type='magnetic', magnetic_potential=0.0)
+    b1 = DirichletBoundaryCondition(name="a0", field_type="magnetic", magnetic_potential=0.0)
     # print(b1)
     snapshot.add_boundary_condition(b1)
 
@@ -49,26 +49,26 @@ def evaluate(platform, Nx=20, Ny=20):
     snapshot.assign_material(30, 30, name="air")
 
     # block labeles for coils
-    snapshot.assign_material(34.274, 14.250, name='J+')
-    snapshot.assign_material(6.625, 12.750, name='J+')
-    snapshot.assign_material(17.876, 11.250, name='J+')
-    snapshot.assign_material(15.544, 9.750, name='J+')
-    snapshot.assign_material(38.641, 8.250, name='J+')
-    snapshot.assign_material(35.951, 6.750, name='J+')
-    snapshot.assign_material(45.648, 5.250, name='J+')
-    snapshot.assign_material(9.412, 3.750, name='J+')
-    snapshot.assign_material(24.486, 2.250, name='J+')
-    snapshot.assign_material(6.841, 0.750, name='J+')
-    snapshot.assign_material(15.339, -0.750, name='J+')
-    snapshot.assign_material(28.241, -2.250, name='J+')
-    snapshot.assign_material(6.694, -3.750, name='J+')
-    snapshot.assign_material(14.448, -5.250, name='J+')
-    snapshot.assign_material(34.745, -6.750, name='J+')
-    snapshot.assign_material(30.022, -8.250, name='J+')
-    snapshot.assign_material(15.420, -9.750, name='J+')
-    snapshot.assign_material(32.017, -11.250, name='J+')
-    snapshot.assign_material(41.924, -12.750, name='J+')
-    snapshot.assign_material(5.792, -14.250, name='J+')
+    snapshot.assign_material(34.274, 14.250, name="J+")
+    snapshot.assign_material(6.625, 12.750, name="J+")
+    snapshot.assign_material(17.876, 11.250, name="J+")
+    snapshot.assign_material(15.544, 9.750, name="J+")
+    snapshot.assign_material(38.641, 8.250, name="J+")
+    snapshot.assign_material(35.951, 6.750, name="J+")
+    snapshot.assign_material(45.648, 5.250, name="J+")
+    snapshot.assign_material(9.412, 3.750, name="J+")
+    snapshot.assign_material(24.486, 2.250, name="J+")
+    snapshot.assign_material(6.841, 0.750, name="J+")
+    snapshot.assign_material(15.339, -0.750, name="J+")
+    snapshot.assign_material(28.241, -2.250, name="J+")
+    snapshot.assign_material(6.694, -3.750, name="J+")
+    snapshot.assign_material(14.448, -5.250, name="J+")
+    snapshot.assign_material(34.745, -6.750, name="J+")
+    snapshot.assign_material(30.022, -8.250, name="J+")
+    snapshot.assign_material(15.420, -9.750, name="J+")
+    snapshot.assign_material(32.017, -11.250, name="J+")
+    snapshot.assign_material(41.924, -12.750, name="J+")
+    snapshot.assign_material(5.792, -14.250, name="J+")
 
     # assigning boundaries
     snapshot.assign_boundary_condition(0, 0, "a0")
@@ -117,7 +117,7 @@ agros_metadata.unit = 1e-3
 agros_metadata.nb_refinements = 3
 agros_metadata.polyorder = 2
 agros_metadata.adaptivity = "hp-adaptivity"
-agros_metadata.adaptivity_tol = .55
+agros_metadata.adaptivity_tol = 0.55
 
 
 femm_metadata = FemmMetadata()
@@ -139,7 +139,7 @@ fig, ax = plt.subplots(1, 3, sharey=True, figsize=(8, 4), dpi=550)
 
 xi, yi, agros_zi = get_core_points(agros_metadata.file_metrics_name)
 F1_agros = max(numpy.abs(agros_zi - Bgoal).ravel())
-plot_platform(ax[0], xi*1000, yi*1000, agros_zi)
+plot_platform(ax[0], xi * 1000, yi * 1000, agros_zi)
 ax[0].set_title("Agros2D - Bz")
 ax[0].set_xlabel("R [mm]")
 ax[0].set_ylabel("Z [mm]")
@@ -153,7 +153,7 @@ ax[1].set_xlabel("R [mm]")
 
 
 difference = numpy.abs(femm_zi - agros_zi)
-CS = ax[2].contourf(xi, yi, difference, cmap="inferno", vmin=difference.max()*0.01, vmax=difference.max())
+CS = ax[2].contourf(xi, yi, difference, cmap="inferno", vmin=difference.max() * 0.01, vmax=difference.max())
 ax[2].set_title(r"Difference")
 # ax[2].clabel(CS, inline=1, fontsize=10, fmt="%1.2f", colors="w")
 ax[2].set_xlabel("R [mm]")

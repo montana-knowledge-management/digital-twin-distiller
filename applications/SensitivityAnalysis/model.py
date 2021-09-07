@@ -33,15 +33,15 @@ class PriusMotor(BaseModel):
 
         self.rotorangle = rotorangle
 
-        self.S1 = 269/2
-        self.S2 = 161.93/2
+        self.S1 = 269 / 2
+        self.S2 = 161.93 / 2
         self.S4 = 1.92953
-        self.R1 = 160.47/2
+        self.R1 = 160.47 / 2
         self.R3 = 145
         self.R4 = 6.5
         self.R5 = 18.9
         self.R6 = 70.08
-        self.R7 = 111/2
+        self.R7 = 111 / 2
 
         self.airgap = 0.73
         self.offset = 0.1
@@ -281,18 +281,18 @@ class PriusMotor(BaseModel):
 
     def _add_slices(self):
         # Stator slice
-        r_outer = self.S1+self.offset
-        r_inner = self.S2+self.offset
+        r_outer = self.S1 + self.offset
+        r_inner = self.S2 + self.offset
         ul, ur = self._add_slice(r_outer, r_inner)
-        self.label_queue.append((0, self.S1 - 10+self.offset, "M19_29GSF094"))
+        self.label_queue.append((0, self.S1 - 10 + self.offset, "M19_29GSF094"))
         self.boundary_queue.append((*ul * (r_outer + r_inner) / 2, "PB1"))
         self.boundary_queue.append((*ur * (r_outer + r_inner) / 2, "PB1"))
 
         # stator self.airgap/2 slice
-        r_outer = self.S2+self.offset
+        r_outer = self.S2 + self.offset
         r_inner = self.S2 - self.airgap / 2 + self.offset
         ul, ur = self._add_slice(r_outer, r_inner)
-        self.label_queue.append((0, self.S2 - self.airgap / 4+self.offset, "airgap"))
+        self.label_queue.append((0, self.S2 - self.airgap / 4 + self.offset, "airgap"))
         self.boundary_queue.append((*ul * (r_outer + r_inner) / 2, "PB2"))
         self.boundary_queue.append((*ur * (r_outer + r_inner) / 2, "PB2"))
         self.boundary_arc_queue.append((0, r_inner, "APairgap"))
@@ -353,7 +353,7 @@ class PriusMotor(BaseModel):
         slit.geom.add_line(Line(Node(self.S4 / 2, 0), Node(self.S4 / 2, 1.02579)))
         slit.geom.add_line(Line(Node(-self.S4 / 2, 0), Node(-self.S4 / 2, 1.02579)))
 
-        slit.translate(0, -slit.lower.y + self.S2 - 6.5e-3 + 1.02579+self.offset)
+        slit.translate(0, -slit.lower.y + self.S2 - 6.5e-3 + 1.02579 + self.offset)
         slit.rotate(alpha=45 / 2 - 3.75)
         label1 = Node((slit.bbox[0] + slit.bbox[2]) / 2, (slit.bbox[1] + slit.bbox[3]) / 2)
         label2 = slit.lower + 1
@@ -376,9 +376,9 @@ class PriusMotor(BaseModel):
     def build_geometry(self):
         self._add_slices()
 
-        self._add_magnets()
+        # self._add_magnets()
 
-        self._add_slits()
+        # self._add_slits()
 
         self.snapshot.add_geometry(self.geom)
 
