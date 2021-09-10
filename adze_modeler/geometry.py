@@ -9,7 +9,7 @@ import networkx as nx
 import adze_modeler.objects as obj
 import sys
 from adze_modeler.utils import getID
-from copy import copy
+from copy import copy,deepcopy
 from uuid import uuid4
 
 import ezdxf
@@ -467,37 +467,37 @@ class Geometry:
             for line in self.lines:
                 if line.end_pt.id == node and line.start_pt.id == nodes[i + 1]:
                     # direction: from end -> to start
-                    temp = copy(line)
+                    temp = deepcopy(line)
                     temp.id = -temp.id
                     surface.append(temp)
 
                 if line.start_pt.id == node and line.end_pt.id == nodes[i + 1]:
                     # direction: from start -> to end
-                    surface.append(copy(line))
+                    surface.append(deepcopy(line))
 
             # arcs
             for arc in self.circle_arcs:
                 if arc.end_pt.id == node and arc.start_pt.id == nodes[i + 1]:
                     # direction: from end -> to start
-                    temp = copy(arc)
+                    temp = deepcopy(arc)
                     temp.id = -temp.id
                     surface.append(temp)
 
                 if arc.start_pt.id == node and arc.end_pt.id == nodes[i + 1]:
                     # direction: from start -> to end
-                    surface.append(copy(arc))
+                    surface.append(deepcopy(arc))
 
             # cubic bezier
             for cb in self.cubic_beziers:
                 if cb.end_pt.id == node and cb.start_pt.id == nodes[i + 1]:
                     # direction: from end -> to start
-                    temp = copy(cb)
+                    temp = deepcopy(cb)
                     temp.id = -temp.id
                     surface.append(temp)
 
                 if cb.start_pt.id == node and cb.end_pt.id == nodes[i + 1]:
                     # direction: from start -> to end
-                    surface.append(copy(cb))
+                    surface.append(deepcopy(cb))
 
         return surface
 

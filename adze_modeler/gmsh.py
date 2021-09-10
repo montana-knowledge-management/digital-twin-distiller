@@ -10,14 +10,19 @@ The goal of this class is to export the model geometry into a msh file with pygm
 translated into various formats with the meshio  [1]. 
 
 https://github.com/nschloe/meshio
+
+useful documentation for the usage of gmsh - pygmsh codes:
+http://jsdokken.com/converted_files/tutorial_pygmsh.html
 """
 
 
 class GMSHModel:
 
-    def __init__(self, geo, name='dev', msh_format='vtk'):
+    def __init__(self, geo, name='dev', msh_format='.msh'):
         self.name = name
-        self.boundaries = {}
+        self.boundaries = {}  # this should be defined
+        self.boundary_queue_gmsh = {}  # gmsh renumbers the different nodes and
+        self.label_queue = []
         self.materials = {}
         self.geometry = geo
         self.metrics = []
@@ -26,8 +31,18 @@ class GMSHModel:
         self.gmsh_geometry = gmsh.Geometry()
 
         # sets the
-        self.lcar = 1.0  # caracteristic length
+        self.lcar = 1.0  # characteristic length
         self.msh_format = msh_format
+        self.dim = 2  # dimension of the mesh
+
+    @staticmethod
+    def export_mesh_to_dolphin(mesh, cell_type, prune_z=False):
+        cells = mesh.get_cells_type(cell_type)
+        cell_data = mesh.get_cell_data("gmsh:physical", cell_type)
+        out_mesh = meshio.Mesh(points=mesh.points, cells={cell_type: cells}, cell_data={"name_to_read": [cell_data]})
+        if prune_z:
+            out_mesh.prune_z_0()
+        return out_mesh
 
     def gmsh_writer(self, file_name):
         """
@@ -92,9 +107,36 @@ class GMSHModel:
                         bezier = geom.add_bspline(control_points=[start_point, control1, control2, end_point])
                         gmsh_edges.append(bezier)
 
+                    for key, val in self.boundaries.items():
+                        if abs(edge.id) in val:
+                            if key in self.boundary_queue_gmsh:
+                                self.boundary_queue_gmsh[key].extend(val)
+                            else:
+                                self.boundary_queue_gmsh[key] = val
+
             ll = geom.add_curve_loop(gmsh_edges)
             pl = geom.add_plane_surface(ll)
+
+            # physical surfaces define the name of the applied materials
+            geom.add_physical(pl, label='default')
+            # geom.add_physical()
+            # define the boundary condition for the latest edge
+            # geom.add_physical(gmsh_edges[-1], 'Dirichlet')
+
             geom.save_geometry(file_name + '.geo_unrolled')
-            mesh = geom.generate_mesh()
+            mesh = geom.generate_mesh(dim=self.dim)
             std_gmsh.write(file_name + ".msh")
-            #mesh.write(file_name + ".xdmf")  # + ".vtk")
+            std_gmsh.clear()
+
+            # # create a mesh for dolphin
+            # mesh_from_file = meshio.read(file_name + ".msh")
+            # # line_mesh = self.create_mesh(mesh_from_file, "line", prune_z=True)
+            # # meshio.write(file_name + "_bounds_" + ".xdmf", line_mesh)
+            #
+            # cell_mesh = self.create_mesh(mesh_from_file, "triangle", prune_z=True)
+            # meshio.write(file_name + ".xdmf", cell_mesh)
+            #
+            # # if self.msh_format != '.msh':
+            # #    mesh_from_file = meshio.read(file_name + ".msh")
+            # #    meshio.write(self.msh_format, mesh_from_file)
+            # # mesh.write(file_name + ".xdmf")  # + ".vtk")
