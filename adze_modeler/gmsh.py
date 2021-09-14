@@ -31,7 +31,7 @@ class GMSHModel:
         self.gmsh_geometry = gmsh.Geometry()
 
         # sets the
-        self.lcar = 1.0  # characteristic length
+        self.lcar = 0.05  # characteristic length
         self.msh_format = msh_format
         self.dim = 2  # dimension of the mesh
 
@@ -107,25 +107,29 @@ class GMSHModel:
                         bezier = geom.add_bspline(control_points=[start_point, control1, control2, end_point])
                         gmsh_edges.append(bezier)
 
+                    # the number of the boundaries should be renumbered to get the
                     for key, val in self.boundaries.items():
                         if abs(edge.id) in val:
                             if key in self.boundary_queue_gmsh:
-                                self.boundary_queue_gmsh[key].extend(val)
+                                self.boundary_queue_gmsh[key].append(gmsh_edges[-1])
                             else:
-                                self.boundary_queue_gmsh[key] = val
+                                self.boundary_queue_gmsh[key] = [gmsh_edges[-1]]
 
             ll = geom.add_curve_loop(gmsh_edges)
             pl = geom.add_plane_surface(ll)
 
             # physical surfaces define the name of the applied materials
-            geom.add_physical(pl, label='default')
-            # geom.add_physical()
-            # define the boundary condition for the latest edge
-            # geom.add_physical(gmsh_edges[-1], 'Dirichlet')
+            geom.add_physical(pl, label='material')
 
-            geom.save_geometry(file_name + '.geo_unrolled')
+            # define the boundary condition for the latest edge
+            for key, val in self.boundary_queue_gmsh.items():
+                # gmsh define the boundaries in the transposed order
+                geom.add_physical(val, label=key)
+
+            #geom.save_geometry(file_name + '.geo_unrolled') physical domain saving not working with it
             mesh = geom.generate_mesh(dim=self.dim)
             std_gmsh.write(file_name + ".msh")
+            std_gmsh.write(file_name + ".geo_unrolled")
             std_gmsh.clear()
 
             # # create a mesh for dolphin

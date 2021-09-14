@@ -7,7 +7,7 @@ gmsh
 ezdxf
 scipy
 artap
-fenics
 networkx
 pyvista
-h5py
+
+
