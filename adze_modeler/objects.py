@@ -239,8 +239,11 @@ class CircleArc:
 
         self.radius = self.start_pt.distance_to(self.center_pt)
         clamp = self.start_pt.distance_to(self.end_pt) / 2.0
-        self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
-        self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
+        try:
+            self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
+            self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
+        except ValueError:
+            self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(90))
 
     def distance_to_point(self, x, y):
         """

@@ -49,7 +49,7 @@ class SymmetircModel(BaseModel):
         platform_femm = Femm(femm_metadata)
         platform_agros = Agros2D(agros_metadata)
 
-        platform = platform_agros
+        platform = platform_femm
         self.snapshot = Snapshot(platform)
 
     def define_boundary_conditions(self):

@@ -45,7 +45,7 @@ class AsymmetircModel(BaseModel):
         platform_femm = Femm(femm_metadata)
         platform_agros = Agros2D(agros_metadata)
 
-        self.platform = platform_agros
+        self.platform = platform_femm
         self.snapshot = Snapshot(self.platform)
 
     def define_boundary_conditions(self):

@@ -253,7 +253,7 @@ class Femm(Platform):
                 self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
 
         if action == "saveimage":
-            self.write(f"{prefix}_showdensityplot(0, 0, 0.0, 2.0, 'bmag')")
+            self.write(f"{prefix}_showdensityplot(0, 0, 0.0, 0.1, 'bmag')")
             self.write(f"{prefix}_showcontourplot(-1)")
             self.write(f"{prefix}_resize(600, 600)")
             self.write(f"{prefix}_refreshview()")

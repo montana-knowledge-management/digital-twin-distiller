@@ -57,6 +57,39 @@ class BaseModel(metaclass=ABCMeta):
         """
         self.geom.add_line(obj.Line(obj.Node(x0, y0), obj.Node(x1, y1)))
 
+    def assign_material(self, x, y, name):
+        """
+        Place a block label at the x,y coordinates.
+
+        Parameters:
+                x: x coortinate of the label
+                y: y coortinate of the label
+                name: name of the material
+        """
+        self.label_queue.append((x, y, name))
+
+    def assign_boundary(self, x, y, name):
+        """
+        Assign the name bounary condition to the line that is the closest to the x,y point.
+
+        Parameters:
+                x: x coortinate of the point
+                y: y coortinate of the point
+                name: name of the boundary condition
+        """
+        self.boundary_queue.append((x, y, name))
+
+    def assign_boundary_arc(self, x, y, name):
+        """
+        Assign the name bounary condition to the circle arc that is the closest to the x,y point.
+
+        Parameters:
+                x: x coortinate of the point
+                y: y coortinate of the point
+                name: name of the boundary condition
+        """
+        self.boundary_arc_queue.append((x, y, name))
+
     def build(self):
 
         self.setup_solver()
@@ -160,8 +193,12 @@ class BaseModel(metaclass=ABCMeta):
 
             res = self.snapshot.retrive_results()
 
+            # if cleanup:
+            #     rmtree(self.dir_export)
             if cleanup:
-                rmtree(self.dir_export)
+                for file_i in self.dir_export.iterdir():
+                    file_i.unlink()
+                self.dir_export.rmdir()
 
             if len(res) == 0:
                 return None
@@ -169,6 +206,11 @@ class BaseModel(metaclass=ABCMeta):
                 return res
 
         except Exception as e:
-            print("something went wrong: ", e)
+            print("something went wrong: ")
+            print(e)
+            print("-"*20)
             print(traceback.format_exc())
+            print("=="*20)
+            print("snapshot:", self.name)
+            print("=="*20)
             return None
