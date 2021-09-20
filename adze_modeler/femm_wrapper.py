@@ -1534,11 +1534,15 @@ class FemmExecutor:
         if platform == 'linux':
             FemmExecutor.executable = FemmExecutor.femm_path_linux
             cmd_list.append('wine')
+            cmd_list.append(FemmExecutor.executable)
+            # script_file = os.popen(f'winepath -w "{script_file}"').read().strip()
+            cmd_list.append(f'-lua-script={script_file}')
+
         elif platform == 'win32':
             FemmExecutor.executable = FemmExecutor.femm_path_windows
-
-        cmd_list.append(f'"{FemmExecutor.executable}"')
-        cmd_list.append(f'-lua-script="{script_file}"')
+            cmd_list.append(f'"{FemmExecutor.executable}"')
+            cmd_list.append(f'-lua-script="{script_file}"')
+            # cmd_list.append('-windowhide')
 
         proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
