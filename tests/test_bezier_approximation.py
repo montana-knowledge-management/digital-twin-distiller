@@ -28,7 +28,7 @@ class TestBezierApprox(unittest.TestCase):
 
     # def test_1(self):
     #     #eml = files("tests.svgtests").joinpath("test_bez_approx.svg")
-    #     eml = files("examples.owl").joinpath("owl-shape.svg")
+    #     eml = files("examples.gmsh-arbitrary-surface").joinpath("gmsh-arbitrary-surface-shape.svg")
     #
     #     geo = Geometry()
     #     geo.import_svg(eml.as_posix())

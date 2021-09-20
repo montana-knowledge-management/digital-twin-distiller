@@ -13,6 +13,8 @@ setup(
         "ezdxf",
         "artap",
         "fenics",
+        "networkx",
+        "h5py",
     ],
     extras_require={"full": [f"agrossuite >= 0.01"]},
 )

@@ -6,7 +6,7 @@ from importlib_resources import files
 
 class TestSvgImport(TestCase):
     def test_owl_import_to_geometry(self):
-        eml = files("examples.owl").joinpath("owl-svgrepo-com.svg")
+        eml = files("examples.gmsh-arbitrary-surface").joinpath("gmsh-arbitrary-surface-svgrepo-com.svg")
         geo = Geometry()
         geo.import_svg(eml.as_posix())
 
@@ -19,7 +19,7 @@ class TestSvgImport(TestCase):
         self.assertTrue(len(geo.circle_arcs) == 0)
 
     def test_approximate_owl(self):
-        eml = files("examples.owl").joinpath("owl-svgrepo-com.svg")
+        eml = files("examples.gmsh-arbitrary-surface").joinpath("gmsh-arbitrary-surface-svgrepo-com.svg")
         geo = Geometry()
         geo.import_svg(eml.as_posix())
 
