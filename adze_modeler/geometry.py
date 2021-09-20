@@ -1,19 +1,24 @@
 """
 This class realize a layer, where the different elements of the geometry can be stored.
+
 A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
+import networkx as nx
+
 import adze_modeler.objects as obj
 import sys
 from adze_modeler.utils import getID
-from copy import copy
 from math import acos
+from copy import copy,deepcopy
 from uuid import uuid4
 
 import ezdxf
 import numpy as np
 import svgpathtools
 import svgpathtools as svg
+
+import matplotlib.pyplot as plt
 
 
 class Geometry:
@@ -46,17 +51,10 @@ class Geometry:
     def add_cubic_bezier(self, cb):
         self.cubic_beziers.append(cb)
         #
-        # self.nodes.append(cb.start_pt)
+        self.nodes.append(cb.start_pt)
         # self.nodes.append(cb.control1)
         # self.nodes.append(cb.control2)
-        # self.nodes.append(cb.end_pt)
-        r, l = Geometry.casteljau(cb)
-        rr, rl = Geometry.casteljau(r)
-        lr, ll = Geometry.casteljau(l)
-        self.add_line(obj.Line(rr.start_pt, rr.end_pt))
-        self.add_line(obj.Line(rl.start_pt, rl.end_pt))
-        self.add_line(obj.Line(lr.start_pt, lr.end_pt))
-        self.add_line(obj.Line(ll.start_pt, ll.end_pt))
+        self.nodes.append(cb.end_pt)
 
     def add_rectangle(self, r: obj.Rectangle):
         p = list(r)
@@ -90,6 +88,7 @@ class Geometry:
                 if self.nodes[i].distance_to(self.nodes[j]) < self.epsilon:
 
                     # renumber the start/end points of the different shape elements
+                    # 1/ lines
                     for line in self.lines:
                         if line.start_pt.id == self.nodes[j].id:
                             line.start_pt.id = self.nodes[i].id
@@ -97,9 +96,29 @@ class Geometry:
                         if line.end_pt.id == self.nodes[j].id:
                             line.end_pt.id = self.nodes[i].id
 
+                    # 2/ arcs
+                    for arcs in self.circle_arcs:
+                        if arcs.start_pt.id == self.nodes[j].id:
+                            arcs.start_pt.id = self.nodes[i].id
+
+                        if arcs.end_pt.id == self.nodes[j].id:
+                            arcs.end_pt.id = self.nodes[i].id
+
+                    # 3/ bezier curves
+                    for cb in self.cubic_beziers:
+                        if cb.start_pt.id == self.nodes[j].id:
+                            cb.start_pt.id = self.nodes[i].id
+
+                        if cb.control1.id == self.nodes[j].id:
+                            cb.control1.id = self.nodes[i].id
+
+                        if cb.control2.id == self.nodes[j].id:
+                            cb.control2.id = self.nodes[i].id
+
+                        if cb.end_pt.id == self.nodes[j].id:
+                            cb.end_pt.id = self.nodes[i].id
+
                     del self.nodes[j]
-            # if node_1.distance_to(node_2) < self.epsilon:
-            #    print(i)
 
     def merge_lines(self):
         # self.merge_points()
@@ -223,25 +242,6 @@ class Geometry:
 
         return r, l
 
-    def export_svg(self, file_name):
-        """
-        Creates an svg image from the geometry objects.
-        """
-
-        # every object handled as a separate path
-        # TODO: add circlearc and bezier
-
-        paths = []
-        # exports the lines
-        for seg in self.lines:
-            path = svg.Path()
-            p1 = complex(seg.start_pt.x, seg.start_pt.y)
-            p2 = complex(seg.end_pt.x, seg.end_pt.y)
-            path.append(svg.Line(p1.conjugate(), p2.conjugate()))
-            paths.append(path)
-
-        svg.wsvg(paths, svgwrite_debug=True, filename=str(file_name))
-
     def export_svg(self, file_name="output.svg"):
         """
         Creates an svg image from the geometry objects.
@@ -255,14 +255,26 @@ class Geometry:
         # exports the lines
         for seg in self.lines:
             path = svg.Path()
-            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y), complex(seg.end_pt.x, seg.end_pt.y)))
+            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y).conjugate(),
+                                 complex(seg.end_pt.x, seg.end_pt.y).conjugate()))
             paths.append(path)
             colors.append("blue")
 
         # export the circle arcs
         for arc in self.circle_arcs:
             path = svg.Path()
-            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y), complex(seg.end_pt.x, seg.end_pt.y)))
+            path.append(svg.Line(complex(arc.start_pt.x, arc.start_pt.y).conjugate(),
+                                 complex(arc.end_pt.x, arc.end_pt.y).conjugate()))
+            paths.append(path)
+            colors.append("blue")
+
+        for cb in self.cubic_beziers:
+            path = svg.Path()
+            p1 = complex(cb.start_pt.x, cb.start_pt.y).conjugate()
+            p2 = complex(cb.end_pt.x, cb.end_pt.y).conjugate()
+            c1 = complex(cb.control1.x, cb.control1.y).conjugate()
+            c2 = complex(cb.control2.x, cb.control2.y).conjugate()
+            path.append(svg.CubicBezier(p1, c1, c2, p2))
             paths.append(path)
             colors.append("blue")
 
@@ -293,18 +305,17 @@ class Geometry:
                             self.add_line(obj.Line(start, end))
                             id += 3
 
-                        # if isinstance(element, svg.Arc):
-                        #         start = obj.Node(element.start.real, element.start.imag)
-                        #         end = obj.Node(element.start.real, element.start.imag)
-                        #         center = obj.Node(element.center.real, element.center.imag)
-                        #         self.add_arc(obj.CircleArc(start, center, end))
-
                         if isinstance(element, svg.CubicBezier):
-                            start = obj.Node(element.start.real, element.start.imag)
-                            control1 = obj.Node(element.control1.real, element.control1.imag)
-                            control2 = obj.Node(element.control2.real, element.control2.imag)
-                            end = obj.Node(element.end.real, element.end.imag)
-                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end))
+                            s1 = element.start.conjugate()
+                            s2 = element.end.conjugate()
+                            c1 = element.control1.conjugate()
+                            c2 = element.control2.conjugate()
+
+                            start = obj.Node(s1.real, s1.imag, id)
+                            control1 = obj.Node(c1.real, c1.imag, id + 1)
+                            control2 = obj.Node(c2.real, c2.imag, id + 2)
+                            end = obj.Node(s2.real, s2.imag, id + 3)
+                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4))
                             id += 5
 
                         if isinstance(element, svg.Arc):
@@ -385,10 +396,10 @@ class Geometry:
 
         else:
             up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
-                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
-                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             if inrange(tp) and inrange(up):
                 p1 = tuple(p + tp * r)
@@ -399,6 +410,7 @@ class Geometry:
         return p1, p2
 
     def generate_intersections(self):
+        """Todo: generate intersections """
         N = len(self.lines)
         newlines = list()
         for i in range(N):
@@ -417,7 +429,6 @@ class Geometry:
 
                 if p2 is not None:
                     if i != j:
-                        # plt.scatter(p2[0], p2[1], c="r", marker="o", s=40)
                         intersections.append((distance(line_1.start_pt, p2), *p2))
                         pass
 
@@ -473,56 +484,94 @@ class Geometry:
         g.merge_geometry(self)
         return g
 
+    def find_edges(self, nodes: list):
+        """Search for the edges with the given direction """
 
-# def node_gmsh_point_distance(node, point):
-#     dx = node.x - point.x[0]
-#     dy = node.y - point.x[1]
-#
-#     return (dx ** 2. + dy ** 2.) ** 0.5
+        surface = []
+        # we are looking for a closed loop, therefore the first and the last item should create an edge
+        nodes.append(nodes[0])
+        for i, node in enumerate(nodes[:-1]):
+            # lines
+            for line in self.lines:
+                if line.end_pt.id == node and line.start_pt.id == nodes[i + 1]:
+                    # direction: from end -> to start
+                    temp = deepcopy(line)
+                    temp.id = -temp.id
+                    surface.append(temp)
 
+                if line.start_pt.id == node and line.end_pt.id == nodes[i + 1]:
+                    # direction: from start -> to end
+                    surface.append(deepcopy(line))
 
-# def gmsh_writer(nodes, lines, arcs, cubic_beziers):
-#     lcar = 5.
-#     epsilon = 1e-6
-#     with gmsh.Geometry() as geom:
-#         # add nodes
-#         points = []
-#         for node in nodes:
-#             temp = geom.add_point([node.x, node.y], lcar)
-#             # temp._id = node.id
-#             points.append(temp)
-#
-#         # add lines
-#         glines = []
-#         for line in lines:
-#             for i in range(len(points)):
-#                 if node_gmsh_point_distance(line.start_pt, points[i]) < epsilon:
-#                     start_pt = points[i]
-#
-#                 if node_gmsh_point_distance(line.end_pt, points[i]) < epsilon:
-#                     end_pt = points[i]
-#
-#             temp = geom.add_line(p0=start_pt, p1=end_pt)
-#             glines.append(temp)
-#
-#         # add cubic beziers
-#         gbeziers = []
-#         for cb in cubic_beziers:
-#             for i in range(len(points)):
-#                 if node_gmsh_point_distance(cb.start_pt, points[i]) < epsilon:
-#                     start_pt = points[i]
-#                 if node_gmsh_point_distance(cb.end_pt, points[i]) < epsilon:
-#                     end_pt = points[i]
-#                 if node_gmsh_point_distance(cb.control1, points[i]) < epsilon:
-#                     control1 = points[i]
-#                 if node_gmsh_point_distance(cb.control2, points[i]) < epsilon:
-#                     control2 = points[i]
-#
-#             temp = geom.add_bspline([start_pt, control1, control2, end_pt])
-#             gbeziers.append(temp)
-#         # ll = geom.add_curve_loop(glines)
-#         # pl = geom.add_plane_surface(ll)
-#
-#         geom.save_geometry("test.geo_unrolled")
-#         # mesh = geom.generate_mesh()
-#         # mesh.write("test.vtk")
+            # arcs
+            for arc in self.circle_arcs:
+                if arc.end_pt.id == node and arc.start_pt.id == nodes[i + 1]:
+                    # direction: from end -> to start
+                    temp = deepcopy(arc)
+                    temp.id = -temp.id
+                    surface.append(temp)
+
+                if arc.start_pt.id == node and arc.end_pt.id == nodes[i + 1]:
+                    # direction: from start -> to end
+                    surface.append(deepcopy(arc))
+
+            # cubic bezier
+            for cb in self.cubic_beziers:
+                if cb.end_pt.id == node and cb.start_pt.id == nodes[i + 1]:
+                    # direction: from end -> to start
+                    temp = deepcopy(cb)
+                    temp.id = -temp.id
+                    surface.append(temp)
+
+                if cb.start_pt.id == node and cb.end_pt.id == nodes[i + 1]:
+                    # direction: from start -> to end
+                    surface.append(deepcopy(cb))
+
+        return surface
+
+    def find_surfaces(self):
+        """Builds a networkx graph from the given geometry and search for the closed surfaces with networkx."""
+
+        Graph = nx.Graph()
+
+        # add edges to the graph from the different entities: lines, circles, cubic_bezier
+        for line in self.lines:
+            Graph.add_edge(line.start_pt.id, line.end_pt.id)
+
+        for circles in self.circle_arcs:
+            Graph.add_edge(circles.start_pt.id, circles.end_pt.id)
+
+        for cb in self.cubic_beziers:
+            Graph.add_edge(cb.start_pt.id, cb.end_pt.id)
+
+        closed_loops = nx.cycle_basis(Graph)
+
+        surfaces = []
+
+        for loop in closed_loops:
+            surface = self.find_edges(loop)
+            surfaces.append(surface)
+
+        return surfaces
+
+    def plot_connection_graph(self):
+        """Plots the connection graph of the given task. """
+        Graph = nx.Graph()
+
+        # add edges to the graph from the different entities: lines, circles, cubic_bezier
+        for line in self.lines:
+            Graph.add_edge(line.start_pt.id, line.end_pt.id)
+
+        for circles in self.circle_arcs:
+            Graph.add_edge(circles.start_pt.id, circles.end_pt.id)
+
+        for cb in self.cubic_beziers:
+            Graph.add_edge(cb.start_pt.id, cb.end_pt.id)
+
+        nx.draw_networkx(Graph, with_labels=False)
+
+        # Set margins for the axes so that nodes aren't clipped
+        ax = plt.gca()
+        ax.margins(0.20)
+        plt.axis("off")
+        plt.show()
