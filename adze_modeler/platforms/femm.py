@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 from adze_modeler.boundaries import AntiPeriodicBoundaryCondition
 from adze_modeler.boundaries import BoundaryCondition
 from adze_modeler.boundaries import DirichletBoundaryCondition
@@ -249,7 +251,7 @@ class Femm(Platform):
             self.write(f"{prefix}_showcontourplot(-1)")
             self.write(f"{prefix}_resize(600, 600)")
             self.write(f"{prefix}_refreshview()")
-            path = str(entity) + ".bmp"
+            path = str(Path(str(entity) + ".bmp").resolve().as_posix())
             self.write(f'{prefix}_save_bitmap("{path}");')
 
     def export_closing_steps(self):
