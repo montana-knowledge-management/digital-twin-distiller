@@ -675,4 +675,4 @@ class TestFemmExecutor(TestCase):
         with open(testfile, "w") as f:
             f.write("not_existing_command()")
 
-        self.assertEqual(None, exec.run_femm(testfile, timeout=2))
+        self.assertEqual(None, exec.run_femm(testfile, timeout=0))

@@ -99,3 +99,18 @@ class AntiPeriodicBoundaryCondition(BoundaryCondition):
     def __init__(self, name, field_type, **kwargs):
         super().__init__(name, field_type)
         self.type = "neumann"
+
+
+class AntiPeriodicAirGap(BoundaryCondition):
+    accepted_keys = {
+        "electrostatic": [],
+        "magnetic": [],
+        "heat": [],
+        "current": [],
+    }
+
+    def __init__(self, name, field_type, **kwargs):
+        super().__init__(name, field_type)
+        self.type = "neumann"
+        self.inner_angle = kwargs.get("inner_angle", 0)
+        self.outer_angle = kwargs.get("outer_angle", 0)

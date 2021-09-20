@@ -97,7 +97,7 @@ class TestSnapshotAgros2D(unittest.TestCase):
         s.add_material(Material("air"))
         s.assign_material(0, 0, "air")
         s.add_geometry(self.get_geometry())
-        s.add_boundary_condition(DirichletBoundaryCondition("d0", "magnetic", magnetic_potential=30))
+        s.add_boundary_condition(DirichletBoundaryCondition("d0", field_type="magnetic", magnetic_potential=30))
         f = MockFileHandle()
         # s.export()
         s.export(f)

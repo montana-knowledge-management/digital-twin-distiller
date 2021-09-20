@@ -1,0 +1,64 @@
+site_name: Adze-modeler
+site_url: https://github.com/robust-design-stack/adze-modeler
+repo_url: https://github.com/robust-design-stack/adze-modeler
+repo_name: robust-design-stack/adze-modeler
+
+nav:
+  - Home: index.md
+  - Structure:
+    - BaseModel: adze/basemodel.md
+  - Examples:
+    - Current Balancing: examples/CurrentBalancing/readme.md
+    - Transformer Fast Transients: examples/TransformerFasttransients/readme.md
+    - Distributed winding coil: examples/DistributedWinding/readme.md
+  - Applications:
+    - Team 35 Benchmark Optimization: applications/Team35/readme.md
+
+
+
+theme:
+  language: en
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.expand
+    - navigation.top
+    - content.code.annotate
+
+  palette:
+    - primary: teal
+
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+      clickable_checkbox: true
+  - pymdownx.snippets
+  - pymdownx.highlight:
+      use_pygments: true
+      linenums: true
+      linenums_style: pymdownx-inline
+  - pymdownx.superfences
+  - pymdownx.keys
+  - admonition
+  - def_list
+
+plugins:
+  - search:
+      lang: en
+  - git-revision-date
+  - mkdocstrings:
+      handlers:
+        python:
+          rendering:
+            show_root_toc_entry: false
+            show_source: false
+
+
+extra_javascript:
+  - javascript/config.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

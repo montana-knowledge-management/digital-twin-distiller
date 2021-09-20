@@ -7,6 +7,7 @@ import adze_modeler.objects as obj
 import sys
 from adze_modeler.utils import getID
 from copy import copy
+from math import acos
 from uuid import uuid4
 
 import ezdxf
@@ -24,20 +25,23 @@ class Geometry:
         self.epsilon = 1.0e-5
 
     def add_node(self, node):
-        self.nodes.append(node)
+        self.nodes.append(copy(node))
 
     def add_line(self, line):
         self.lines.append(line)
         # save every start and end points for the geoemtry
-        self.nodes.append(line.start_pt)
-        self.nodes.append(line.end_pt)
+        if line.start_pt not in self.nodes:
+            self.add_node(line.start_pt)
+
+        if line.end_pt not in self.nodes:
+            self.add_node(line.end_pt)
 
     def add_arc(self, arc):
         self.circle_arcs.append(arc)
         # save every start and end points for the geoemtry
-        self.nodes.append(arc.start_pt)
-        self.nodes.append(arc.end_pt)
-        # self.nodes.append(arc.center_pt)
+        self.add_node(arc.start_pt)
+        self.add_node(arc.end_pt)
+        # self.add_node(arc.center_pt)
 
     def add_cubic_bezier(self, cb):
         self.cubic_beziers.append(cb)
@@ -98,23 +102,32 @@ class Geometry:
             #    print(i)
 
     def merge_lines(self):
+        # self.merge_points()
+        # for i in range(len(self.lines) - 1):
+        #     try:
+        #         id1 = self.lines[i].start_pt.id
+        #         id2 = self.lines[i].end_pt.id
+        #     except IndexError:
+        #         pass
+        #     for j in range(len(self.lines) - 1, i, -1):
+        #         id3 = self.lines[j].start_pt.id
+        #         id4 = self.lines[j].end_pt.id
+        #         l = self.lines[j].start_pt.distance_to(self.lines[j].end_pt)
+        #
+        #         if l < self.epsilon:
+        #             del self.lines[j]
+        #
+        #         elif {id1, id2} == {id3, id4}:
+        #             del self.lines[j]
+        lines = self.lines.copy()
+        self.nodes.clear()
+        self.lines.clear()
+
+        for li in lines:
+            if li not in self.lines:
+                self.add_line(li)
+
         self.merge_points()
-        for i in range(len(self.lines) - 1):
-            try:
-                id1 = self.lines[i].start_pt.id
-                id2 = self.lines[i].end_pt.id
-            except IndexError:
-                pass
-            for j in range(len(self.lines) - 1, i, -1):
-                id3 = self.lines[j].start_pt.id
-                id4 = self.lines[j].end_pt.id
-                l = self.lines[j].start_pt.distance_to(self.lines[j].end_pt)
-
-                if l < self.epsilon:
-                    del self.lines[j]
-
-                elif {id1, id2} == {id3, id4}:
-                    del self.lines[j]
 
     def meshi_it(self, mesh_strategy):
         mesh = mesh_strategy(self.nodes, self.lines, self.circle_arcs, self.cubic_beziers)
@@ -142,7 +155,7 @@ class Geometry:
 
     def import_dxf(self, dxf_file):
         try:
-            doc = ezdxf.readfile(dxf_file)
+            doc = ezdxf.readfile(str(dxf_file))
         except OSError:
             print("Not a DXF file or a generic I/O error.")
             sys.exit(1)
@@ -157,16 +170,18 @@ class Geometry:
         msp = doc.modelspace()
         for e in msp:
             if e.dxftype() == "LINE":
-                start = obj.Node(e.dxf.start[0], e.dxf.start[1], id)
-                end = obj.Node(e.dxf.end[0], e.dxf.end[1], id + 1)
-                self.add_line(obj.Line(start, end, id + 2))
+                start = obj.Node(e.dxf.start[0], e.dxf.start[1])
+                end = obj.Node(e.dxf.end[0], e.dxf.end[1])
+                self.add_line(obj.Line(start, end))
                 id += 3
 
             if e.dxftype() == "ARC":
-                start = obj.Node(e.start_point.x, e.start_point.y, id)
-                end = obj.Node(e.end_point.x, e.end_point.y, id + 1)
-                center = obj.Node(e.dxf.center[0], e.dxf.center[0], id + 2)
-                self.add_arc(obj.CircleArc(start, center, end, id + 3))
+                start = obj.Node(e.start_point.x, e.start_point.y)
+                end = obj.Node(e.end_point.x, e.end_point.y)
+                center = obj.Node(e.dxf.center[0], e.dxf.center[1])
+
+                self.add_arc(obj.CircleArc(start, center, end))
+
                 id += 4
 
             if e.dxftype() == "POLYLINE":
@@ -227,37 +242,6 @@ class Geometry:
 
         svg.wsvg(paths, svgwrite_debug=True, filename=str(file_name))
 
-    @staticmethod
-    def casteljau(bezier: obj.CubicBezier):
-        """
-        Gets a Bezier object and makes only one Casteljau's iteration step on it without the recursion.
-
-        The algorithm splits the bezier into two, smaller parts denoted by r is the 'right-sides' and l denotes the
-        'left sided' one. The algorithm is limited to use cubic beziers only.
-
-        :return: 2 bezier objects, the right and the left one
-
-        """
-        # calculating the mid point [m]
-        m = (bezier.control1 + bezier.control2) * 0.5
-
-        l0 = bezier.start_pt
-        r3 = bezier.end_pt
-
-        l1 = (bezier.start_pt + bezier.control1) * 0.5
-        r2 = (bezier.control2 + bezier.end_pt) * 0.5
-
-        l2 = (l1 + m) * 0.5
-        r1 = (r2 + m) * 0.5
-
-        l3 = (l2 + r1) * 0.5
-        r0 = l3
-
-        r = obj.CubicBezier(start_pt=r0, control1=r1, control2=r2, end_pt=r3)
-        l = obj.CubicBezier(start_pt=l0, control1=l1, control2=l2, end_pt=l3)
-
-        return r, l
-
     def export_svg(self, file_name="output.svg"):
         """
         Creates an svg image from the geometry objects.
@@ -304,23 +288,23 @@ class Geometry:
                         if isinstance(element, svg.Line):
                             p1 = element.start.conjugate()
                             p2 = element.end.conjugate()
-                            start = obj.Node(p1.real, p1.imag, id)
-                            end = obj.Node(p2.real, p2.imag, id + 1)
-                            self.add_line(obj.Line(start, end, id + 2))
+                            start = obj.Node(p1.real, p1.imag)
+                            end = obj.Node(p2.real, p2.imag)
+                            self.add_line(obj.Line(start, end))
                             id += 3
 
                         # if isinstance(element, svg.Arc):
-                        #         start = obj.Node(element.start.real, element.start.imag, id)
-                        #         end = obj.Node(element.start.real, element.start.imag, id)
-                        #         center = obj.Node(element.center.real, element.center.imag, id)
-                        #         self.add_arc(obj.CircleArc(start, center, end, id + 3))
+                        #         start = obj.Node(element.start.real, element.start.imag)
+                        #         end = obj.Node(element.start.real, element.start.imag)
+                        #         center = obj.Node(element.center.real, element.center.imag)
+                        #         self.add_arc(obj.CircleArc(start, center, end))
 
                         if isinstance(element, svg.CubicBezier):
-                            start = obj.Node(element.start.real, element.start.imag, id)
-                            control1 = obj.Node(element.control1.real, element.control1.imag, id + 1)
-                            control2 = obj.Node(element.control2.real, element.control2.imag, id + 2)
-                            end = obj.Node(element.end.real, element.end.imag, id + 3)
-                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4))
+                            start = obj.Node(element.start.real, element.start.imag)
+                            control1 = obj.Node(element.control1.real, element.control1.imag)
+                            control2 = obj.Node(element.control2.real, element.control2.imag)
+                            end = obj.Node(element.end.real, element.end.imag)
+                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end))
                             id += 5
 
                         if isinstance(element, svg.Arc):
@@ -430,7 +414,6 @@ class Geometry:
                     if i != j:
                         # plt.scatter(p1[0], p1[1], c="r", marker="o", s=40)
                         intersections.append((distance(line_1.start_pt, p1), *p1))
-                        pass
 
                 if p2 is not None:
                     if i != j:
@@ -455,17 +438,19 @@ class Geometry:
 
     def merge_geometry(self, other):
 
-        for li in other.lines:
-            otherline = copy(li)
-            self.nodes.append(otherline.start_pt)
-            self.nodes.append(otherline.end_pt)
-            self.lines.append(otherline)
+        for ni in other.nodes:
+            self.add_node(copy(ni))
 
-        for ca in other.circle_arcs:
-            self.circle_arcs.append(copy(ca))
-        #
-        # for cb in other.cubic_beziers:
-        #     self.cubic_beziers.append(copy(cb))
+        for li in other.lines:
+            self.add_line(copy(li))
+
+        for i, ca in enumerate(other.circle_arcs):
+            self.add_arc(copy(ca))
+
+        for cb in other.cubic_beziers:
+            self.add_cubic_bezier(copy(cb))
+
+        # self.merge_points()
 
     def export_geom(self, filename):
         paths = []
@@ -474,7 +459,19 @@ class Geometry:
             end_pt = li.end_pt.x + li.end_pt.y * 1j
             paths.append(svgpathtools.Line(start_pt, end_pt))
 
+        for bz in self.cubic_beziers:
+            start_pt = complex(*bz.start_pt)
+            control1 = complex(*bz.control1)
+            control2 = complex(*bz.control2)
+            end_pt = complex(*bz.end_pt)
+            paths.append(svgpathtools.CubicBezier(start_pt, control1, control2, end_pt))
+
         svg.wsvg(paths, filename=str(filename))
+
+    def __copy__(self):
+        g = Geometry()
+        g.merge_geometry(self)
+        return g
 
 
 # def node_gmsh_point_distance(node, point):

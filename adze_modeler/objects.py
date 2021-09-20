@@ -1,5 +1,6 @@
 import math
 from adze_modeler.utils import getID
+from adze_modeler.utils import mirror_point
 from collections.abc import Iterable
 from copy import copy
 
@@ -18,9 +19,15 @@ class Node:
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
         self.hanging = True  # if its contained by another object it will be set to False
 
+    def __eq__(self, other):
+        return abs(self.x - other.x) < 1e-5 and abs(self.y - other.y) < 1e-5
+
     def __add__(self, p):
         """Point(x1+x2, y1+y2)"""
-        return Node(self.x + p.x, self.y + p.y)
+        if isinstance(p, Node):
+            return Node(self.x + p.x, self.y + p.y)
+        else:
+            return Node(self.x + p, self.y + p)
 
     def __sub__(self, p):
         """Point(x1-x2, y1-y2)"""
@@ -30,7 +37,13 @@ class Node:
         """Point(x1*x2, y1*y2)"""
         return Node(self.x * scalar, self.y * scalar)
 
-    def __rmul__(self, other):
+    def __rmul__(self, scalar):
+        return self * scalar
+
+    def __truediv__(self, scalar):
+        return Node(self.x / scalar, self.y / scalar)
+
+    def __matmul__(self, other):
         """
         Dot prduct
         n1 @ n2
@@ -38,16 +51,21 @@ class Node:
         return self.x * other.x + self.y * other.y
 
     def __str__(self):
-        return f"({self.x:.1f}, {self.y:.1f}, label={self.label})"
+        # return f"({self.x:.1f}, {self.y:.1f}, label={self.label})"
+        return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
+        # return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
 
     def __copy__(self):
         return Node(self.x, self.y, id=getID(), label=self.label, precision=self.precision)
 
     def __iter__(self):
         yield from (self.x, self.y)
+
+    def __abs__(self):
+        return self.length()
 
     def length(self):
         return math.sqrt(self.x ** 2 + self.y ** 2)
@@ -99,6 +117,13 @@ class Node:
         u = other - self
         return u * (1 / u.length())
 
+    def angle_to(self, other):
+        """
+        This function returns the angle between self and an another Node
+        instance.
+        """
+        return math.acos((self @ other) / (self.length() * other.length()))
+
 
 class Line:
     """A directed line, which is defined by the (start -> end) points"""
@@ -122,6 +147,13 @@ class Line:
         This function calculates the minimum distance between a line segment and a point
         https://www.geeksforgeeks.org/minimum-distance-from-a-point-to-the-line-segment-using-vectors/
         """
+        # p = Node(px, py)
+        # center_pt = (self.start_pt + self.end_pt) / 2
+        # d1 = self.start_pt.distance_to(p)
+        # d2 = center_pt.distance_to(p)
+        # d3 = self.end_pt.distance_to(p)
+        # return min(d1, d2, d3)
+
         A = (self.start_pt.x, self.start_pt.y)
         B = (self.end_pt.x, self.end_pt.y)
         E = (px, py)
@@ -178,23 +210,51 @@ class Line:
 
         return reqAns
 
+    def __eq__(self, other):
+        d1 = self.start_pt.distance_to(other.start_pt)
+        d2 = self.start_pt.distance_to(other.end_pt)
+        d3 = self.end_pt.distance_to(other.start_pt)
+        d4 = self.end_pt.distance_to(other.end_pt)
+        distances = sorted([d1, d2, d3, d4])
+        if distances[0] < 1e-5 and distances[1] < 1e-5:
+            return True
+        else:
+            return False
+
     def __repr__(self):
         return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
+        # return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt}, id={hex(self.id)[-5:]})"
 
 
 class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, center_pt, end_pt, id=None, label=None):
+    def __init__(self, start_pt, center_pt, end_pt, id=None, label=None, max_seg_deg=20):
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt
         self.id = id or getID()
         self.label = label
-        self.max_seg_deg = 20
+        self.max_seg_deg = max_seg_deg
+
+        self.radius = self.start_pt.distance_to(self.center_pt)
+        clamp = self.start_pt.distance_to(self.end_pt) / 2.0
+        self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
+        self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
+
+    def distance_to_point(self, x, y):
+        """
+        This function returns the minimum distance between p and the circle arcs points:
+        start, end, center and apex point.
+        """
+        p = Node(x, y)
+        d1 = self.start_pt.distance_to(p)
+        d2 = self.apex_pt.distance_to(p)
+        d3 = self.end_pt.distance_to(p)
+        return min(d1, d2, d3)
 
     def __copy__(self):
-        return CircleArc(copy(self.start_pt), copy(self.center_pt), copy(self.end_pt))
+        return CircleArc(copy(self.start_pt), copy(self.center_pt), copy(self.end_pt), max_seg_deg=self.max_seg_deg)
 
     def __repr__(self):
         return "{}({!r}, {!r}, {!r}, id={!r},label={!r})".format(
@@ -286,6 +346,7 @@ class ParametricBezier:
 class Rectangle:
     def __init__(self, x0: float = 0.0, y0: float = 0.0, **kwargs):
         """
+
          d --------------------------- [c]
          |                             |
          |                             |
@@ -374,10 +435,10 @@ class Rectangle:
         u_dc = self.d.unit_to(self.c)
 
         if fx_point is None:
-            self.a = self.a - u_ab * (difference / 2)
-            self.b = self.b + u_ab * (difference / 2)
-            self.d = self.d - u_dc * (difference / 2)
-            self.c = self.c + u_dc * (difference / 2)
+            self.a = self.a - u_ab * difference / 2
+            self.b = self.b + u_ab * difference / 2
+            self.d = self.d - u_dc * difference / 2
+            self.c = self.c + u_dc * difference / 2
         elif fx_point in {"a", "d"}:
             self.b = self.b + u_ab * difference
             self.c = self.c + u_dc * difference
@@ -403,10 +464,10 @@ class Rectangle:
         u_bc = self.b.unit_to(self.c)
 
         if fx_point is None:
-            self.a = self.a - u_ad * (difference / 2)
-            self.b = self.b + u_ad * (difference / 2)
-            self.d = self.d - u_bc * (difference / 2)
-            self.c = self.c + u_bc * (difference / 2)
+            self.a = self.a - u_ad * difference / 2
+            self.b = self.b - u_ad * difference / 2
+            self.c = self.c + u_bc * difference / 2
+            self.d = self.d + u_bc * difference / 2
         elif fx_point in {"a", "b"}:
             self.c = self.c + u_bc * difference
             self.d = self.d + u_ad * difference
@@ -447,6 +508,15 @@ class Rectangle:
         self.c.move_xy(dx, dy)
         self.d.move_xy(dx, dy)
         self.cp.move_xy(dx, dy)
+
+    def mirror(self, p1=(0, 0), p2=(0, 1)):
+        p1 = Node(*p1)
+        p2 = Node(*p2)
+        self.a = mirror_point(p1, p2, self.a)
+        self.b = mirror_point(p1, p2, self.b)
+        self.c = mirror_point(p1, p2, self.c)
+        self.d = mirror_point(p1, p2, self.d)
+        self._calc_centerpoint()
 
     def _calc_centerpoint(self):
         """Calculates the center-point of the rectangle."""

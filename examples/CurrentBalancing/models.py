@@ -41,7 +41,8 @@ class BaseModel:
         # solver setup
         femm_metadata = FemmMetadata()
         femm_metadata.problem_type = "magnetic"
-        femm_metadata.coordinate_type = "axisymmetric"
+        femm_metadata.coordinate_type = "planar"
+        femm_metadata.depth = 1000
         femm_metadata.file_script_name = self.file_solver_script
         femm_metadata.file_metrics_name = self.file_solution
         femm_metadata.unit = "millimeters"
@@ -80,12 +81,12 @@ class BaseModel:
     def init_geometry(self):
         air = ModelPiece("air")
         air.load_piece_from_svg(self.dir_resources / "air.svg")
-        air.put(495/2, 0)
+        air.put(495 / 2, 0)
         self.g.merge_geometry(air.geom)
 
         hv_coil = ModelPiece("hv_coil")
         hv_coil.load_piece_from_svg(self.dir_resources / "hv_coil.svg")
-        hv_coil.put(595/2, 80)
+        hv_coil.put(595 / 2, 80)
         self.g.merge_geometry(hv_coil.geom)
 
         lv_coil = ModelPiece("lv_coil")
@@ -95,7 +96,7 @@ class BaseModel:
         for k in range(16):
             coil = lv_coil.spawn()
             offset += 62.5 + self.X[k]
-            coil.put(750/2, 1280 - offset)
+            coil.put(750 / 2, 1280 - offset)
             self.g.merge_geometry(coil.geom)
 
         self.g.merge_lines()
@@ -103,30 +104,30 @@ class BaseModel:
         self.g.export_svg(self.dir_export / "geom.svg")
 
     def assign_blocklabels(self):
-        self.snapshot.assign_material(605/2, 699, "Primary")
-        self.snapshot.assign_material(523/2, 1036, "air")
+        self.snapshot.assign_material(605 / 2, 699, "Primary")
+        self.snapshot.assign_material(523 / 2, 1036, "air")
         offset = 0.0
         for k in range(16):
             offset += 62.5 + self.X[k]
             if k == self.i:
-                self.snapshot.assign_material((750 + 33.0 / 2)/2, 1280 - offset + 62.5 / 2, "Ii")
+                self.snapshot.assign_material((750 + 33.0 / 2) / 2, 1280 - offset + 62.5 / 2, "Ii")
             elif k == self.j:
-                self.snapshot.assign_material((750 + 33.0 / 2)/2, 1280 - offset + 62.5 / 2, "Ij")
+                self.snapshot.assign_material((750 + 33.0 / 2) / 2, 1280 - offset + 62.5 / 2, "Ij")
             else:
-                self.snapshot.assign_material((750 + 33.0 / 2)/2, 1280 - offset + 62.5 / 2, "air")
+                self.snapshot.assign_material((750 + 33.0 / 2) / 2, 1280 - offset + 62.5 / 2, "air")
 
     def assign_boundary_conditions(self):
-        self.snapshot.assign_boundary_condition(493/2, 695, "a0")
-        self.snapshot.assign_boundary_condition(758/2, 1280, "a0")
-        self.snapshot.assign_boundary_condition(758/2, 0, "a0")
-        self.snapshot.assign_boundary_condition(996/2, 644, "a0")
+        self.snapshot.assign_boundary_condition(493 / 2, 695, "a0")
+        self.snapshot.assign_boundary_condition(758 / 2, 1280, "a0")
+        self.snapshot.assign_boundary_condition(758 / 2, 0, "a0")
+        self.snapshot.assign_boundary_condition(996 / 2, 644, "a0")
 
     def add_postprocesssing(self):
-        entities = [(605/2, 699), (523/2, 1036)]
+        entities = [(605 / 2, 699), (523 / 2, 1036)]
         offset = 0.0
         for k in range(16):
             offset += 62.5 + self.X[k]
-            entities.append(((750 + 33.0 / 2)/2, 1280 - offset + 62.5 / 2))
+            entities.append(((750 + 33.0 / 2) / 2, 1280 - offset + 62.5 / 2))
         self.snapshot.add_postprocessing("integration", entities, "Energy")
 
     def __call__(self, cleanup=True, timeout=1e6):
@@ -168,8 +169,6 @@ if __name__ == "__main__":
     X = [5] * 16
     X[0] = 114
 
-
-
     # m = BaseModel(X, i=1, j=10, exportname="dev")
     # E = zeros((17, 17))
     # M = zeros((17, 17))
@@ -182,7 +181,7 @@ if __name__ == "__main__":
     #             m.snapshot.materials['Ij'].Je = 0.0
     #             m.snapshot.materials['Primary'].Je = 1 / (30 * 1100) * 1e6
     #
-    #         Eij = 2*m(cleanup=True)
+    #         Eij = m(cleanup=True)
     #         E[i, j] = Eij
     #         E[j, i] = Eij
     #         print(f"{Eij:.3e}", end=" ")
@@ -204,39 +203,40 @@ if __name__ == "__main__":
         M[i, i] = 2 * E[i, i] / (1.0 ** 2)
 
     for j in range(16):
-        for k in range(j+1, 16):
-            M[j, k] = (E[j, k] - 0.5*(M[j, j] + M[k, k])) / (1.0 * 1.0)
+        for k in range(j + 1, 16):
+            M[j, k] = (E[j, k] - 0.5 * (M[j, j] + M[k, k])) / (1.0 * 1.0)
             M[k, j] = M[j, k]
 
-    M = M[:-1, :-1]
+    np.savetxt(BaseModel.dir_resources / "M.txt", M)
+    # M = M[:-1, :-1]
     xticks = range(1, 17)
-    # plt.matshow(M)
-    # plt.colorbar()
-    # plt.savefig(BaseModel.dir_current / "docs/media/inductance_matrix.png")
-    # plt.show()
+    plt.matshow(M)
+    plt.colorbar()
+    plt.savefig(BaseModel.dir_current / "docs/media/inductance_matrix.png")
+    plt.show()
     #
     plt.figure()
-    plt.bar(xticks, M[0], color='b')
+    plt.bar(xticks, M[0, :-1], color="b")
     plt.xticks(xticks)
-    plt.xlabel('Coils')
-    plt.ylabel('Inductance [H]')
+    plt.xlabel("Coils")
+    plt.ylabel("Inductance [H]")
     plt.grid(alpha=0.5)
     plt.savefig(BaseModel.dir_current / "docs/media/inductance_change.png")
     plt.show()
 
-
     omega = 2 * np.pi * 50
     Ze = M * omega
     Zinv = np.linalg.inv(Ze)
-    V = np.ones(16)*1
+    V = np.ones(16) * 1
     I = np.dot(Zinv, V)
-    plt.bar(xticks, I, color='b')
+    A = 33 * 62.5
+    plt.bar(xticks, I / A, color="b")
     plt.xticks(xticks)
-    plt.xlabel('Coils')
-    plt.ylabel('Current [A]')
+    plt.xlabel("Coils")
+    plt.ylabel("Current [A/mm2]")
     plt.grid(alpha=0.5)
     plt.savefig(BaseModel.dir_current / "docs/media/current_distribution.png")
     plt.show()
 
-    m = BaseModel(X, i=1, j=10, exportname="wdev")
-    m(cleanup=False)
+    # m = BaseModel(X, i=1, j=10, exportname="wdev")
+    # m(cleanup=False)
