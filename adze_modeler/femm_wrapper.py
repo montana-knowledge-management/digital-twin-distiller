@@ -1527,17 +1527,20 @@ class FemmExecutor:
     def run_femm(self, script_file, timeout=10):
         """This function runs the femm simulation via filelink"""
 
-        cmd_string = ""
+        cmd_list = []
         script_file = Path(script_file).resolve()
         assert script_file.exists(), f"{script_file} does not exists."
 
         if platform == 'linux':
             FemmExecutor.executable = FemmExecutor.femm_path_linux
+            cmd_list.append('wine')
         elif platform == 'win32':
             FemmExecutor.executable = FemmExecutor.femm_path_windows
 
-        # print(f'{cmd_string!r}')
-        proc = subprocess.Popen([FemmExecutor.executable, f'-lua-script={script_file}', '-windowhide'], stdout=subprocess.PIPE,
+        cmd_list.append(f'"{FemmExecutor.executable}"')
+        cmd_list.append(f'-lua-script="{script_file}"')
+
+        proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
         timer = Timer(timeout, proc.kill)
         try:
