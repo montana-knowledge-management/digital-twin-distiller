@@ -14,7 +14,7 @@ from numpy import polyfit
 from numpy.core.function_base import linspace
 
 
-class ParametricPriusMotor(PriusMotor):
+class ParametricMeshPriusMotor(PriusMotor):
     def __init__(self, X: list, rotorangle: float = 0, exportname=None):
         super().__init__(rotorangle=rotorangle, exportname=exportname)
         assert len(X) == 5
@@ -47,7 +47,7 @@ class ParametricPriusMotor(PriusMotor):
         return f"{self.rotorangle:.3f}° {self.size_airgap} {self.size_steel} {self.size_coil} {self.size_magnet} {self.size_air}"
 
 
-def execute_model(model: ParametricPriusMotor):
+def execute_model(model: ParametricMeshPriusMotor):
     res = model(timeout=2000)
     torque = res["Torque"]
     nb_elements = int(res["elements"])
@@ -60,7 +60,7 @@ def analyze_cogging(X):
     print(X)
     dir_data = Path(__file__).parent / "data"
     rotorangles = linspace(0, 360 / 48, 31)
-    models = [ParametricPriusMotor(X, rotorangle=ri) for ri in rotorangles]
+    models = [ParametricMeshPriusMotor(X, rotorangle=ri) for ri in rotorangles]
 
     res = []
     with multiprocessing.Pool(processes=4) as pool:

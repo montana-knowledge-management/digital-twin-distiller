@@ -27,7 +27,7 @@ class PriusMotor(BaseModel):
     def __init__(self, rotorangle=0.0, alpha=0.0, I0=0.0, exportname: str = None):
         """
         Parameters:
-                rotorangle: Then angle of the rotor
+                rotorangle: The angle of the rotor
                 alpha: Electrical angle
                 I0: The magnitude of the excitation current
                 exportname: Specific directory name
@@ -55,9 +55,9 @@ class PriusMotor(BaseModel):
         coil_area = 0.000142795  # m2
         Nturns = 9
         J0 = Nturns * I0 / coil_area
-        self.JU = J0 * math.cos(math.radians(alpha))
-        self.JV = J0 * math.cos(math.radians(alpha + 120))
-        self.JW = J0 * math.cos(math.radians(alpha + 240))
+        self.JU = J0 * math.cos(math.radians(self.alpha))
+        self.JV = J0 * math.cos(math.radians(self.alpha + 120))
+        self.JW = J0 * math.cos(math.radians(self.alpha + 240))
 
         # Mesh sizes
         self.msh_size_stator_steel = 1.2
@@ -358,7 +358,7 @@ class ParametricPriusMotor(PriusMotor):
 
 def execute_model(model: PriusMotor):
     t0 = perf_counter()
-    res = model(timeout=2000, cleanup=True)
+    res = model(timeout=2000, cleanup=False)
     t1 = perf_counter()
     torque = res["Torque"]*8
     print(f"\t {abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {torque:.3f} Nm \t {t1-t0:.2f} s")
