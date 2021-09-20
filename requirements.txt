@@ -9,5 +9,5 @@ scipy
 artap
 networkx
 pyvista
-
+vedo
 

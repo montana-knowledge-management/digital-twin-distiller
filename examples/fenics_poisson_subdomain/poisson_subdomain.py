@@ -66,21 +66,6 @@ msh.plot(show_edges=True, cpos="xy")
 
 epsilon_0 = 8.85e-12
 
-# partially working version
-# # create a mesh for dolphin
-# mesh_from_file = meshio.read("poisson_domain.msh")
-# line_mesh = create_mesh(mesh_from_file, "line", prune_z=True)
-# meshio.write("poisson_facet.xdmf", line_mesh)
-#
-# cell_mesh = create_mesh(mesh_from_file, "triangle", prune_z=True)
-# meshio.write("poisson_domain.xml", cell_mesh)
-#
-# mesh = Mesh("poisson_domain.xml")
-# xdmf = XDMFFile(mesh.mpi_comm(), "poisson_domain.xml")
-# xdmf.write(mesh)
-# plot(mesh)
-
-
 #### Convert files into gmsh mesh file format
 Wri_path = './Dolfin/'
 
@@ -108,7 +93,7 @@ with fn.XDMFFile(Wri_path+"mf.xdmf") as infile:
     infile.read(mvc2, "name_to_read")
 cf = fn.cpp.mesh.MeshFunctionSizet(mesh, mvc2)
 
-#File(Wri_path+"Dolfin_circle_facets.pvd").write(mvc2)
+File(Wri_path+"Dolfin_circle_facets.pvd").write(cf)
 
 # plot(mesh)
 # # Hold plot
@@ -128,7 +113,7 @@ u = fn.TrialFunction(V)
 v = fn.TestFunction(V)
 
 a = fn.dot(fn.grad(u), fn.grad(v)) * fn.dx
-L = fn.Constant('0') * v * fn.dx
+L = fn.Constant(0) * v * fn.dx
 u = fn.Function(V)
 fn.solve(a == L, u, bc)
 
@@ -136,6 +121,7 @@ File("Solution.pvd").write(u)
 
 electric_field = fn.project(-fn.grad(u))
 # solution
+####################################
 
 plt.subplot(1,2,1)
 fn.plot(mf, 'domains')
@@ -146,9 +132,7 @@ fn.plot(electric_field, title='Electric field')
 
 plt.show()
 
-#### final plots with pyvista
+import vedo
 
-#fm = pv.read("Solution.pvd")
-#qual = fm.compute_cell_quality()
-#fm.plot(show_edges=True, cpos="xy")
-
+vedo.dolfin.plot(electric_field, mode='color', vmin=electric_field.vector().min(),
+                 vmax=electric_field.vector().max(), style=4)
