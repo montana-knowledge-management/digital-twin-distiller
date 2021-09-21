@@ -5,17 +5,12 @@ The code generated one snapshot from the created model, which can be run during 
 The original FEMM code has separate scripting commands for the geometry generation in different subfields
 
 """
-import adze_modeler.geometry as geo
-import os
-import shlex
 import subprocess
 from collections import namedtuple
 from math import asin
 from math import degrees
 from pathlib import Path
 from string import Template
-from subprocess import PIPE
-from subprocess import Popen
 from sys import platform
 from threading import Timer
 
@@ -200,7 +195,7 @@ class FemmWriter:
         This commands initialize a femm console and flush the variables
         :param out_file: defines the default output file
         """
-
+        out_file = str(Path(out_file).resolve().as_posix())
         cmd_list = []
         cmd_list.append("showconsole()")  # does nothing if the console is already displayed
         cmd_list.append("clearconsole()")  # clears both the input and output windows for a fresh start.
@@ -1351,6 +1346,7 @@ class FemmWriter:
 
         cmd = None
         self.validate_field()
+        file_name = str(Path(file_name).resolve().as_posix())
 
         if self.field == femm_magnetic:
             cmd = Template("mi_saveas($filename)")
@@ -1544,42 +1540,70 @@ class FemmExecutor:
 
     home = str(Path.home())
     femm_path_linux = home + "/.wine/drive_c/femm42/bin/femm.exe"
-    femm_path_windows = r"C:\FEMM42\bin\femm.exe"
+    femm_path_windows = r"C:\femm42\bin\femm.exe"
+    executable = femm_path_linux
 
     def run_femm(self, script_file, timeout=10):
         """This function runs the femm simulation via filelink"""
 
-        self.script_file = os.path.basename(script_file)
-        # under linux we are using wine to run FEMM
-        if platform == "linux":
-            self.femm_command = "wine " + self.femm_path_linux
+        cmd_list = []
+        script_file = Path(script_file).resolve()
+        assert script_file.exists(), f"{script_file} does not exists."
 
-            lua_path = os.path.abspath(script_file)
+        if platform == 'linux':
+            FemmExecutor.executable = FemmExecutor.femm_path_linux
+            cmd_list.append('wine')
+            cmd_list.append(FemmExecutor.executable)
+            # script_file = os.popen(f'winepath -w "{script_file}"').read().strip()
+            cmd_list.append(f'-lua-script={script_file}')
 
-            arg = None
-            if os.path.isfile(lua_path) and platform == "linux":
-                arg = '"' + os.popen('winepath -w "' + lua_path + '"').read().strip() + '"'
+        elif platform == 'win32':
+            FemmExecutor.executable = FemmExecutor.femm_path_windows
+            cmd_list.append(f'"{FemmExecutor.executable}"')
+            cmd_list.append(f'-lua-script="{script_file}"')
+            # cmd_list.append('-windowhide')
 
-            cmd_string = self.femm_command + f" -lua-script={arg}"
+        proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+        timer = Timer(timeout, proc.kill)
+        try:
+            timer.start()
+            stdout, stderr = proc.communicate()
+        finally:
+            timer.cancel()
 
-            # out = subprocess.run(cmd_string, shell=True, capture_output=True)
-            proc = Popen(shlex.split(cmd_string), stdout=PIPE, stderr=PIPE)
-            timer = Timer(timeout, proc.kill)
-            try:
-                timer.start()
-                stdout, stderr = proc.communicate()
-            finally:
-                timer.cancel()
 
-            if proc.returncode != 0:
-                err = "Unknown error"
-                return None
-            #     if proc.stderr is not None:
-            #         err = f"Cannot run FEMM.\n\n {proc.stderr}"
-            #         print(err)
-
-            # self.problem.logger.error(err)
-            # raise RuntimeError(err)
-
-            else:
-                return True
+        # self.script_file = os.path.basename(script_file)
+        # # under linux we are using wine to run FEMM
+        # if platform == "linux":
+        #     self.femm_command = "wine " + self.femm_path_linux
+        #
+        #     lua_path = os.path.abspath(script_file)
+        #
+        #     arg = None
+        #     if os.path.isfile(lua_path) and platform == "linux":
+        #         arg = '"' + os.popen('winepath -w "' + lua_path + '"').read().strip() + '"'
+        #
+        #     cmd_string = self.femm_command + f" -lua-script={arg}"
+        #
+        #     # out = subprocess.run(cmd_string, shell=True, capture_output=True)
+        #     proc = Popen(shlex.split(cmd_string), stdout=PIPE, stderr=PIPE)
+        #     timer = Timer(timeout, proc.kill)
+        #     try:
+        #         timer.start()
+        #         stdout, stderr = proc.communicate()
+        #     finally:
+        #         timer.cancel()
+        #
+        #     if proc.returncode != 0:
+        #         err = "Unknown error"
+        #         return None
+        #     #     if proc.stderr is not None:
+        #     #         err = f"Cannot run FEMM.\n\n {proc.stderr}"
+        #     #         print(err)
+        #
+        #     # self.problem.logger.error(err)
+        #     # raise RuntimeError(err)
+        #
+        #     else:
+        #         return True
