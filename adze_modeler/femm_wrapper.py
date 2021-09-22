@@ -1559,8 +1559,8 @@ class FemmExecutor:
 
         elif platform == 'win32':
             FemmExecutor.executable = FemmExecutor.femm_path_windows
-            cmd_list.append(f'"{FemmExecutor.executable}"')
-            cmd_list.append(f'-lua-script="{script_file}"')
+            cmd_list.append(FemmExecutor.executable)
+            cmd_list.append(f'-lua-script={script_file}')
             # cmd_list.append('-windowhide')
 
         proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE,
