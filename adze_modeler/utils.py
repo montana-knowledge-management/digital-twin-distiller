@@ -10,7 +10,6 @@ from numpy.polynomial import Polynomial as P
 def getID():
     return int(uuid4())
 
-
 def mirror_point(p1, p2, p3):
     """
     Mirror the p3 point on the p1 - p2 line.
@@ -21,7 +20,6 @@ def mirror_point(p1, p2, p3):
     p13 = p3 - p1
     H = p1 + ((p13 @ p12) / abs(p12) ** 2) * p12
     return H + (H - p3)
-
 
 def mm2px(x):
     """
@@ -34,7 +32,6 @@ def mm2inch(x):
     Convert millimeters to inches
     """
     return 0.03937007874 * x
-
 
 def get_width_height(type_='onehalf', aspect=(16, 10), unit='px'):
     """

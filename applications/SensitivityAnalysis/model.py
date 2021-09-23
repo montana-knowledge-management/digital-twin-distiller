@@ -1,7 +1,7 @@
 from copy import copy
 from pathlib import Path
 
-from adze_modeler.boundaries import DirichletBoundaryCondition, AntiPeriodicBoundaryCondition, AntiPeriodicAirGap
+from adze_modeler.boundaries import DirichletBoundaryCondition, AntiPeriodicBoundaryCondition, AntiPeriodicAirGap, PeriodicBoundaryCondition
 from adze_modeler.material import Material
 from adze_modeler.metadata import FemmMetadata
 from adze_modeler.model import BaseModel
@@ -358,7 +358,7 @@ class ParametricPriusMotor(PriusMotor):
 
 def execute_model(model: PriusMotor):
     t0 = perf_counter()
-    res = model(timeout=2000, cleanup=False)
+    res = model(timeout=2000, cleanup=False, devmode=False)
     t1 = perf_counter()
     torque = res["Torque"]*8
     print(f"\t {abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {torque:.3f} Nm \t {t1-t0:.2f} s")
