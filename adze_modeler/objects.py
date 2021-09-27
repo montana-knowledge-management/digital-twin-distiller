@@ -103,7 +103,7 @@ class Node:
         return Node(round(x, self.precision), round(y, self.precision))
 
     def rotate_about(self, p, theta):
-        """Rotate counter-clockwise around a point, by theta degrees. The new position is returned as a new Point."""
+        """Rotate counter-clockwise around a point, by theta radians. The new position is returned as a new Point."""
         result = self.clone()
         result.move_xy(-p.x, -p.y)
         result = result.rotate(theta)
@@ -244,6 +244,25 @@ class CircleArc:
             self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
         except ValueError:
             self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(90))
+
+    @classmethod
+    def from_radius(cls, start_pt: Node, end_pt: Node, r:float = 1.0):
+        """
+        Construct a CircleArc instance from start- and end-point and a radius.
+
+        Parameters:
+            start_pt: Starting point of the arc.
+            end_pt: End point of the arc.
+            r: radius of the arc. r > 0.
+        """
+        assert r > 0.0, f"Radius should be greater than 0. Got {r=}."
+        assert start_pt != end_pt, "Start- and End-point cannot be the same."
+
+        a = start_pt.distance_to(end_pt)
+        alpha = math.acos(a * 0.5 / r)
+        u = start_pt.unit_to(end_pt) * r
+        u = u.rotate(alpha) + start_pt
+        return cls(start_pt, u, end_pt)
 
     def distance_to_point(self, x, y):
         """
