@@ -110,7 +110,7 @@ class BLDCMotor(BaseModel):
         coil = Material('coil')
         coil.meshsize = self.msh_size_coils
 
-        air = Material('Air')
+        air = Material('air')
         air.meshsize = self.msh_size_air
 
         smco = Material('SmCo 24 MGOe')
@@ -186,6 +186,7 @@ class BLDCMotor(BaseModel):
         magnet.mu_r = 1.11
         magnet.coercivity = 724000
         magnet.conductivity = 1.176e6
+        magnet.remanence_angle = 90
 
         # Rotor steel
         rotor_steel = copy(steel1018)
@@ -213,9 +214,7 @@ class BLDCMotor(BaseModel):
         self.snapshot.add_material(magnet)
         self.snapshot.add_material(rotor_steel)
 
-
     def define_boundary_conditions(self):
-        # Define boundary conditions
         a0 = DirichletBoundaryCondition("a0", field_type="magnetic", magnetic_potential=0.0)
         pb1 = AntiPeriodicBoundaryCondition("PB1", field_type="magnetic")
         pb2 = AntiPeriodicBoundaryCondition("PB2", field_type="magnetic")
@@ -260,10 +259,14 @@ class BLDCMotor(BaseModel):
         g.add_arc(CircleArc(p1r, ORIGIN, p1l))
         g.add_arc(CircleArc(p3l, ORIGIN, p2l))
         g.add_arc(CircleArc(p2r, ORIGIN, p3r))
-        g.add_arc(CircleArc(p4r, ORIGIN, p4l))
-        g.add_arc(CircleArc(p5r, ORIGIN, p5l))
+        g.add_arc(CircleArc(p4r, ORIGIN, p4l, max_seg_deg=1))
+        g.add_arc(CircleArc(p5r, ORIGIN, p5l, max_seg_deg=1))
 
         self.geom.merge_geometry(g)
+
+        self.assign_material(0, (self.r1+self.r2) / 2, 'rotor_steel')
+        self.assign_material(0, (self.r2+self.r3) / 2, 'magnet')
+        self.assign_material(*((p2l+p4l)/2), 'airgap')
 
     def build_stator(self):
         g = Geometry()
@@ -281,11 +284,14 @@ class BLDCMotor(BaseModel):
         g.add_line(Line(q1r, q2r))
         g.add_line(Line(q2r, q3r))
 
-        g.add_arc(CircleArc(q1r, ORIGIN, q1l))
-        g.add_arc(CircleArc(q2r, ORIGIN, q2l))
-        g.add_arc(CircleArc(q3r, ORIGIN, q3l))
+        g.add_arc(CircleArc(q1r, ORIGIN, q1l, max_seg_deg=1))
+        g.add_arc(CircleArc(q2r, ORIGIN, q2l, max_seg_deg=1))
+        g.add_arc(CircleArc(q3r, ORIGIN, q3l, max_seg_deg=1))
 
         self.geom.merge_geometry(g)
+
+        self.assign_material(0, self.s1 - (self.airgap - self.void) / 4, 'airgap')
+        self.assign_material(0, self.s2- 0.1, "stator_steel")
 
     def build_slots(self):
         s = ModelPiece("Slot")
@@ -320,13 +326,20 @@ class BLDCMotor(BaseModel):
         nb_turns = 24
         unitangle = 360 / nb_turns
 
+        label1 = (c3l + c4r) / 2
+        label2 = (c1l + c2r) / 2
+        
         s.rotate(alpha=-unitangle)
+        label1 = label1.rotate(math.radians(-unitangle))
+        label2 = label2.rotate(math.radians(-unitangle))
+
 
         for i in range(3):
             si = copy(s)
             si.rotate(alpha=i*unitangle)
             self.geom.merge_geometry(si.geom)
-
+            self.assign_material(*label1.rotate(math.radians(i*unitangle)), 'U+')
+            self.assign_material(*label2.rotate(math.radians(i*unitangle)), 'air')
 
     def build_geometry(self):
         self.build_rotor()
