@@ -102,7 +102,7 @@ class Femm(Platform):
                 NStrands=0.0,
                 WireD=mat.diameter,
                 LamType=lamtypes.get(mat.lamination_type, 0),
-                Phi_hmax=0,
+                Phi_hmax=mat.phi_hmax,
                 Phi_hx=0,
                 Phi_hy=0,
             )
