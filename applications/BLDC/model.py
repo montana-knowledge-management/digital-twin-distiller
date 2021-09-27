@@ -1,15 +1,19 @@
-from adze_modeler.material import Material
 from copy import copy
-from adze_modeler.modelpiece import ModelPiece
-from adze_modeler.utils import mirror_point
-from adze_modeler.geometry import Geometry
-from adze_modeler.metadata import FemmMetadata
-from adze_modeler.model import BaseModel
-from adze_modeler.platforms.femm import Femm
-from adze_modeler.snapshot import Snapshot
-from adze_modeler.objects import Node, Line, CircleArc
 import math
 from pathlib import Path
+
+from adze_modeler.boundaries import AntiPeriodicAirGap
+from adze_modeler.boundaries import AntiPeriodicBoundaryCondition
+from adze_modeler.boundaries import DirichletBoundaryCondition
+from adze_modeler.geometry import Geometry
+from adze_modeler.material import Material
+from adze_modeler.metadata import FemmMetadata
+from adze_modeler.model import BaseModel
+from adze_modeler.modelpiece import ModelPiece
+from adze_modeler.objects import CircleArc, Line, Node
+from adze_modeler.platforms.femm import Femm
+from adze_modeler.snapshot import Snapshot
+from adze_modeler.utils import mirror_point
 
 def cart2pol(x, y):
     rho = math.hypot(x, y)
@@ -34,9 +38,12 @@ class BLDCMotor(BaseModel):
     """
     https://www.femm.info/wiki/RotorMotion
     """
-    def __init__(self, exportname: str = None):
+    def __init__(self, alpha:float=0.0, rotorangle:float=0.0, exportname: str = None):
         super().__init__(exportname)
         self._init_directories()
+
+        self.rotorangle = -rotorangle
+        self.alpha = -alpha
 
         # Mesh sizes
         self.msh_size_stator_steel = 1.2
@@ -208,7 +215,21 @@ class BLDCMotor(BaseModel):
 
 
     def define_boundary_conditions(self):
-        pass
+        # Define boundary conditions
+        a0 = DirichletBoundaryCondition("a0", field_type="magnetic", magnetic_potential=0.0)
+        pb1 = AntiPeriodicBoundaryCondition("PB1", field_type="magnetic")
+        pb2 = AntiPeriodicBoundaryCondition("PB2", field_type="magnetic")
+        pb3 = AntiPeriodicBoundaryCondition("PB3", field_type="magnetic")
+        pb4 = AntiPeriodicBoundaryCondition("PB4", field_type="magnetic")
+        apb = AntiPeriodicAirGap("APairgap", field_type="magnetic", outer_angle=self.rotorangle)
+
+        # Adding boundary conditions to the snapshot
+        self.snapshot.add_boundary_condition(a0)
+        self.snapshot.add_boundary_condition(pb1)
+        self.snapshot.add_boundary_condition(pb2)
+        self.snapshot.add_boundary_condition(pb3)
+        self.snapshot.add_boundary_condition(pb4)
+        self.snapshot.add_boundary_condition(apb)
 
     def build_rotor(self):
         g = Geometry()
