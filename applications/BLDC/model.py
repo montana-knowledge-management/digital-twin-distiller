@@ -1,3 +1,4 @@
+from adze_modeler.material import Material
 from copy import copy
 from adze_modeler.modelpiece import ModelPiece
 from adze_modeler.utils import mirror_point
@@ -8,6 +9,7 @@ from adze_modeler.platforms.femm import Femm
 from adze_modeler.snapshot import Snapshot
 from adze_modeler.objects import Node, Line, CircleArc
 import math
+from pathlib import Path
 
 def cart2pol(x, y):
     rho = math.hypot(x, y)
@@ -21,6 +23,12 @@ def pol2cart(rho, phi):
 
 ORIGIN = Node(0.0, 0.0)
 Y = Node(0.0, 1.0)
+
+DIR_BASE = Path(__file__).parent
+DIR_MEDIA = DIR_BASE / "media"
+DIR_DATA = DIR_BASE / "data"
+DIR_RESOURCES = DIR_BASE / "resources"
+DIR_SNAPSHOTS = DIR_BASE / "snapshots"
 
 class BLDCMotor(BaseModel):
     """
@@ -67,6 +75,11 @@ class BLDCMotor(BaseModel):
         self.h3 = 12.1993
         self.h4 = 1.9487
 
+        # Excitation
+        self.JU = 0
+        self.JV = 0
+        self.JW = 0
+
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -85,7 +98,114 @@ class BLDCMotor(BaseModel):
         pass
 
     def define_materials(self):
-        pass
+        m19 = Material('M-19 Steel')
+        
+        coil = Material('coil')
+        coil.meshsize = self.msh_size_coils
+
+        air = Material('Air')
+        air.meshsize = self.msh_size_air
+
+        smco = Material('SmCo 24 MGOe')
+        steel1018 = Material('1018 Steel')
+
+        
+        # Used materials
+        stator_steel = copy(m19)
+        stator_steel.name = 'stator_steel'
+        stator_steel.meshsize = self.msh_size_stator_steel
+        stator_steel.thickness = 0.635
+        stator_steel.fill_factor = 0.98
+        stator_steel.conductivity = 1.9e6
+        stator_steel.b = [0.000000, 0.050000, 0.100000, 0.150000, 0.200000,
+                0.250000, 0.300000, 0.350000, 0.400000, 0.450000, 0.500000,
+                0.550000, 0.600000, 0.650000, 0.700000, 0.750000, 0.800000,
+                0.850000, 0.900000, 0.950000, 1.000000, 1.050000, 1.100000,
+                1.150000, 1.200000, 1.250000, 1.300000, 1.350000, 1.400000,
+                1.450000, 1.500000, 1.550000, 1.600000, 1.650000, 1.700000,
+                1.750000, 1.800000, 1.850000, 1.900000, 1.950000, 2.000000,
+                2.050000, 2.100000, 2.150000, 2.200000, 2.250000, 2.300000]
+        stator_steel.h = [0.000000, 15.120714, 22.718292, 27.842733, 31.871434,
+                35.365044, 38.600588, 41.736202, 44.873979, 48.087807,
+                51.437236, 54.975221, 58.752993, 62.823644, 67.245285,
+                72.084406, 77.420100, 83.350021, 89.999612, 97.537353,
+                106.201406, 116.348464, 128.547329, 143.765431, 163.754169,
+                191.868158, 234.833507, 306.509769, 435.255202, 674.911968,
+                1108.325569, 1813.085468, 2801.217421, 4053.653117,
+                5591.106890, 7448.318413, 9708.815670, 12486.931615,
+                16041.483644, 21249.420624, 31313.495878, 53589.446877,
+                88477.484601, 124329.410540, 159968.569300, 197751.604272,
+                234024.751347]
+
+        # Coils
+        # PHASE U
+        phase_U_positive = copy(coil)
+        phase_U_positive.name = "U+"
+        phase_U_positive.Je = self.JU
+
+        phase_U_negative = copy(coil)
+        phase_U_negative.name = "U-"
+        phase_U_negative.Je = -self.JU
+
+        # PHASE V
+        phase_V_positive = copy(coil)
+        phase_V_positive.name = "V+"
+        phase_V_positive.Je = self.JV
+
+        phase_V_negative = copy(coil)
+        phase_V_negative.name = "V-"
+        phase_V_negative.Je = -self.JV
+
+        # PHASE W
+        phase_W_positive = copy(coil)
+        phase_W_positive.name = "W+"
+        phase_W_positive.Je = self.JW
+
+        phase_W_negative = copy(coil)
+        phase_W_negative.name = "W-"
+        phase_W_negative.Je = -self.JW
+        
+
+        ## airgap
+        airgap = copy(air)
+        airgap.name = 'airgap'
+        airgap.meshsize = self.msh_size_airgap
+
+        
+        # Magnet
+        magnet = copy(smco)
+        magnet.name='magnet'
+        magnet.meshsize = self.msh_size_magnets
+        magnet.mu_r = 1.11
+        magnet.coercivity = 724000
+        magnet.conductivity = 1.176e6
+
+        # Rotor steel
+        rotor_steel = copy(steel1018)
+        rotor_steel.name = "rotor_steel"
+        rotor_steel.meshsize = self.msh_size_rotor_steel
+        rotor_steel.conductivity = 5.8e6
+        rotor_steel.b = [ 0.000000, 0.250300, 0.925000, 1.250000, 1.390000,
+                1.525000, 1.710000, 1.870000, 1.955000, 2.020000, 2.110000,
+                2.225000, 2.430000]
+        rotor_steel.h = [0.000000, 238.732500, 795.775000, 1591.550000,
+                2387.325000, 3978.875000, 7957.750000, 15915.500000,
+                23873.250000, 39788.750000, 79577.500000, 159155.000000,
+                318310.000000]
+        rotor_steel.phi_hmax = 20
+        
+        self.snapshot.add_material(stator_steel)
+        self.snapshot.add_material(phase_U_positive)
+        self.snapshot.add_material(phase_U_negative)
+        self.snapshot.add_material(phase_V_positive)
+        self.snapshot.add_material(phase_V_negative)
+        self.snapshot.add_material(phase_W_positive)
+        self.snapshot.add_material(phase_W_negative)
+        self.snapshot.add_material(air)
+        self.snapshot.add_material(airgap)
+        self.snapshot.add_material(magnet)
+        self.snapshot.add_material(rotor_steel)
+
 
     def define_boundary_conditions(self):
         pass
