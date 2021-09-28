@@ -141,8 +141,8 @@ def csv_read(file, dict_return=False):
     with open(file, 'r', encoding='UTF8') as f:
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         names = next(r)
-        data = (li for li in r)
+        data = zip(*(li for li in r))
         if dict_return:
-            return {ni: di for ni, di in zip(names, zip(*data))}
+            return {ni: di for ni, di in zip(names, data)}
         else:
-            return zip(*data)
+            return data

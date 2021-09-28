@@ -1,6 +1,7 @@
 from copy import copy
 import math
 from pathlib import Path
+from time import perf_counter
 
 from adze_modeler.boundaries import AntiPeriodicAirGap
 from adze_modeler.boundaries import AntiPeriodicBoundaryCondition
@@ -15,12 +16,15 @@ from adze_modeler.platforms.femm import Femm
 from adze_modeler.snapshot import Snapshot
 from adze_modeler.utils import mirror_point
 
-def cart2pol(x, y):
+__all__= ['DIR_BASE', 'DIR_MEDIA', 'DIR_DATA', 'DIR_RESOURCES',
+        'DIR_SNAPSHOTS', 'BLDCMotor', 'execute_model']
+
+def cart2pol(x:float, y:float):
     rho = math.hypot(x, y)
     phi = math.atan2(y, x)
     return rho, phi
 
-def pol2cart(rho, phi):
+def pol2cart(rho: float, phi: float):
     x = rho * math.cos(math.radians(phi))
     y = rho * math.sin(math.radians(phi))
     return x, y
@@ -38,11 +42,11 @@ class BLDCMotor(BaseModel):
     """
     https://www.femm.info/wiki/RotorMotion
     """
-    def __init__(self, alpha:float=0.0, rotorangle:float=0.0, exportname: str = None):
+    def __init__(self, alpha:float=0.0, rotorangle:float=0.0, I0:float=0, exportname: str = None):
         super().__init__(exportname)
         self._init_directories()
 
-        self.rotorangle = -rotorangle
+        self.rotorangle = rotorangle
         self.alpha = -alpha
 
         # Mesh sizes
@@ -55,17 +59,18 @@ class BLDCMotor(BaseModel):
 
         # GEOMETRY
 
+        ## AIRGAP
+        self.airgap = 0.7
+        self.void = 0.3
+
         ## ROTOR
         self.r1 = 22.8 / 2   # Rotor Inner Radius
         self.r2 = 50.5 / 2   # Rotor Iron Outer Radius
         self.r3 = 55.1 / 2   # Rotor Outer Radius
+        self.r4 = self.r3+(self.airgap-self.void) / 2 # Rotor + airgap slice
         
         ### Magnet
         self.mw = 15.8566    # Magnet Width
-
-        ## AIRGAP
-        self.airgap = 0.7
-        self.void = 0.3
 
         ## STATOR
         self.s1 = self.r3 + self.airgap # Stator Inner Radius
@@ -83,10 +88,12 @@ class BLDCMotor(BaseModel):
         self.h4 = 1.9487
 
         # Excitation
-        self.JU = 0
-        self.JV = 0
-        self.JW = 0
-
+        coil_area = 7.66533e-5  # m2
+        Nturns = 46
+        J0 = Nturns * I0 / coil_area
+        self.JU = J0 * math.cos(math.radians(self.alpha))
+        self.JV = J0 * math.cos(math.radians(self.alpha + 120))
+        self.JW = J0 * math.cos(math.radians(self.alpha + 240))
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -102,7 +109,11 @@ class BLDCMotor(BaseModel):
         self.snapshot = Snapshot(self.platform)
 
     def add_postprocessing(self):
-        pass
+        points = [
+                pol2cart((self.r1+self.r2)/2, 90),
+                pol2cart((self.r2+self.r3)/2, 90),
+               ]
+        self.snapshot.add_postprocessing("integration", points, "Torque")
 
     def define_materials(self):
         m19 = Material('M-19 Steel')
@@ -239,7 +250,7 @@ class BLDCMotor(BaseModel):
         p2l = Node(*pol2cart(self.r2, 90+45/2))
         p3l = Node(*pol2cart(self.r2, 90+alpha1))
         p4l = Node(*pol2cart(self.r3, 90+alpha2))
-        p5l = Node(*pol2cart(self.r3+(self.airgap-self.void) / 2, 90 + 45 / 2))
+        p5l = Node(*pol2cart(self.r4, 90 + 45 / 2))
 
 
         p1r = mirror_point(ORIGIN, Y, p1l)
@@ -256,17 +267,26 @@ class BLDCMotor(BaseModel):
         g.add_line(Line(p2l, p5l))
         g.add_line(Line(p2r, p5r))
 
-        g.add_arc(CircleArc(p1r, ORIGIN, p1l))
-        g.add_arc(CircleArc(p3l, ORIGIN, p2l))
-        g.add_arc(CircleArc(p2r, ORIGIN, p3r))
+        arc1 = CircleArc(p1r, ORIGIN, p1l, max_seg_deg=1)
+        arc2 = CircleArc(p5r, ORIGIN, p5l, max_seg_deg=1)
+        g.add_arc(arc1)
+        g.add_arc(CircleArc(p3l, ORIGIN, p2l, max_seg_deg=1))
+        g.add_arc(CircleArc(p2r, ORIGIN, p3r, max_seg_deg=1))
         g.add_arc(CircleArc(p4r, ORIGIN, p4l, max_seg_deg=1))
-        g.add_arc(CircleArc(p5r, ORIGIN, p5l, max_seg_deg=1))
+        g.add_arc(arc2)
 
         self.geom.merge_geometry(g)
 
         self.assign_material(0, (self.r1+self.r2) / 2, 'rotor_steel')
         self.assign_material(0, (self.r2+self.r3) / 2, 'magnet')
         self.assign_material(*((p2l+p4l)/2), 'airgap')
+
+        self.assign_boundary_arc(*arc1.apex_pt, 'a0')
+        self.assign_boundary_arc(*arc2.apex_pt, "APairgap")
+        self.assign_boundary(*((p2l + p5l) / 2), 'PB3')
+        self.assign_boundary(*((p2r + p5r) / 2), 'PB3')
+        self.assign_boundary(*((p1l + p2l) / 2), 'PB4')
+        self.assign_boundary(*((p1r + p2r) / 2), 'PB4')
 
     def build_stator(self):
         g = Geometry()
@@ -284,14 +304,24 @@ class BLDCMotor(BaseModel):
         g.add_line(Line(q1r, q2r))
         g.add_line(Line(q2r, q3r))
 
-        g.add_arc(CircleArc(q1r, ORIGIN, q1l, max_seg_deg=1))
-        g.add_arc(CircleArc(q2r, ORIGIN, q2l, max_seg_deg=1))
-        g.add_arc(CircleArc(q3r, ORIGIN, q3l, max_seg_deg=1))
+        arc1 = CircleArc(q1r, ORIGIN, q1l, max_seg_deg=1)
+        arc2 = CircleArc(q2r, ORIGIN, q2l, max_seg_deg=1)
+        arc3 = CircleArc(q3r, ORIGIN, q3l, max_seg_deg=1)
+        g.add_arc(arc1)
+        g.add_arc(arc2)
+        g.add_arc(arc3)
 
         self.geom.merge_geometry(g)
 
         self.assign_material(0, self.s1 - (self.airgap - self.void) / 4, 'airgap')
         self.assign_material(0, self.s2- 0.1, "stator_steel")
+
+        self.assign_boundary_arc(*arc1.apex_pt, "APairgap")
+        self.assign_boundary_arc(*arc3.apex_pt, 'a0')
+        self.assign_boundary(*((q2l+q3l)/2), 'PB1')
+        self.assign_boundary(*((q2r+q3r)/2), 'PB1')
+        self.assign_boundary(*((q1l+q2l)/2), 'PB2')
+        self.assign_boundary(*((q1r+q2r)/2), 'PB2')
 
     def build_slots(self):
         s = ModelPiece("Slot")
@@ -332,13 +362,14 @@ class BLDCMotor(BaseModel):
         s.rotate(alpha=-unitangle)
         label1 = label1.rotate(math.radians(-unitangle))
         label2 = label2.rotate(math.radians(-unitangle))
-
-
+        winding = ['U+', 'V-', 'W+', 'U-', 'V+', 'W-', 'U+', 'V-', 'W+', 'U-',
+                'V+', 'W-', 'U+', 'V-', 'W+', 'U-', 'V+', 'W-', 'U+', 'V-',
+                'W+', 'U-', 'V+', 'W-']
         for i in range(3):
             si = copy(s)
             si.rotate(alpha=i*unitangle)
             self.geom.merge_geometry(si.geom)
-            self.assign_material(*label1.rotate(math.radians(i*unitangle)), 'U+')
+            self.assign_material(*label1.rotate(math.radians(i*unitangle)), winding[i])
             self.assign_material(*label2.rotate(math.radians(i*unitangle)), 'air')
 
     def build_geometry(self):
@@ -347,6 +378,14 @@ class BLDCMotor(BaseModel):
         self.build_slots()
         self.snapshot.add_geometry(self.geom)
 
+def execute_model(model: BLDCMotor):
+    t0 = perf_counter()
+    res = model(timeout=2000, cleanup=False)
+    t1 = perf_counter()
+    torque = res["Torque"]*8
+    print(f"{abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {torque:.3f} Nm \t {t1-t0:.2f} s")
+    return torque
+
 if __name__ == "__main__":
-    m = BLDCMotor(exportname="dev")
-    print(m(devmode=True, cleanup=False))
+    m = BLDCMotor(rotorangle=15*0.6, exportname="dev")
+    execute_model(m)

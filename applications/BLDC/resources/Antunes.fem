@@ -26,7 +26,7 @@
     <c1i> = 0
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
-    <innerangle> = 0
+    <innerangle> = -9
     <outerangle> = 0
   <EndBdry>
   <BeginBdry>
