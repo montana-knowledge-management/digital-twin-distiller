@@ -41,6 +41,17 @@ DIR_SNAPSHOTS = DIR_BASE / "snapshots"
 class BLDCMotor(BaseModel):
     """
     https://www.femm.info/wiki/RotorMotion
+
+    References:
+        .: Ferreira da Luz, M. V., Dular, P., Sadowski, N., Geuzaine, C., & Bastos,
+        J. P. A. (2002). Analysis of a permanent magnet generator with dual
+        formulations using periodicity conditions and moving band. IEEE
+        Transactions on Magnetics, 38(2), 961–964. doi:10.1109/20.996247
+
+        .: Antunes, O. J., Bastos, J. P. A., & Sadowski, N. (2004). Using High-Order
+        Finite Elements in Problems With Movement. IEEE Transactions on Magnetics,
+        40(2), 529–532. doi:10.1109/tmag.2004.825317
+
     """
     def __init__(self, alpha:float=0.0, rotorangle:float=0.0, I0:float=0, exportname: str = None):
         super().__init__(exportname)
