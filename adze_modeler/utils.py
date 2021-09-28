@@ -2,6 +2,8 @@ from uuid import uuid4
 import matplotlib.pyplot as plt
 from math import sqrt
 from statistics import fmean
+from pathlib import Path
+import csv
 
 def getID():
     return int(uuid4())
@@ -95,4 +97,52 @@ def inch2mm(x):
     return 25.4 * x
 
 def rms(arr):
+    """
+    Get the root mean square value from a Sequence.
+    """
     return sqrt(fmean(map(lambda xi: xi**2, arr)))
+
+def csv_write(file, names, *args):
+    """
+    Write arrays into a csv file.
+
+    Parameters:
+        file: The name of the csv file.
+        names: Sequence of strings that specifies the column names.
+        args: 1D sequences
+
+    Example:
+        x = [0,1,2,3]
+        y=[-1,2,-33,0]
+        csv_write('data.csv', ['iteration', 'measurement'], x, y)
+    """
+    # TODO: stem check for file object
+    file = Path(file)
+    assert file.parent.exists(), f"There is no directory: {file.parent}"
+    assert len(names)==len(args), f"The number of names({len(names)}) and " \
+                                  f"the number of columns({len(args)}) are not equal."
+    with open(file, 'w', encoding='UTF8') as f:
+        w = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
+        w.writerow(names)
+        w.writerows(zip(*args))
+
+def csv_read(file, dict_return=False):
+    """
+    Read data from csv files. The function doesn't check if the first row has the column names.
+
+    Parameters:
+        file: The name of the csv file.
+        dict_return: If True, the function will return a dictionary with the column names, else
+                     it will return the data.
+
+    """
+    file = Path(file)
+    assert file.exists(), f"File does not exists: {file}"
+    with open(file, 'r', encoding='UTF8') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        names = next(r)
+        data = (li for li in r)
+        if dict_return:
+            return {ni: di for ni, di in zip(names, zip(*data))}
+        else:
+            return zip(*data)
