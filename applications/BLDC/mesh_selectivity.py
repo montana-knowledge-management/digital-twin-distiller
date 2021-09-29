@@ -52,28 +52,29 @@ def analyze_selectivity():
     meta_writer = csv.writer(fm, quoting=csv.QUOTE_NONNUMERIC)
     meta_writer.writerow(['name', 'msh_size', 'nb_elements', 'Tpp'])
 
-    msh_sizes = linspace(0.08, 0.6, 31)
+    msh_sizes = linspace(0.1, 0.6, 51)
     for msh_size_i in msh_sizes:
         name = f'M-{get_id()}.csv'
         print(f'name: {name}', f'size: {msh_size_i:.4f}', sep='\t')
 
-        theta = linspace(0, 360 / 24 / 2, 51)
+        theta = linspace(0, 360 / 24 / 2, 61)
         models = [BLDCMeshSelectivity(ti, msh_size_i) for ti in theta]
         with multiprocessing.Pool(processes=12) as pool:
+            t0 = perf_counter()
             results = pool.map(execute_model, models)
+            t1 = perf_counter()
             T = [ri['Torque'] for ri in results]
             nb_elements = int(fmean([ri['elements'] for ri in results]))
             Tpp = 2*max(T)
 
             csv_write(DIR_SAVE / name, ['rotorangle', 'Torque'], theta, T)
             meta_writer.writerow([name, msh_size_i, nb_elements, Tpp])
-            print(f'\tTpp: {Tpp:.5f} Nm', f'Elements: {nb_elements}', sep='\t')
-        break
+            print(f'\tTpp: {Tpp:.5f} Nm', f'Elements: {nb_elements}', f'{t1-t0:.3} s', sep='\t')
 
     fm.close()
 
 if __name__ == '__main__':
-    analyze_selectivity()
+    # analyze_selectivity()
     names, mesh_sizes, nb_elements, Tpps = csv_read(DIR_SAVE/'meta.csv')
     rmss = []
     plt.figure()
