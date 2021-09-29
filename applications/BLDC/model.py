@@ -53,13 +53,6 @@ class BLDCMotor(BaseModel):
         40(2), 529–532. doi:10.1109/tmag.2004.825317
 
     """
-    # Mesh sizes
-    msh_size_stator_steel = 1.2
-    msh_size_rotor_steel = 0.5
-    msh_size_coils = 1.0
-    msh_size_air = 1.0
-    msh_size_airgap = 0.3
-    msh_size_magnets = 1.0
 
     def __init__(self, alpha:float=0.0, rotorangle:float=0.0, I0:float=0, exportname: str = None):
         super().__init__(exportname)
@@ -105,6 +98,14 @@ class BLDCMotor(BaseModel):
         self.JU = J0 * math.cos(math.radians(self.alpha))
         self.JV = J0 * math.cos(math.radians(self.alpha + 120))
         self.JW = J0 * math.cos(math.radians(self.alpha + 240))
+
+        # Mesh sizes
+        self.msh_size_stator_steel = 1.2
+        self.msh_size_rotor_steel = 0.5
+        self.msh_size_coils = 1.0
+        self.msh_size_air = 1.0
+        self.msh_size_airgap = 0.3
+        self.msh_size_magnets = 1.0
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -392,10 +393,11 @@ class BLDCMotor(BaseModel):
 
 def execute_model(model: BLDCMotor):
     t0 = perf_counter()
-    res = model(timeout=2000, cleanup=False)
+    res = model(timeout=2000, cleanup=True)
     t1 = perf_counter()
     torque = res["Torque"]*8
     print(f"{abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {torque:.3f} Nm \t {t1-t0:.2f} s")
+    print(res)
     return torque
 
 if __name__ == "__main__":

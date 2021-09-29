@@ -123,7 +123,7 @@ def csv_write(file, names, *args):
     assert file.parent.exists(), f"There is no directory: {file.parent}"
     assert len(names)==len(args), f"The number of names({len(names)}) and " \
                                   f"the number of columns({len(args)}) are not equal."
-    with open(file, 'w', encoding='UTF8') as f:
+    with open(file, 'w', newline='', encoding='UTF8') as f:
         w = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
         w.writerow(names)
         w.writerows(zip(*args))
