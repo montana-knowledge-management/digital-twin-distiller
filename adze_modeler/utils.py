@@ -4,6 +4,8 @@ from math import sqrt
 from statistics import fmean
 from pathlib import Path
 import csv
+from numpy import linspace
+from numpy.polynomial import Polynomial as P
 
 def getID():
     return int(uuid4())
@@ -146,3 +148,27 @@ def csv_read(file, dict_return=False):
             return {ni: di for ni, di in zip(names, data)}
         else:
             return data
+
+def get_polyfit(x, y, N=None, verbose=False):
+    assert len(x)==len(y)
+    N = 2*len(x)+1 if N is None else int(N)
+    x_fine = linspace(min(x), max(x), N)
+    maxy_ref = max(y)
+    rmsy_ref = rms(y)
+    cases = []
+    for order in range(2, 19):
+        p = P.fit(x, y, order)
+        y_fine = p(x_fine)
+        maxy_fine = max(y_fine)
+        rmsy_fine = rms(y_fine)
+        d1 = (maxy_fine - maxy_ref) / maxy_ref * 100
+        d2 = (rmsy_fine - rmsy_ref) / rmsy_ref * 100
+        cases.append((d1, d2, order))
+
+    cases.sort(key=lambda ci: abs(ci[0]))
+    best_order = cases[0][-1]
+    p = P.fit(x, y, best_order)
+    y_best = p(x_fine)
+    if verbose:
+        print(f'Best: MAX: {cases[0][0]:.3f} % RMS: {cases[0][1]:.3f} % order: {best_order}')
+    return x_fine, y_best

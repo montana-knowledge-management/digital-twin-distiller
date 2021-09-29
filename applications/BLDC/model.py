@@ -53,20 +53,20 @@ class BLDCMotor(BaseModel):
         40(2), 529–532. doi:10.1109/tmag.2004.825317
 
     """
+    # Mesh sizes
+    msh_size_stator_steel = 1.2
+    msh_size_rotor_steel = 0.5
+    msh_size_coils = 1.0
+    msh_size_air = 1.0
+    msh_size_airgap = 0.3
+    msh_size_magnets = 1.0
+
     def __init__(self, alpha:float=0.0, rotorangle:float=0.0, I0:float=0, exportname: str = None):
         super().__init__(exportname)
         self._init_directories()
 
         self.rotorangle = rotorangle
         self.alpha = -alpha
-
-        # Mesh sizes
-        self.msh_size_stator_steel = 1.2
-        self.msh_size_rotor_steel = 0.5
-        self.msh_size_coils = 1.0
-        self.msh_size_air = 1.0
-        self.msh_size_airgap = 0.3
-        self.msh_size_magnets = 1.0
 
         # GEOMETRY
 
@@ -125,6 +125,7 @@ class BLDCMotor(BaseModel):
                 pol2cart((self.r2+self.r3)/2, 90),
                ]
         self.snapshot.add_postprocessing("integration", points, "Torque")
+        self.snapshot.add_postprocessing("mesh_info", None, None)
 
     def define_materials(self):
         m19 = Material('M-19 Steel')
@@ -398,5 +399,5 @@ def execute_model(model: BLDCMotor):
     return torque
 
 if __name__ == "__main__":
-    m = BLDCMotor(rotorangle=15*0.6, exportname="dev")
+    m = BLDCMotor(rotorangle=15/4, exportname="dev")
     execute_model(m)
