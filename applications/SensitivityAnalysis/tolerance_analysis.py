@@ -162,9 +162,6 @@ def plot_tolerance():
     plt.savefig(DIR_MEDIA / "rmsdist.pdf", bbox_inches="tight")
     plt.show()
 
-
-
-
 if __name__ == "__main__":
     setup_matplotlib()
 

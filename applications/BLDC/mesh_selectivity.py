@@ -1,5 +1,6 @@
+from operator import itemgetter
 from statistics import fmean
-from model import BLDCMotor, DIR_DATA
+from model import *
 from pathlib import Path
 from uuid import uuid4
 from numpy import linspace
@@ -74,24 +75,48 @@ def analyze_selectivity():
     fm.close()
 
 if __name__ == '__main__':
+    from adze_modeler.utils import setup_matplotlib
+
+    setup_matplotlib()
+
     # analyze_selectivity()
-    names, mesh_sizes, nb_elements, Tpps = csv_read(DIR_SAVE/'meta.csv')
-    rmss = []
-    plt.figure()
-    # plt.scatter(mesh_sizes, nb_elements)
-    plt.scatter(mesh_sizes, Tpps)
-    # plt.scatter(nb_elements, Tpps)
-    plt.show()
+    # names, mesh_sizes, nb_elements, Tpps = csv_read(DIR_SAVE/'meta.csv')
+    data = csv_read(DIR_SAVE/'meta.csv')
+    data = list(zip(*data))
 
-    plt.figure()
-    for name in names:
-        theta, T = csv_read(DIR_SAVE / name)
-        x, y = get_polyfit(theta, T, N=301)
-        plt.plot(x, y)
-        rmss.append(rms(y))
+    # sorting results based on the number of elements
+    data.sort(key=itemgetter(1), reverse=True)
+    data_min, *data, data_max = data
+    name_min, mesh_size_min, nb_element_min, Tpp_min = data_min
+    names, mesh_sizes, nb_elements, Tpps = zip(*data)
+    name_max, mesh_size_max, nb_element_max, Tpp_max = data_max
 
-    plt.show()
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
 
-    plt.figure()
-    plt.scatter(mesh_sizes, rmss)
-    plt.show()
+    # theta, T = csv_read(DIR_SAVE / name_min)
+    # x, y = get_polyfit(theta, T, N=301)
+    # plt.plot(x, y, 'r-', label=f'Min. ({int(nb_element_min)})', lw=2)
+
+    # theta, T = csv_read(DIR_SAVE / name_max)
+    # x, y = get_polyfit(theta, T, N=301)
+    # plt.plot(x, y, 'b-', label=f'Max. ({int(nb_element_max)})', lw=2)
+
+    # for name in names:
+    #     theta, T = csv_read(DIR_SAVE / name)
+    #     x, y = get_polyfit(theta, T, N=301)
+    #     plt.plot(x, y, 'gray', alpha=0.4)
+
+    # plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    # plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    # plt.minorticks_on()
+    # plt.xlabel("Rotor angle [°]")
+    # plt.ylabel("Torque [Nm]")
+    # plt.legend(loc="lower right")
+    # plt.savefig(DIR_MEDIA / "mesh_selectivity.pdf", bbox_inches="tight")
+    # plt.show()
+
+
+    # x = list(map(itemgetter(3), data))
+    # plt.hist(x, bins=5)
+    # plt.show()

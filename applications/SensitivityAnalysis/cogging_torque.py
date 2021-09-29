@@ -224,4 +224,5 @@ if __name__=='__main__':
     #     print("=="*20)
     # compute_pointspolyfit()
     # plot_points()
-    compare_points()
+    # compare_points()
+    plot()
