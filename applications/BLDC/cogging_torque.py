@@ -31,7 +31,7 @@ def plot_cogging_torque():
     plt.xlabel("Rotor angle [°]")
     plt.ylabel("Coggin Torque [Nm]")
     plt.legend()
-    plt.savefig(DIR_MEDIA / "cogging_toruqe.pdf", bbox_inches="tight")
+    plt.savefig(DIR_MEDIA / "cogging_toruqe_validation.pdf", bbox_inches="tight")
     plt.show()
 
 if __name__ == "__main__":

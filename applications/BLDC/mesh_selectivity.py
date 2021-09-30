@@ -1,14 +1,17 @@
-from operator import itemgetter
-from statistics import fmean
-from model import *
-from pathlib import Path
-from uuid import uuid4
-from numpy import linspace
-from adze_modeler.utils import csv_write, csv_read, get_polyfit, rms
-import multiprocessing
-import matplotlib.pyplot as plt
-from time import perf_counter
 import csv
+import multiprocessing
+from operator import itemgetter
+from pathlib import Path
+from statistics import fmean
+from time import perf_counter
+from uuid import uuid4
+
+import matplotlib.pyplot as plt
+from numpy import linspace
+
+from adze_modeler.utils import csv_read, csv_write, get_polyfit, rms
+from adze_modeler.utils import setup_matplotlib, get_width_height
+from model import *
 
 DIR_SAVE = DIR_DATA / 'mesh_selectivity'
 
@@ -74,47 +77,93 @@ def analyze_selectivity():
 
     fm.close()
 
-if __name__ == '__main__':
-    from adze_modeler.utils import setup_matplotlib
-
+def plot_results():
     setup_matplotlib()
 
-    # analyze_selectivity()
-    # names, mesh_sizes, nb_elements, Tpps = csv_read(DIR_SAVE/'meta.csv')
     data = csv_read(DIR_SAVE/'meta.csv')
     data = list(zip(*data))
 
     # sorting results based on the number of elements
     data.sort(key=itemgetter(1), reverse=True)
-    data_min, *data, data_max = data
+
+    # plot_cogging_torque(data)
+
+    plot_msh_pp(data)
+
+def plot_cogging_torque(d):
+    data_min, *d, data_max = d
     name_min, mesh_size_min, nb_element_min, Tpp_min = data_min
-    names, mesh_sizes, nb_elements, Tpps = zip(*data)
+    names, mesh_sizes, nb_elements, Tpps = zip(*d)
     name_max, mesh_size_max, nb_element_max, Tpp_max = data_max
 
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111)
 
-    # theta, T = csv_read(DIR_SAVE / name_min)
-    # x, y = get_polyfit(theta, T, N=301)
-    # plt.plot(x, y, 'r-', label=f'Min. ({int(nb_element_min)})', lw=2)
+    theta, T = csv_read(DIR_SAVE / name_min)
+    x, y = get_polyfit(theta, T, N=301)
+    plt.plot(x, y, 'r-', label=f'Min. ({int(nb_element_min)})', lw=2)
 
-    # theta, T = csv_read(DIR_SAVE / name_max)
-    # x, y = get_polyfit(theta, T, N=301)
-    # plt.plot(x, y, 'b-', label=f'Max. ({int(nb_element_max)})', lw=2)
+    theta, T = csv_read(DIR_SAVE / name_max)
+    x, y = get_polyfit(theta, T, N=301)
+    plt.plot(x, y, 'b-', label=f'Max. ({int(nb_element_max)})', lw=2)
 
-    # for name in names:
-    #     theta, T = csv_read(DIR_SAVE / name)
-    #     x, y = get_polyfit(theta, T, N=301)
-    #     plt.plot(x, y, 'gray', alpha=0.4)
+    for name in names:
+        theta, T = csv_read(DIR_SAVE / name)
+        x, y = get_polyfit(theta, T, N=301)
+        plt.plot(x, y, 'gray', alpha=0.4)
 
-    # plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
-    # plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
-    # plt.minorticks_on()
-    # plt.xlabel("Rotor angle [°]")
-    # plt.ylabel("Torque [Nm]")
-    # plt.legend(loc="lower right")
-    # plt.savefig(DIR_MEDIA / "mesh_selectivity.pdf", bbox_inches="tight")
-    # plt.show()
+    plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    plt.minorticks_on()
+    plt.xlabel("Rotor angle [°]")
+    plt.ylabel("Torque [Nm]")
+    plt.legend(loc="lower right")
+    plt.savefig(DIR_MEDIA / "mesh_selectivity.pdf", bbox_inches="tight")
+    plt.show()
+
+def plot_msh_pp(d):
+    names, mesh_sizes, nb_elements, Tpp = zip(*d)
+    Trms = []
+    # converting the number of elements into int
+    nb_elements = [int(ni) for ni in nb_elements]
+
+    # adding rms values to the data
+    for name in names:
+        theta, T = csv_read(DIR_SAVE / name)
+        x, y = get_polyfit(theta, T, N=301)
+        Trms.append(rms(y))
+
+
+    w,h = get_width_height('double', unit='inch')
+    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(w, h))
+    ax[0].scatter(nb_elements, Tpp, c='blue', alpha=0.7)
+    # ax[0].plot([0, 61000], [0.655, 0.655], 'k--')
+    # ax[0].plot([0, 61000], [0.61, 0.61], 'k--')
+    ax[0].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    ax[0].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    ax[0].minorticks_on()
+    ax[0].set_xlabel("Number of elements")
+    ax[0].set_ylabel("Torque peak to peak [Nm]")
+    ax[0].set_xscale('log')
+
+    ax[1].hist(Tpp, bins=10)
+    ax[1].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    ax[1].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    ax[1].minorticks_on()
+    ax[1].set_xlabel("Torque peak to peak [Nm]")
+    ax[1].set_ylabel("Number of cases")
+
+    plt.tight_layout()
+    plt.savefig(DIR_MEDIA / "msh_pp.pdf", bbox_inches="tight")
+    plt.show()
+
+if __name__ == '__main__':
+
+
+    # analyze_selectivity()
+
+    plot_results()
+
 
 
     # x = list(map(itemgetter(3), data))
