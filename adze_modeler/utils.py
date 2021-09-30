@@ -36,7 +36,7 @@ def mm2inch(x):
     return 0.03937007874 * x
 
 
-def get_width_height(type_='onehalf', aspect=(16, 10), get_mm=False):
+def get_width_height(type_='onehalf', aspect=(16, 10), unit='px'):
     """
     This function returns the width and the height of a figure in pixels based on the Elsevier
     reccomendations on figure sizes.
@@ -49,6 +49,9 @@ def get_width_height(type_='onehalf', aspect=(16, 10), get_mm=False):
     """
     width, height = 0, 0
     types = {'minimal': 30, 'single': 90, 'onehalf': 140, 'full': 190, 'double': 190}
+    units = {'px': mm2px,
+            'inch': mm2inch
+            }
 
     if type_ not in types.keys():
         raise ValueError(f'Invalid keyword argument. Got {type_=}. '
@@ -59,15 +62,15 @@ def get_width_height(type_='onehalf', aspect=(16, 10), get_mm=False):
     width = types[type_]
     height = width / scaley
 
-    if get_mm:
+    if unit == 'mm':
         return width, height
     else:
-        return mm2px(width), mm2px(height)
+        return units[unit](width), units[unit](height)
 
 def setup_matplotlib():
     plt.style.use(["default", "seaborn-bright"])
-    w, h = get_width_height(type_='onehalf', aspect=(16, 9), get_mm=True)
-    plt.rcParams["figure.figsize"] = mm2inch(w), mm2inch(h)
+    w, h = get_width_height(type_='onehalf', aspect=(16, 9), unit='inch')
+    plt.rcParams["figure.figsize"] = w, h
     plt.rcParams["lines.linewidth"] = 1
 
     SMALL_SIZE = 8
