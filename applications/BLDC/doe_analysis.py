@@ -30,36 +30,25 @@ class DOEBLDCMotor(BLDCMotor):
         self.snapshot.materials['magnet'].mu_r += self.dmur
         self.snapshot.materials['magnet'].coercivity += self.dHc
 
-def get_filename(design):
-    filename = []
-    for i, di in enumerate(design):
-        if di < 0:
-            filename.append(string.ascii_lowercase[i])
-        elif di > 0:
-            filename.append(string.ascii_uppercase[i])
-        else:
-            filename.append('0')
-
-    return 'D-' + ''.join(filename) + '.csv'
-
 def doe_full_factorial():
     dXnames = ('dairgap', 'dmagnet_h', 'dmagnet_w', 'dHc', 'dmur')
     dXvalues = (0.05, 0.05, 0.05, 5000, 0.05)
-    designs = fullfact([3]*4)
-    with Pool(processes=4) as pool:
+    designs = list(fullfact([3]*4))
+    with Pool(processes=12) as pool:
         for i, design_i in enumerate(designs):
+            fname = f'D-{i:03}.csv'
             design_i = [di-1 for di in design_i]
             disturbances = map(op.mul, design_i, dXvalues)
             dX = {name_i:di for name_i, di in zip(dXnames, disturbances)}
-            print(get_filename(design_i), f'{i+1}/{len(designs)} {(i+1)*100/len(designs):.1f} %')
+            print(fname, f'{i+1}/{len(designs)} {(i+1)*100/len(designs):.1f} %')
 
-            theta = linspace(0, 360/24/2, 5)
+            theta = linspace(0, 360/24/2, 61)
             models = [DOEBLDCMotor(ti, **dX) for ti in theta]
             t0 = perf_counter()
             T = pool.map(execute_model, models)
             t1 = perf_counter()
             
-            csv_write(DIR_SAVE / get_filename(design_i), ['rotorangle', 'Torque'], theta, T)
+            csv_write(DIR_SAVE / fname, ['rotorangle', 'Torque'], theta, T)
             print(f'\t Calculation time: {t1-t0:.2f} s')
 
 

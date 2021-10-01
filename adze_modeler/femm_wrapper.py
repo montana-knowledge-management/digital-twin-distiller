@@ -197,8 +197,8 @@ class FemmWriter:
         """
         out_file = str(Path(out_file).resolve().as_posix())
         cmd_list = []
-        cmd_list.append("showconsole()")  # does nothing if the console is already displayed
-        cmd_list.append("clearconsole()")  # clears both the input and output windows for a fresh start.
+        # cmd_list.append("showconsole()")  # does nothing if the console is already displayed
+        # cmd_list.append("clearconsole()")  # clears both the input and output windows for a fresh start.
         cmd_list.append(f'remove("{out_file}")')  # get rid of the old data file, if it exists
         if self.field == femm_magnetic:
             cmd_list.append("newdocument(0)")  # the 0 specifies a magnetics problem
