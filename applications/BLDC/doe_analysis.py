@@ -44,7 +44,7 @@ def get_filename(design):
 
 def doe_full_factorial():
     dXnames = ('dairgap', 'dmagnet_h', 'dmagnet_w', 'dHc', 'dmur')
-    dXvalues = (0.05, 0.05, 0.05, 5000, 0.01)
+    dXvalues = (0.05, 0.05, 0.05, 5000, 0.05)
     designs = fullfact([3]*4)
     with Pool(processes=4) as pool:
         for i, design_i in enumerate(designs):
@@ -61,8 +61,6 @@ def doe_full_factorial():
             
             csv_write(DIR_SAVE / get_filename(design_i), ['rotorangle', 'Torque'], theta, T)
             print(f'\t Calculation time: {t1-t0:.2f} s')
-
-
 
 
 if __name__ == "__main__":
