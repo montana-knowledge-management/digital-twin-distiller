@@ -78,7 +78,7 @@ class BLDCMotor(BaseModel):
 
         ## STATOR
         self.s1 = self.r3 + self.airgap # Stator Inner Radius
-        self.s2 = 100 / 2               # Stator Outer Radius
+        self.s2 = self.s1 + 21.75       # Stator Outer Radius
 
         ## SLOT
         self.w1 = 1.52829
@@ -101,11 +101,11 @@ class BLDCMotor(BaseModel):
 
         # Mesh sizes
         self.msh_size_stator_steel = 1.2
-        self.msh_size_rotor_steel = 0.5
+        self.msh_size_rotor_steel = 0.18
         self.msh_size_coils = 1.0
         self.msh_size_air = 1.0
-        self.msh_size_airgap = 0.3
-        self.msh_size_magnets = 1.0
+        self.msh_size_airgap = 0.18
+        self.msh_size_magnets = 0.18
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -126,7 +126,6 @@ class BLDCMotor(BaseModel):
                 pol2cart((self.r2+self.r3)/2, 90),
                ]
         self.snapshot.add_postprocessing("integration", points, "Torque")
-        self.snapshot.add_postprocessing("mesh_info", None, None)
 
     def define_materials(self):
         m19 = Material('M-19 Steel')
@@ -396,10 +395,11 @@ def execute_model(model: BLDCMotor):
     res = model(timeout=2000, cleanup=True)
     t1 = perf_counter()
     torque = res["Torque"]*8
-    print(f"{abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {torque:.3f} Nm \t {t1-t0:.2f} s")
-    print(res)
+    print(f"\t{abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {torque:.3f} Nm \t {t1-t0:.2f} s")
     return torque
 
 if __name__ == "__main__":
+    
     m = BLDCMotor(rotorangle=15/4, exportname="dev")
     execute_model(m)
+

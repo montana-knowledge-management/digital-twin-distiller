@@ -23,6 +23,10 @@ class BLDCMeshSelectivity(BLDCMotor):
         self.msh_size_rotor_steel = meshsize
         self.msh_size_magnets = meshsize
 
+    def add_postprocessing(self):
+        super(BLDCMotor, self).add_postprocessing()
+        self.snapshot.add_postprocessing("mesh_info", None, None)
+
 
 def get_id():
     names = DIR_DATA / "mesh_selectivity"
@@ -87,8 +91,8 @@ def plot_results():
     data.sort(key=itemgetter(1), reverse=True)
 
     # plot_cogging_torque(data)
-
     plot_msh_pp(data)
+    # plot_msh_rms(data)
 
 def plot_cogging_torque(d):
     data_min, *d, data_max = d
@@ -133,10 +137,12 @@ def plot_msh_pp(d):
         x, y = get_polyfit(theta, T, N=301)
         Trms.append(rms(y))
 
+    color = 'green'
+    alpha = 0.7
 
     w,h = get_width_height('double', unit='inch')
     fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(w, h))
-    ax[0].scatter(nb_elements, Tpp, c='blue', alpha=0.7)
+    ax[0].scatter(nb_elements, Tpp, c=color, alpha=alpha, edgecolor='k')
     # ax[0].plot([0, 61000], [0.655, 0.655], 'k--')
     # ax[0].plot([0, 61000], [0.61, 0.61], 'k--')
     ax[0].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
@@ -146,15 +152,57 @@ def plot_msh_pp(d):
     ax[0].set_ylabel("Torque peak to peak [Nm]")
     ax[0].set_xscale('log')
 
-    ax[1].hist(Tpp, bins=10)
+    ranges = [0.54, 0.6, 0.66, 0.68]
+    ax[1].hist(Tpp, bins=ranges, color=color, alpha=alpha, edgecolor='k', zorder=20)
     ax[1].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     ax[1].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     ax[1].minorticks_on()
+    ax[1].set_xticks(ranges)
     ax[1].set_xlabel("Torque peak to peak [Nm]")
     ax[1].set_ylabel("Number of cases")
 
     plt.tight_layout()
     plt.savefig(DIR_MEDIA / "msh_pp.pdf", bbox_inches="tight")
+    plt.show()
+
+def plot_msh_rms(d):
+    names, mesh_sizes, nb_elements, Tpp = zip(*d)
+    Trms = []
+    # converting the number of elements into int
+    nb_elements = [int(ni) for ni in nb_elements]
+
+    # adding rms values to the data
+    for name in names:
+        theta, T = csv_read(DIR_SAVE / name)
+        x, y = get_polyfit(theta, T, N=301)
+        Trms.append(rms(y))
+
+    color = 'blue'
+    alpha = 0.7
+
+    w,h = get_width_height('double', unit='inch')
+    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(w, h))
+    ax[0].scatter(nb_elements, Trms, c=color, alpha=alpha, edgecolor='k')
+    # ax[0].plot([0, 61000], [0.655, 0.655], 'k--')
+    # ax[0].plot([0, 61000], [0.61, 0.61], 'k--')
+    ax[0].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    ax[0].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    ax[0].minorticks_on()
+    ax[0].set_xlabel("Number of elements")
+    ax[0].set_ylabel("Torque peak to peak [Nm]")
+    ax[0].set_xscale('log')
+
+    ranges = [0.128, 0.145, 0.156, 0.164]
+    ax[1].hist(Trms, bins=ranges, color=color, alpha=alpha, edgecolor='k', zorder=20)
+    ax[1].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    ax[1].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    ax[1].minorticks_on()
+    ax[1].set_xticks(ranges)
+    ax[1].set_xlabel("RMS Torque [Nm]")
+    ax[1].set_ylabel("Number of cases")
+
+    plt.tight_layout()
+    plt.savefig(DIR_MEDIA / "msh_rms.pdf", bbox_inches="tight")
     plt.show()
 
 if __name__ == '__main__':
