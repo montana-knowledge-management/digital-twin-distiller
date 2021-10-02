@@ -112,7 +112,7 @@ def doe_plot():
 
     # plot_cogging(data)
     # plot_pp_dist(data)
-    plot_rms_dist(data)
+    # plot_rms_dist(data)
 
 if __name__ == "__main__":
     # doe_full_factorial()

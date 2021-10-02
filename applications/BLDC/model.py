@@ -101,11 +101,11 @@ class BLDCMotor(BaseModel):
 
         # Mesh sizes
         self.msh_size_stator_steel = 1.2
-        self.msh_size_rotor_steel = 0.18
+        self.msh_size_rotor_steel = 1
         self.msh_size_coils = 1.0
         self.msh_size_air = 1.0
-        self.msh_size_airgap = 0.18
-        self.msh_size_magnets = 0.18
+        self.msh_size_airgap = 1
+        self.msh_size_magnets = 1
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
