@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 from model import *
 from numpy import linspace
 from multiprocessing import Pool
@@ -5,7 +7,7 @@ from adze_modeler.doe import fullfact
 import operator as op
 import string
 from time import perf_counter
-from adze_modeler.utils import csv_write
+from adze_modeler.utils import csv_write, csv_read, get_polyfit, setup_matplotlib, rms
 
 DIR_SAVE = DIR_DATA / "doe"
 
@@ -33,7 +35,7 @@ class DOEBLDCMotor(BLDCMotor):
 def doe_full_factorial():
     dXnames = ('dairgap', 'dmagnet_h', 'dmagnet_w', 'dHc', 'dmur')
     dXvalues = (0.05, 0.05, 0.05, 5000, 0.05)
-    designs = list(fullfact([3]*4))
+    designs = list(fullfact([3]*5))
     with Pool(processes=12) as pool:
         for i, design_i in enumerate(designs):
             fname = f'D-{i:03}.csv'
@@ -50,7 +52,25 @@ def doe_full_factorial():
             
             csv_write(DIR_SAVE / fname, ['rotorangle', 'Torque'], theta, T)
             print(f'\t Calculation time: {t1-t0:.2f} s')
+            print('Max torque:', max(T))
+            print('RMS torque:', rms(T))
 
+def doe_plot():
+    setup_matplotlib()
+    plt.figure(figsize=(7, 5))
+    for fi in DIR_SAVE.iterdir():
+        x,y = csv_read(fi)
+        x_, y_ = get_polyfit(x, y, N=301)
+        plt.plot(x_, y_, 'gray', alpha=0.85)
+
+    plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    plt.minorticks_on()
+    plt.xlabel("Rotor angle [°]")
+    plt.ylabel("Cogging Torque [Nm]")
+    plt.savefig(DIR_MEDIA / "doe_noodles.pdf", bbox_inches="tight")
+    plt.show()
 
 if __name__ == "__main__":
-    doe_full_factorial()
+    # doe_full_factorial()
+    doe_plot()

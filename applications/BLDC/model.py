@@ -394,8 +394,11 @@ def execute_model(model: BLDCMotor):
     t0 = perf_counter()
     res = model(timeout=2000, cleanup=True)
     t1 = perf_counter()
-    torque = res["Torque"]*8
-    print(f"\t{abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {torque:.3f} Nm \t {t1-t0:.2f} s")
+    try:
+        torque = res["Torque"]*8
+    except Exception as e:
+        return -1996
+    # print(f"\t{abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {torque:.3f} Nm \t {t1-t0:.2f} s")
     return torque
 
 if __name__ == "__main__":
