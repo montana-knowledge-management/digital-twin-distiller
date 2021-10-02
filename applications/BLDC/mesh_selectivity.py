@@ -90,8 +90,8 @@ def plot_results():
     # sorting results based on the number of elements
     data.sort(key=itemgetter(1), reverse=True)
 
-    # plot_cogging_torque(data)
-    plot_msh_pp(data)
+    plot_cogging_torque(data)
+    # plot_msh_pp(data)
     # plot_msh_rms(data)
 
 def plot_cogging_torque(d):
@@ -105,11 +105,11 @@ def plot_cogging_torque(d):
 
     theta, T = csv_read(DIR_SAVE / name_min)
     x, y = get_polyfit(theta, T, N=301)
-    plt.plot(x, y, 'r-', label=f'Min. ({int(nb_element_min)})', lw=2)
+    plt.plot(x, y, 'r-', label=f'Min. ({int(nb_element_min)})', lw=2, zorder=20)
 
     theta, T = csv_read(DIR_SAVE / name_max)
     x, y = get_polyfit(theta, T, N=301)
-    plt.plot(x, y, 'b-', label=f'Max. ({int(nb_element_max)})', lw=2)
+    plt.plot(x, y, 'b-', label=f'Max. ({int(nb_element_max)})', lw=2, zorder=20)
 
     for name in names:
         theta, T = csv_read(DIR_SAVE / name)

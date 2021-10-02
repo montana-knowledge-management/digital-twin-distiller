@@ -5,7 +5,6 @@ from numpy import linspace
 from multiprocessing import Pool
 from adze_modeler.doe import fullfact
 import operator as op
-import string
 from time import perf_counter
 from adze_modeler.utils import csv_write, csv_read, get_polyfit, setup_matplotlib, rms
 
@@ -55,21 +54,65 @@ def doe_full_factorial():
             print('Max torque:', max(T))
             print('RMS torque:', rms(T))
 
-def doe_plot():
-    setup_matplotlib()
-    plt.figure(figsize=(7, 5))
-    for fi in DIR_SAVE.iterdir():
-        x,y = csv_read(fi)
-        x_, y_ = get_polyfit(x, y, N=301)
-        plt.plot(x_, y_, 'gray', alpha=0.85)
+def plot_cogging(d:list):
+    plt.figure()
+    xref, yref = csv_read(DIR_DATA/'cogging_toruqe.csv')
+
+    d.sort(key=op.itemgetter(3))
+    dmin, *d, dmax = d
+    for x, y, rmsT, maxT in d:
+        plt.plot(x, y, 'gray', alpha=0.5)
+    
+    plt.plot(dmin[0], dmin[1], 'b-', lw=2, label=f'Min. peak torque', zorder=20)
+    plt.plot(dmax[0], dmax[1], 'r-', lw=2, label=f'Max. peak torque', zorder=20)
+    plt.plot(xref, yref, color='magenta', lw=2, label='Ideal', zorder=20)
 
     plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     plt.minorticks_on()
+    plt.legend()
+    plt.xlim(0, 360/24/2)
+    plt.ylim(-0.039, 0.45)
     plt.xlabel("Rotor angle [°]")
     plt.ylabel("Cogging Torque [Nm]")
     plt.savefig(DIR_MEDIA / "doe_noodles.pdf", bbox_inches="tight")
     plt.show()
+
+def plot_pp_dist(d):
+    Tpp = tuple(map(op.itemgetter(3), d))
+
+    plt.hist(Tpp, bins=15, edgecolor='k', alpha=1, color='lightblue', zorder=20)
+    plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    plt.minorticks_on()
+    plt.xlabel("Peak cogging torque [Nm]")
+    plt.ylabel("Number of designs")
+    plt.savefig(DIR_MEDIA / "doe_pp_dist.pdf", bbox_inches="tight")
+    plt.show()
+
+def plot_rms_dist(d):
+    Trms = tuple(map(op.itemgetter(2), d))
+
+    plt.hist(Trms, bins=15, edgecolor='k', alpha=1, color='lightgreen', zorder=20, density=True)
+    plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    plt.minorticks_on()
+    plt.xlabel("RMS cogging torque [Nm]")
+    plt.ylabel("Number of designs")
+    plt.savefig(DIR_MEDIA / "doe_rms_dist.pdf", bbox_inches="tight")
+    plt.show()
+
+def doe_plot():
+    setup_matplotlib()
+    data = []
+    for fi in DIR_SAVE.iterdir():
+        x,y = csv_read(fi)
+        x_, y_ = get_polyfit(x, y, N=301)
+        data.append((x_, y_, rms(y_), max(y)))
+
+    # plot_cogging(data)
+    # plot_pp_dist(data)
+    plot_rms_dist(data)
 
 if __name__ == "__main__":
     # doe_full_factorial()

@@ -392,7 +392,7 @@ class BLDCMotor(BaseModel):
 
 def execute_model(model: BLDCMotor):
     t0 = perf_counter()
-    res = model(timeout=2000, cleanup=True)
+    res = model(timeout=2000, cleanup=False)
     t1 = perf_counter()
     try:
         torque = res["Torque"]*8
