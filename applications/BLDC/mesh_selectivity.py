@@ -39,7 +39,7 @@ def get_id():
 
 def execute_model(model: BLDCMotor):
     t0 = perf_counter()
-    res = model(timeout=2000, cleanup=True)
+    res = model(timeout=2000, cleanup=False)
     t1 = perf_counter()
     res["Torque"]*=8
     print(f"\t{abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {res['Torque']:.3f} Nm \t {t1-t0:.2f} s")
@@ -100,28 +100,32 @@ def plot_cogging_torque(d):
     names, mesh_sizes, nb_elements, Tpps = zip(*d)
     name_max, mesh_size_max, nb_element_max, Tpp_max = data_max
 
-    fig = plt.figure(figsize=(10, 8))
+    fig = plt.figure()
     ax = fig.add_subplot(111)
 
     theta, T = csv_read(DIR_SAVE / name_min)
     x, y = get_polyfit(theta, T, N=301)
-    plt.plot(x, y, 'r-', label=f'Min. ({int(nb_element_min)})', lw=2, zorder=20)
+    plt.plot(x, y, 'r-', label=f'Min. ({int(nb_element_min)})', lw=1, zorder=20)
 
     theta, T = csv_read(DIR_SAVE / name_max)
     x, y = get_polyfit(theta, T, N=301)
-    plt.plot(x, y, 'b-', label=f'Max. ({int(nb_element_max)})', lw=2, zorder=20)
+    plt.plot(x, y, 'b-', label=f'Max. ({int(nb_element_max)})', lw=1, zorder=20)
 
     for name in names:
         theta, T = csv_read(DIR_SAVE / name)
         x, y = get_polyfit(theta, T, N=301)
         plt.plot(x, y, 'gray', alpha=0.4)
 
+    thetasmart, Tsmart = csv_read(DIR_SAVE / "cogging_smartmesh.csv")
+    x, y = get_polyfit(thetasmart, Tsmart, N=301)
+    plt.plot(x, y, 'magenta', lw=1, zorder=50, label='Smartmesh')
+
     plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     plt.minorticks_on()
     plt.xlabel("Rotor angle [°]")
     plt.ylabel("Torque [Nm]")
-    plt.legend(loc="lower right")
+    plt.legend(loc="upper right")
     plt.savefig(DIR_MEDIA / "msh_selectivity.pdf", bbox_inches="tight")
     plt.show()
 
