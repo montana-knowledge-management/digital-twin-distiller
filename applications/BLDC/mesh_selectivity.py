@@ -91,8 +91,8 @@ def plot_results():
     data.sort(key=itemgetter(1), reverse=True)
 
     plot_cogging_torque(data)
-    # plot_msh_pp(data)
-    # plot_msh_rms(data)
+    plot_msh_pp(data)
+    plot_msh_rms(data)
 
 def plot_cogging_torque(d):
     data_min, *d, data_max = d
@@ -122,7 +122,7 @@ def plot_cogging_torque(d):
     plt.xlabel("Rotor angle [°]")
     plt.ylabel("Torque [Nm]")
     plt.legend(loc="lower right")
-    plt.savefig(DIR_MEDIA / "mesh_selectivity.pdf", bbox_inches="tight")
+    plt.savefig(DIR_MEDIA / "msh_selectivity.pdf", bbox_inches="tight")
     plt.show()
 
 def plot_msh_pp(d):
