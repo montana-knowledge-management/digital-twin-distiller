@@ -11,7 +11,7 @@ adze_server = FastAPI()
 
 bldcpath = f'{DIR_APPS.resolve()}'
 sys.path.append(bldcpath)
-from BLDC.model import BLDCMotor
+from applications.BLDC.model import BLDCMotor
 
 @adze_server.get('/models/BLDC')
 async def model_bldc(rotorangle: Optional[float]=0.0,

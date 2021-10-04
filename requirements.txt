@@ -10,4 +10,8 @@ artap
 networkx
 pyvista
 vedo
-
+aiofiles
+jinja2
+fastapi
+pydantic
+uvicorn
