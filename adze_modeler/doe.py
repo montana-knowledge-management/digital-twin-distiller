@@ -88,7 +88,7 @@ def doe_bbdesign(n:int=3, center=None):
         
     H = np.c_[H.T, repeat_center(n, center).T].T
     
-    return H
+    return [list(li.astype(int)) for li in H]
 
 def doe_pbdesign(n):
     """
@@ -126,11 +126,37 @@ def doe_pbdesign(n):
 
     # Reduce the size of the matrix as needed
     H = H[:, 1:(keep + 1)]
+    H = np.flipud(H)
 
-    return np.flipud(H)
+    return [list(li.astype(int)) for li in H]
+
+def dore_ccf(n):
+    """
+    Central Composite Design. In this design, the star points are at the center
+    of each face of the factorial space. This variety requires 3 levels of each
+    factor. Augmenting an existing factorial or resolution V design with
+    appropriate star points can also produce this design.
+    """
+    
+    H2 = np.zeros((2*n, n))
+    for i in range(n):
+        H2[2*i:2*i+2, i] = [-1, 1]
+
+    H1 = ff2n(n)
+    
+    ## redundant rows when (4, 4)
+    center = (1, 0)
+    C1 = np.zeros((center[0], n))
+    C2 = np.zeros((center[1], n))
+    H1 = np.r_[H1, C1]
+    H2 = np.r_[H2, C2]
+    H = np.r_[H1, H2]
+
+    return [list(li.astype(int)) for li in H]
 
 if __name__ == "__main__":
-    print(doe_bbdesign(5, center=1))
-    # print(fullfact([3]*4))
-    # print(doe_pbdesign(4))
-
+    print(*doe_bbdesign(5, center=1), sep='\n')
+    # print(*fullfact([3]*4), sep='\n')
+    # print(*doe_pbdesign(4), sep='\n')
+    # print(*dore_ccf(4), sep='\n')
+    
