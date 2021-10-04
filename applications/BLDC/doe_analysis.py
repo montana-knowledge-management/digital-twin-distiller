@@ -7,6 +7,9 @@ from adze_modeler.doe import fullfact
 import operator as op
 from time import perf_counter
 from adze_modeler.utils import csv_write, csv_read, get_polyfit, setup_matplotlib, rms
+from adze_modeler.doe import doe_bbdesign
+from math import isclose
+from functools import partial
 
 DIR_SAVE = DIR_DATA / "doe"
 
@@ -54,18 +57,53 @@ def doe_full_factorial():
             print('Max torque:', max(T))
             print('RMS torque:', rms(T))
 
-def plot_cogging(d:list):
+
+def filter_data(data, method):
+    """
+    ff - Full-factorial
+    """
+    doe_ff = list(fullfact([3]*5))
+    matcharrays = lambda a,b: all(map(isclose, a, b))
+    if method=='ff':
+        data.sort(key=op.itemgetter(3))
+        dmin, *d, dmax = data
+        return dmin, d, dmax
+    elif method == 'bb':
+        doe_designs = list(doe_bbdesign(5, center=1))
+
+    idx = []
+    for di in doe_designs:
+        f = partial(matcharrays, di)
+        __import__('pudb').set_trace()
+
+
+
+
+
+def plot_cogging(data:list):
     plt.figure()
     xref, yref = csv_read(DIR_DATA/'cogging_toruqe.csv')
 
-    d.sort(key=op.itemgetter(3))
-    dmin, *d, dmax = d
+    #### Full-Factorial
+    dmin, *d, dmax = filter_data(data, 'ff')
+    for x, y, rmsT, maxT, idx in d:
+        plt.plot(x, y, 'gray', alpha=0.5)
+    
+    plt.plot(dmin[0], dmin[1], 'b-', lw=2, label=f'Min. peak torque', zorder=20)
+    plt.plot(dmax[0], dmax[1], 'r-', lw=2, label=f'Max. peak torque', zorder=20)
+    plt.plot(xref, yref, color='magenta', lw=2, label='Ideal', zorder=20)
+
+    ## Box-Behnken
+    dmin, *d, dmax = filter_data(data, 'bb')
     for x, y, rmsT, maxT in d:
         plt.plot(x, y, 'gray', alpha=0.5)
     
     plt.plot(dmin[0], dmin[1], 'b-', lw=2, label=f'Min. peak torque', zorder=20)
     plt.plot(dmax[0], dmax[1], 'r-', lw=2, label=f'Max. peak torque', zorder=20)
     plt.plot(xref, yref, color='magenta', lw=2, label='Ideal', zorder=20)
+
+
+
 
     plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
@@ -108,11 +146,11 @@ def doe_plot():
     for fi in DIR_SAVE.iterdir():
         x,y = csv_read(fi)
         x_, y_ = get_polyfit(x, y, N=301)
-        data.append((x_, y_, rms(y_), max(y)))
+        data.append((x_, y_, rms(y_), max(y), int(fi.stem[2:])))
 
-    # plot_cogging(data)
+    plot_cogging(data)
     # plot_pp_dist(data)
-    plot_rms_dist(data)
+    # plot_rms_dist(data)
 
 if __name__ == "__main__":
     # doe_full_factorial()

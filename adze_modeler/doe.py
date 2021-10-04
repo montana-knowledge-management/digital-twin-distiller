@@ -130,7 +130,7 @@ def doe_pbdesign(n):
     return np.flipud(H)
 
 if __name__ == "__main__":
-    # print(doe_bbdesign(4, center=1))
+    print(doe_bbdesign(5, center=1))
     # print(fullfact([3]*4))
-    print(doe_pbdesign(4))
+    # print(doe_pbdesign(4))
 
