@@ -17,7 +17,6 @@ class BaseModel(metaclass=ABCMeta):
 
 
     """
-
     def __init__(self, exportname: str = None):
         """
         This function sets the paths and file names.
@@ -27,7 +26,6 @@ class BaseModel(metaclass=ABCMeta):
 
         """
         self.name = exportname or str(uuid4())
-
         self.dir_current = Path(sys.modules[self.__module__].__file__).parent
         self.dir_resources = self.dir_current / "resources"
         self.dir_snapshots = self.dir_current / "snapshots"
