@@ -29,7 +29,7 @@ https://github.com/tirthajyoti/Design-of-experiment-Python/blob/fc1d00b9525e7e58
 https://github.com/tisimst/pyDOE/blob/master/pyDOE/doe_plackett_burman.py
 
 """
-def fullfact(levels:Sequence[int]):
+def doe_fullfact(levels:Sequence[int]):
     """
     Generate a general full-factorial design
     
@@ -61,7 +61,7 @@ def ff2n(n:int=1):
     mat : 2d-array
         The design matrix with coded levels -1 and 1
     """
-    return 2*fullfact([2]*n)-1
+    return 2 * doe_fullfact([2] * n) - 1
 
 def doe_bbdesign(n:int=3, center=None):
     assert n >= 3, 'Number of variables must be at least 3'
@@ -130,7 +130,7 @@ def doe_pbdesign(n):
 
     return [list(li.astype(int)) for li in H]
 
-def dore_ccf(n):
+def doe_ccf(n):
     """
     Central Composite Design. In this design, the star points are at the center
     of each face of the factorial space. This variety requires 3 levels of each

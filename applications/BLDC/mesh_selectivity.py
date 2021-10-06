@@ -144,15 +144,15 @@ def plot_msh_pp(d):
     color = 'green'
     alpha = 0.7
 
-    w,h = get_width_height('double', unit='inch')
-    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(w, h))
-    ax[0].scatter(nb_elements, Tpp, c=color, alpha=alpha, edgecolor='k')
+    fig, ax = plt.subplots(nrows=1, ncols=2)
+    ax[0].scatter(nb_elements, Tpp, c=color, alpha=alpha, edgecolor='k', zorder=20)
+    ax[0].scatter(19408,0.5883110451692927, s=45, c='red', edgecolor='k', zorder=100)
     # ax[0].plot([0, 61000], [0.655, 0.655], 'k--')
     # ax[0].plot([0, 61000], [0.61, 0.61], 'k--')
     ax[0].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     ax[0].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     ax[0].minorticks_on()
-    ax[0].set_xlabel("Number of elements")
+    ax[0].set_xlabel("Number of elements\n\na)")
     ax[0].set_ylabel("Torque peak to peak [Nm]")
     ax[0].set_xscale('log')
 
@@ -162,7 +162,7 @@ def plot_msh_pp(d):
     ax[1].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     ax[1].minorticks_on()
     ax[1].set_xticks(ranges)
-    ax[1].set_xlabel("Torque peak to peak [Nm]")
+    ax[1].set_xlabel("Torque peak to peak [Nm]\n\nb)")
     ax[1].set_ylabel("Number of cases")
 
     plt.tight_layout()
@@ -184,16 +184,15 @@ def plot_msh_rms(d):
     color = 'blue'
     alpha = 0.7
 
-    w,h = get_width_height('double', unit='inch')
-    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(w, h))
-    ax[0].scatter(nb_elements, Trms, c=color, alpha=alpha, edgecolor='k')
+    fig, ax = plt.subplots(nrows=1, ncols=2)
+    ax[0].scatter(nb_elements, Trms, c=color, alpha=alpha, edgecolor='k', zorder=20)
     # ax[0].plot([0, 61000], [0.655, 0.655], 'k--')
     # ax[0].plot([0, 61000], [0.61, 0.61], 'k--')
     ax[0].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     ax[0].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     ax[0].minorticks_on()
-    ax[0].set_xlabel("Number of elements")
-    ax[0].set_ylabel("Torque peak to peak [Nm]")
+    ax[0].set_xlabel("Number of elements\n\na)")
+    ax[0].set_ylabel("RMS Torque [Nm]")
     ax[0].set_xscale('log')
 
     ranges = [0.128, 0.145, 0.156, 0.164]
@@ -202,7 +201,7 @@ def plot_msh_rms(d):
     ax[1].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     ax[1].minorticks_on()
     ax[1].set_xticks(ranges)
-    ax[1].set_xlabel("RMS Torque [Nm]")
+    ax[1].set_xlabel("RMS Torque [Nm]\n\nb)")
     ax[1].set_ylabel("Number of cases")
 
     plt.tight_layout()

@@ -8,7 +8,7 @@ from time import perf_counter
 import matplotlib.pyplot as plt
 from numpy import linspace
 
-from adze_modeler.doe import fullfact
+from adze_modeler.doe import doe_fullfact
 from adze_modeler.doe import *
 from adze_modeler.utils import *
 from model import *
@@ -39,7 +39,7 @@ class DOEBLDCMotor(BLDCMotor):
 def doe_full_factorial():
     dXnames = ('dairgap', 'dmagnet_h', 'dmagnet_w', 'dHc', 'dmur')
     dXvalues = (0.05, 0.05, 0.05, 5000, 0.05)
-    designs = list(fullfact([3]*5))
+    designs = list(doe_fullfact([3] * 5))
     with Pool(processes=12) as pool:
         for i, design_i in enumerate(designs):
             fname = f'D-{i:03}.csv'
@@ -64,7 +64,7 @@ def filter_data(data, method):
     """
     ff - Full-factorial
     """
-    doe_ff = list(fullfact([3]*5)-1)
+    doe_ff = list(doe_fullfact([3] * 5) - 1)
     matcharrays = lambda a,b: all(map(isclose, a, b))
     if method=='ff':
         data.sort(key=op.itemgetter(3))
@@ -76,7 +76,7 @@ def filter_data(data, method):
         doe_designs = doe_pbdesign(5)
 
     elif method=='ccf':
-        doe_designs = dore_ccf(5)
+        doe_designs = doe_ccf(5)
 
     ret = []
     for di in doe_designs:
