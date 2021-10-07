@@ -16,9 +16,7 @@ from adze_modeler.platforms.femm import Femm
 from adze_modeler.snapshot import Snapshot
 from adze_modeler.utils import mirror_point
 
-__all__ = ['DIR_BASE', 'DIR_MEDIA', 'DIR_DATA', 'DIR_RESOURCES',
-           'DIR_SNAPSHOTS', 'BLDCMotor', 'execute_model']
-
+__all__ = ['BLDCMotor']
 
 def cart2pol(x: float, y: float):
     rho = math.hypot(x, y)
@@ -34,11 +32,6 @@ def pol2cart(rho: float, phi: float):
 ORIGIN = Node(0.0, 0.0)
 Y = Node(0.0, 1.0)
 
-DIR_BASE = Path(__file__).parent
-DIR_MEDIA = DIR_BASE / "media"
-DIR_DATA = DIR_BASE / "data"
-DIR_RESOURCES = DIR_BASE / "resources"
-DIR_SNAPSHOTS = DIR_BASE / "snapshots"
 
 class BLDCMotor(BaseModel):
     """
@@ -56,58 +49,71 @@ class BLDCMotor(BaseModel):
 
     """
 
-    def __init__(self, alpha: float = 0.0, rotorangle: float = 0.0, I0: float = 0, exportname: str = None):
+    # def __init__(self, alpha: float = 0.0, rotorangle: float = 0.0, I0: float = 0, exportname: str = None):
+    def __init__(self, **kwargs):
+        exportname = kwargs.get('exportname', None)
+
         super().__init__(exportname)
         self._init_directories()
 
-        self.rotorangle = rotorangle
-        self.alpha = -alpha
+        self.rotorangle = kwargs.get('rotorangle', 0.0)
+        self.alpha = -kwargs.get('alpha', 0.0)
 
         # GEOMETRY
+        self.depth = kwargs.get('depth', 50.0)
 
         ## AIRGAP
-        self.airgap = 0.7
-        self.void = 0.3
+        self.airgap = kwargs.get('airgap',  0.7)
+        self.void = kwargs.get('void',  0.3)
 
         ## ROTOR
-        self.r1 = 22.8 / 2  # Rotor Inner Radius
-        self.r2 = 50.5 / 2  # Rotor Iron Outer Radius
-        self.r3 = 55.1 / 2  # Rotor Outer Radius
-        self.r4 = self.r3 + (self.airgap - self.void) / 2  # Rotor + airgap slice
+        self.r1 = kwargs.get('r1',  22.8 / 2)  # Rotor Inner Radius
+        self.r2 = kwargs.get('r2',  50.5 / 2)  # Rotor Iron Outer Radius
+        self.r3 = kwargs.get('r3',  55.1 / 2)  # Rotor Outer Radius
+        self.r4 = kwargs.get('r4',  self.r3 + (self.airgap - self.void) / 2)  # Rotor + airgap slice
 
         ### Magnet
-        self.mw = 15.8566  # Magnet Width
+        self.mw = kwargs.get('mw',  15.8566)  # Magnet Width
 
         ## STATOR
-        self.s1 = self.r3 + self.airgap  # Stator Inner Radius
-        self.s2 = self.s1 + 21.75  # Stator Outer Radius
+        self.s1 = kwargs.get('s1',  self.r3 + self.airgap)  # Stator Inner Radius
+        self.s2 = kwargs.get('s2',  self.s1 + 21.75)  # Stator Outer Radius
 
         ## SLOT
-        self.w1 = 1.52829
-        self.w2 = 3.68306
-        self.w3 = 6.8952
-        self.w4 = 3.6182
+        self.w1 = kwargs.get('w1',  1.52829)
+        self.w2 = kwargs.get('w2',  3.68306)
+        self.w3 = kwargs.get('w3',  6.8952)
+        self.w4 = kwargs.get('w4',  3.6182)
 
-        self.h1 = 0.7
-        self.h2 = 0.3707
-        self.h3 = 12.1993
-        self.h4 = 1.9487
+        self.h1 = kwargs.get('h1',  0.7)
+        self.h2 = kwargs.get('h2',  0.3707)
+        self.h3 = kwargs.get('h3',  12.1993)
+        self.h4 = kwargs.get('h4',  1.9487)
 
         # Excitation
-        coil_area = 7.66533e-5  # m2
-        Nturns = 46
+        coil_area = kwargs.get('coil_area', 7.66533e-5)  # m2
+        Nturns = kwargs.get('Nturns', 46)
+        I0 = kwargs.get('I0', 0.0)
         J0 = Nturns * I0 / coil_area
         self.JU = J0 * math.cos(math.radians(self.alpha))
         self.JV = J0 * math.cos(math.radians(self.alpha + 120))
         self.JW = J0 * math.cos(math.radians(self.alpha + 240))
 
         # Mesh sizes
-        self.msh_size_stator_steel = 1.2
-        self.msh_size_rotor_steel = 0.18
-        self.msh_size_coils = 1.0
-        self.msh_size_air = 1.0
-        self.msh_size_airgap = 0.18
-        self.msh_size_magnets = 0.18
+        self.msh_smartmesh = kwargs.get('smartmesh', False)
+        self.msh_size_stator_steel = kwargs.get('msh_size_stator_steel', 1.2)
+        self.msh_size_rotor_steel = kwargs.get('msh_size_rotor_steel', 0.18)
+        self.msh_size_coils = kwargs.get('msh_size_coils', 1.0)
+        self.msh_size_air = kwargs.get('msh_size_air', 1.0)
+        self.msh_size_airgap = kwargs.get('msh_size_airgap', 0.18)
+        self.msh_size_magnets = kwargs.get('msh_size_magnets', 0.18)
+
+        # Materials
+        self.m_mur = kwargs.get('magnet_mur', 1.11)
+        self.m_Hc = kwargs.get('magnet_Hc', 724000)
+        self.m_conductivity = kwargs.get('magnet_conductivity', 1.176e6)
+        self.m_angle= kwargs.get('magnet_angle', 90.0)
+
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -116,8 +122,8 @@ class BLDCMotor(BaseModel):
         femm_metadata.file_script_name = self.file_solver_script
         femm_metadata.file_metrics_name = self.file_solution
         femm_metadata.unit = "millimeters"
-        femm_metadata.smartmesh = False
-        femm_metadata.depth = 50
+        femm_metadata.smartmesh = self.msh_smartmesh
+        femm_metadata.depth = self.depth
 
         self.platform = Femm(femm_metadata)
         self.snapshot = Snapshot(self.platform)
@@ -205,10 +211,10 @@ class BLDCMotor(BaseModel):
         magnet = copy(smco)
         magnet.name = 'magnet'
         magnet.meshsize = self.msh_size_magnets
-        magnet.mu_r = 1.11
-        magnet.coercivity = 724000
-        magnet.conductivity = 1.176e6
-        magnet.remanence_angle = 90
+        magnet.mu_r = self.m_mur
+        magnet.coercivity = self.m_Hc
+        magnet.conductivity = self.m_conductivity
+        magnet.remanence_angle = self.m_angle
 
         # Rotor steel
         rotor_steel = copy(steel1018)
@@ -395,29 +401,10 @@ def execute_model(model: BLDCMotor):
     try:
         torque = res["Torque"] * 8
     except Exception as e:
-        return -1996
+        return None
     # print(f"\t{abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {torque:.3f} Nm \t {t1-t0:.2f} s")
     return torque
 
 if __name__ == "__main__":
-    # m = BLDCMotor(rotorangle=15 / 4, exportname="dev")
-    # execute_model(m)
-
-    from adze_modeler.server import Server
-    from adze_modeler.simulation import Simulation
-
-
-    class BLDC_Simulation(Simulation):
-
-        def run(self):
-            # definition of the specific motor simulation
-            m = self.model(rotorangle=self._input['rotorangle'], exportname="dev")
-            self._output = m()
-
-
-    # Initializing a parametric simulation
-    Param_Sim = BLDC_Simulation()
-    # set the model for the simulation
-    Param_Sim.set_model(BLDCMotor)
-    model = Server(Param_Sim)
-    model.run()
+    m = BLDCMotor(rotorangle=15 / 4, exportname="dev")
+    execute_model(m)
