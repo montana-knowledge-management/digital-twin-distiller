@@ -1,15 +1,6 @@
 {
-  "simulation": {
-    "type": "simple",
-    "processes": 4,
-
-    "theta0": 0,
-    "theta1": 7.5,
-    "nsteps": 12
-  },
-  "exportname": null,
-  "cleanup": true,
-  "smartmesh": true,
+  "model": {
+    "smartmesh": true,
   "rotorangle": 0.0,
   "alpha": 0.0,
   "depth": 50.0,
@@ -42,6 +33,12 @@
   "magnet_mur": 1.11,
   "magnet_Hc": 724000,
   "magnet_conductivity": 1.176e6,
-  "magnet_angle": 90.0,
+  "magnet_angle": 90.0
+  },
+  "misc": {
+    "processes": 4,
+    "exportname": null,
+    "cleanup": true
+  },
   "permission": "alma"
 }
