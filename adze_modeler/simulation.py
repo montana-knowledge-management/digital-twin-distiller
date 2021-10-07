@@ -2,8 +2,6 @@ from model import BaseModel
 from abc import ABCMeta
 import functools
 
-
-
 class Simulation:
     app_name = 'adze project'
     simulations = {}
@@ -23,8 +21,19 @@ class Simulation:
     def set_model(self, model):
         self.model = model
 
+    def update_input(self):
+        self.cfg_simulation = self._input['simulation']
+        self.cfg_model = self._input['model']
+        self.cfg_misc = self._input['misc']
+
+        if self.cfg_simulation['type'] not in self.simulations.keys():
+            raise ValueError(f"There is no simulation called {self.cfg_simulation['type']!r}")
+
+
+
     def run(self):
-        self._output['res'] = self.simulations['SIMPLE'](self.model, self.cfg_model)
+        sim_type = self.cfg_simulation.pop('type')
+        self._output['res'] = self.simulations[sim_type](self.model, self.cfg_model, self.cfg_simulation)
 
 
     def register(self, name):

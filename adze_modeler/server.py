@@ -11,14 +11,18 @@ from fastapi.templating import Jinja2Templates
 from importlib_resources import files
 from pydantic import BaseModel
 from pydantic import Extra
-
+from typing import Optional, Dict
+import traceback
 
 class InputJson(BaseModel):
     """
     Class for validating the input sent to the /process endpoint.
     """
 
-    text: str
+    simulation: Dict = {'type': 'sim_type'}
+    model: Optional[Dict] = {}
+    misc: Optional[Dict] = {'processes': 4, 'cleanup':False, 'exportname': None}
+    version: Optional[str] = "0.7"
 
     # Setting for keeping the additional keys in the input json intact
     class Config:
@@ -63,10 +67,18 @@ async def process(item: InputJson):
     The endpoint performs automatic input validation via the Item class.
     """
     data = json.loads(item.json())
-    if data:
+    try:
         app.project._input = data
+        app.project.update_input()
         app.project.run()
-    return app.project._output
+    except Exception as e:
+        app.project._output['exception'] = {
+            "type": e.__class__.__name__,
+            "message": str(e),
+            # "traceback": traceback.format_exc()
+        }
+    finally:
+        return app.project._output
 
 
 @app.get("/ping", include_in_schema=True, tags=["ping"])
