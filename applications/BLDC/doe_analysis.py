@@ -1,4 +1,3 @@
-from functools import partial
 from math import isclose
 from multiprocessing import Pool
 import operator as op
@@ -11,9 +10,12 @@ from numpy import linspace
 from adze_modeler.doe import doe_fullfact
 from adze_modeler.doe import *
 from adze_modeler.utils import *
-from model import *
+from adze_modeler.modelpaths import *
+from model import BLDCMotor, execute_model
 
-DIR_SAVE = DIR_DATA / "doe"
+ModelDir.set_base(__file__)
+
+DIR_SAVE = ModelDir.DATA / "doe"
 
 class DOEBLDCMotor(BLDCMotor):
 
@@ -59,7 +61,6 @@ def doe_full_factorial():
             print('Max torque:', max(T))
             print('RMS torque:', rms(T))
 
-
 def filter_data(data, method):
     """
     ff - Full-factorial
@@ -78,6 +79,27 @@ def filter_data(data, method):
     elif method=='ccf':
         doe_designs = doe_ccf(5)
 
+    elif method=='taguchi':
+        doe_designs = [[-0, -0, -0, -0, -0],
+                   [-0, 0, 0, 0, 0],
+                   [-0, 1, 1, 1, 1],
+                   [0, -0, -0, 0, 0],
+                   [0, 0, 0, 1, 1],
+                   [0, 1, 1, -0, -0],
+                   [1, -0, 0, -0, 1],
+                   [1, 0, 1, 0, -0],
+                   [1, 1, -0, 1, 0],
+                   [-0, -0, 1, 1, 0],
+                   [-0, 0, -0, -0, 1],
+                   [-0, 1, 0, 0, -0],
+                   [0, -0, 0, 1, -0],
+                   [0, 0, 1, -0, 0],
+                   [0, 1, -0, 0, 1],
+                   [1, -0, 1, 0, 1],
+                   [1, 0, -0, 1, -0],
+                   [1, 1, 0, -0, 0]
+                   ]
+
     ret = []
     for di in doe_designs:
         idx = next(i for i,v in enumerate(doe_ff) if matcharrays(di, v))
@@ -88,8 +110,8 @@ def filter_data(data, method):
 
 def plot_cogging(data:list):
     w,h = get_width_height(type_='double', unit='inch')
-    fig, ax = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(w,h))
-    xref, yref = csv_read(DIR_DATA/'cogging_toruqe.csv')
+    fig, ax = plt.subplots(nrows=2, ncols=2, sharey=True, sharex=True, figsize=(w,h))
+    xref, yref = csv_read(ModelDir.DATA /'cogging_toruqe.csv')
 
     #### Full-Factorial
     dmin, *d, dmax = filter_data(data, 'ff')
@@ -101,19 +123,20 @@ def plot_cogging(data:list):
     c_doe= 'darkgoldenrod'
     cf_doe = 'navajowhite'
 
-    for i in range(3):
-        ax[i].plot(dmin[0], dmin[1], color=c_ff, lw=1, label=f'Full-factorial ({N})', zorder=z+1)
-        ax[i].plot(dmax[0], dmax[1], color=c_ff, lw=1, zorder=z+1)
-        ax[i].fill_between(dmin[0], dmin[1], dmax[1], color=cf_ff, zorder=z)
-        ax[i].plot(xref, yref, color='black', lw=1, label='Ideal', zorder=20)
+    for i in range(2):
+        for j in range(2):
+            ax[i][j].plot(dmin[0], dmin[1], color=c_ff, lw=1, label=f'Full-factorial ({N})', zorder=z+1)
+            ax[i][j].plot(dmax[0], dmax[1], color=c_ff, lw=1, zorder=z+1)
+            ax[i][j].fill_between(dmin[0], dmin[1], dmax[1], color=cf_ff, zorder=z)
+            ax[i][j].plot(xref, yref, color='black', lw=1, label='Ideal', zorder=20)
 
     ## Box-Behnken
     dmin, *d, dmax = filter_data(data, 'bb')
     N = len(d) + 2
     z = 10
-    ax[0].plot(dmin[0], dmin[1], color=c_doe, lw=1, label=f'Box-Behnken ({N})', zorder=z)
-    ax[0].plot(dmax[0], dmax[1], color=c_doe, lw=1, zorder=z)
-    ax[0].fill_between(dmin[0], dmin[1], dmax[1], color=cf_doe, zorder=z)
+    ax[0][0].plot(dmin[0], dmin[1], color=c_doe, lw=1, label=f'Box-Behnken ({N})', zorder=z)
+    ax[0][0].plot(dmax[0], dmax[1], color=c_doe, lw=1, zorder=z)
+    ax[0][0].fill_between(dmin[0], dmin[1], dmax[1], color=cf_doe, zorder=z)
     # ax[0].set_title('a)', y=-0.3, fontsize=10)
 
 
@@ -121,111 +144,141 @@ def plot_cogging(data:list):
     dmin, *d, dmax = filter_data(data, 'pb')
     N = len(d) + 2
     z = 10
-    ax[1].plot(dmin[0], dmin[1], color=c_doe, lw=1, label=f'Plackett-Burman ({N})', zorder=z)
-    ax[1].plot(dmax[0], dmax[1], color=c_doe, lw=1, zorder=z)
-    ax[1].fill_between(dmin[0], dmin[1], dmax[1], color=cf_doe, zorder=z)
+    ax[0][1].plot(dmin[0], dmin[1], color=c_doe, lw=1, label=f'Plackett-Burman ({N})', zorder=z)
+    ax[0][1].plot(dmax[0], dmax[1], color=c_doe, lw=1, zorder=z)
+    ax[0][1].fill_between(dmin[0], dmin[1], dmax[1], color=cf_doe, zorder=z)
     # ax[1].set_title('b)', y=-0.3, fontsize=10)
 
     ## CCF
     dmin, *d, dmax = filter_data(data, 'ccf')
     N = len(d) + 2
     z = 10
-    ax[2].plot(dmin[0], dmin[1], color=c_doe, lw=1, label=f'CCF ({N})', zorder=z)
-    ax[2].plot(dmax[0], dmax[1], color=c_doe, lw=1, zorder=z)
-    ax[2].fill_between(dmin[0], dmin[1], dmax[1], color=cf_doe, zorder=z)
+    ax[1][0].plot(dmin[0], dmin[1], color=c_doe, lw=1, label=f'CCF ({N})', zorder=z)
+    ax[1][0].plot(dmax[0], dmax[1], color=c_doe, lw=1, zorder=z)
+    ax[1][0].fill_between(dmin[0], dmin[1], dmax[1], color=cf_doe, zorder=z)
+    # ax[2].set_title('b)', y=-0.3, fontsize=10)
+
+    ## Taguchi
+    dmin, *d, dmax = filter_data(data, 'taguchi')
+    N = len(d) + 2
+    z = 10
+    ax[1][1].plot(dmin[0], dmin[1], color=c_doe, lw=1, label=f'Taguchi ({N})', zorder=z)
+    ax[1][1].plot(dmax[0], dmax[1], color=c_doe, lw=1, zorder=z)
+    ax[1][1].fill_between(dmin[0], dmin[1], dmax[1], color=cf_doe, zorder=z)
     # ax[2].set_title('b)', y=-0.3, fontsize=10)
 
     labels = string.ascii_lowercase
-    for i in range(3):
-        ax[i].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
-        ax[i].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
-        ax[i].minorticks_on()
-        ax[i].legend()
-        ax[i].set_xlim(0, 360/24/2)
-        ax[i].set_ylim(-0.039, 0.45)
-        ax[i].set_xlabel(f"Rotor angle [°]\n\n{labels[i]})")
+    for i in range(2):
+        for j in range(2):
+            ax[i][j].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+            ax[i][j].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+            ax[i][j].minorticks_on()
+            ax[i][j].legend()
+            ax[i][j].set_xlim(0, 360/24/2)
+            ax[i][j].set_ylim(-0.039, 0.45)
+            ax[i][j].set_xlabel(f"Rotor angle [°]\n\n{labels[i * 2 + j]})")
 
-    ax[0].set_ylabel("Cogging Torque [Nm]")
+    for i in range(2):
+        ax[i][0].set_ylabel("Cogging Torque [Nm]")
     plt.tight_layout()
-    plt.savefig(DIR_MEDIA / "doe_methods.pdf", bbox_inches="tight")
+    plt.savefig(ModelDir.MEDIA / "doe_methods.pdf", bbox_inches="tight")
     plt.show()
 
 def plot_pp_dist(data):
     w,h = get_width_height(type_='double', unit='inch')
-    fig, ax = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(w,h))
+    fig, ax = plt.subplots(nrows=2, ncols=2, sharey=True, figsize=(w,h))
 
     d = filter_data(data, 'ff')
     N = len(d)
     Tpp_ref = list(map(op.itemgetter(3), d))
-    for i in range(3):
-        ax[i].hist(Tpp_ref, bins=15, edgecolor='k', alpha=1, color='lightblue', zorder=20, label=f'Full-factorial ({N})')
+    for i in range(2):
+        for j in range(2):
+            ax[i][j].hist(Tpp_ref, bins=15, edgecolor='k', alpha=1,
+                          color='lightblue', zorder=20, label=f'Full-factorial ({N})')
     
     d = filter_data(data, 'bb')
     N = len(d)
     Tpp_doe = list(map(op.itemgetter(3), d))
-    ax[0].hist(Tpp_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'Box-Behnken ({N})')
+    ax[0][0].hist(Tpp_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'Box-Behnken ({N})')
 
     d = filter_data(data, 'pb')
     N = len(d)
     Tpp_doe = list(map(op.itemgetter(3), d))
-    ax[1].hist(Tpp_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'Plackett-Burman ({N})')
+    ax[0][1].hist(Tpp_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'Plackett-Burman ({N})')
     
 
     d = filter_data(data, 'ccf')
     N = len(d)
     Tpp_doe = list(map(op.itemgetter(3), d))
-    ax[2].hist(Tpp_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'CCF ({N})')
+    ax[1][0].hist(Tpp_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'CCF ({N})')
 
-    for i in range(3):
-        ax[i].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
-        ax[i].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
-        ax[i].minorticks_on()
-        ax[i].legend()
-        ax[i].set_xlabel("Peak cogging torque [Nm]")
+    d = filter_data(data, 'taguchi')
+    N = len(d)
+    Tpp_doe = list(map(op.itemgetter(3), d))
+    ax[1][1].hist(Tpp_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'Taguchi ({N})')
 
+    labels = string.ascii_lowercase
+    for i in range(2):
+        for j in range(2):
+            ax[i][j].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+            ax[i][j].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+            ax[i][j].minorticks_on()
+            ax[i][j].legend()
+            ax[i][j].set_xlabel(f"Peak cogging torque [Nm]\n\n{labels[i * 2 + j]})")
 
-    ax[0].set_ylabel("Number of designs")
+    for i in range(2):
+        ax[i][0].set_ylabel("Number of designs")
     plt.tight_layout()
-    plt.savefig(DIR_MEDIA / "doe_pp_dist.pdf", bbox_inches="tight")
+    plt.savefig(ModelDir.MEDIA / "doe_pp_dist.pdf", bbox_inches="tight")
     plt.show()
 
 def plot_rms_dist(data):
     w,h = get_width_height(type_='double', unit='inch')
-    fig, ax = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(w,h))
+    fig, ax = plt.subplots(nrows=2, ncols=2, sharey=True, figsize=(w,h))
 
     d = filter_data(data, 'ff')
     N = len(d)
     Trms_ref = list(map(op.itemgetter(2), d))
-    for i in range(3):
-        ax[i].hist(Trms_ref, bins=15, edgecolor='k', alpha=1, color='lightblue', zorder=20, label=f'Full-factorial ({N})')
+    for i in range(2):
+        for j in range(2):
+            ax[i][j].hist(Trms_ref, bins=15, edgecolor='k', alpha=1,
+                       color='lightblue', zorder=20, label=f'Full-factorial ({N})')
     
     d = filter_data(data, 'bb')
     N = len(d)
     Trms_doe = list(map(op.itemgetter(2), d))
-    ax[0].hist(Trms_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'Box-Behnken ({N})')
+    ax[0][0].hist(Trms_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'Box-Behnken ({N})')
 
     d = filter_data(data, 'pb')
     N = len(d)
     Trms_doe = list(map(op.itemgetter(2), d))
-    ax[1].hist(Trms_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'Plackett-Burman ({N})')
+    ax[0][1].hist(Trms_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'Plackett-Burman ({N})')
     
 
     d = filter_data(data, 'ccf')
     N = len(d)
     Trms_doe = list(map(op.itemgetter(2), d))
-    ax[2].hist(Trms_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'CCF ({N})')
+    ax[1][0].hist(Trms_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'CCF ({N})')
 
-    for i in range(3):
-        ax[i].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
-        ax[i].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
-        ax[i].minorticks_on()
-        ax[i].legend()
-        ax[i].set_xlabel("RMS cogging torque [Nm]")
+    d = filter_data(data, 'taguchi')
+    N = len(d)
+    Trms_doe = list(map(op.itemgetter(2), d))
+    ax[1][1].hist(Trms_doe, bins=15, edgecolor='k', alpha=1, color='firebrick', zorder=20, label=f'Taguchi ({N})')
 
 
-    ax[0].set_ylabel("Number of designs")
+    labels = string.ascii_lowercase
+    for i in range(2):
+        for j in range(2):
+            ax[i][j].grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+            ax[i][j].grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+            ax[i][j].minorticks_on()
+            ax[i][j].legend()
+            ax[i][j].set_xlabel(f"RMS cogging torque [Nm]\n\n{labels[i * 2 + j]})")
+
+    for i in range(2):
+        ax[i][0].set_ylabel("Number of designs")
     plt.tight_layout()
-    plt.savefig(DIR_MEDIA / "doe_rms_dist.pdf", bbox_inches="tight")
+    plt.savefig(ModelDir.MEDIA / "doe_rms_dist.pdf", bbox_inches="tight")
     plt.show()
 
 def doe_plot():
@@ -236,8 +289,8 @@ def doe_plot():
         x_, y_ = get_polyfit(x, y, N=301)
         data.append((x_, y_, rms(y_), max(y)*2, int(fi.stem[2:])))
 
-    plot_cogging(data)
-    plot_pp_dist(data)
+    # plot_cogging(data)
+    # plot_pp_dist(data)
     plot_rms_dist(data)
 
 if __name__ == "__main__":

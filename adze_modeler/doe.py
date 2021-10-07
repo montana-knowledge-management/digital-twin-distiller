@@ -29,6 +29,9 @@ https://github.com/tirthajyoti/Design-of-experiment-Python/blob/fc1d00b9525e7e58
 https://github.com/tisimst/pyDOE/blob/master/pyDOE/doe_plackett_burman.py
 
 """
+
+__all__ = ['doe_fullfact', 'doe_bbdesign', 'doe_pbdesign', 'doe_ccf']
+
 def doe_fullfact(levels:Sequence[int]):
     """
     Generate a general full-factorial design
@@ -155,7 +158,18 @@ def doe_ccf(n):
     return [list(li.astype(int)) for li in H]
 
 if __name__ == "__main__":
-    print(*doe_bbdesign(5, center=1), sep='\n')
+    import oapackage
+    from numpy import array
+
+    run_size = 18
+    number_of_factors=5
+    factor_levels=3
+    strength=5
+
+    arrayclass=oapackage.arraydata_t(factor_levels, run_size, strength, number_of_factors)
+    arr = array(arrayclass.create_root().getarray())
+    print(arr+1)
+    # print(*doe_bbdesign(5, center=1), sep='\n')
     # print(*fullfact([3]*4), sep='\n')
     # print(*doe_pbdesign(4), sep='\n')
     # print(*dore_ccf(4), sep='\n')
