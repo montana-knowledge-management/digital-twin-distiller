@@ -19,9 +19,11 @@ class InputJson(BaseModel):
     Class for validating the input sent to the /process endpoint.
     """
 
-    simulation: Dict = {'type': 'sim_type'}
+    simulation: Dict = {'type': 'basic'}
     model: Optional[Dict] = {}
-    misc: Optional[Dict] = {'processes': 4, 'cleanup':False, 'exportname': None}
+    tolerances: Optional[Dict] = {'type': 'ff', 'parameters': {}, 'variables':[]}
+    misc: Optional[Dict] = {'processes': 4, 'cleanup':True, 'exportname': None}
+
     version: Optional[str] = "0.7"
 
     # Setting for keeping the additional keys in the input json intact
@@ -67,6 +69,7 @@ async def process(item: InputJson):
     The endpoint performs automatic input validation via the Item class.
     """
     data = json.loads(item.json())
+    app.project._output.clear()
     try:
         app.project._input = data
         app.project.update_input()
