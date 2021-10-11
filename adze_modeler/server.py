@@ -19,7 +19,7 @@ class InputJson(BaseModel):
     Class for validating the input sent to the /process endpoint.
     """
 
-    simulation: Dict = {'type': 'basic'}
+    simulation: Dict = {'type': 'default'}
     model: Optional[Dict] = {}
     tolerances: Optional[Dict] = {'type': 'ff', 'parameters': {}, 'variables':[]}
     misc: Optional[Dict] = {'processes': 4, 'cleanup':True, 'exportname': None}
@@ -70,24 +70,24 @@ async def process(item: InputJson):
     """
     data = json.loads(item.json())
     app.project._output.clear()
-    # try:
-    #     app.project._input = data
-    #     app.project.update_input()
-    #     app.project.run()
-    # except Exception as e:
-    #     app.project._output['exception'] = {
-    #         "type": e.__class__.__name__,
-    #         "message": str(e),
-    #         # "traceback": traceback.format_exc()
-    #     }
-    # finally:
-    #     return app.project._output
-    #     return app.project._output
+    try:
+        app.project._input = data
+        app.project.update_input()
+        app.project.run()
+    except Exception as e:
+        app.project._output['exception'] = {
+            "type": e.__class__.__name__,
+            "message": str(e),
+            # "traceback": traceback.format_exc()
+        }
+    finally:
+        return app.project._output
+        return app.project._output
 
-    app.project._input = data
-    app.project.update_input()
-    app.project.run()
-    return app.project._output
+    # app.project._input = data
+    # app.project.update_input()
+    # app.project.run()
+    # return app.project._output
 
 
 @app.get("/ping", include_in_schema=True, tags=["ping"])

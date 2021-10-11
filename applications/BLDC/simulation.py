@@ -13,7 +13,6 @@ def execute_model(model: BLDCMotor):
     t1 = perf_counter()
     return result
 
-
 @sim.register('basic')
 def basic_run(model, modelparams, simprams, miscparams):
     m = model(**modelparams)
@@ -56,7 +55,6 @@ def tol2(model, modelparams, simprams, miscparams):
 
 if __name__=='__main__':
 
-    # TODO: make the __file__ go away
     ModelDir.set_base(__file__)
     # set the model for the simulation
     sim.set_model(BLDCMotor)

@@ -45,7 +45,7 @@ class Simulation:
         sim_type = self._input['simulation']['type']
         
         file_sim = ModelDir.DEFAULTS / 'simulation.json'
-        assert file_sim.exists(), 'Default simulation.json does not exist.'
+        assert file_sim.exists(), f'Default simulation.json does not exist @ {file_sim.resolve()}'
         with open(file_sim, 'r') as f:
             default_cfg = dict(json.load(f))
             if sim_type not in default_cfg.keys():
@@ -161,7 +161,6 @@ class Simulation:
             # self._output['tolerances'][var_i]['upper_res'] = Y[-1]
             self._output['tolerances'][var_i]['lower'] = Y[0]['delta']
             # self._output['tolerances'][var_i]['lower_res'] = Y[0]
-
 
     def _format_result(self, results) -> Dict:
         """

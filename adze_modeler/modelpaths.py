@@ -9,24 +9,27 @@ class ModelDir:
     DATA = BASE / "data"
     RESOURCES = BASE / "resources"
     SNAPSHOTS = BASE / "snapshots"
+    DEFAULTS = BASE / "defaults"
 
     @classmethod
-    def set_base(cls, base_=None):
-        if base_ is None:
-            # base_ = Path(sys.modules[__module].__file__)
-            raise ValueError
-        else:
-            base_ = Path(base_)
+    def set_base(cls, base_):
+        base_ = Path(base_)
         
-        if base_.is_dir():
-            cls.BASE = base_
-        else:
-            cls.BASE = base_.parent
-
+        cls.BASE = base_.parent
         cls.MEDIA = cls.BASE / "media"
         cls.DATA = cls.BASE / "data"
         cls.RESOURCES = cls.BASE / "resources"
         cls.SNAPSHOTS = cls.BASE / "snapshots"
         cls.DEFAULTS = cls.BASE / "defaults"
+
+    @classmethod
+    def get_dirs(cls):
+        yield cls.BASE
+        yield cls.MEDIA
+        yield cls.DATA
+        yield cls.RESOURCES
+        yield cls.SNAPSHOTS
+        yield cls.DEFAULTS
+        
 
 
