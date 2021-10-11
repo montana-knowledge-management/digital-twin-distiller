@@ -49,7 +49,6 @@ class BLDCMotor(BaseModel):
 
     """
 
-    # def __init__(self, alpha: float = 0.0, rotorangle: float = 0.0, I0: float = 0, exportname: str = None):
     def __init__(self, **kwargs):
         exportname = kwargs.get('exportname', None)
 
@@ -113,7 +112,6 @@ class BLDCMotor(BaseModel):
         self.m_Hc = kwargs.get('magnet_Hc', 724000)
         self.m_conductivity = kwargs.get('magnet_conductivity', 1.176e6)
         self.m_angle= kwargs.get('magnet_angle', 90.0)
-
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -387,6 +385,7 @@ class BLDCMotor(BaseModel):
             self.geom.merge_geometry(si.geom)
             self.assign_material(*label1.rotate(math.radians(i * unitangle)), winding[i])
             self.assign_material(*label2.rotate(math.radians(i * unitangle)), 'air')
+
 
     def build_geometry(self):
         self.build_rotor()

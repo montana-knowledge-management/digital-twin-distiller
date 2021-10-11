@@ -112,15 +112,24 @@ def plot_cogging(data:list):
     w,h = get_width_height(type_='double', unit='inch')
     fig, ax = plt.subplots(nrows=2, ncols=2, sharey=True, sharex=True, figsize=(w,h))
     xref, yref = csv_read(ModelDir.DATA /'cogging_toruqe.csv')
+    refmax = 2*max(yref)
+    refrms = rms(yref)
+    print("REF:", "P2P:", refmax, "RMS", refrms, sep='\t')
 
     #### Full-Factorial
     dmin, *d, dmax = filter_data(data, 'ff')
     N = len(d) + 2
     z=10
+    doemin = 2*max(dmin[1])
+    doemax = 2*max(dmax[1])
+    rmsmin = rms(dmin[1])
+    rmsmax = rms(dmax[1])
+    # print("Full-Factorial:", doemin, doemax, (doemin - refmax) / refmax * 100, (doemax - refmax) / refmax * 100)
+    print("Full-Factorial:", rmsmin, rmsmax, (rmsmin - refrms) / refrms * 100, (rmsmax - refrms) / refrms * 100)
 
-    c_ff = 'dimgray'
-    cf_ff = 'lightgray'
-    c_doe= 'darkgoldenrod'
+    c_ff   = 'dimgray'
+    cf_ff  = 'lightgray'
+    c_doe  = 'darkgoldenrod'
     cf_doe = 'navajowhite'
 
     for i in range(2):
@@ -134,16 +143,28 @@ def plot_cogging(data:list):
     dmin, *d, dmax = filter_data(data, 'bb')
     N = len(d) + 2
     z = 10
+    doemin = 2*max(dmin[1])
+    doemax = 2*max(dmax[1])
+    rmsmin = rms(dmin[1])
+    rmsmax = rms(dmax[1])
+    # print("Box-Behnken:", doemin, doemax, (doemin - refmax) / refmax * 100, (doemax - refmax) / refmax * 100)
+    print("Box-Behnken:", rmsmin, rmsmax, (rmsmin - refrms) / refrms * 100, (rmsmax - refrms) / refrms * 100)
     ax[0][0].plot(dmin[0], dmin[1], color=c_doe, lw=1, label=f'Box-Behnken ({N})', zorder=z)
     ax[0][0].plot(dmax[0], dmax[1], color=c_doe, lw=1, zorder=z)
     ax[0][0].fill_between(dmin[0], dmin[1], dmax[1], color=cf_doe, zorder=z)
     # ax[0].set_title('a)', y=-0.3, fontsize=10)
 
 
-    ## Box-Behnken
+    ## Plackett-Burman
     dmin, *d, dmax = filter_data(data, 'pb')
     N = len(d) + 2
     z = 10
+    doemin = 2*max(dmin[1])
+    doemax = 2*max(dmax[1])
+    rmsmin = rms(dmin[1])
+    rmsmax = rms(dmax[1])
+    # print("Plackett-Burman:", doemin, doemax, (doemin - refmax) / refmax * 100, (doemax - refmax) / refmax * 100)
+    print("Plackett-Burman:", rmsmin, rmsmax, (rmsmin - refrms) / refrms * 100, (rmsmax - refrms) / refrms * 100)
     ax[0][1].plot(dmin[0], dmin[1], color=c_doe, lw=1, label=f'Plackett-Burman ({N})', zorder=z)
     ax[0][1].plot(dmax[0], dmax[1], color=c_doe, lw=1, zorder=z)
     ax[0][1].fill_between(dmin[0], dmin[1], dmax[1], color=cf_doe, zorder=z)
@@ -153,6 +174,12 @@ def plot_cogging(data:list):
     dmin, *d, dmax = filter_data(data, 'ccf')
     N = len(d) + 2
     z = 10
+    doemin = 2*max(dmin[1])
+    doemax = 2*max(dmax[1])
+    rmsmin = rms(dmin[1])
+    rmsmax = rms(dmax[1])
+    # print("CCF:", doemin, doemax, (doemin - refmax) / refmax * 100, (doemax - refmax) / refmax * 100)
+    print("CCF:", rmsmin, rmsmax, (rmsmin - refrms) / refrms * 100, (rmsmax - refrms) / refrms * 100)
     ax[1][0].plot(dmin[0], dmin[1], color=c_doe, lw=1, label=f'CCF ({N})', zorder=z)
     ax[1][0].plot(dmax[0], dmax[1], color=c_doe, lw=1, zorder=z)
     ax[1][0].fill_between(dmin[0], dmin[1], dmax[1], color=cf_doe, zorder=z)
@@ -162,6 +189,12 @@ def plot_cogging(data:list):
     dmin, *d, dmax = filter_data(data, 'taguchi')
     N = len(d) + 2
     z = 10
+    doemin = 2*max(dmin[1])
+    doemax = 2*max(dmax[1])
+    rmsmin = rms(dmin[1])
+    rmsmax = rms(dmax[1])
+    # print("Taguchi:", doemin, doemax, (doemin - refmax) / refmax * 100, (doemax - refmax) / refmax * 100)
+    print("Taguchi:", rmsmin, rmsmax, (rmsmin - refrms) / refrms * 100, (rmsmax - refrms) / refrms * 100)
     ax[1][1].plot(dmin[0], dmin[1], color=c_doe, lw=1, label=f'Taguchi ({N})', zorder=z)
     ax[1][1].plot(dmax[0], dmax[1], color=c_doe, lw=1, zorder=z)
     ax[1][1].fill_between(dmin[0], dmin[1], dmax[1], color=cf_doe, zorder=z)
@@ -289,9 +322,9 @@ def doe_plot():
         x_, y_ = get_polyfit(x, y, N=301)
         data.append((x_, y_, rms(y_), max(y)*2, int(fi.stem[2:])))
 
-    # plot_cogging(data)
+    plot_cogging(data)
     # plot_pp_dist(data)
-    plot_rms_dist(data)
+    # plot_rms_dist(data)
 
 if __name__ == "__main__":
     # doe_full_factorial()

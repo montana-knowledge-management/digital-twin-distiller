@@ -1,15 +1,16 @@
+from adze_modeler.modelpaths import ModelDir
 from adze_modeler.server import Server
 from adze_modeler.simulation import sim
 from model import BLDCMotor
 from multiprocessing import Pool
 from time import perf_counter
 from numpy import linspace
+from random import normalvariate
 
 def execute_model(model: BLDCMotor):
     t0 = perf_counter()
     result = model(timeout=2000, cleanup=False)
     t1 = perf_counter()
-    result["Torque"] *= 8
     return result
 
 
@@ -36,10 +37,29 @@ def cogging_torque(model, modelparams, simprams, miscparams):
 
     return results
 
+@sim.register('tol1')
+def tol1(model, modelparams, simprams, miscparams):
+    r1 = modelparams['r1']
+    r2 = modelparams['r2']
+    return {'Torque': normalvariate(r1, r2), "dummy": [0, 0, r1*r2]}
+
+@sim.register('tol2')
+def tol2(model, modelparams, simprams, miscparams):
+    r1 = modelparams['r1']
+    r2 = modelparams['r2']
+    r = []
+    for i in range(simprams['nsteps']):
+        r.append({'Torque': normalvariate(r1, r2)+i, "dummy": [0, 0, i*r1 * r2]})
+    return r
+
+
 
 if __name__=='__main__':
 
+    # TODO: make the __file__ go away
+    ModelDir.set_base(__file__)
     # set the model for the simulation
     sim.set_model(BLDCMotor)
+
     model = Server(sim)
     model.run()

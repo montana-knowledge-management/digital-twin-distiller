@@ -26,18 +26,18 @@ curl -X 'POST' \
 
 d = {
     "simulation": {
-        "type": "basic"
+        "type": "tol1",
+        "nsteps":3
     },
     "tolerances": {
         "type": "ff",
         "parameters": {
             "r1":0.04,
-            "mw": 0.05
+            "r2": 0.05,
         },
-        "variables": ["Torque"]
+        "variables": ["Torque", "dummy"]
     },
 }
-
 print(json.dumps(d))
 r = requests.post('http://127.0.0.1:5000/process', data=json.dumps(d))
 print(r.json())

@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 
 __all__ = ['ModelDir']
 
@@ -10,8 +11,13 @@ class ModelDir:
     SNAPSHOTS = BASE / "snapshots"
 
     @classmethod
-    def set_base(cls, base_):
-        base_ = Path(base_)
+    def set_base(cls, base_=None):
+        if base_ is None:
+            # base_ = Path(sys.modules[__module].__file__)
+            raise ValueError
+        else:
+            base_ = Path(base_)
+        
         if base_.is_dir():
             cls.BASE = base_
         else:
@@ -21,7 +27,6 @@ class ModelDir:
         cls.DATA = cls.BASE / "data"
         cls.RESOURCES = cls.BASE / "resources"
         cls.SNAPSHOTS = cls.BASE / "snapshots"
-
-
+        cls.DEFAULTS = cls.BASE / "defaults"
 
 
