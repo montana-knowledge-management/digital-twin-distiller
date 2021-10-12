@@ -1,6 +1,5 @@
 from copy import copy
 import math
-from pathlib import Path
 from time import perf_counter
 
 from adze_modeler.boundaries import AntiPeriodicAirGap
