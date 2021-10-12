@@ -14,8 +14,11 @@ class ModelDir:
     @classmethod
     def set_base(cls, base_):
         base_ = Path(base_)
+
+        if base_.suffix:
+            base_ = base_.parent
         
-        cls.BASE = base_.parent
+        cls.BASE = base_
         cls.MEDIA = cls.BASE / "media"
         cls.DATA = cls.BASE / "data"
         cls.RESOURCES = cls.BASE / "resources"
