@@ -6,7 +6,6 @@ pygmsh
 gmsh
 ezdxf
 scipy
-artap
 networkx
 pyvista
 vedo
