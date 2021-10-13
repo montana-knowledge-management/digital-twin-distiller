@@ -147,10 +147,15 @@ class SRM(BaseModel):
         self.geom.merge_geometry(si.geom)
 
     def build_slot(self):
-        s = ModelPiece("stator")
+        s = ModelPiece("slot")
 
         nsl1l = Node(*pol2cart(self.D2 / 2, 90 + self.beta_s))
         nsl1r = Node(*pol2cart(self.D2 / 2, 90 - self.beta_s))
+
+        if (90-self.alpha_s) < self.beta_s:
+            #temp_a1 =
+            #zeta =
+
         #nsl2l =
         #nsl2r =
 
