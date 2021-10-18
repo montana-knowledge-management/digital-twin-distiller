@@ -4,45 +4,47 @@ from adze_modeler.simulation import sim
 from model import PowerTransformer
 from math import pi
 
+
 def execute_model(model: PowerTransformer):
     result = model(timeout=2000, cleanup=True)
     return result
 
 
-@sim.register('short_circuit_impedance')
+@sim.register("short_circuit_impedance")
 def short_circuit_impedance(model, modelparams, simparams, miscparams):
+    S = 6.3e6/3
     f = 50
     Nlv = 708
     Nhv = 650
     ff = 0.85
-    js = simparams['js']
-    jp = simparams['jp']
+    js = simparams["js"]
+    jp = simparams["jp"]
 
-
-    m = PowerTransformer(js=js, jp=jp)
+    # m = PowerTransformer(js=js, jp=jp)
     # res = execute_model(m)
-    res = {'Energy': 562.5688689280591, "ALV": 41118, "AHV": 40139}
-    Wm = res['Energy']
-    Alv = res.pop('ALV')
-    Ahv = res.pop('AHV')
+    res = {"Energy": 256.5673046878133}
+    Wm = res["Energy"]
+    Alv = modelparams['w2'] * modelparams['h2']
+    Ahv = modelparams['w3'] * modelparams['h3']
 
-    Ilv = js * Alv / Nlv
-    Ihv = js * Ahv / Nhv
+    Ilv = js * Alv * ff
+    Ihv = jp * Ahv * ff
 
-    Xlv =  4*f*Wm / (ff*Nlv*Ilv**2)
-    Xhv =  4*f*Wm / (ff*Nhv*Ihv**2)
+    Xlv = 4 * pi * f * Wm / Ilv ** 2
+    Xhv = 4 * pi * f * Wm / Ihv ** 2
 
-    res['Xlv'] = Xlv
-    res['Xhv'] = Xhv
+    res["Xlv"] = Xlv * Ilv ** 2 / (2 * S)
+    res["Xhv"] = Xhv * Ihv ** 2 / (2 * S)
 
     return res
 
+
 if __name__ == "__main__":
-    
     ModelDir.set_base(__file__)
 
     # set the model for the simulation
     sim.set_model(PowerTransformer)
 
     model = Server(sim)
+    # model.build_docs()
     model.run()

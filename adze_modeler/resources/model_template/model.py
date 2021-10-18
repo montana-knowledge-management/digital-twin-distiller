@@ -11,8 +11,7 @@ ModelDir.set_base(__file__)
 class ${name}(BaseModel):
     """docstring for ${name}"""
     def __init__(self, **kwargs):
-        exportname = kwargs.get('exportname', None)
-        super(${name}, self).__init__()
+        super(${name}, self).__init__(**kwargs)
         self._init_directories()
 
     def setup_solver(self):

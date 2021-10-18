@@ -110,13 +110,6 @@ class PowerTransformer(BaseModel):
         self.assign_boundary(*r1.d.mean(r1.c), 'a0')
         self.assign_boundary(*r1.a.mean(r1.d), 'a0')
         self.assign_boundary(*r1.b.mean(r1.c), 'a0')
-
-    def __call__(self, cleanup=True, devmode=False, timeout=1e5):
-        res = super().__call__(cleanup=cleanup, devmode=devmode, timeout=timeout)
-        res['ALV'] = self.w2 * self.h2
-        res['AHV'] = self.w3 * self.h3
-        return res
-
         
 
 if __name__ == "__main__":

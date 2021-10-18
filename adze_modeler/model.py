@@ -25,7 +25,7 @@ class BaseModel(metaclass=ABCMeta):
             exportname: A specific name for a Model instance instead of a random generated string.
 
         """
-        self.name = kwargs.get('exportname', str(uuid4()))
+        self.name = kwargs.get('exportname') or str(uuid4())
         self.dir_current = Path(sys.modules[self.__module__].__file__).parent
         self.dir_resources = self.dir_current / "resources"
         self.dir_snapshots = self.dir_current / "snapshots"
