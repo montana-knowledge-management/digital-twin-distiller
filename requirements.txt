@@ -6,7 +6,6 @@ pygmsh
 gmsh
 ezdxf
 scipy
-artap
 networkx
 pyvista
 vedo
@@ -18,4 +17,4 @@ uvicorn
 mkdocs
 mkdocstrings
 mkdocs-material
-mkdocs-git-revision-plugin
+mkdocs-git-revision-date-plugin

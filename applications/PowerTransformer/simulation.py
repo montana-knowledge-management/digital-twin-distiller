@@ -20,9 +20,9 @@ def short_circuit_impedance(model, modelparams, simparams, miscparams):
     js = simparams["js"]
     jp = simparams["jp"]
 
-    # m = PowerTransformer(js=js, jp=jp)
-    # res = execute_model(m)
-    res = {"Energy": 256.5673046878133}
+    m = PowerTransformer(js=js, jp=jp)
+    res = execute_model(m)
+    # res = {"Energy": 256.5673046878133}
     Wm = res["Energy"]
     Alv = modelparams['w2'] * modelparams['h2']
     Ahv = modelparams['w3'] * modelparams['h3']
@@ -31,10 +31,8 @@ def short_circuit_impedance(model, modelparams, simparams, miscparams):
     Ihv = jp * Ahv * ff
 
     Xlv = 4 * pi * f * Wm / Ilv ** 2
-    Xhv = 4 * pi * f * Wm / Ihv ** 2
 
-    res["Xlv"] = Xlv * Ilv ** 2 / (2 * S)
-    res["Xhv"] = Xhv * Ihv ** 2 / (2 * S)
+    res["Xpu"] = Xlv * Ilv ** 2 / (2 * S) * 2
 
     return res
 
@@ -47,4 +45,6 @@ if __name__ == "__main__":
 
     model = Server(sim)
     # model.build_docs()
+    model.host = "127.0.0.1"
+    model.port = 5000
     model.run()

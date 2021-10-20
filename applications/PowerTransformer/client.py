@@ -33,6 +33,5 @@ res = requests.post(url, data=json.dumps(data)).json().get('res')
 print(res)
 
 
-ws["B20"] = round(res['Xlv']*100, 3)
-ws["B21"] = round(res['Xhv']*100, 3)
+ws["B20"] = round(res['Xpu']*100, 3)
 wb.save(filename=file_)
