@@ -7,9 +7,8 @@ from adze_modeler.metadata import FemmMetadata
 from adze_modeler.platforms.femm import Femm
 from adze_modeler.snapshot import Snapshot
 from adze_modeler.material import Material
-from adze_modeler.boundaries import DirichletBoundaryCondition, AntiPeriodicBoundaryCondition, AntiPeriodicAirGap
+from adze_modeler.boundaries import DirichletBoundaryCondition, PeriodicBoundaryCondition, AntiPeriodicAirGap
 from adze_modeler.modelpaths import ModelDir
-from adze_modeler.geometry import Geometry
 from adze_modeler.modelpiece import ModelPiece
 from adze_modeler.objects import CircleArc, Line, Node
 
@@ -74,10 +73,6 @@ class SRM(BaseModel):
         self.alpha = -kwargs.get('alpha', 0.0)
         self.origin = Node(0, 0)
 
-        ## GEOMETRY
-        self.depth = kwargs.get('depth', 0.0)
-        self.temp1 = kwargs.get('temp1', None)
-
         ## BOUNDARIES
         self.ag1l = kwargs.get('ag1l', None)
         self.ag1r = kwargs.get('ag1r', None)
@@ -101,7 +96,7 @@ class SRM(BaseModel):
         self.D3 = kwargs.get('D3', 59.5)  # Rotor bore diameter [mm]
         self.D4 = kwargs.get('D4', 10.0)  # Rotor inner diameter [mm]
         self.T1 = kwargs.get('T1', 6.4)  # Core thickness [mm]
-        self.beta_r = kwargs.get('beta_r', 29.0)  # Rotor pole angle [°]
+        self.beta_r = kwargs.get('beta_r', 30.0)  # Rotor pole angle [°]
         self.alpha_r = kwargs.get('alpha_r', 0.0)  # Rotor tooth angle [°]
         #self.R_br = kwargs.get('R_br', 0.0)  # Rotor bifurcation radius [mm]
         self.gamma_r = kwargs.get('gamma_r', 15.0)  # Rotor pole angle [°]
@@ -125,8 +120,15 @@ class SRM(BaseModel):
         self.msh_size_airgap = kwargs.get('msh_size_airgap', 0.18)
         self.msh_size_magnets = kwargs.get('msh_size_magnets', 0.18)
 
-        ## MATERIAL
+        ## GEOMETRY
+        self.depth = kwargs.get('depth', 0.0)
+        self.temp1 = kwargs.get('temp1', None)
+        self.unitangle_z = kwargs.get('unitangle_z', 360/self.Z)
+        self.unitangle_p = kwargs.get('unitangle_p', 360/(2*self.p))
 
+        ## MATERIAL
+        self.half_stator = kwargs.get('half_stator', (self.D1 / 2 - self.D2 / 2) / 2 + self.D2 / 2)
+        self.half_rotor = kwargs.get('half_rotor', (self.D3 / 2 - self.D4 / 2 - self.T1) / 2 + self.D4 / 2 + self.T1)
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -216,47 +218,48 @@ class SRM(BaseModel):
 
     def define_boundary_conditions(self):
         a0 = DirichletBoundaryCondition("A0", field_type="magnetic", magnetic_potential=0.0)
-        apb1 = AntiPeriodicBoundaryCondition("APB1", field_type="magnetic")
-        apb2 = AntiPeriodicBoundaryCondition("APB2", field_type="magnetic")
-        apb3 = AntiPeriodicBoundaryCondition("APB3", field_type="magnetic")
-        apb4 = AntiPeriodicBoundaryCondition("APB4", field_type="magnetic")
-        apb5 = AntiPeriodicBoundaryCondition("APB5", field_type="magnetic")
-        apb6 = AntiPeriodicBoundaryCondition("APB6", field_type="magnetic")
-        apb7 = AntiPeriodicBoundaryCondition("APB7", field_type="magnetic")
+        pb1 = PeriodicBoundaryCondition("PB1", field_type="magnetic")
+        pb2 = PeriodicBoundaryCondition("PB2", field_type="magnetic")
+        pb3 = PeriodicBoundaryCondition("PB3", field_type="magnetic")
+        pb4 = PeriodicBoundaryCondition("PB4", field_type="magnetic")
+        pb5 = PeriodicBoundaryCondition("PB5", field_type="magnetic")
+        pb6 = PeriodicBoundaryCondition("PB6", field_type="magnetic")
+        pb7 = PeriodicBoundaryCondition("PB7", field_type="magnetic")
         slidingband = AntiPeriodicAirGap("slidingband", field_type="magnetic", outer_angle=self.rotorangle)
 
         # Adding boundary conditions to the snapshot
         self.snapshot.add_boundary_condition(a0)
-        self.snapshot.add_boundary_condition(apb1)
-        self.snapshot.add_boundary_condition(apb2)
-        self.snapshot.add_boundary_condition(apb3)
-        self.snapshot.add_boundary_condition(apb4)
-        self.snapshot.add_boundary_condition(apb5)
-        self.snapshot.add_boundary_condition(apb6)
-        self.snapshot.add_boundary_condition(apb7)
+        self.snapshot.add_boundary_condition(pb1)
+        self.snapshot.add_boundary_condition(pb2)
+        self.snapshot.add_boundary_condition(pb3)
+        self.snapshot.add_boundary_condition(pb4)
+        self.snapshot.add_boundary_condition(pb5)
+        self.snapshot.add_boundary_condition(pb6)
+        self.snapshot.add_boundary_condition(pb7)
 
         self.snapshot.add_boundary_condition(slidingband)
 
     def add_postprocessing(self):
-        half_rotor = (self.D3 / 2 - self.D4 / 2 - self.T1) / 2 + self.D4 / 2 + self.T1
 
         points = [
             pol2cart((self.D4/2 + self.T1) / 2, 90),
-            pol2cart(half_rotor, 90),
-            pol2cart(half_rotor, 90 + (360 / (2 * self.p)) / 3),
-            pol2cart(half_rotor, 90 - (360 / (2 * self.p)) / 3),
+            pol2cart(self.half_rotor, 90),
+            pol2cart(self.half_rotor, 90 + (360 / (2 * self.p)) / 2),
+            pol2cart(self.half_rotor, 90 - (360 / (2 * self.p)) / 2),
+            pol2cart(self.half_rotor, 1),
+            pol2cart(self.half_rotor, 179),
         ]
         self.snapshot.add_postprocessing("integration", points, "Torque")
 
     def build_rotor(self):
         s = ModelPiece("rotor")
 
-        nr1l = Node(*pol2cart(self.D4/2, 90+(360/(2*self.p))/2))
-        nr1r = Node(*pol2cart(self.D4/2, 90-(360/(2*self.p))/2))
-        nr2l = Node(*pol2cart(self.D4/2+self.T1, 90+(360/(2*self.p))/2))
-        nr2r = Node(*pol2cart(self.D4/2+self.T1, 90-(360/(2*self.p))/2))
-        nr3l = Node(*pol2cart(self.D3/2, 90+(360/(2*self.p))/2))
-        nr3r = Node(*pol2cart(self.D3/2, 90-(360/(2*self.p))/2))
+        nr1l = Node(*pol2cart(self.D4/2, 90+(360/(2*self.p))))
+        nr1r = Node(*pol2cart(self.D4/2, 90-(360/(2*self.p))))
+        nr2l = Node(*pol2cart(self.D4/2+self.T1, 90+(360/(2*self.p))))
+        nr2r = Node(*pol2cart(self.D4/2+self.T1, 90-(360/(2*self.p))))
+        nr3l = Node(*pol2cart(self.D3/2, 90+(360/(2*self.p))))
+        nr3r = Node(*pol2cart(self.D3/2, 90-(360/(2*self.p))))
 
         s.geom.add_arc(CircleArc(nr1r, self.origin, nr1l, max_seg_deg=1))
         s.geom.add_arc(CircleArc(nr2r, self.origin, nr2l, max_seg_deg=1))
@@ -274,10 +277,12 @@ class SRM(BaseModel):
         self.geom.merge_geometry(si.geom)
 
         self.assign_boundary_arc(*Node(0, self.D4/2), "A0")
-        self.assign_boundary(*((nr1l + nr2l) / 2), "APB1")
-        self.assign_boundary(*((nr1r + nr2r) / 2), "APB1")
-        self.assign_boundary(*((nr2l + nr3l) / 2), "APB2")
-        self.assign_boundary(*((nr2r + nr3r) / 2), "APB2")
+        self.assign_boundary(*((nr1l + nr2l) / 2), "PB1")
+        self.assign_boundary(*((nr1r + nr2r) / 2), "PB1")
+        self.assign_boundary(*((nr2l + nr3l) / 2), "PB2")
+        self.assign_boundary(*((nr2r + nr3r) / 2), "PB2")
+
+        self.assign_material(0, (self.D4 + self.T1) / 2, 'rotor_steel')
 
     def build_rotorpole(self):
         s = ModelPiece("rotorpole")
@@ -317,21 +322,36 @@ class SRM(BaseModel):
         nrp1l = Node(*pol2cart(self.D4 / 2 + self.T1, 90 + omega))
         nrp1r = Node(*pol2cart(self.D4 / 2 + self.T1, 90 - omega))
 
-        s.geom.add_line(Line(nrp1r, nrp2r))
-        s.geom.add_line(Line(nrp1l, nrp2l))
+        sl = ModelPiece("coil_left")
+        sl.geom.add_line(Line(nrp1l, nrp2l))
+        sr = ModelPiece("coil_right")
+        sr.geom.add_line(Line(nrp1r, nrp2r))
 
-        si = copy(s)
-        self.geom.merge_geometry(si.geom)
+        for i in range(2):
+            sri = copy(sr)
+            sri.rotate(alpha=i * self.unitangle_p)
+            self.geom.merge_geometry(sri.geom)
+
+        for i in range(2):
+            sli = copy(sl)
+            sli.rotate(alpha=-i * self.unitangle_p)
+            self.geom.merge_geometry(sli.geom)
+
+        self.assign_material(*pol2cart(self.half_rotor, 90), 'rotor_steel')
+        self.assign_material(*pol2cart(self.half_rotor, 1), 'rotor_steel')
+        self.assign_material(*pol2cart(self.half_rotor, 179), 'rotor_steel')
+        self.assign_material(*pol2cart(self.half_rotor, 90 + (360 / (2 * self.p)) / 2), 'air')  # rotor air left
+        self.assign_material(*pol2cart(self.half_rotor, 90 - (360 / (2 * self.p)) / 2), 'air')  # rotor air right
 
     def build_stator(self):
         s = ModelPiece("stator")
 
-        ns1l = Node(*pol2cart(self.D2 / 2, 90 + (360 / (2 * self.p))/2))
-        ns1r = Node(*pol2cart(self.D2 / 2, 90 - (360 / (2 * self.p))/2))
-        ns2l = Node(*pol2cart(self.D2/2 + self.T2, 90 + (360 / (2 * self.p))/2))
-        ns2r = Node(*pol2cart(self.D2/2 + self.T2, 90 - (360 / (2 * self.p))/2))
-        ns3l = Node(*pol2cart(self.D1 / 2, 90 + (360 / (2 * self.p))/2))
-        ns3r = Node(*pol2cart(self.D1 / 2, 90 - (360 / (2 * self.p))/2))
+        ns1l = Node(*pol2cart(self.D2 / 2, 90 + (360 / (2 * self.p))))
+        ns1r = Node(*pol2cart(self.D2 / 2, 90 - (360 / (2 * self.p))))
+        ns2l = Node(*pol2cart(self.D2/2 + self.T2, 90 + (360 / (2 * self.p))))
+        ns2r = Node(*pol2cart(self.D2/2 + self.T2, 90 - (360 / (2 * self.p))))
+        ns3l = Node(*pol2cart(self.D1 / 2, 90 + (360 / (2 * self.p))))
+        ns3r = Node(*pol2cart(self.D1 / 2, 90 - (360 / (2 * self.p))))
 
         s.geom.add_arc(CircleArc(ns1r, self.origin, ns1l, max_seg_deg=1))
         s.geom.add_arc(CircleArc(ns2r, self.origin, ns2l, max_seg_deg=1))
@@ -349,11 +369,12 @@ class SRM(BaseModel):
         self.geom.merge_geometry(si.geom)
 
         self.assign_boundary_arc(*Node(0, self.D1 / 2), "A0")
-        self.assign_boundary(*((ns1l + ns2l) / 2), "APB6")
-        self.assign_boundary(*((ns1r + ns2r) / 2), "APB6")
-        self.assign_boundary(*((ns2l + ns3l) / 2), "APB7")
-        self.assign_boundary(*((ns2r + ns3r) / 2), "APB7")
+        self.assign_boundary(*((ns1l + ns2l) / 2), "PB6")
+        self.assign_boundary(*((ns1r + ns2r) / 2), "PB6")
+        self.assign_boundary(*((ns2l + ns3l) / 2), "PB7")
+        self.assign_boundary(*((ns2r + ns3r) / 2), "PB7")
 
+        self.assign_material(0, (self.D1 / 2 - self.D2 / 2 - self.T2) / 2 + self.D2 / 2 + self.T2, 'stator_steel')
 
     def build_tooth(self):
         s = ModelPiece("tooth")
@@ -397,14 +418,27 @@ class SRM(BaseModel):
 
         s.geom.add_line(Line(ntl1r, ntl2r))
         s.geom.add_line(Line(ntl1l, ntl2l))
+        label1 = Node(0, self.half_stator)
 
-        si = copy(s)
-        self.geom.merge_geometry(si.geom)
+        label1 = label1.rotate(math.radians(-self.unitangle_z))
+        s.rotate(alpha=-self.unitangle_z)
+        for i in range(3):
+            si = copy(s)
+            si.rotate(alpha=i * self.unitangle_z)
+            self.geom.merge_geometry(si.geom)
+            self.assign_material(*label1.rotate(math.radians(i * self.unitangle_z)), 'stator_steel')
+
+        label2 = Node(*pol2cart(self.half_stator, 90 + self.unitangle_z / 2 - 1 ))
+        label3 = Node(*pol2cart(self.half_stator, 90 - self.unitangle_z / 2 + 1 ))
+        for i in range(2):
+            self.assign_material(*label2.rotate(math.radians(i * self.unitangle_z)), 'air')
+            self.assign_material(*label3.rotate(math.radians(-i * self.unitangle_z)), 'air')
 
         self.rect1 = ntl1r
         self.rect2 = ntl2r
 
     def build_coil(self):
+        s = ModelPiece("coil")
 
         temp = Node(0, self.D2/2 + self.T2)
         x = temp.distance_to(self.temp1)
@@ -451,22 +485,14 @@ class SRM(BaseModel):
         ncl1l = Node(*pol2cart(self.D2 / 2, 90 + omega))
         ncl1r = Node(*pol2cart(self.D2 / 2, 90 - omega))
 
-        sl = ModelPiece("coil_left")
-        sl.geom.add_line(Line(ncl1l, ncl2l))
-        sr = ModelPiece("coil_right")
-        sr.geom.add_line(Line(ncl1r, ncl2r))
+        s.geom.add_line(Line(ncl1l, ncl2l))
+        s.geom.add_line(Line(ncl1r, ncl2r))
 
-        unitangle = 360/self.Z
-
-        for i in range(2):
-            sri = copy(sr)
-            sri.rotate(alpha=i * unitangle)
-            self.geom.merge_geometry(sri.geom)
-
-        for i in range(2):
-            sli = copy(sl)
-            sli.rotate(alpha=-i * unitangle)
-            self.geom.merge_geometry(sli.geom)
+        s.rotate(alpha=-self.unitangle_z)
+        for i in range(3):
+            si = copy(s)
+            si.rotate(alpha=i * self.unitangle_z)
+            self.geom.merge_geometry(si.geom)
 
         ## EXCITATION
         self.rect3 = ncl1r
@@ -544,12 +570,12 @@ class SRM(BaseModel):
         si = copy(s)
         self.geom.merge_geometry(si.geom)
 
-        self.assign_boundary(*((self.ag2l - self.ag1l) / 3 / 2 + self.ag1l), "APB3")
-        self.assign_boundary(*((self.ag2r - self.ag1r) / 3 / 2 + self.ag1r), "APB3")
-        self.assign_boundary(*((self.nslbl1 + self.nslbl2) / 2), "APB4")
-        self.assign_boundary(*((self.nslbr1 + self.nslbr2) / 2), "APB4")
-        self.assign_boundary(*((self.ag2l - self.ag1l) / -3 / 2 + self.ag2l), "APB5")
-        self.assign_boundary(*((self.ag2r - self.ag1r) / -3 / 2 + self.ag2r), "APB5")
+        self.assign_boundary(*((self.ag2l - self.ag1l) / 3 / 2 + self.ag1l), "PB3")
+        self.assign_boundary(*((self.ag2r - self.ag1r) / 3 / 2 + self.ag1r), "PB3")
+        self.assign_boundary(*((self.nslbl1 + self.nslbl2) / 2), "PB4")
+        self.assign_boundary(*((self.nslbr1 + self.nslbr2) / 2), "PB4")
+        self.assign_boundary(*((self.ag2l - self.ag1l) / -3 / 2 + self.ag2l), "PB5")
+        self.assign_boundary(*((self.ag2r - self.ag1r) / -3 / 2 + self.ag2r), "PB5")
 
         self.assign_boundary_arc(0, self.slb_rotor.apex_pt.y, "slidingband")
         self.assign_boundary_arc(0, self.slb_stator.apex_pt.y, "slidingband")
@@ -558,22 +584,8 @@ class SRM(BaseModel):
 
         self.assign_material(0, (self.slb_rotor.apex_pt.y + self.D3/2) / 2, 'airgap')
         self.assign_material(0, (self.slb_stator.apex_pt.y + self.D2/2) / 2, 'airgap')
-
-        self.assign_material(0, (self.D4 + self.T1)/2, 'rotor_steel')  # rotor
-
-        half_rotor = (self.D3/2 - self.D4/2 - self.T1)/2 + self.D4/2 + self.T1
-        self.assign_material(0, half_rotor, 'rotor_steel')  # rotor pole
-
-        self.assign_material(*pol2cart(half_rotor, 90 + (360 / (2 * self.p)) / 3), 'air')  # rotor air left
-        self.assign_material(*pol2cart(half_rotor, 90 - (360 / (2 * self.p)) / 3), 'air')  # rotor air right
-
-        self.assign_material(0, (self.D1/2 - self.D2/2 - self.T2)/2 + self.D2/2 + self.T2, 'stator_steel')  # stator rose
-
-        half_stator = (self.D1 / 2 - self.D2 / 2 ) / 2 + self.D2 / 2
-        self.assign_material(0, half_stator, 'stator_steel')  # tooth
-
-        self.assign_material(*pol2cart(half_stator, 90 + (360 / (2 * self.p)) / 3), 'air')  # stator air left
-        self.assign_material(*pol2cart(half_stator, 90 - (360 / (2 * self.p)) / 3), 'air')  # stator air right
+        airgap = (self.D3 / 2 - self.D2 / 2) / 2 + self.D2 / 2
+        self.assign_material(0, airgap, 'airgap')
 
         D1 = (self.rect1.x - self.rect4.x) * (self.rect2.y - self.rect3.y)
         D2 = (self.rect1.y - self.rect4.y) * (self.rect2.x - self.rect3.x)
@@ -587,29 +599,17 @@ class SRM(BaseModel):
         ef_int_y2 = (self.rect2.x * self.rect3.y - self.rect2.y * self.rect3.x) * (self.rect1.y - self.rect4.y)
         ef_int_y = (ef_int_y1 - ef_int_y2) / D
 
-        sl = ModelPiece("winding_left")
         label_left = Node(-ef_int_x, ef_int_y)
-        sl.geom.add_node(label_left)
-        sr = ModelPiece("winding_right")
         label_right = Node(ef_int_x, ef_int_y)
-        sr.geom.add_node(label_right)
+        winding_left = ['U+', 'V+', 'W+']
+        winding_right = ['U-', 'V-', 'W-']
 
-        unitangle = 360 / self.Z
-        winding_left = ['W+', 'V+', 'U+', 'W+', 'V+', 'U+']
-        winding_right = ['W-', 'V-', 'U-', 'W-', 'V-', 'U-']
+        label_left = label_left.rotate(math.radians(-self.unitangle_z))
+        label_right = label_right.rotate(math.radians(-self.unitangle_z))
 
-        for i in range(2):
-            sli = copy(sl)
-            sli.rotate(alpha=-i * unitangle)
-            self.assign_material(*label_left.rotate(math.radians(-i * unitangle)), winding_left[-i])
-
-        for i in range(2):
-            sri = copy(sr)
-            sri.rotate(alpha=i * unitangle)
-            self.assign_material(*label_right.rotate(math.radians(i * unitangle)), winding_right[i])
-
-        airgap = (self.D3/2 - self.D2/2)/2 + self.D2/2
-        self.assign_material(0, airgap, 'airgap')
+        for i in range(3):
+            self.assign_material(*label_left.rotate(math.radians(i * self.unitangle_z)), winding_left[i])
+            self.assign_material(*label_right.rotate(math.radians(i * self.unitangle_z)), winding_right[i])
 
     def build_geometry(self):
         self.build_rotor()
@@ -635,4 +635,4 @@ def execute_model(model: SRM):
 
 if __name__ == "__main__":
     m = SRM(exportname="dev")
-    print(m(devmode=True))
+    print(m(devmode=False))

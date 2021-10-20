@@ -55,7 +55,7 @@ class BaseModel(metaclass=ABCMeta):
         """
         self.geom.add_line(obj.Line(obj.Node(x0, y0), obj.Node(x1, y1)))
 
-    def assign_material(self, x, y, name):
+    def assign_material(self, x, y, name) -> object:
         """
         Place a block label at the x,y coordinates.
 
