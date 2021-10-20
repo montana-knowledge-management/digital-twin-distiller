@@ -630,7 +630,6 @@ def execute_model(model: SRM):
         print(torque)
     except Exception as e:
         return None
-    # print(f"\t{abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {torque:.3f} Nm \t {t1-t0:.2f} s")
     return torque
 
 if __name__ == "__main__":
