@@ -25,7 +25,6 @@ tox.ini
 .travis.yml
 venv
 .vim
-snapshots
 
 
 
