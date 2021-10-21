@@ -124,6 +124,9 @@ class Node:
         """
         return math.acos((self @ other) / (self.length() * other.length()))
 
+    def mean(self, other):
+        return (self + other) / 2
+
 
 class Line:
     """A directed line, which is defined by the (start -> end) points"""
@@ -225,7 +228,6 @@ class Line:
         return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
         # return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt}, id={hex(self.id)[-5:]})"
 
-
 class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
@@ -283,7 +285,6 @@ class CircleArc:
             self.__class__.__name__, self.start_pt, self.center_pt, self.end_pt, self.id, self.label
         )
 
-
 class CubicBezier:
     def __init__(self, start_pt, control1, control2, end_pt, id=None, label=None):
         self.start_pt = start_pt
@@ -297,7 +298,6 @@ class CubicBezier:
         return "{}({!r}, {!r}, {!r}, {!r}, id={!r},label={!r})".format(
             self.__class__.__name__, self.start_pt, self.control1, self.control2, self.end_pt, self.id, self.label
         )
-
 
 class ParametricBezier:
     def __init__(self, **kwargs):
@@ -363,7 +363,6 @@ class ParametricBezier:
         )
 
         return X, Y
-
 
 class Rectangle:
     def __init__(self, x0: float = 0.0, y0: float = 0.0, **kwargs):

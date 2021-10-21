@@ -36,23 +36,6 @@ def cogging_torque(model, modelparams, simprams, miscparams):
 
     return results
 
-@sim.register('tol1')
-def tol1(model, modelparams, simprams, miscparams):
-    r1 = modelparams['r1']
-    r2 = modelparams['r2']
-    return {'Torque': normalvariate(r1, r2), "dummy": [0, 0, r1*r2]}
-
-@sim.register('tol2')
-def tol2(model, modelparams, simprams, miscparams):
-    r1 = modelparams['r1']
-    r2 = modelparams['r2']
-    r = []
-    for i in range(simprams['nsteps']):
-        r.append({'Torque': normalvariate(r1, r2)+i, "dummy": [0, 0, i*r1 * r2]})
-    return r
-
-
-
 if __name__=='__main__':
 
     ModelDir.set_base(__file__)

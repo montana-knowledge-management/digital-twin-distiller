@@ -1,9 +1,12 @@
+import subprocess
 import json
 import os.path
+import os
+from pathlib import Path
 import time
+import traceback
+from typing import Dict, Optional
 
-import uvicorn
-from adze_modeler.simulation import Simulation
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi.staticfiles import StaticFiles
@@ -11,8 +14,11 @@ from fastapi.templating import Jinja2Templates
 from importlib_resources import files
 from pydantic import BaseModel
 from pydantic import Extra
-from typing import Optional, Dict
-import traceback
+import uvicorn
+
+from adze_modeler.simulation import Simulation
+from adze_modeler.modelpaths import ModelDir
+
 
 class InputJson(BaseModel):
     """
@@ -36,13 +42,19 @@ app = FastAPI(title="{} API", docs_url="/apidocs", redoc_url=None)
 # Mounting folders of the default mkdocs documentation to the application.
 app.mount(
     "/assets",
-    StaticFiles(directory=files("adze_modeler") / "resources" / "doc_template" / "site" / "assets"),
+    StaticFiles(directory=files("docs") / "site" / "assets"),
     name="assets",
 )
 app.mount(
     "/search",
-    StaticFiles(directory=files("adze_modeler") / "resources" / "doc_template" / "site" / "search"),
+    StaticFiles(directory=files("docs") / "site" / "search"),
     name="search",
+)
+
+app.mount(
+    "/images",
+    StaticFiles(directory=files("docs") / "site" / "images"),
+    name="images",
 )
 
 tags_metadata = [
@@ -78,10 +90,9 @@ async def process(item: InputJson):
         app.project._output['exception'] = {
             "type": e.__class__.__name__,
             "message": str(e),
-            # "traceback": traceback.format_exc()
+            "traceback": traceback.format_exc()
         }
     finally:
-        return app.project._output
         return app.project._output
 
     # app.project._input = data
@@ -125,6 +136,8 @@ class Server:
         self.cert_file_path = None
         self.key_file_path = None
 
+        self.set_project_mkdocs_dir_path(ModelDir.DOCS)
+
     def set_cert_file_path(self, cert_file_path):
         self.cert_file_path = cert_file_path
 
@@ -147,10 +160,23 @@ class Server:
         search_path = os.path.join(mkdocs_path, "search")
         # javascripts_path = os.path.join(asset_path, "javascripts")
         # worker_path = os.path.join(javascripts_path, "workers")
+        if not os.path.exists(asset_path) or not os.path.exists(search_path):
+            raise FileNotFoundError('please build the mkdocs site by calling "mkdocs build" in the docs directory')
+
         self.app.mount("/assets", StaticFiles(directory=asset_path), name="assets")
         self.app.mount("/search", StaticFiles(directory=search_path), name="search")
         # self.app.mount("/assets/javascripts/workers", StaticFiles(directory=worker_path), name="workers")
         # self.app.mount("/assets/javascripts", StaticFiles(directory=javascripts_path), name="workers")
+
+    def build_docs(self):
+        """
+        Build the documentation with mkdocs.
+        """
+        cwd = Path(os.getcwd())
+        os.chdir(ModelDir.DOCS)
+        subprocess.run("mkdocs build", shell=True, check=True)
+        os.chdir(cwd)
+        (ModelDir.DOCS / "site" / "images").resolve().mkdir(exist_ok=True)
 
     def set_host(self, host: str):
         """
@@ -185,5 +211,4 @@ class Server:
 
 
 if __name__ == "__main__":
-
     uvicorn.run("server:app", host="127.0.0.1", port=5000, log_level="info")

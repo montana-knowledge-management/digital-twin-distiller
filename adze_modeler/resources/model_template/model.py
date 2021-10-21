@@ -11,8 +11,7 @@ ModelDir.set_base(__file__)
 class ${name}(BaseModel):
     """docstring for ${name}"""
     def __init__(self, **kwargs):
-        exportname = kwargs.get('exportname', None)
-        super(${name}, self).__init__()
+        super(${name}, self).__init__(**kwargs)
         self._init_directories()
 
     def setup_solver(self):
@@ -22,8 +21,8 @@ class ${name}(BaseModel):
         femm_metadata.file_script_name = self.file_solver_script
         femm_metadata.file_metrics_name = self.file_solution
         femm_metadata.unit = "millimeters"
-        femm_metadata.smartmesh = self.msh_smartmesh
-        femm_metadata.depth = self.depth
+        femm_metadata.smartmesh = True
+        femm_metadata.depth = 1000
 
         self.platform = Femm(femm_metadata)
         self.snapshot = Snapshot(self.platform)
@@ -40,8 +39,8 @@ class ${name}(BaseModel):
         self.snapshot.add_boundary_condition(a0)
 
     def add_postprocessing(self):
-        points = [(0, 0), (0, 0)]
-        self.snapshot.add_postprocessing("integration", points, "Torque")
+        points = [(0, 0)]
+        self.snapshot.add_postprocessing("integration", points, "Energy")
         
     def build_geometry(self):
         # ...

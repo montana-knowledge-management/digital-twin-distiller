@@ -1,6 +1,5 @@
 from copy import copy
 import math
-from pathlib import Path
 from time import perf_counter
 
 from adze_modeler.boundaries import AntiPeriodicAirGap
@@ -50,9 +49,7 @@ class BLDCMotor(BaseModel):
     """
 
     def __init__(self, **kwargs):
-        exportname = kwargs.get('exportname', None)
-
-        super().__init__(exportname)
+        super().__init__(**kwargs)
         self._init_directories()
 
         self.rotorangle = kwargs.get('rotorangle', 0.0)

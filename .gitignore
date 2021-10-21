@@ -9,6 +9,9 @@ __pycache__/
 # Pycharm
 .idea/
 
+# Mkdocs
+site/
+
 # Distribution / packaging
 .Python
 build/
