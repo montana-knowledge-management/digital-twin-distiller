@@ -63,9 +63,7 @@ class SRM(BaseModel):
     """
 
     def __init__(self, **kwargs):
-        exportname = kwargs.get('exportname', None)
-
-        super(SRM, self).__init__()
+        super(SRM, self).__init__(**kwargs)
         self._init_directories()
 
         ## SIMULATION
@@ -112,13 +110,13 @@ class SRM(BaseModel):
         self.rect4 = kwargs.get('rect4', None)
 
         ## MESH SIZES
-        self.msh_smartmesh = kwargs.get('smartmesh', False)
-        self.msh_size_stator_steel = kwargs.get('msh_size_stator_steel', 1.2)
-        self.msh_size_rotor_steel = kwargs.get('msh_size_rotor_steel', 0.18)
+        self.msh_smartmesh = kwargs.get('smartmesh', True)
+        self.msh_size_stator_steel = kwargs.get('msh_size_stator_steel', 1)
+        self.msh_size_rotor_steel = kwargs.get('msh_size_rotor_steel', 1)
         self.msh_size_coils = kwargs.get('msh_size_coils', 1.0)
         self.msh_size_air = kwargs.get('msh_size_air', 1.0)
-        self.msh_size_airgap = kwargs.get('msh_size_airgap', 0.18)
-        self.msh_size_magnets = kwargs.get('msh_size_magnets', 0.18)
+        self.msh_size_airgap = kwargs.get('msh_size_airgap', 1)
+        self.msh_size_magnets = kwargs.get('msh_size_magnets', 1)
 
         ## GEOMETRY
         self.depth = kwargs.get('depth', 0.0)
@@ -225,7 +223,7 @@ class SRM(BaseModel):
         pb5 = PeriodicBoundaryCondition("PB5", field_type="magnetic")
         pb6 = PeriodicBoundaryCondition("PB6", field_type="magnetic")
         pb7 = PeriodicBoundaryCondition("PB7", field_type="magnetic")
-        slidingband = AntiPeriodicAirGap("slidingband", field_type="magnetic", outer_angle=self.rotorangle)
+        slidingband = AntiPeriodicAirGap("slidingband", field_type="magnetic", angle=self.rotorangle)
 
         # Adding boundary conditions to the snapshot
         self.snapshot.add_boundary_condition(a0)
@@ -634,4 +632,4 @@ def execute_model(model: SRM):
 
 if __name__ == "__main__":
     m = SRM(exportname="dev")
-    print(m(devmode=False))
+    print(m(devmode=False, cleanup=False))

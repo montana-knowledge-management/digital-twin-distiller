@@ -7,6 +7,7 @@ from adze_modeler.boundaries import BoundaryCondition
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.boundaries import NeumannBoundaryCondition
 from adze_modeler.boundaries import PeriodicBoundaryCondition
+from adze_modeler.boundaries import PeriodicAirGap
 from adze_modeler.femm_wrapper import femm_current_flow
 from adze_modeler.femm_wrapper import femm_electrostatic
 from adze_modeler.femm_wrapper import femm_heat_flow
@@ -19,6 +20,7 @@ from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
 from adze_modeler.femm_wrapper import MagneticPeriodic
+from adze_modeler.femm_wrapper import MagneticPeriodicAirgap
 from adze_modeler.material import Material
 from adze_modeler.metadata import Metadata
 from adze_modeler.objects import CircleArc
@@ -157,7 +159,11 @@ class Femm(Platform):
 
         if isinstance(b, AntiPeriodicAirGap):
             if self.metadata.problem_type == "magnetic":
-                femm_boundary = MagneticAntiPeriodicAirgap(name=b.name, inner=b.inner_angle, outer=b.outer_angle)
+                femm_boundary = MagneticAntiPeriodicAirgap(name=b.name, angle=b.angle)
+
+        if isinstance(b, PeriodicAirGap):
+            if self.metadata.problem_type == "magnetic":
+                femm_boundary = MagneticPeriodicAirgap(name=b.name, angle=b.angle)
 
         self.write(self.writer.add_boundary(femm_boundary))
 

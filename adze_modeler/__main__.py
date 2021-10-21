@@ -10,13 +10,13 @@ import subprocess
 parser = argparse.ArgumentParser(prog='ADZE', description='Create a new Model')
 parser.add_argument("task", help="Select a task: [new, ]")
 parser.add_argument("name", help="The name of the model", default="MODEL")
-parser.add_argument("-d", help="The location of the model", default="APPLICATIONS")
+parser.add_argument("location", help="The location of the model", default="APPLICATIONS")
 args = parser.parse_args()
 
 SRC = Path(__file__).parent.resolve() / "resources"
 SRC_CODE = SRC / "model_template"
 SRC_DOC= SRC / "doc_template"
-DST = Path(args.d).resolve() / args.name
+DST = Path(args.location).resolve() / args.name
 ModelDir.set_base(DST)
 
 # Creating the directory tree

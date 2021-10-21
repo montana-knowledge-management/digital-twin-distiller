@@ -403,4 +403,4 @@ def execute_model(model: BLDCMotor):
 
 if __name__ == "__main__":
     m = BLDCMotor(rotorangle=15 / 4, exportname="dev")
-    execute_model(m)
+    print(execute_model(m))
