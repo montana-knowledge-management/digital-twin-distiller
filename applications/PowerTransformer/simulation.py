@@ -45,6 +45,6 @@ if __name__ == "__main__":
 
     model = Server(sim)
     # model.build_docs()
-    model.host = "127.0.0.1"
+    model.host = "0.0.0.0"
     model.port = 5000
     model.run()
