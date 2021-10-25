@@ -7,10 +7,12 @@ from adze_modeler.metadata import FemmMetadata
 from adze_modeler.platforms.femm import Femm
 from adze_modeler.snapshot import Snapshot
 from adze_modeler.material import Material
-from adze_modeler.boundaries import DirichletBoundaryCondition, PeriodicBoundaryCondition, AntiPeriodicAirGap
+from adze_modeler.boundaries import DirichletBoundaryCondition, PeriodicBoundaryCondition, AntiPeriodicAirGap, \
+    PeriodicAirGap, AntiPeriodicBoundaryCondition
 from adze_modeler.modelpaths import ModelDir
 from adze_modeler.modelpiece import ModelPiece
 from adze_modeler.objects import CircleArc, Line, Node
+from adze_modeler.utils import csv_write, csv_read
 
 ModelDir.set_base(__file__)
 
@@ -68,7 +70,6 @@ class SRM(BaseModel):
 
         ## SIMULATION
         self.rotorangle = kwargs.get('rotorangle',0.0)
-        self.alpha = -kwargs.get('alpha', 0.0)
         self.origin = Node(0, 0)
 
         ## BOUNDARIES
@@ -102,7 +103,8 @@ class SRM(BaseModel):
         ## EXCITATION (Calculated automatically under build_coil)
         self.half_coil_area = kwargs.get('half_coil_area', None)
         self.Nturns = kwargs.get('Nturns', 257.0)
-        self.I0 = kwargs.get('I0', 1000.0)
+        self.I0 = kwargs.get('I0', 50.0)
+        self.alpha = -kwargs.get('alpha', 0.0)
 
         self.rect1 = kwargs.get('rect1', None)
         self.rect2 = kwargs.get('rect2', None)
@@ -142,6 +144,8 @@ class SRM(BaseModel):
         self.snapshot = Snapshot(self.platform)
 
     def define_materials(self):  # Coils are defined under build_coil.
+        ps_H, ps_B = csv_read(ModelDir.DATA / 'printed_steel_bh.csv')
+
         m19 = Material('M-19 Steel')
 
         self.coil = Material('coil')
@@ -154,55 +158,21 @@ class SRM(BaseModel):
         stator_steel = copy(m19)
         stator_steel.name = 'stator_steel'
         stator_steel.meshsize = self.msh_size_stator_steel
-        stator_steel.thickness = 0.635
-        stator_steel.fill_factor = 0.98
-        stator_steel.conductivity = 1.9e6
-        stator_steel.b = [0.000000, 0.050000, 0.100000, 0.150000, 0.200000,
-                          0.250000, 0.300000, 0.350000, 0.400000, 0.450000, 0.500000,
-                          0.550000, 0.600000, 0.650000, 0.700000, 0.750000, 0.800000,
-                          0.850000, 0.900000, 0.950000, 1.000000, 1.050000, 1.100000,
-                          1.150000, 1.200000, 1.250000, 1.300000, 1.350000, 1.400000,
-                          1.450000, 1.500000, 1.550000, 1.600000, 1.650000, 1.700000,
-                          1.750000, 1.800000, 1.850000, 1.900000, 1.950000, 2.000000,
-                          2.050000, 2.100000, 2.150000, 2.200000, 2.250000, 2.300000]
-        stator_steel.h = [0.000000, 15.120714, 22.718292, 27.842733, 31.871434,
-                          35.365044, 38.600588, 41.736202, 44.873979, 48.087807,
-                          51.437236, 54.975221, 58.752993, 62.823644, 67.245285,
-                          72.084406, 77.420100, 83.350021, 89.999612, 97.537353,
-                          106.201406, 116.348464, 128.547329, 143.765431, 163.754169,
-                          191.868158, 234.833507, 306.509769, 435.255202, 674.911968,
-                          1108.325569, 1813.085468, 2801.217421, 4053.653117,
-                          5591.106890, 7448.318413, 9708.815670, 12486.931615,
-                          16041.483644, 21249.420624, 31313.495878, 53589.446877,
-                          88477.484601, 124329.410540, 159968.569300, 197751.604272,
-                          234024.751347]
+        stator_steel.thickness = 1
+        stator_steel.fill_factor = 1
+        stator_steel.conductivity = 10.44e6
+        stator_steel.b = ps_B
+        stator_steel.h = ps_H
 
         ## ROTOR STEEL
         rotor_steel = copy(m19)
         rotor_steel.name = 'rotor_steel'
         rotor_steel.meshsize = self.msh_size_rotor_steel
-        rotor_steel.thickness = 0.635
-        rotor_steel.fill_factor = 0.98
-        rotor_steel.conductivity = 1.9e6
-        rotor_steel.b = [0.000000, 0.050000, 0.100000, 0.150000, 0.200000,
-                          0.250000, 0.300000, 0.350000, 0.400000, 0.450000, 0.500000,
-                          0.550000, 0.600000, 0.650000, 0.700000, 0.750000, 0.800000,
-                          0.850000, 0.900000, 0.950000, 1.000000, 1.050000, 1.100000,
-                          1.150000, 1.200000, 1.250000, 1.300000, 1.350000, 1.400000,
-                          1.450000, 1.500000, 1.550000, 1.600000, 1.650000, 1.700000,
-                          1.750000, 1.800000, 1.850000, 1.900000, 1.950000, 2.000000,
-                          2.050000, 2.100000, 2.150000, 2.200000, 2.250000, 2.300000]
-        rotor_steel.h = [0.000000, 15.120714, 22.718292, 27.842733, 31.871434,
-                          35.365044, 38.600588, 41.736202, 44.873979, 48.087807,
-                          51.437236, 54.975221, 58.752993, 62.823644, 67.245285,
-                          72.084406, 77.420100, 83.350021, 89.999612, 97.537353,
-                          106.201406, 116.348464, 128.547329, 143.765431, 163.754169,
-                          191.868158, 234.833507, 306.509769, 435.255202, 674.911968,
-                          1108.325569, 1813.085468, 2801.217421, 4053.653117,
-                          5591.106890, 7448.318413, 9708.815670, 12486.931615,
-                          16041.483644, 21249.420624, 31313.495878, 53589.446877,
-                          88477.484601, 124329.410540, 159968.569300, 197751.604272,
-                          234024.751347]
+        rotor_steel.thickness = 1
+        rotor_steel.fill_factor = 1
+        rotor_steel.conductivity = 10.44e6
+        rotor_steel.b = ps_B
+        rotor_steel.h = ps_H
 
         ## AIRGAP
         airgap = copy(air)
@@ -216,13 +186,12 @@ class SRM(BaseModel):
 
     def define_boundary_conditions(self):
         a0 = DirichletBoundaryCondition("A0", field_type="magnetic", magnetic_potential=0.0)
-        pb1 = PeriodicBoundaryCondition("PB1", field_type="magnetic")
-        pb2 = PeriodicBoundaryCondition("PB2", field_type="magnetic")
-        pb3 = PeriodicBoundaryCondition("PB3", field_type="magnetic")
-        pb4 = PeriodicBoundaryCondition("PB4", field_type="magnetic")
-        pb5 = PeriodicBoundaryCondition("PB5", field_type="magnetic")
-        pb6 = PeriodicBoundaryCondition("PB6", field_type="magnetic")
-        pb7 = PeriodicBoundaryCondition("PB7", field_type="magnetic")
+        pb1 = AntiPeriodicBoundaryCondition("PB1", field_type="magnetic")
+        pb2 = AntiPeriodicBoundaryCondition("PB2", field_type="magnetic")
+        pb3 = AntiPeriodicBoundaryCondition("PB3", field_type="magnetic")
+        pb4 = AntiPeriodicBoundaryCondition("PB4", field_type="magnetic")
+        pb5 = AntiPeriodicBoundaryCondition("PB5", field_type="magnetic")
+        pb6 = AntiPeriodicBoundaryCondition("PB6", field_type="magnetic")
         slidingband = AntiPeriodicAirGap("slidingband", field_type="magnetic", angle=self.rotorangle)
 
         # Adding boundary conditions to the snapshot
@@ -233,7 +202,6 @@ class SRM(BaseModel):
         self.snapshot.add_boundary_condition(pb4)
         self.snapshot.add_boundary_condition(pb5)
         self.snapshot.add_boundary_condition(pb6)
-        self.snapshot.add_boundary_condition(pb7)
 
         self.snapshot.add_boundary_condition(slidingband)
 
@@ -367,10 +335,10 @@ class SRM(BaseModel):
         self.geom.merge_geometry(si.geom)
 
         self.assign_boundary_arc(*Node(0, self.D1 / 2), "A0")
-        self.assign_boundary(*((ns1l + ns2l) / 2), "PB6")
-        self.assign_boundary(*((ns1r + ns2r) / 2), "PB6")
-        self.assign_boundary(*((ns2l + ns3l) / 2), "PB7")
-        self.assign_boundary(*((ns2r + ns3r) / 2), "PB7")
+        self.assign_boundary(*((ns1l + ns2l) / 2), "PB5")
+        self.assign_boundary(*((ns1r + ns2r) / 2), "PB5")
+        self.assign_boundary(*((ns2l + ns3l) / 2), "PB6")
+        self.assign_boundary(*((ns2r + ns3r) / 2), "PB6")
 
         self.assign_material(0, (self.D1 / 2 - self.D2 / 2 - self.T2) / 2 + self.D2 / 2 + self.T2, 'stator_steel')
 
@@ -506,9 +474,9 @@ class SRM(BaseModel):
 
         self.half_coil_area = (e * f * math.sin(ksi)) / 2 / 1000**2
         J0 = self.Nturns * self.I0 / self.half_coil_area
-        self.JU = J0 * math.cos(math.radians(self.alpha))
-        self.JV = J0 * math.cos(math.radians(self.alpha + 120))
-        self.JW = J0 * math.cos(math.radians(self.alpha + 240))
+        self.JU = 0
+        self.JV = J0
+        self.JW = 0
 
         # Coils
         # PHASE U
@@ -555,8 +523,6 @@ class SRM(BaseModel):
 
         s.geom.add_line((Line(self.ag1l, self.nslbl1)))
         s.geom.add_line((Line(self.ag1r, self.nslbr1)))
-        s.geom.add_line((Line(self.nslbl1, self.nslbl2)))
-        s.geom.add_line((Line(self.nslbr1, self.nslbr2)))
         s.geom.add_line((Line(self.nslbl2, self.ag2l)))
         s.geom.add_line((Line(self.nslbr2, self.ag2r)))
 
@@ -570,10 +536,8 @@ class SRM(BaseModel):
 
         self.assign_boundary(*((self.ag2l - self.ag1l) / 3 / 2 + self.ag1l), "PB3")
         self.assign_boundary(*((self.ag2r - self.ag1r) / 3 / 2 + self.ag1r), "PB3")
-        self.assign_boundary(*((self.nslbl1 + self.nslbl2) / 2), "PB4")
-        self.assign_boundary(*((self.nslbr1 + self.nslbr2) / 2), "PB4")
-        self.assign_boundary(*((self.ag2l - self.ag1l) / -3 / 2 + self.ag2l), "PB5")
-        self.assign_boundary(*((self.ag2r - self.ag1r) / -3 / 2 + self.ag2r), "PB5")
+        self.assign_boundary(*((self.ag2l - self.ag1l) / -3 / 2 + self.ag2l), "PB4")
+        self.assign_boundary(*((self.ag2r - self.ag1r) / -3 / 2 + self.ag2r), "PB4")
 
         self.assign_boundary_arc(0, self.slb_rotor.apex_pt.y, "slidingband")
         self.assign_boundary_arc(0, self.slb_stator.apex_pt.y, "slidingband")
@@ -582,8 +546,6 @@ class SRM(BaseModel):
 
         self.assign_material(0, (self.slb_rotor.apex_pt.y + self.D3/2) / 2, 'airgap')
         self.assign_material(0, (self.slb_stator.apex_pt.y + self.D2/2) / 2, 'airgap')
-        airgap = (self.D3 / 2 - self.D2 / 2) / 2 + self.D2 / 2
-        self.assign_material(0, airgap, 'airgap')
 
         D1 = (self.rect1.x - self.rect4.x) * (self.rect2.y - self.rect3.y)
         D2 = (self.rect1.y - self.rect4.y) * (self.rect2.x - self.rect3.x)
@@ -624,12 +586,13 @@ def execute_model(model: SRM):
     res = model(timeout=2000, cleanup=False)
     t1 = perf_counter()
     try:
-        torque = res["Torque"] * 6
+        torque = res["Torque"] * -2
         print(torque)
     except Exception as e:
         return None
+    # print(f"\t{abs(model.rotorangle):.2f} ° - {abs(model.alpha):.2f} °\t {torque:.3f} Nm \t {t1-t0:.2f} s")
     return torque
 
 if __name__ == "__main__":
     m = SRM(exportname="dev")
-    print(m(devmode=False, cleanup=False))
+    print(m(devmode=True, cleanup=False))

@@ -8,7 +8,7 @@ from adze_modeler.utils import csv_write, csv_read
 ModelDir.set_base(__file__)
 
 def calculate_cogging_torque():
-    theta = linspace(0, 360 / 3, 80)
+    theta = linspace(0, 360/8, 45)
     models = [SRM(rotorangle=ti) for ti in theta]
     with multiprocessing.Pool(processes=4) as pool:
         T = pool.map(execute_model, models)
