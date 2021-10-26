@@ -9,15 +9,15 @@ on:
       - main
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-      - name: Run pre-commit
-        uses: pre-commit/action@v2.0.3
+#  lint:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out repo
+#        uses: actions/checkout@v2
+#      - name: Set up Python
+#        uses: actions/setup-python@v2
+#      - name: Run pre-commit
+#        uses: pre-commit/action@v2.0.3
 
   build:
     runs-on: ubuntu-latest
