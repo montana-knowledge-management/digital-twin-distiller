@@ -25,7 +25,7 @@ class InputJson(BaseModel):
     Class for validating the input sent to the /process endpoint.
     """
 
-    simulation: Dict = {'type': 'basic'}
+    simulation: Dict = {'type': 'default'}
     model: Optional[Dict] = {}
     tolerances: Optional[Dict] = {'type': 'ff', 'parameters': {}, 'variables':[]}
     misc: Optional[Dict] = {'processes': 4, 'cleanup':True, 'exportname': None}
