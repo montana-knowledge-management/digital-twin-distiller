@@ -26,6 +26,4 @@ jobs:
       - name: Test with tox
         run: |
           pip install tox
-          tox -- --cov adze-modeler --cov-report xml --cov-report term
-      - uses: codecov/codecov-action@v1
-        if:  tox -e py
+          tox
