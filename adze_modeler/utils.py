@@ -1,9 +1,11 @@
-from uuid import uuid4
-import matplotlib.pyplot as plt
-from math import sqrt
-from statistics import fmean
-from pathlib import Path
 import csv
+from itertools import tee
+from math import sqrt
+from pathlib import Path
+from statistics import fmean
+from uuid import uuid4
+
+import matplotlib.pyplot as plt
 from numpy import linspace
 from numpy.polynomial import Polynomial as P
 
@@ -172,3 +174,12 @@ def get_polyfit(x, y, N=None, verbose=False):
     if verbose:
         print(f'Best: MAX: {cases[0][0]:.3f} % RMS: {cases[0][1]:.3f} % order: {best_order}')
     return x_fine, y_best
+
+def pairwise(iterable):
+    """
+    # pairwise('ABCDEFG') --> AB BC CD DE EF FG
+    https://docs.python.org/3/library/itertools.html#itertools.pairwise
+    """
+    a, b = tee(iterable)
+    next(b, None)
+    return zip(a, b)

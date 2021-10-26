@@ -10,6 +10,7 @@ class ModelDir:
     RESOURCES = BASE / "resources"
     SNAPSHOTS = BASE / "snapshots"
     DEFAULTS = BASE / "defaults"
+    DOCS = BASE / "docs"
 
     @classmethod
     def set_base(cls, base_):
@@ -24,6 +25,7 @@ class ModelDir:
         cls.RESOURCES = cls.BASE / "resources"
         cls.SNAPSHOTS = cls.BASE / "snapshots"
         cls.DEFAULTS = cls.BASE / "defaults"
+        cls.DOCS = cls.BASE / "docs"
 
     @classmethod
     def get_dirs(cls):
@@ -33,6 +35,7 @@ class ModelDir:
         yield cls.RESOURCES
         yield cls.SNAPSHOTS
         yield cls.DEFAULTS
+        yield cls.DOCS
         
 
 

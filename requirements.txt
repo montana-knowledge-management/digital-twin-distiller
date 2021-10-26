@@ -14,3 +14,7 @@ jinja2
 fastapi
 pydantic
 uvicorn
+mkdocs
+mkdocstrings
+mkdocs-material
+mkdocs-git-revision-date-plugin

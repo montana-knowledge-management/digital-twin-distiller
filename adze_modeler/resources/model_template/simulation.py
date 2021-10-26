@@ -21,4 +21,5 @@ if __name__ == "__main__":
     sim.set_model(${name})
 
     model = Server(sim)
+    # model.build_docs()
     model.run()

@@ -3,6 +3,8 @@ from adze_modeler.utils import getID
 from adze_modeler.utils import mirror_point
 from collections.abc import Iterable
 from copy import copy
+from numpy import linspace
+from adze_modeler.utils import pairwise
 
 
 class Node:
@@ -19,6 +21,13 @@ class Node:
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
         self.hanging = True  # if its contained by another object it will be set to False
 
+    def __getitem__(self, item):
+        if item==0:
+            return self.x
+        elif item==1:
+            return self.y
+        else:
+            raise IndexError
     def __eq__(self, other):
         return abs(self.x - other.x) < 1e-5 and abs(self.y - other.y) < 1e-5
 
@@ -26,6 +35,8 @@ class Node:
         """Point(x1+x2, y1+y2)"""
         if isinstance(p, Node):
             return Node(self.x + p.x, self.y + p.y)
+        elif isinstance(p, Iterable):
+            return Node(*(pi+ci for pi, ci in zip(p, self)))
         else:
             return Node(self.x + p, self.y + p)
 
@@ -124,6 +135,8 @@ class Node:
         """
         return math.acos((self @ other) / (self.length() * other.length()))
 
+    def mean(self, other):
+        return (self + other) / 2
 
 class Line:
     """A directed line, which is defined by the (start -> end) points"""
@@ -225,7 +238,6 @@ class Line:
         return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
         # return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt}, id={hex(self.id)[-5:]})"
 
-
 class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
@@ -283,7 +295,6 @@ class CircleArc:
             self.__class__.__name__, self.start_pt, self.center_pt, self.end_pt, self.id, self.label
         )
 
-
 class CubicBezier:
     def __init__(self, start_pt, control1, control2, end_pt, id=None, label=None):
         self.start_pt = start_pt
@@ -298,19 +309,18 @@ class CubicBezier:
             self.__class__.__name__, self.start_pt, self.control1, self.control2, self.end_pt, self.id, self.label
         )
 
-
 class ParametricBezier:
-    def __init__(self, **kwargs):
-        self.p0 = kwargs.get("start_pt", [None, None])
-        self.p1 = kwargs.get("c1", [None, None])
-        self.p2 = kwargs.get("c2", [None, None])
-        self.p3 = kwargs.get("end_pt", [None, None])
+    def __init__(self, start, c1, c2, end):
+        self.p0 = tuple(start)
+        self.p1 = tuple(c1)
+        self.p2 = tuple(c2)
+        self.p3 = tuple(end)
 
     def set(self, **kwargs):
-        self.p0 = kwargs.get("start_pt", self.p0)
+        self.p0 = kwargs.get("start", self.p0)
         self.p1 = kwargs.get("c1", self.p1)
         self.p2 = kwargs.get("c2", self.p2)
-        self.p3 = kwargs.get("end_pt", self.p3)
+        self.p3 = kwargs.get("end", self.p3)
 
     def casteljau(self, p0, p1, p2, p3):
         m = ((p1[0] + p2[0]) * 0.5, (p1[1] + p2[1]) * 0.5)
@@ -328,23 +338,40 @@ class ParametricBezier:
 
         return (r0, r1, r2, r3), (l0, l1, l2, l3)
 
-    def approximate(self, nb_iter=0):
-        lines = [(self.p0, self.p1, self.p2, self.p3)]
-        for iter_i in range(nb_iter):
-            templines = []
-            for curve_i in lines:
-                r, l = self.casteljau(*curve_i)
-                templines.append(l)
-                templines.append(r)
-            lines.clear()
-            lines = templines.copy()
+    # def approximate(self, nb_iter=0):
+    #     """
+    #     Bezier-Curve approximation with the De-Casteljau algorithm. This
+    #     function gives back the the linesegments' x and y coordinates in 2
+    #     separate list.
+    #     """
+    #     lines = [(self.p0, self.p1, self.p2, self.p3)]
+    #     for iter_i in range(nb_iter):
+    #         templines = []
+    #         for curve_i in lines:
+    #             r, l = self.casteljau(*curve_i)
+    #             templines.append(l)
+    #             templines.append(r)
+    #         lines.clear()
+    #         lines = templines.copy()
 
-        linex = [(ci[0][0], ci[-1][0]) for ci in lines]
-        linex = [item for sublist in linex for item in sublist]
-        liney = [(ci[0][1], ci[-1][1]) for ci in lines]
-        liney = [item for sublist in liney for item in sublist]
+    #     linex = [(ci[0][0], ci[-1][0]) for ci in lines]
+    #     linex = [item for sublist in linex for item in sublist]
+    #     liney = [(ci[0][1], ci[-1][1]) for ci in lines]
+    #     liney = [item for sublist in liney for item in sublist]
 
-        return linex, liney
+    #     return linex, liney
+
+    def approximate(self, n_segment):
+        X, Y = zip(*(self(ti) for ti in linspace(0, 1, n_segment + 1)))
+
+        segments = []
+        for Xi, Yi in zip(pairwise(X), pairwise(Y)):
+            n0 = Node(Xi[0], Yi[0])
+            n1 = Node(Xi[1], Yi[1])
+            segments.append(Line(n0, n1))
+
+        return segments
+
 
     def __call__(self, t: float):
         assert (0 <= t) and (t <= 1), f"t [0, 1] not {t}"
@@ -363,7 +390,6 @@ class ParametricBezier:
         )
 
         return X, Y
-
 
 class Rectangle:
     def __init__(self, x0: float = 0.0, y0: float = 0.0, **kwargs):

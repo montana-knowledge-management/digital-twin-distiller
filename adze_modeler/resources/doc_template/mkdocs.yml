@@ -1,7 +1,8 @@
-site_name: Simple Api for Distiller Projects
+site_name: ${name}
 use_directory_urls: true
 theme:
   name: material
 
 nav:
   - Home: index.md
+
