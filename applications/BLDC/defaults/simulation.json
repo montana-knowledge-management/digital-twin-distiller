@@ -1,8 +1,0 @@
-{
-  "basic": {},
-  "cogging": {
-    "theta0": 0,
-    "theta1": 7.5,
-    "nsteps": 12
-  }
-}
