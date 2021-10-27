@@ -14,7 +14,7 @@ def default_simulation(model, modelparams, simparams, miscparams):
     return "Hello World!"
 
 if __name__ == "__main__":
-    
+
     ModelDir.set_base(__file__)
 
     # set the model for the simulation

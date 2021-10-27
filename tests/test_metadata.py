@@ -1,7 +1,8 @@
 import unittest
+from copy import copy
+
 from adze_modeler.metadata import Agros2DMetadata
 from adze_modeler.metadata import FemmMetadata
-from copy import copy
 
 
 class TestMetadata(unittest.TestCase):

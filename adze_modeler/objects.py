@@ -1,10 +1,11 @@
 import math
-from adze_modeler.utils import getID
-from adze_modeler.utils import mirror_point
 from collections.abc import Iterable
 from copy import copy
-from numpy import linspace
+
+from adze_modeler.utils import getID
+from adze_modeler.utils import mirror_point
 from adze_modeler.utils import pairwise
+from numpy import linspace
 
 
 class Node:
@@ -22,12 +23,13 @@ class Node:
         self.hanging = True  # if its contained by another object it will be set to False
 
     def __getitem__(self, item):
-        if item==0:
+        if item == 0:
             return self.x
-        elif item==1:
+        elif item == 1:
             return self.y
         else:
             raise IndexError
+
     def __eq__(self, other):
         return abs(self.x - other.x) < 1e-5 and abs(self.y - other.y) < 1e-5
 
@@ -36,7 +38,7 @@ class Node:
         if isinstance(p, Node):
             return Node(self.x + p.x, self.y + p.y)
         elif isinstance(p, Iterable):
-            return Node(*(pi+ci for pi, ci in zip(p, self)))
+            return Node(*(pi + ci for pi, ci in zip(p, self)))
         else:
             return Node(self.x + p, self.y + p)
 
@@ -138,6 +140,7 @@ class Node:
     def mean(self, other):
         return (self + other) / 2
 
+
 class Line:
     """A directed line, which is defined by the (start -> end) points"""
 
@@ -238,6 +241,7 @@ class Line:
         return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
         # return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt}, id={hex(self.id)[-5:]})"
 
+
 class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
@@ -258,7 +262,7 @@ class CircleArc:
             self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(90))
 
     @classmethod
-    def from_radius(cls, start_pt: Node, end_pt: Node, r:float = 1.0):
+    def from_radius(cls, start_pt: Node, end_pt: Node, r: float = 1.0):
         """
         Construct a CircleArc instance from start- and end-point and a radius.
 
@@ -295,6 +299,7 @@ class CircleArc:
             self.__class__.__name__, self.start_pt, self.center_pt, self.end_pt, self.id, self.label
         )
 
+
 class CubicBezier:
     def __init__(self, start_pt, control1, control2, end_pt, id=None, label=None):
         self.start_pt = start_pt
@@ -308,6 +313,7 @@ class CubicBezier:
         return "{}({!r}, {!r}, {!r}, {!r}, id={!r},label={!r})".format(
             self.__class__.__name__, self.start_pt, self.control1, self.control2, self.end_pt, self.id, self.label
         )
+
 
 class ParametricBezier:
     def __init__(self, start, c1, c2, end):
@@ -372,7 +378,6 @@ class ParametricBezier:
 
         return segments
 
-
     def __call__(self, t: float):
         assert (0 <= t) and (t <= 1), f"t [0, 1] not {t}"
         X = (
@@ -390,6 +395,7 @@ class ParametricBezier:
         )
 
         return X, Y
+
 
 class Rectangle:
     def __init__(self, x0: float = 0.0, y0: float = 0.0, **kwargs):

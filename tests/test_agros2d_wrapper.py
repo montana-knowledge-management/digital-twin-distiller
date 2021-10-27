@@ -1,6 +1,7 @@
 import os
-from adze_modeler.agros2d_wrapper import Agros2DWrapper
 from unittest import TestCase
+
+from adze_modeler.agros2d_wrapper import Agros2DWrapper
 
 
 class Agros2DTester(TestCase):

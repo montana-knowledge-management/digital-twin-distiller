@@ -1,12 +1,13 @@
+from copy import copy
+from math import pi
+from unittest import TestCase
+
 from adze_modeler.objects import CircleArc
 from adze_modeler.objects import CubicBezier
 from adze_modeler.objects import Line
 from adze_modeler.objects import Node
 from adze_modeler.objects import ParametricBezier
 from adze_modeler.objects import Rectangle
-from copy import copy
-from math import pi
-from unittest import TestCase
 
 
 class TestNodeOperations(TestCase):

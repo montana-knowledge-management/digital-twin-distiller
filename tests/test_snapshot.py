@@ -1,4 +1,6 @@
 import unittest
+from pathlib import Path
+
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.boundaries import NeumannBoundaryCondition
 from adze_modeler.geometry import Geometry
@@ -10,7 +12,6 @@ from adze_modeler.objects import Node
 from adze_modeler.platforms.agros2d import Agros2D
 from adze_modeler.platforms.femm import Femm
 from adze_modeler.snapshot import Snapshot
-from pathlib import Path
 
 
 class MockFileHandle:

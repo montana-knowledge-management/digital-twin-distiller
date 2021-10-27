@@ -4,21 +4,20 @@ This class realize a layer, where the different elements of the geometry can be 
 A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
-import networkx as nx
-
-import adze_modeler.objects as obj
 import sys
-from adze_modeler.utils import getID
+from copy import copy
+from copy import deepcopy
 from math import acos
-from copy import copy,deepcopy
 from uuid import uuid4
 
+import adze_modeler.objects as obj
 import ezdxf
+import matplotlib.pyplot as plt
+import networkx as nx
 import numpy as np
 import svgpathtools
 import svgpathtools as svg
-
-import matplotlib.pyplot as plt
+from adze_modeler.utils import getID
 
 
 class Geometry:
@@ -255,16 +254,22 @@ class Geometry:
         # exports the lines
         for seg in self.lines:
             path = svg.Path()
-            path.append(svg.Line(complex(seg.start_pt.x, seg.start_pt.y).conjugate(),
-                                 complex(seg.end_pt.x, seg.end_pt.y).conjugate()))
+            path.append(
+                svg.Line(
+                    complex(seg.start_pt.x, seg.start_pt.y).conjugate(), complex(seg.end_pt.x, seg.end_pt.y).conjugate()
+                )
+            )
             paths.append(path)
             colors.append("blue")
 
         # export the circle arcs
         for arc in self.circle_arcs:
             path = svg.Path()
-            path.append(svg.Line(complex(arc.start_pt.x, arc.start_pt.y).conjugate(),
-                                 complex(arc.end_pt.x, arc.end_pt.y).conjugate()))
+            path.append(
+                svg.Line(
+                    complex(arc.start_pt.x, arc.start_pt.y).conjugate(), complex(arc.end_pt.x, arc.end_pt.y).conjugate()
+                )
+            )
             paths.append(path)
             colors.append("blue")
 
@@ -396,10 +401,10 @@ class Geometry:
 
         else:
             up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
-                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
-                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             if inrange(tp) and inrange(up):
                 p1 = tuple(p + tp * r)
@@ -410,7 +415,7 @@ class Geometry:
         return p1, p2
 
     def generate_intersections(self):
-        """Todo: generate intersections """
+        """Todo: generate intersections"""
         N = len(self.lines)
         newlines = list()
         for i in range(N):
@@ -485,7 +490,7 @@ class Geometry:
         return g
 
     def find_edges(self, nodes: list):
-        """Search for the edges with the given direction """
+        """Search for the edges with the given direction"""
 
         surface = []
         # we are looking for a closed loop, therefore the first and the last item should create an edge
@@ -555,7 +560,7 @@ class Geometry:
         return surfaces
 
     def plot_connection_graph(self):
-        """Plots the connection graph of the given task. """
+        """Plots the connection graph of the given task."""
         Graph = nx.Graph()
 
         # add edges to the graph from the different entities: lines, circles, cubic_bezier

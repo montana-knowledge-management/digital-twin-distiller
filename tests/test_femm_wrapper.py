@@ -1,6 +1,9 @@
-import adze_modeler.objects as obj
 import os
 import warnings
+from pathlib import Path
+from unittest import TestCase
+
+import adze_modeler.objects as obj
 from adze_modeler.femm_wrapper import CurrentFlowAntiPeriodic
 from adze_modeler.femm_wrapper import CurrentFlowFixedVoltage
 from adze_modeler.femm_wrapper import CurrentFlowMaterial
@@ -30,8 +33,6 @@ from adze_modeler.femm_wrapper import MagneticDirichlet
 from adze_modeler.femm_wrapper import MagneticMaterial
 from adze_modeler.femm_wrapper import MagneticMixed
 from adze_modeler.geometry import Geometry
-from pathlib import Path
-from unittest import TestCase
 
 
 class FemmTester(TestCase):

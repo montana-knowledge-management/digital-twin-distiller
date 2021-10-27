@@ -1,10 +1,12 @@
+from os import remove
 from unittest import TestCase
+
 from adze_modeler.geometry import Geometry
 from adze_modeler.gmsh import GMSHModel
-from adze_modeler.objects import Node, Line, CircleArc
-
+from adze_modeler.objects import CircleArc
+from adze_modeler.objects import Line
+from adze_modeler.objects import Node
 from importlib_resources import files
-from os import remove
 from meshio._helpers import read
 
 
@@ -16,7 +18,6 @@ from meshio._helpers import read
 
 
 class TestGMSHWriter(TestCase):
-
     def test_only_line_surface(self):
         # in this test example a simple puzzle piece is defined by only simple and connected lines
         eml = files("tests.pygmsh_tests.test_cases").joinpath("test_lines.svg")
@@ -31,9 +32,9 @@ class TestGMSHWriter(TestCase):
 
         # create a gmsh mesh from the given geometry
         gmsh = GMSHModel(geo)
-        gmsh.gmsh_writer('test1')
+        gmsh.gmsh_writer("test1")
 
-        msh_data = read('test1.vtk')
+        msh_data = read("test1.vtk")
 
         # tests that the code generates a valid mesh
         self.assertGreaterEqual(len(msh_data.cells), 3)
@@ -42,8 +43,8 @@ class TestGMSHWriter(TestCase):
         self.assertEqual(len(surfaces[0]), 8)
         self.assertEqual(round(surfaces[0][0].start_pt.x, 1), 103.4)
         # remove the geo and msh files
-        remove('test1.geo_unrolled')
-        remove('test1.vtk')
+        remove("test1.geo_unrolled")
+        remove("test1.vtk")
 
     def test_bezier_line_surface(self):
         # import the surface
@@ -59,9 +60,9 @@ class TestGMSHWriter(TestCase):
         # geo.plot_connection_graph()
         # create a gmsh mesh from the given geometry
         gmsh = GMSHModel(geo)
-        gmsh.gmsh_writer('test2')
+        gmsh.gmsh_writer("test2")
 
-        msh_data = read('test2.vtk')
+        msh_data = read("test2.vtk")
 
         # tests that the code generates a valid mesh
         self.assertGreaterEqual(len(msh_data.cells), 3)
@@ -71,8 +72,8 @@ class TestGMSHWriter(TestCase):
         self.assertEqual(round(surfaces[0][0].start_pt.x, 1), 100.1)
 
         # remove the geo and msh files
-        remove('test2.geo_unrolled')
-        remove('test2.vtk')
+        remove("test2.geo_unrolled")
+        remove("test2.vtk")
 
     def test_circle_defined_surface(self):
         # define the geometry by hand, a simple arc
@@ -82,20 +83,20 @@ class TestGMSHWriter(TestCase):
         b = Node(x=10.0, y=0.0, id=2)
         c = Node(x=0.0, y=10.0, id=3)
 
-        geo.add_line(Line(a,b))
-        geo.add_line(Line(a,c))
-        geo.add_arc(CircleArc(c,a,b))
+        geo.add_line(Line(a, b))
+        geo.add_line(Line(a, c))
+        geo.add_arc(CircleArc(c, a, b))
 
         # there is only one described surface exists in the given geometry
         surfaces = geo.find_surfaces()
 
         gmsh = GMSHModel(geo)
-        gmsh.gmsh_writer('test3')
+        gmsh.gmsh_writer("test3")
 
         # check the surface, the surface should contain only 3 edges
         self.assertEqual(len(surfaces[0]), 3)
         self.assertEqual(round(surfaces[0][0].start_pt.x, 1), 0.0)
 
         # remove the geo and msh files
-        remove('test3.geo_unrolled')
-        remove('test3.vtk')
+        remove("test3.geo_unrolled")
+        remove("test3.vtk")

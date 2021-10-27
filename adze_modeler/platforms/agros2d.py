@@ -1,6 +1,10 @@
 import os
 import subprocess
 import sys
+from copy import copy
+from pathlib import Path
+from time import sleep
+
 from adze_modeler.boundaries import BoundaryCondition
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.boundaries import NeumannBoundaryCondition
@@ -11,9 +15,6 @@ from adze_modeler.objects import CubicBezier
 from adze_modeler.objects import Line
 from adze_modeler.objects import Node
 from adze_modeler.platforms.platform import Platform
-from copy import copy
-from pathlib import Path
-from time import sleep
 
 
 class Agros2D(Platform):

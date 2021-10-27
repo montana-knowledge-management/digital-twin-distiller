@@ -1,13 +1,14 @@
-import pygmsh.geo as gmsh
-import gmsh as std_gmsh
 import adze_modeler.objects as obj
-from adze_modeler.geometry import Geometry
-# from meshio._helpers import read, write
+import gmsh as std_gmsh
 import meshio
+import pygmsh.geo as gmsh
+from adze_modeler.geometry import Geometry
+
+# from meshio._helpers import read, write
 
 """
-The goal of this class is to export the model geometry into a msh file with pygmsh, this mesh file can be 
-translated into various formats with the meshio  [1]. 
+The goal of this class is to export the model geometry into a msh file with pygmsh, this mesh file can be
+translated into various formats with the meshio  [1].
 
 https://github.com/nschloe/meshio
 
@@ -17,8 +18,7 @@ http://jsdokken.com/converted_files/tutorial_pygmsh.html
 
 
 class GMSHModel:
-
-    def __init__(self, geo, name='dev', msh_format='.msh'):
+    def __init__(self, geo, name="dev", msh_format=".msh"):
         self.name = name
         self.boundaries = {}  # this should be defined
         self.boundary_queue_gmsh = {}  # gmsh renumbers the different nodes and
@@ -119,14 +119,14 @@ class GMSHModel:
             pl = geom.add_plane_surface(ll)
 
             # physical surfaces define the name of the applied materials
-            geom.add_physical(pl, label='material')
+            geom.add_physical(pl, label="material")
 
             # define the boundary condition for the latest edge
             for key, val in self.boundary_queue_gmsh.items():
                 # gmsh define the boundaries in the transposed order
                 geom.add_physical(val, label=key)
 
-            #geom.save_geometry(file_name + '.geo_unrolled') physical domain saving not working with it
+            # geom.save_geometry(file_name + '.geo_unrolled') physical domain saving not working with it
             mesh = geom.generate_mesh(dim=self.dim)
             std_gmsh.write(file_name + ".msh")
             std_gmsh.write(file_name + ".geo_unrolled")

@@ -1,5 +1,6 @@
-import adze_modeler.utils as u
 import unittest
+
+import adze_modeler.utils as u
 from adze_modeler.objects import Node
 
 

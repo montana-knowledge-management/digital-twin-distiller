@@ -1,12 +1,15 @@
-import subprocess
 import json
 import os.path
-import os
-from pathlib import Path
+import subprocess
 import time
 import traceback
-from typing import Dict, Optional
+from pathlib import Path
+from typing import Dict
+from typing import Optional
 
+import uvicorn
+from adze_modeler.modelpaths import ModelDir
+from adze_modeler.simulation import Simulation
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi.staticfiles import StaticFiles
@@ -14,10 +17,6 @@ from fastapi.templating import Jinja2Templates
 from importlib_resources import files
 from pydantic import BaseModel
 from pydantic import Extra
-import uvicorn
-
-from adze_modeler.simulation import Simulation
-from adze_modeler.modelpaths import ModelDir
 
 
 class InputJson(BaseModel):
@@ -25,10 +24,10 @@ class InputJson(BaseModel):
     Class for validating the input sent to the /process endpoint.
     """
 
-    simulation: Dict = {'type': 'default'}
+    simulation: Dict = {"type": "default"}
     model: Optional[Dict] = {}
-    tolerances: Optional[Dict] = {'type': 'ff', 'parameters': {}, 'variables':[]}
-    misc: Optional[Dict] = {'processes': 4, 'cleanup':True, 'exportname': None}
+    tolerances: Optional[Dict] = {"type": "ff", "parameters": {}, "variables": []}
+    misc: Optional[Dict] = {"processes": 4, "cleanup": True, "exportname": None}
 
     version: Optional[str] = "0.7"
 
@@ -87,10 +86,10 @@ async def process(item: InputJson):
         app.project.update_input()
         app.project.run()
     except Exception as e:
-        app.project._output['exception'] = {
+        app.project._output["exception"] = {
             "type": e.__class__.__name__,
             "message": str(e),
-            "traceback": traceback.format_exc()
+            "traceback": traceback.format_exc(),
         }
     finally:
         return app.project._output
@@ -127,7 +126,9 @@ class Server:
 
     def __init__(self, project: Simulation):
         self.app = app
-        self.app.doc_templates = Jinja2Templates(directory=files("adze_modeler") / "resources" / "doc_template" / "site")
+        self.app.doc_templates = Jinja2Templates(
+            directory=files("adze_modeler") / "resources" / "doc_template" / "site"
+        )
         self.app.project = project
         self.app.title = self.app.title.format(project.app_name)
         # self.workers = self.number_of_workers()

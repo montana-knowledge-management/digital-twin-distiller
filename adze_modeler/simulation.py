@@ -1,16 +1,19 @@
-import json
-import pprint
-from typing import Dict, Sequence
-from adze_modeler.modelpaths import ModelDir
-from adze_modeler.model import BaseModel
 import functools
+import json
 import operator as op
+import pprint
+from typing import Dict
+from typing import Sequence
+
 from adze_modeler.doe import *
+from adze_modeler.model import BaseModel
+from adze_modeler.modelpaths import ModelDir
+
 
 class Simulation:
-    app_name = 'adze project'
+    app_name = "adze project"
 
-    def __init__(self, model:BaseModel=None):
+    def __init__(self, model: BaseModel = None):
 
         # the model creation class will be stored here
         self.model = model
@@ -20,7 +23,7 @@ class Simulation:
         self._output = {}
 
         # These variables store the sections of the input data.
-        self.cfg_simulation= {}
+        self.cfg_simulation = {}
         self.cfg_model = {}
         self.cfg_tolerances = {}
         self.cfg_misc = {}
@@ -28,7 +31,7 @@ class Simulation:
         # This dictionary stores the functions for the different simulations.
         self.simulations = {}
 
-    def set_model(self, model:BaseModel):
+    def set_model(self, model: BaseModel):
         """
         Set a model class for the simulations.
 
@@ -42,45 +45,43 @@ class Simulation:
 
     def _load_defaults(self):
 
-        sim_type = self._input['simulation']['type']
-        
-        file_sim = ModelDir.DEFAULTS / 'simulation.json'
-        assert file_sim.exists(), f'Default simulation.json does not exist @ {file_sim.resolve()}'
-        with open(file_sim, 'r') as f:
+        sim_type = self._input["simulation"]["type"]
+
+        file_sim = ModelDir.DEFAULTS / "simulation.json"
+        assert file_sim.exists(), f"Default simulation.json does not exist @ {file_sim.resolve()}"
+        with open(file_sim) as f:
             default_cfg = dict(json.load(f))
             if sim_type not in default_cfg.keys():
                 raise ValueError(f"There is no simulation called {self.cfg_simulation['type']!r}")
 
             self.cfg_simulation = default_cfg[sim_type]
 
-        file_model = ModelDir.DEFAULTS / 'model.json'
-        assert file_model.exists(), 'Default model.json does not exist.'
-        with open(file_model, 'r') as f:
+        file_model = ModelDir.DEFAULTS / "model.json"
+        assert file_model.exists(), "Default model.json does not exist."
+        with open(file_model) as f:
             self.cfg_model = dict(json.load(f))
 
-        file_misc = ModelDir.DEFAULTS / 'misc.json'
-        assert file_misc.exists(), 'Default misc.json does not exist.'
-        with open(file_misc, 'r') as f:
+        file_misc = ModelDir.DEFAULTS / "misc.json"
+        assert file_misc.exists(), "Default misc.json does not exist."
+        with open(file_misc) as f:
             self.cfg_misc = dict(json.load(f))
 
     def update_input(self):
         self._load_defaults()
 
         # overwrite the default configs with the input
-        self.cfg_simulation.update(self._input['simulation'])
-        self.cfg_model.update(self._input['model'])
-        self.cfg_tolerances.update(self._input['tolerances'])
-        self.cfg_misc.update(self._input['misc'])
+        self.cfg_simulation.update(self._input["simulation"])
+        self.cfg_model.update(self._input["model"])
+        self.cfg_tolerances.update(self._input["tolerances"])
+        self.cfg_misc.update(self._input["misc"])
 
+        if "exportname" in self.cfg_misc.keys():
+            self.cfg_model["exportname"] = self.cfg_misc.pop("exportname")
 
-
-        if 'exportname' in self.cfg_misc.keys():
-            self.cfg_model['exportname'] = self.cfg_misc.pop('exportname')
-
-        if self.cfg_tolerances['parameters']:
-            for param_i in self.cfg_tolerances['parameters']:
+        if self.cfg_tolerances["parameters"]:
+            for param_i in self.cfg_tolerances["parameters"]:
                 if param_i not in self.cfg_model.keys():
-                    raise ValueError(f'The model parameter {param_i!r} does not exist.')
+                    raise ValueError(f"The model parameter {param_i!r} does not exist.")
 
     def run(self):
         """
@@ -90,46 +91,43 @@ class Simulation:
         """
 
         # get the simulation type from the simulation section.
-        sim_type = self.cfg_simulation['type']
+        sim_type = self.cfg_simulation["type"]
 
         # If any parameter is present in the tolerances section, then a
         # tolerance analysis will be executed. Otherwise call the registered
         # function with the input arguments.
-        if self.cfg_tolerances['parameters']:
-           self.tolerance_analysis()
+        if self.cfg_tolerances["parameters"]:
+            self.tolerance_analysis()
         else:
-            self._output['res'] = self.simulations[sim_type](self.model,
-                    self.cfg_model, self.cfg_simulation, self.cfg_misc)
+            self._output["res"] = self.simulations[sim_type](
+                self.model, self.cfg_model, self.cfg_simulation, self.cfg_misc
+            )
 
     def tolerance_analysis(self):
         """
         Execute a tolerance analysis with the selected parameters on a simulation.
         """
-        sim_type = self.cfg_simulation['type']
-        doe_type = self.cfg_tolerances['type']
-        variables = self.cfg_tolerances['variables']
-        parameter_names = tuple(self.cfg_tolerances['parameters'].keys())
-        parameter_tolerances = tuple(self.cfg_tolerances['parameters'].values())
+        sim_type = self.cfg_simulation["type"]
+        doe_type = self.cfg_tolerances["type"]
+        variables = self.cfg_tolerances["variables"]
+        parameter_names = tuple(self.cfg_tolerances["parameters"].keys())
+        parameter_tolerances = tuple(self.cfg_tolerances["parameters"].values())
         original_values = tuple(self.cfg_model[pi] for pi in parameter_names)
 
-        result = self.simulations[sim_type](self.model,
-                                          self.cfg_model,
-                                          self.cfg_simulation,
-                                          self.cfg_misc)
-        self._output['res'] = result
-        self._output['tolerances'] = {}
+        result = self.simulations[sim_type](self.model, self.cfg_model, self.cfg_simulation, self.cfg_misc)
+        self._output["res"] = result
+        self._output["tolerances"] = {}
         yref = self._format_result(result)
 
-
         # get the designs
-        designs=[]
-        if doe_type == 'ff':
-            designs = doe_fullfact([3]*len(parameter_names))
-        elif doe_type=='pb':
+        designs = []
+        if doe_type == "ff":
+            designs = doe_fullfact([3] * len(parameter_names))
+        elif doe_type == "pb":
             designs = doe_pbdesign(len(parameter_names))
-        elif doe_type=='bb':
+        elif doe_type == "bb":
             designs = doe_bbdesign(len(parameter_names))
-        elif doe_type=='ccf':
+        elif doe_type == "ccf":
             designs = doe_ccf(len(parameter_names))
 
         Y = []
@@ -139,10 +137,7 @@ class Simulation:
             X = dict(zip(parameter_names, dX))
             self.cfg_model.update(X)
 
-            results = self.simulations[sim_type](self.model,
-                                            self.cfg_model,
-                                            self.cfg_simulation,
-                                            self.cfg_misc)
+            results = self.simulations[sim_type](self.model, self.cfg_model, self.cfg_simulation, self.cfg_misc)
 
             Y.append(self._format_result(results))
 
@@ -150,16 +145,16 @@ class Simulation:
 
         for var_i in variables:
             # self._output['tolerances'][var_i] = {'upper': None, 'lower': None, 'upper_res': None, 'lower_res': None}
-            self._output['tolerances'][var_i] = {'upper': None, 'lower': None}
+            self._output["tolerances"][var_i] = {"upper": None, "lower": None}
             for yi in Y:
                 delta = list(map(op.sub, yi[var_i], yref[var_i]))
                 delta.sort(key=lambda di: abs(di))
-                yi['delta'] = delta[-1]
+                yi["delta"] = delta[-1]
 
-            Y.sort(key=op.itemgetter('delta'))
-            self._output['tolerances'][var_i]['upper'] = Y[-1]['delta']
+            Y.sort(key=op.itemgetter("delta"))
+            self._output["tolerances"][var_i]["upper"] = Y[-1]["delta"]
             # self._output['tolerances'][var_i]['upper_res'] = Y[-1]
-            self._output['tolerances'][var_i]['lower'] = Y[0]['delta']
+            self._output["tolerances"][var_i]["lower"] = Y[0]["delta"]
             # self._output['tolerances'][var_i]['lower_res'] = Y[0]
 
     def _format_result(self, results) -> Dict:
@@ -225,8 +220,10 @@ class Simulation:
             @functools.wraps(func)
             def _wrapper(*arg, **kw):
                 return func(*arg, **kw)
+
             return _wrapper
 
         return _decorator
+
 
 sim = Simulation()

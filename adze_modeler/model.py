@@ -2,12 +2,13 @@ import sys
 import traceback
 from abc import ABCMeta
 from abc import abstractmethod
-from adze_modeler import objects as obj
-from adze_modeler.geometry import Geometry
-from adze_modeler.snapshot import Snapshot
 from pathlib import Path
 from shutil import rmtree
 from uuid import uuid4
+
+from adze_modeler import objects as obj
+from adze_modeler.geometry import Geometry
+from adze_modeler.snapshot import Snapshot
 
 
 class BaseModel(metaclass=ABCMeta):
@@ -17,6 +18,7 @@ class BaseModel(metaclass=ABCMeta):
 
 
     """
+
     def __init__(self, **kwargs):
         """
         This function sets the paths and file names.
@@ -25,7 +27,7 @@ class BaseModel(metaclass=ABCMeta):
             exportname: A specific name for a Model instance instead of a random generated string.
 
         """
-        self.name = kwargs.get('exportname') or str(uuid4())
+        self.name = kwargs.get("exportname") or str(uuid4())
         self.dir_current = Path(sys.modules[self.__module__].__file__).parent
         self.dir_resources = self.dir_current / "resources"
         self.dir_snapshots = self.dir_current / "snapshots"
@@ -206,9 +208,9 @@ class BaseModel(metaclass=ABCMeta):
         except Exception as e:
             print("something went wrong: ")
             print(e)
-            print("-"*20)
+            print("-" * 20)
             print(traceback.format_exc())
-            print("=="*20)
+            print("==" * 20)
             print("snapshot:", self.name)
-            print("=="*20)
+            print("==" * 20)
             return None

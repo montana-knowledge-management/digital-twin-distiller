@@ -113,10 +113,10 @@ class AntiPeriodicAirGap(BoundaryCondition):
         super().__init__(name, field_type)
         self.type = "antiperiodic"
         # backward compatibility
-        if 'inner_angle' in kwargs.keys():
-            self.angle = kwargs['inner_angle']
-        elif 'outer_angle' in kwargs.keys():
-            self.angle = kwargs['outer_angle']
+        if "inner_angle" in kwargs.keys():
+            self.angle = kwargs["inner_angle"]
+        elif "outer_angle" in kwargs.keys():
+            self.angle = kwargs["outer_angle"]
         else:
             self.angle = kwargs.get("angle", 0)
 
@@ -133,9 +133,9 @@ class PeriodicAirGap(BoundaryCondition):
         super().__init__(name, field_type)
         self.type = "periodic"
         # backward compatibility
-        if 'inner_angle' in kwargs.keys():
-            self.angle = kwargs['inner_angle']
-        elif 'outer_angle' in kwargs.keys():
-            self.angle = kwargs['outer_angle']
+        if "inner_angle" in kwargs.keys():
+            self.angle = kwargs["inner_angle"]
+        elif "outer_angle" in kwargs.keys():
+            self.angle = kwargs["outer_angle"]
         else:
             self.angle = kwargs.get("angle", 0)

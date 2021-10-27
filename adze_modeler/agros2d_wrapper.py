@@ -6,6 +6,7 @@ execute a script with gui:
     agros2d -s problem_build_legacy.py
 """
 import sys
+
 from adze_modeler.agros_fields import ElectrostaticField
 from adze_modeler.agros_fields import HeatFlowField
 from adze_modeler.agros_fields import MagneticField

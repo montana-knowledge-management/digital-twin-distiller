@@ -29,14 +29,14 @@ RUN echo "/ADZE/" > /usr/local/lib/python3.8/site-packages/adze.pth
 
 
 # WINE
-RUN dpkg --add-architecture i386 \ 
+RUN dpkg --add-architecture i386 \
     && apt-get update \
     && apt-get install -y --no-install-recommends wine wine32 \
     && wget  https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks \
     && chmod +x winetricks \
     && apt install -y cabextract \
     && sh winetricks mfc90 \
-    && apt remove -y cabextract && rm -f winetricks \ 
+    && apt remove -y cabextract && rm -f winetricks \
     && apt autoremove -y \
     && apt clean -y \
     && rm -rf /var/lib/apt/lists/*
@@ -49,9 +49,7 @@ ADD resources/femm42.tar.xz /root/.wine/drive_c/
 COPY adze_modeler/ adze_modeler/
 
 # TEST
-# COPY start.sh . 
+# COPY start.sh .
 # COPY applications/PowerTransformer/snapshots/dev/P_dev.lua test.lua
 # RUN chmod +x start.sh
 # CMD ["sh", "start.sh"]
-
-

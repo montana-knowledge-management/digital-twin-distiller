@@ -1,13 +1,18 @@
 import os
-from adze_modeler.boundaries import AntiPeriodicAirGap
+from collections.abc import Iterable
+from copy import copy
+from glob import glob
+from math import asin
+from math import pi
 from pathlib import Path
 
+from adze_modeler.boundaries import AntiPeriodicAirGap
 from adze_modeler.boundaries import AntiPeriodicBoundaryCondition
 from adze_modeler.boundaries import BoundaryCondition
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.boundaries import NeumannBoundaryCondition
-from adze_modeler.boundaries import PeriodicBoundaryCondition
 from adze_modeler.boundaries import PeriodicAirGap
+from adze_modeler.boundaries import PeriodicBoundaryCondition
 from adze_modeler.femm_wrapper import femm_current_flow
 from adze_modeler.femm_wrapper import femm_electrostatic
 from adze_modeler.femm_wrapper import femm_heat_flow
@@ -27,11 +32,6 @@ from adze_modeler.objects import CircleArc
 from adze_modeler.objects import Line
 from adze_modeler.objects import Node
 from adze_modeler.platforms.platform import Platform
-from collections.abc import Iterable
-from copy import copy
-from glob import glob
-from math import asin
-from math import pi
 
 
 class Femm(Platform):

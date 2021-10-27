@@ -25,8 +25,8 @@ geo.plot_connection_graph()
 # the gmsh-writer class can automatically save the given graph into vtk format
 gmsh = GMSHModel(geo)
 gmsh.lcar = 0.5  # the characteristic length of the applied mesh can be set manually in the gmsh class
-gmsh.gmsh_writer('triangle')
+gmsh.gmsh_writer("triangle")
 
 # plotting out the resulting mesh by pyvista
-msh = pv.read('triangle.msh')
+msh = pv.read("triangle.msh")
 msh.plot(show_edges=True, cpos="xy")

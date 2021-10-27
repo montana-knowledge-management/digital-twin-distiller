@@ -23,8 +23,8 @@ geo.plot_connection_graph()
 # the gmsh-writer class can automatically save the given graph into vtk format
 gmsh = GMSHModel(geo)
 gmsh.lcar = 10.0  # the characteristic length of the applied mesh can be set manually in the gmsh class
-gmsh.gmsh_writer('owl_shape')
+gmsh.gmsh_writer("owl_shape")
 
 # plotting out the resulting mesh by pyvista
-msh = pv.read('owl_shape.msh')
+msh = pv.read("owl_shape.msh")
 msh.plot(show_edges=True, cpos="xy")

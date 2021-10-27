@@ -1,10 +1,10 @@
-from adze_modeler.platforms.platform import Platform
-from adze_modeler.metadata import Metadata
 from copy import copy
+
+from adze_modeler.metadata import Metadata
+from adze_modeler.platforms.platform import Platform
 
 
 class FenicsElectrostatics(Platform):
-
     def __init__(self, m: Metadata):
         super().__init__(m)
 

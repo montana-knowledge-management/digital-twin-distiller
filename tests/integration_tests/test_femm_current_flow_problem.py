@@ -1,11 +1,11 @@
 import os
 import unittest
+
 from adze_modeler.femm_wrapper import CurrentFlowFixedVoltage
 from adze_modeler.femm_wrapper import CurrentFlowMaterial
 from adze_modeler.femm_wrapper import CurrentFlowSurfaceCurrent
 from adze_modeler.femm_wrapper import femm_current_flow
 from adze_modeler.femm_wrapper import FemmWriter
-
 from importlib_resources import files
 
 

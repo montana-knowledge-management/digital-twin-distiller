@@ -1,10 +1,11 @@
 import unittest
+from pathlib import Path
+from shutil import rmtree
+
 from adze_modeler.metadata import Agros2DMetadata
 from adze_modeler.model import BaseModel
 from adze_modeler.platforms.agros2d import Agros2D
 from adze_modeler.snapshot import Snapshot
-from pathlib import Path
-from shutil import rmtree
 
 
 class MockModel(BaseModel):

@@ -1570,28 +1570,26 @@ class FemmExecutor:
         script_file = Path(script_file).resolve()
         assert script_file.exists(), f"{script_file} does not exists."
 
-        if platform == 'linux':
+        if platform == "linux":
             FemmExecutor.executable = FemmExecutor.femm_path_linux
-            cmd_list.append('wine')
+            cmd_list.append("wine")
             cmd_list.append(FemmExecutor.executable)
             # script_file = os.popen(f'winepath -w "{script_file}"').read().strip()
-            cmd_list.append(f'-lua-script={script_file}')
+            cmd_list.append(f"-lua-script={script_file}")
 
-        elif platform == 'win32':
+        elif platform == "win32":
             FemmExecutor.executable = FemmExecutor.femm_path_windows
             cmd_list.append(FemmExecutor.executable)
-            cmd_list.append(f'-lua-script={script_file}')
-            cmd_list.append('-windowhide')
+            cmd_list.append(f"-lua-script={script_file}")
+            cmd_list.append("-windowhide")
 
-        proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+        proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         timer = Timer(timeout, proc.kill)
         try:
             timer.start()
             stdout, stderr = proc.communicate()
         finally:
             timer.cancel()
-
 
         # self.script_file = os.path.basename(script_file)
         # # under linux we are using wine to run FEMM

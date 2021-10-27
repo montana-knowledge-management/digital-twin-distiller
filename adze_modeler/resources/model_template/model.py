@@ -41,11 +41,11 @@ class ${name}(BaseModel):
     def add_postprocessing(self):
         points = [(0, 0)]
         self.snapshot.add_postprocessing("integration", points, "Energy")
-        
+
     def build_geometry(self):
         # ...
         self.snapshot.add_geometry(self.geom)
-        
+
 
 if __name__ == "__main__":
     m = ${name}(exportname="dev")

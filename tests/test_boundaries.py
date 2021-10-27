@@ -1,4 +1,5 @@
 import unittest
+
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.boundaries import NeumannBoundaryCondition
 

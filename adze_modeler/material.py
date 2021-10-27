@@ -23,7 +23,7 @@ class Material:
         self.lamination_type = 0
         self.fill_factor = 0
         self.diameter = 1.0
-        self.phi_hmax=0.0
+        self.phi_hmax = 0.0
 
         self.assigned = []  # a set of (x, y) tuples
         self.meshsize = 0

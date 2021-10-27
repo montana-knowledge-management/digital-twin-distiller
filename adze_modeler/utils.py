@@ -9,8 +9,10 @@ import matplotlib.pyplot as plt
 from numpy import linspace
 from numpy.polynomial import Polynomial as P
 
+
 def getID():
     return int(uuid4())
+
 
 def mirror_point(p1, p2, p3):
     """
@@ -23,11 +25,13 @@ def mirror_point(p1, p2, p3):
     H = p1 + ((p13 @ p12) / abs(p12) ** 2) * p12
     return H + (H - p3)
 
+
 def mm2px(x):
     """
     Convert millimeters to pixels
     """
     return int(3.7795275591 * x)
+
 
 def mm2inch(x):
     """
@@ -35,7 +39,8 @@ def mm2inch(x):
     """
     return 0.03937007874 * x
 
-def get_width_height(type_='onehalf', aspect=(16, 10), unit='px'):
+
+def get_width_height(type_="onehalf", aspect=(16, 10), unit="px"):
     """
     This function returns the width and the height of a figure in pixels based on the Elsevier
     reccomendations on figure sizes.
@@ -47,28 +52,29 @@ def get_width_height(type_='onehalf', aspect=(16, 10), unit='px'):
         aspect: This iterable specifies the aspect ratio of the figure.
     """
     width, height = 0, 0
-    types = {'minimal': 30, 'single': 90, 'onehalf': 140, 'full': 190, 'double': 190}
-    units = {'px': mm2px,
-            'inch': mm2inch
-            }
+    types = {"minimal": 30, "single": 90, "onehalf": 140, "full": 190, "double": 190}
+    units = {"px": mm2px, "inch": mm2inch}
 
     if type_ not in types.keys():
-        raise ValueError(f'Invalid keyword argument. Got {type_=}. '
-                         'Accepted values are: "minimal", "single",'
-                         '"onehalf", "full", "double".')
+        raise ValueError(
+            f"Invalid keyword argument. Got {type_=}. "
+            'Accepted values are: "minimal", "single",'
+            '"onehalf", "full", "double".'
+        )
 
     scaley = aspect[0] / aspect[1]
     width = types[type_]
     height = width / scaley
 
-    if unit == 'mm':
+    if unit == "mm":
         return width, height
     else:
         return units[unit](width), units[unit](height)
 
+
 def setup_matplotlib():
     plt.style.use(["default", "seaborn-bright"])
-    w, h = get_width_height(type_='onehalf', aspect=(16, 9), unit='inch')
+    w, h = get_width_height(type_="onehalf", aspect=(16, 9), unit="inch")
     plt.rcParams["figure.figsize"] = w, h
     plt.rcParams["lines.linewidth"] = 1
 
@@ -100,11 +106,13 @@ def inch2mm(x):
     """
     return 25.4 * x
 
+
 def rms(arr):
     """
     Get the root mean square value from a Sequence.
     """
-    return sqrt(fmean(map(lambda xi: xi**2, arr)))
+    return sqrt(fmean(map(lambda xi: xi ** 2, arr)))
+
 
 def csv_write(file, names, *args):
     """
@@ -123,12 +131,14 @@ def csv_write(file, names, *args):
     # TODO: stem check for file object
     file = Path(file)
     assert file.parent.exists(), f"There is no directory: {file.parent}"
-    assert len(names)==len(args), f"The number of names({len(names)}) and " \
-                                  f"the number of columns({len(args)}) are not equal."
-    with open(file, 'w', newline='', encoding='UTF8') as f:
+    assert len(names) == len(args), (
+        f"The number of names({len(names)}) and " f"the number of columns({len(args)}) are not equal."
+    )
+    with open(file, "w", newline="", encoding="UTF8") as f:
         w = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
         w.writerow(names)
         w.writerows(zip(*args))
+
 
 def csv_read(file, dict_return=False):
     """
@@ -142,7 +152,7 @@ def csv_read(file, dict_return=False):
     """
     file = Path(file)
     assert file.exists(), f"File does not exists: {file}"
-    with open(file, 'r', encoding='UTF8') as f:
+    with open(file, encoding="UTF8") as f:
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         names = next(r)
         data = zip(*(li for li in r))
@@ -151,9 +161,10 @@ def csv_read(file, dict_return=False):
         else:
             return data
 
+
 def get_polyfit(x, y, N=None, verbose=False):
-    assert len(x)==len(y)
-    N = 2*len(x)+1 if N is None else int(N)
+    assert len(x) == len(y)
+    N = 2 * len(x) + 1 if N is None else int(N)
     x_fine = linspace(min(x), max(x), N)
     maxy_ref = max(y)
     rmsy_ref = rms(y)
@@ -172,8 +183,9 @@ def get_polyfit(x, y, N=None, verbose=False):
     p = P.fit(x, y, best_order)
     y_best = p(x_fine)
     if verbose:
-        print(f'Best: MAX: {cases[0][0]:.3f} % RMS: {cases[0][1]:.3f} % order: {best_order}')
+        print(f"Best: MAX: {cases[0][0]:.3f} % RMS: {cases[0][1]:.3f} % order: {best_order}")
     return x_fine, y_best
+
 
 def pairwise(iterable):
     """

@@ -55,4 +55,3 @@ following structure:
 * server.set_key_file_path(key.pem)
 * server.set_cert_file_path(files(cert.pem)
 * server.set_json_validator(NewJson)
-

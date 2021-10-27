@@ -1,7 +1,8 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
-__all__ = ['ModelDir']
+__all__ = ["ModelDir"]
+
 
 class ModelDir:
     BASE = Path(__file__)
@@ -18,7 +19,7 @@ class ModelDir:
 
         if base_.suffix:
             base_ = base_.parent
-        
+
         cls.BASE = base_
         cls.MEDIA = cls.BASE / "media"
         cls.DATA = cls.BASE / "data"
@@ -36,6 +37,3 @@ class ModelDir:
         yield cls.SNAPSHOTS
         yield cls.DEFAULTS
         yield cls.DOCS
-        
-
-

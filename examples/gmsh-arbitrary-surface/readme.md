@@ -28,14 +28,14 @@ geo.merge_points()
 
 ### Automatic surface detection
 
-The physical surfaces should be defined for a finite element mesh generation. 
-Adze uses an automatic NetworkX based closed loop detection in the graph of the defined edges. 
+The physical surfaces should be defined for a finite element mesh generation.
+Adze uses an automatic NetworkX based closed loop detection in the graph of the defined edges.
 
 ```
 surfaces = geo.find_surfaces()
 ```
 
-The connection graph of the defined surface can be vizualized by the following command: 
+The connection graph of the defined surface can be vizualized by the following command:
 
 ```
 geo.plot_connection_graph()

@@ -1,6 +1,6 @@
-from adze_modeler.geometry import Geometry
 from unittest import TestCase
 
+from adze_modeler.geometry import Geometry
 from importlib_resources import files
 
 

@@ -1,5 +1,7 @@
 from abc import ABCMeta
 from abc import abstractmethod
+from copy import copy
+
 from adze_modeler.boundaries import BoundaryCondition
 from adze_modeler.material import Material
 from adze_modeler.metadata import Metadata
@@ -7,7 +9,6 @@ from adze_modeler.objects import CircleArc
 from adze_modeler.objects import CubicBezier
 from adze_modeler.objects import Line
 from adze_modeler.objects import Node
-from copy import copy
 
 
 class Platform(metaclass=ABCMeta):
