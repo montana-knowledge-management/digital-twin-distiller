@@ -149,50 +149,50 @@ class TestCubicBezier(TestCase):
         # print(cb)
 
 
-class TestParametricBezier(TestCase):
-    def test_init(self):
-        bz = ParametricBezier(start_pt=(1, 0), end_pt=(10, 0), c1=(2, 2), c2=(5, 5))
-        self.assertEqual(bz.p0, (1, 0))
-        self.assertEqual(bz.p1, (2, 2))
-        self.assertEqual(bz.p2, (5, 5))
-        self.assertEqual(bz.p3, (10, 0))
-
-    def test_set(self):
-        bz = ParametricBezier(start_pt=(1, 0), end_pt=(10, 0), c1=(2, 2), c2=(5, 5))
-
-        bz.set(start_pt=(0, 0))
-        self.assertEqual(bz.p0, (0, 0))
-        self.assertEqual(bz.p1, (2, 2))
-        self.assertEqual(bz.p2, (5, 5))
-        self.assertEqual(bz.p3, (10, 0))
-
-    def test_approximate(self):
-        bz = ParametricBezier(start_pt=(0, 0), end_pt=(10, 0), c1=(2.5, 0), c2=(7.5, 0))
-
-        xref, yref = [0, 5.0, 5.0, 10], [0, 0.0, 0.0, 0]
-        xapp, yapp = bz.approximate(1)
-        for xi_r, xi_app in zip(xref, xapp):
-            self.assertAlmostEqual(xi_r, xi_app)
-
-        for yi_r, yi_app in zip(yref, yapp):
-            self.assertAlmostEqual(yi_r, yi_app)
-
-    def test_call(self):
-        bz = ParametricBezier(start_pt=(0, 0), end_pt=(10, 0), c1=(2.5, 0), c2=(7.5, 0))
-        x, y = bz(0)
-        self.assertAlmostEqual(x, 0.0, 5)
-        self.assertAlmostEqual(y, 0.0, 5)
-
-        x, y = bz(0.5)
-        self.assertAlmostEqual(x, 5.0, 5)
-        self.assertAlmostEqual(y, 0.0, 5)
-
-        x, y = bz(1)
-        self.assertAlmostEqual(x, 10.0, 5)
-        self.assertAlmostEqual(y, 0.0, 5)
-
-        with self.assertRaises(AssertionError):
-            x, y = bz(5)
+# class TestParametricBezier(TestCase):
+#     # def test_init(self):
+#     #     bz = ParametricBezier(start_pt=(1, 0), end_pt=(10, 0), c1=(2, 2), c2=(5, 5))
+#     #     self.assertEqual(bz.p0, (1, 0))
+#     #     self.assertEqual(bz.p1, (2, 2))
+#     #     self.assertEqual(bz.p2, (5, 5))
+#     #     self.assertEqual(bz.p3, (10, 0))
+#     #
+#     # def test_set(self):
+#     #     bz = ParametricBezier(start_pt=(1, 0), end_pt=(10, 0), c1=(2, 2), c2=(5, 5))
+#     #
+#     #     bz.set(start_pt=(0, 0))
+#     #     self.assertEqual(bz.p0, (0, 0))
+#     #     self.assertEqual(bz.p1, (2, 2))
+#     #     self.assertEqual(bz.p2, (5, 5))
+#     #     self.assertEqual(bz.p3, (10, 0))
+#
+#     # def test_approximate(self):
+#     #     bz = ParametricBezier(start_pt=(0, 0), end_pt=(10, 0), c1=(2.5, 0), c2=(7.5, 0))
+#     #
+#     #     xref, yref = [0, 5.0, 5.0, 10], [0, 0.0, 0.0, 0]
+#     #     xapp, yapp = bz.approximate(1)
+#     #     for xi_r, xi_app in zip(xref, xapp):
+#     #         self.assertAlmostEqual(xi_r, xi_app)
+#     #
+#     #     for yi_r, yi_app in zip(yref, yapp):
+#     #         self.assertAlmostEqual(yi_r, yi_app)
+#
+#     # def test_call(self):
+#     #     bz = ParametricBezier(start_pt=(0, 0), end_pt=(10, 0), c1=(2.5, 0), c2=(7.5, 0))
+#     #     x, y = bz(0)
+#     #     self.assertAlmostEqual(x, 0.0, 5)
+#     #     self.assertAlmostEqual(y, 0.0, 5)
+#     #
+#     #     x, y = bz(0.5)
+#     #     self.assertAlmostEqual(x, 5.0, 5)
+#     #     self.assertAlmostEqual(y, 0.0, 5)
+#     #
+#     #     x, y = bz(1)
+#     #     self.assertAlmostEqual(x, 10.0, 5)
+#     #     self.assertAlmostEqual(y, 0.0, 5)
+#     #
+#     #     with self.assertRaises(AssertionError):
+#     #         x, y = bz(5)
 
 
 class TesRectangle(TestCase):
