@@ -22,5 +22,5 @@ setup(
         "pydantic",
         "uvicorn",
     ],
-    extras_require={"full": [f"agrossuite >= 0.01"]},
+    extras_require={"full": ["agrossuite >= 0.01"]},
 )
