@@ -1,12 +1,11 @@
 # ADZE-Modeler
 
 
-
-[![codecov](https://codecov.io/gh/tamasorosz/adze-modeler/branch/main/graph/badge.svg?token=zH6pBqqnid)](https://codecov.io/gh/tamasorosz/adze-modeler)
+![tests](https://github.com/robust-design-stack/adze-modeler/actions/workflows/test.yml/badge.svg)
+[![codecov](https://codecov.io/gh/robust-design-stack/adze-modeler/branch/main/graph/badge.svg?token=FPRAPGB6AY)](https://codecov.io/gh/robust-design-stack/adze-modeler)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/tamasorosz/artap-segment.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tamasorosz/artap-segment/alerts/)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/tamasorosz/artap-segment.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tamasorosz/artap-segment/context:python)
-
-[![License](https://badgen.net/github/license/tamasorosz/artap-segment?labelColor=2e3a44&label=License)](https://github.com/tamasorosz/artap-segment/master/LICENSE)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/robust-design-stack/adze-modeler.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/robust-design-stack/adze-modeler/context:python)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Code Style](https://badgen.net/badge/Code%20Style/black?labelColor=2e3a44&color=000000)](https://github.com/psf/black)
 
 
