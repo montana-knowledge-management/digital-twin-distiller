@@ -661,21 +661,21 @@ class FemmTester(TestCase):
         print(cmds)
 
 
-class TestFemmExecutor(TestCase):
-    # def test_executor_proper_file(self):
-    #     testfile = str(Path(__file__).parent / "test.lua")
-    #     warnings.simplefilter("ignore", ResourceWarning)
-    #     exec = FemmExecutor()
-    #     with open(testfile, "w") as f:
-    #         f.write("quit()")
-    #     self.assertEqual(True, exec.run_femm(testfile))
+# class TestFemmExecutor(TestCase):
+#     # def test_executor_proper_file(self):
+#     #     testfile = str(Path(__file__).parent / "test.lua")
+#     #     warnings.simplefilter("ignore", ResourceWarning)
+#     #     exec = FemmExecutor()
+#     #     with open(testfile, "w") as f:
+#     #         f.write("quit()")
+#     #     self.assertEqual(True, exec.run_femm(testfile))
 
-    def test_executor_invalid_file(self):
-        testfile = str(Path(__file__).parent / "test_invalid.lua")
-        warnings.simplefilter("ignore", ResourceWarning)
-        exec = FemmExecutor()
+#     def test_executor_invalid_file(self):
+#         testfile = str(Path(__file__).parent / "test_invalid.lua")
+#         warnings.simplefilter("ignore", ResourceWarning)
+#         exec = FemmExecutor()
 
-        with open(testfile, "w") as f:
-            f.write("not_existing_command()")
+#         with open(testfile, "w") as f:
+#             f.write("not_existing_command()")
 
-        self.assertEqual(None, exec.run_femm(testfile, timeout=0))
+#         self.assertEqual(None, exec.run_femm(testfile, timeout=0))
