@@ -94,18 +94,27 @@ class TestSnapshotAgros2D(unittest.TestCase):
         ...
 
     # TODO: ??
-    # def test_export(self):
-    #     s = self.get_snapshot()
-    #     s.add_material(Material("air"))
-    #     s.assign_material(0, 0, "air")
-    #     s.add_geometry(self.get_geometry())
-    #     s.add_boundary_condition(DirichletBoundaryCondition("d0", field_type="magnetic", magnetic_potential=30))
-    #     f = MockFileHandle()
-    #     # s.export()
-    #     s.export(f)
-    #     with open(Path(__file__).parent / "solver_script_references" / "agros2d_default_script.py") as f_ref:
-    #         for i, line in enumerate(f_ref.readlines()):
-    #             self.assertEqual(f.get_line(i), line.rstrip())
+    def test_export(self):
+        s = self.get_snapshot()
+        s.add_material(Material("air"))
+        s.assign_material(0, 0, "air")
+        s.add_geometry(self.get_geometry())
+        s.add_boundary_condition(DirichletBoundaryCondition("d0", field_type="magnetic", magnetic_potential=30))
+        f = MockFileHandle()
+        # s.export()
+        s.export(f)
+        with open(Path(__file__).parent / "solver_script_references" / "agros2d_default_script.py") as f_ref:
+            for i, line in enumerate(f_ref.readlines()):
+                if "remove(" in line:
+                    continue
+
+                if "openfile" in line:
+                    continue
+
+                if "saveas" in line:
+                    continue
+
+                self.assertEqual(f.get_line(i), line.rstrip())
 
 
 class TestSnapshotFemm(unittest.TestCase):
@@ -169,15 +178,30 @@ class TestSnapshotFemm(unittest.TestCase):
     def test_add_postprocessing(self):
         ...
 
-    # def test_export(self):
-    #     s = self.get_snapshot()
-    #     s.add_geometry(self.get_geometry())
-    #     s.add_material(Material("air"))
-    #     s.assign_material(0, 0, "air")
-    #     s.add_boundary_condition(DirichletBoundaryCondition("d0", "magnetic", magnetic_potential=30))
-    #     f = MockFileHandle()
-    #     # s.export()
-    #     s.export(f)
-    #     with open(Path(__file__).parent / "solver_script_references" / "femm_default_script.lua") as f_ref:
-    #         for i, line in enumerate(f_ref.readlines()):
-    #             self.assertEqual(f.get_line(i), line.rstrip())
+    def test_export(self):
+        s = self.get_snapshot()
+        s.add_geometry(self.get_geometry())
+        s.add_material(Material("air"))
+        s.assign_material(0, 0, "air")
+        s.add_boundary_condition(DirichletBoundaryCondition("d0", "magnetic", magnetic_potential=30))
+        f = MockFileHandle()
+        # s.export()
+        s.export(f)
+        with open(Path(__file__).parent / "solver_script_references" / "femm_default_script.lua") as f_ref:
+            for i, line in enumerate(f_ref.readlines()):
+                if "remove(" in line:
+                    continue
+
+                if "openfile" in line:
+                    continue
+
+                if "saveas" in line:
+                    continue
+
+                self.assertEqual(f.get_line(i), line.rstrip())
+
+
+if __name__ == "__main__":
+    t = TestSnapshotAgros2D()
+    t.test_export()
+

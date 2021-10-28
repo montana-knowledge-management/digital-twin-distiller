@@ -1,17 +1,15 @@
 
 -- PROBLEM
 
-showconsole()
-clearconsole()
-remove("femm_solution.csv")
+remove("")
 newdocument(0)
-file_out = openfile("femm_solution.csv", "w")
+file_out = openfile("", "w")
 mi_probdef(0.0,'millimeters','axi',1e-08, 1.0, 30, 0)
 mi_smartmesh(0)
 
 -- MATERIAL DEFINITIONS
 
-mi_addmaterial('air', 1.0, 1.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0.0, 1.0)
+mi_addmaterial('air', 1.0, 1.0, 0.0, 0.0, 0.0, 0, 0.0, 0, 0, 0, 0, 0.0, 1.0)
 
 -- BOUNDARY DEFINITIONS
 
@@ -32,7 +30,7 @@ mi_clearselected()
 
 -- SOLVE
 
-mi_saveas("femm_solver_script.fem")
+mi_saveas("")
 mi_analyze(1)
 mi_loadsolution()
 
