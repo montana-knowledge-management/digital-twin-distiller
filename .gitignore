@@ -12,6 +12,9 @@ __pycache__/
 # Mkdocs
 site/
 
+# poetry dist folder
+dist
+
 # Distribution / packaging
 .Python
 build/

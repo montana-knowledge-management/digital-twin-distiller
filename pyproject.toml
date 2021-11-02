@@ -1,23 +1,41 @@
-tool.poetry]
+[tool.poetry]
 name = "ADZE-modeler"
 version = "0.0.1"
 description = "Creates an encapsulated FEM simulation"
 authors = [
-    "TBD@montana.hu"
+    "Tamas Orosz <orosz.tamas@montana.hu>",
+    "Krisztian Gado <gado.krisztian@montana.hu>",
 ]
 
 license = "AGPL"
 
 [tool.poetry.dependencies]
-python = "^3.8"
-typer = "*"
+python = ">=3.8,<3.10"
+Jinja2="^3.0.1"
+aiofiles="^0.7.0"
+ezdxf = "^0.16.5"
+fastapi = "^0.70"
+gmsh = "^4.8.4"
+importlib-resources="^5.4.0"
+mkdocs-git-revision-date-plugin="^0.3.1"
+mkdocs-material="^7.3.6"
+mkdocs="^1.2.3"
+mkdocstrings="^0.16.2"
+networkx="^2.6.3"
+numpy="^1.21.0"
+pydantic="^1.8.2"
+pygmsh="^7.1.13"
+pyvista="^0.32.1"
+scipy="^1.7.0"
+svgpathtools="^1.4.2"
+uvicorn="^0.15.0"
+vedo="^2021"
 
 [tool.poetry.dev-dependencies]
-black = "*"
+black = "^21.10b0"
 coverage = "*"
-pre-commit = "*"
+pre-commit="^2.15.0"
 pytest = "*"
-pytest-randomly = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
