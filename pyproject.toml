@@ -30,6 +30,7 @@ scipy="^1.7.0"
 svgpathtools="^1.4.2"
 uvicorn="^0.15.0"
 vedo="^2021"
+gitlint = "^0.16.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.10b0"
@@ -67,3 +68,15 @@ use_parentheses = true
 include_trailing_comma = true
 multi_line_output = 3
 force_grid_wrap = 0
+
+[tool.pylint.FORMAT]
+max-line-length = 127
+
+[tool.pylint.MASTER]
+disable = [
+    "bad-continuation",
+    "duplicate-code",
+    "invalid-name",
+    "missing-docstring",
+    "too-few-public-methods",
+]
