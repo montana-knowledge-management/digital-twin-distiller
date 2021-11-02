@@ -9,7 +9,8 @@
 [![Code Style](https://badgen.net/badge/Code%20Style/black?labelColor=2e3a44&color=000000)](https://github.com/psf/black)
 
 
-## Geometry modeler for Pre-concept Design Optimization
+Web-based FEM simulations.
+
 
 Why the name?
 -------------
