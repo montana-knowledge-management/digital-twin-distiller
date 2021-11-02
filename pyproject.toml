@@ -1,44 +1,46 @@
-[project]
+tool.poetry]
 name = "ADZE-modeler"
 version = "0.0.1"
-description = "Creates a web-based FEM simulation"
-readme = "README.md"
-requires-python = ">=3.7"
-license = {file = "LICENSE.txt"}
-keywords = ["robust design", "optimization", "scientific", "engineering", "fem", "finite elements"]
+description = "Creates an encapsulated FEM simulation"
 authors = [
-  {email = "@montana.hu"},
-  {name = "..."}
-]
-classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python",
-  "Development Status :: 5 - Production/Stable",
-  "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
-  "Operating System :: OS Independent",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Topic :: Scientific/Engineering",
-  "Topic :: Utilities"
-]
-dependencies = [
-  "importlib_metadata; python_version<'3.8'",
-  "numpy"
+    "TBD@montana.hu"
 ]
 
+license = "AGPL"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+typer = "*"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+coverage = "*"
+pre-commit = "*"
+pytest = "*"
+pytest-randomly = "*"
+
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 120
 target-version = ['py37']
 include = '\.pyi?$'
 extend-exclude = ' E203, E266, E501, W503, C901, E741, C812, C819, FS002, FS003'
+
+
+[tool.coverage.report]
+exclude_lines = [
+    'if __name__ == "__main__":',
+]
+
+
+[tool.coverage.run]
+branch = true
+omit = [
+    ".venv/*",
+]
 
 [tool.isort]
 line_length = 120
