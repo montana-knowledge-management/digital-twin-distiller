@@ -10,7 +10,7 @@ authors = [
 license = "AGPL"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<=3.10"
+python = ">=3.8,<3.10"
 Jinja2="^3.0.1"
 aiofiles="^0.7.0"
 ezdxf = "^0.16.5"
