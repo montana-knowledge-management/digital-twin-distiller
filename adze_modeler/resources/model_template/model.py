@@ -1,10 +1,10 @@
-from adze_modeler.model import BaseModel
+from adze_modeler.boundaries import DirichletBoundaryCondition
+from adze_modeler.material import Material
 from adze_modeler.metadata import FemmMetadata
+from adze_modeler.model import BaseModel
+from adze_modeler.modelpaths import ModelDir
 from adze_modeler.platforms.femm import Femm
 from adze_modeler.snapshot import Snapshot
-from adze_modeler.material import Material
-from adze_modeler.boundaries import DirichletBoundaryCondition
-from adze_modeler.modelpaths import ModelDir
 
 ModelDir.set_base(__file__)
 

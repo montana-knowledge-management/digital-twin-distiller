@@ -1,5 +1,4 @@
-from abc import ABCMeta
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections.abc import Iterable
 from types import SimpleNamespace
 
@@ -25,13 +24,17 @@ class Field(metaclass=ABCMeta):
         if isinstance(n, int) and n > 0:
             self.nb_refinements = n
         else:
-            raise ValueError(f"Number of refinement is a positive integer. Got {n}.")
+            raise ValueError(
+                f"Number of refinement is a positive integer. Got {n}."
+            )
 
     def set_polynomial_order(self, n):
         if isinstance(n, int) and n > 0:
             self.polyorder = n
         else:
-            raise ValueError(f"Polynomial order is a positive integer. Got {n}.")
+            raise ValueError(
+                f"Polynomial order is a positive integer. Got {n}."
+            )
 
     def set_adaptivity(self, adaptivity_type="disabled"):
         if adaptivity_type == "disabled":
@@ -98,13 +101,17 @@ class ElectrostaticField(Field):
         if analysis_type in {"steady", "steadystate", "stationary", "static"}:
             self.analysis = "steadystate"
         else:
-            raise ValueError(f'Electrostatic problems can be "steady" only. Got "{analysis_type}".')
+            raise ValueError(
+                f'Electrostatic problems can be "steady" only. Got "{analysis_type}".'
+            )
 
     def set_solver(self, solver_type):
         if solver_type == "linear":
             self.solver = "linear"
         else:
-            raise ValueError(f'Electrostatic solver is "linear" only. Got "{solver_type}".')
+            raise ValueError(
+                f'Electrostatic solver is "linear" only. Got "{solver_type}".'
+            )
 
     def add_boundary_condition(self, type_, name, value=0):
         """
@@ -113,7 +120,9 @@ class ElectrostaticField(Field):
         :param value: the value of the boundary condition
         """
         if type_ not in {"d", "n"}:
-            raise ValueError(f"Expected values for type_ are 'd' (dirichlet) or 'n' (neumann). Got '{type_}'.")
+            raise ValueError(
+                f"Expected values for type_ are 'd' (dirichlet) or 'n' (neumann). Got '{type_}'."
+            )
 
         if type_ == "d":
             self.bc_dirichlet[name] = value
@@ -163,7 +172,9 @@ class MagneticField(Field):
             self.analysis = "harmonic"
 
         else:
-            raise ValueError(f'Accepted values: "steady", "transient", "harmonic". Got "{analysis_type}"')
+            raise ValueError(
+                f'Accepted values: "steady", "transient", "harmonic". Got "{analysis_type}"'
+            )
 
     def set_solver(self, solver_type):
 
@@ -174,11 +185,15 @@ class MagneticField(Field):
         elif solver_type == "newton":
             self.solver = "newton"
         else:
-            raise ValueError(f'Accepted values: "linear", "picard", "newton". Got "{solver_type}"')
+            raise ValueError(
+                f'Accepted values: "linear", "picard", "newton". Got "{solver_type}"'
+            )
 
     def add_boundary_condition(self, type_, name, value=0):
         if type_ not in {"d", "n"}:
-            raise ValueError(f"Expected values for type_ are 'd' (dirichlet) or 'n' (neumann). Got '{type_}'.")
+            raise ValueError(
+                f"Expected values for type_ are 'd' (dirichlet) or 'n' (neumann). Got '{type_}'."
+            )
 
         if type_ == "d":
             self.bc_dirichlet[name] = value
@@ -219,7 +234,13 @@ class MagneticField(Field):
         if total_current:
             newmaterial.total_current_prescribed = True
 
-        if B and H and isinstance(B, Iterable) and isinstance(H, Iterable) and len(B) == len(H):
+        if (
+            B
+            and H
+            and isinstance(B, Iterable)
+            and isinstance(H, Iterable)
+            and len(B) == len(H)
+        ):
             self.set_solver("picard")
             mu_r = list()
             for Bi, Hi in zip(B, H):
@@ -264,14 +285,18 @@ class MagneticField(Field):
             if self.analysis == "harmonic":
                 bcdict["magnetic_potential_imag"] = bi.imag
 
-            print(f'{self.name}.add_boundary("{name}", "magnetic_potential", {str(bcdict)})')
+            print(
+                f'{self.name}.add_boundary("{name}", "magnetic_potential", {str(bcdict)})'
+            )
 
             for name, bi in self.bc_neumann.items():
                 bcdict = {"magnetic_surface_current_real": bi.real}
                 if self.analysis == "harmonic":
                     bcdict["magnetic_surface_current_imag"] = bi.imag
 
-                print(f'{self.name}.add_boundary("{name}", "magnetic_surface_current", {str(bcdict)})')
+                print(
+                    f'{self.name}.add_boundary("{name}", "magnetic_surface_current", {str(bcdict)})'
+                )
 
 
 class HeatFlowField(Field):

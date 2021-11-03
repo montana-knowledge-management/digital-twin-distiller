@@ -1,9 +1,9 @@
 import operator
+from math import pi
+
 from adze_modeler.geometry import Geometry
 from adze_modeler.objects import Node
-from adze_modeler.utils import getID
-from adze_modeler.utils import mirror_point
-from math import pi
+from adze_modeler.utils import getID, mirror_point
 
 
 class ModelPiece:
@@ -115,12 +115,18 @@ class ModelPiece:
             start = mirror_point(p1, p2, self.geom.circle_arcs[i].start_pt)
             end = mirror_point(p1, p2, self.geom.circle_arcs[i].end_pt)
             self.geom.circle_arcs[i].start_pt = end
-            self.geom.circle_arcs[i].center_pt = mirror_point(p1, p2, self.geom.circle_arcs[i].center_pt)
+            self.geom.circle_arcs[i].center_pt = mirror_point(
+                p1, p2, self.geom.circle_arcs[i].center_pt
+            )
             self.geom.circle_arcs[i].end_pt = start
 
         for i in range(len(self.geom.lines)):
-            self.geom.lines[i].start_pt = mirror_point(p1, p2, self.geom.lines[i].start_pt)
-            self.geom.lines[i].end_pt = mirror_point(p1, p2, self.geom.lines[i].end_pt)
+            self.geom.lines[i].start_pt = mirror_point(
+                p1, p2, self.geom.lines[i].start_pt
+            )
+            self.geom.lines[i].end_pt = mirror_point(
+                p1, p2, self.geom.lines[i].end_pt
+            )
 
     def rotate(self, ref_point=(0, 0), alpha=0):
         """
@@ -130,16 +136,28 @@ class ModelPiece:
         ref_point = Node(*ref_point)
         alpha = alpha * pi / 180
         for i in range(len(self.geom.nodes)):
-            self.geom.nodes[i] = self.geom.nodes[i].rotate_about(ref_point, alpha)
+            self.geom.nodes[i] = self.geom.nodes[i].rotate_about(
+                ref_point, alpha
+            )
 
         for i in range(len(self.geom.circle_arcs)):
-            self.geom.circle_arcs[i].start_pt = self.geom.circle_arcs[i].start_pt.rotate_about(ref_point, alpha)
-            self.geom.circle_arcs[i].center_pt = self.geom.circle_arcs[i].center_pt.rotate_about(ref_point, alpha)
-            self.geom.circle_arcs[i].end_pt = self.geom.circle_arcs[i].end_pt.rotate_about(ref_point, alpha)
+            self.geom.circle_arcs[i].start_pt = self.geom.circle_arcs[
+                i
+            ].start_pt.rotate_about(ref_point, alpha)
+            self.geom.circle_arcs[i].center_pt = self.geom.circle_arcs[
+                i
+            ].center_pt.rotate_about(ref_point, alpha)
+            self.geom.circle_arcs[i].end_pt = self.geom.circle_arcs[
+                i
+            ].end_pt.rotate_about(ref_point, alpha)
 
         for i in range(len(self.geom.lines)):
-            self.geom.lines[i].start_pt = self.geom.lines[i].start_pt.rotate_about(ref_point, alpha)
-            self.geom.lines[i].end_pt = self.geom.lines[i].end_pt.rotate_about(ref_point, alpha)
+            self.geom.lines[i].start_pt = self.geom.lines[
+                i
+            ].start_pt.rotate_about(ref_point, alpha)
+            self.geom.lines[i].end_pt = self.geom.lines[i].end_pt.rotate_about(
+                ref_point, alpha
+            )
 
         self._update_bbox()
 

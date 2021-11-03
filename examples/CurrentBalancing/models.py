@@ -7,7 +7,7 @@ import numpy as np
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.geometry import Geometry
 from adze_modeler.material import Material
-from adze_modeler.metadata import FemmMetadata, Agros2DMetadata
+from adze_modeler.metadata import Agros2DMetadata, FemmMetadata
 from adze_modeler.modelpiece import ModelPiece
 from adze_modeler.platforms.agros2d import Agros2D
 from adze_modeler.platforms.femm import Femm
@@ -20,7 +20,9 @@ class BaseModel:
     dir_resources = dir_current / "resources"
     dir_snapshots = dir_current / "snapshots"
 
-    def __init__(self, X: list, i: int, j: int, Ii=1.0, Ij=1.0, exportname: str = None):
+    def __init__(
+        self, X: list, i: int, j: int, Ii=1.0, Ij=1.0, exportname: str = None
+    ):
         # paths
         self.name = exportname or str(uuid4())
         self.dir_export = self.dir_snapshots / self.name
@@ -75,7 +77,9 @@ class BaseModel:
         self.snapshot.add_material(ij)
 
     def define_boundary_conditions(self):
-        a0 = DirichletBoundaryCondition("a0", field_type="magnetic", magnetic_potential=0.0)
+        a0 = DirichletBoundaryCondition(
+            "a0", field_type="magnetic", magnetic_potential=0.0
+        )
         self.snapshot.add_boundary_condition(a0)
 
     def init_geometry(self):
@@ -110,11 +114,17 @@ class BaseModel:
         for k in range(16):
             offset += 62.5 + self.X[k]
             if k == self.i:
-                self.snapshot.assign_material((750 + 33.0 / 2) / 2, 1280 - offset + 62.5 / 2, "Ii")
+                self.snapshot.assign_material(
+                    (750 + 33.0 / 2) / 2, 1280 - offset + 62.5 / 2, "Ii"
+                )
             elif k == self.j:
-                self.snapshot.assign_material((750 + 33.0 / 2) / 2, 1280 - offset + 62.5 / 2, "Ij")
+                self.snapshot.assign_material(
+                    (750 + 33.0 / 2) / 2, 1280 - offset + 62.5 / 2, "Ij"
+                )
             else:
-                self.snapshot.assign_material((750 + 33.0 / 2) / 2, 1280 - offset + 62.5 / 2, "air")
+                self.snapshot.assign_material(
+                    (750 + 33.0 / 2) / 2, 1280 - offset + 62.5 / 2, "air"
+                )
 
     def assign_boundary_conditions(self):
         self.snapshot.assign_boundary_condition(493 / 2, 695, "a0")
@@ -159,8 +169,9 @@ class BaseModel:
 
 if __name__ == "__main__":
     from random import seed
-    from numpy import zeros
+
     import matplotlib.pyplot as plt
+    from numpy import zeros
 
     seed(42)
     # X = [uniform(3, 6.25) for _ in range(16)]

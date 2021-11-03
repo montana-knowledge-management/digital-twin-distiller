@@ -1,12 +1,15 @@
 import unittest
 from collections import Counter
 
-from adze_modeler.femm_wrapper import femm_heat_flow
-from adze_modeler.femm_wrapper import FemmWriter
-from adze_modeler.femm_wrapper import HeatFlowConvection
-from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
-from adze_modeler.femm_wrapper import HeatFlowMaterial
 from importlib_resources import files
+
+from adze_modeler.femm_wrapper import (
+    FemmWriter,
+    HeatFlowConvection,
+    HeatFlowFixedTemperature,
+    HeatFlowMaterial,
+    femm_heat_flow,
+)
 
 
 def c2k(C):
@@ -100,7 +103,9 @@ class TestFemmCurrentFlowProblem(unittest.TestCase):
         writer.close()
 
         try:
-            reference = files("tests.integration_tests").joinpath("heatflow_test.lua")
+            reference = files("tests.integration_tests").joinpath(
+                "heatflow_test.lua"
+            )
             with open(reference) as f:
                 content = f.readlines()
                 counter_test = Counter(content)
@@ -119,7 +124,10 @@ class TestFemmCurrentFlowProblem(unittest.TestCase):
                     if "openfile" in key:
                         continue
 
-                    self.assertEqual(counter_reference[key.rstrip()], counter_test[key + "\n"])
+                    self.assertEqual(
+                        counter_reference[key.rstrip()],
+                        counter_test[key + "\n"],
+                    )
 
         except FileNotFoundError:
             self.assertTrue(False)

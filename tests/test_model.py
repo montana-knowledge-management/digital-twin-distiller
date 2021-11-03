@@ -76,4 +76,3 @@ class TestModel(unittest.TestCase):
         self.dir_resources.rmdir()
         self.dir_media.rmdir()
         self.dir_data.rmdir()
-

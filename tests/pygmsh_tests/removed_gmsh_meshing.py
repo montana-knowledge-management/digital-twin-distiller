@@ -1,14 +1,12 @@
 from os import remove
 from unittest import TestCase
 
-from adze_modeler.geometry import Geometry
-from adze_modeler.gmsh import GMSHModel
-from adze_modeler.objects import CircleArc
-from adze_modeler.objects import Line
-from adze_modeler.objects import Node
 from importlib_resources import files
 from meshio._helpers import read
 
+from adze_modeler.geometry import Geometry
+from adze_modeler.gmsh import GMSHModel
+from adze_modeler.objects import CircleArc, Line, Node
 
 # # plotting out the mesh
 # import pyvista as pv

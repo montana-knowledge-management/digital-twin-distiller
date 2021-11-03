@@ -1,10 +1,13 @@
 import unittest
 from collections import Counter
 
-from adze_modeler.femm_wrapper import ElectrostaticMaterial
-from adze_modeler.femm_wrapper import femm_electrostatic
-from adze_modeler.femm_wrapper import FemmWriter
 from importlib_resources import files
+
+from adze_modeler.femm_wrapper import (
+    ElectrostaticMaterial,
+    FemmWriter,
+    femm_electrostatic,
+)
 
 
 class TestFemmElectrostaticProblem(unittest.TestCase):
@@ -67,9 +70,10 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
         writer.write_out_result("E", "E")
         writer.close()
 
-
         try:
-            reference = files("tests.integration_tests").joinpath("electrostatic_test.lua")
+            reference = files("tests.integration_tests").joinpath(
+                "electrostatic_test.lua"
+            )
             with open(reference) as f:
                 content = f.readlines()
                 counter_test = Counter(content)
@@ -87,7 +91,10 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
                     if "openfile" in key:
                         continue
 
-                    self.assertEqual(counter_reference[key.rstrip()], counter_test[key + "\n"])
+                    self.assertEqual(
+                        counter_reference[key.rstrip()],
+                        counter_test[key + "\n"],
+                    )
 
         except FileNotFoundError:
             self.assertTrue(False)

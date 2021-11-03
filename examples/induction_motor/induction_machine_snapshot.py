@@ -1,15 +1,26 @@
-from adze_modeler.geometry import Geometry
-from adze_modeler.objects import Node
-from adze_modeler.femm_wrapper import FemmWriter, MagneticMaterial, femm_magnetic, MagneticDirichlet, MagneticAnti
-from adze_modeler.material import MaterialSnapshot
-from adze_modeler.boundaries import BoundarySnaphot
-from adze_modeler.femm_wrapper import FemmExecutor
 from math import pi
+
+from adze_modeler.boundaries import BoundarySnaphot
+from adze_modeler.femm_wrapper import (
+    FemmExecutor,
+    FemmWriter,
+    MagneticAnti,
+    MagneticDirichlet,
+    MagneticMaterial,
+    femm_magnetic,
+)
+from adze_modeler.geometry import Geometry
+from adze_modeler.material import MaterialSnapshot
+from adze_modeler.objects import Node
 
 # material properties
 # silicon core with linea bh relationships
-silicon_core = MagneticMaterial("silicon_core", 7000, 7000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
-aluminum = MagneticMaterial("aluminum", 1, 1, 0, 0, 34.5, 0, 0, 1, 0, 0, 0, 0, 0)
+silicon_core = MagneticMaterial(
+    "silicon_core", 7000, 7000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0
+)
+aluminum = MagneticMaterial(
+    "aluminum", 1, 1, 0, 0, 34.5, 0, 0, 1, 0, 0, 0, 0, 0
+)
 air = MagneticMaterial("air", 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
 
 
@@ -49,7 +60,9 @@ def create_snapshot():
     # create and save a model geometry in lua language
     femm_model = FemmWriter()
     femm_model.lua_model = femm_model.init_problem()
-    femm_model.lua_model.append(FemmWriter().magnetic_problem(4, "millimeters", "planar", 1e-8, 100, 20))
+    femm_model.lua_model.append(
+        FemmWriter().magnetic_problem(4, "millimeters", "planar", 1e-8, 100, 20)
+    )
     femm_model.lua_model += femm_model.create_geometry(geo)
 
     # airgap ----------------------------------------------------------------------
@@ -83,13 +96,26 @@ def create_snapshot():
     femm_model.lua_model += rods.create_femm_block_label()
 
     # coil definitions
-    femm_model.lua_model += create_phase("copper_a", Node(45.5, 3.5), 1, "A", "1", 44)
-    femm_model.lua_model += create_phase("copper_b", Node(20.0, 43.9), 3, "B", "-0.5+I*0.8660254037844386", 44)
-    femm_model.lua_model += create_phase("copper_c", Node(39.285, 26.8865), 2, "C", "-0.5-I*0.866025403784439", -44)
+    femm_model.lua_model += create_phase(
+        "copper_a", Node(45.5, 3.5), 1, "A", "1", 44
+    )
+    femm_model.lua_model += create_phase(
+        "copper_b", Node(20.0, 43.9), 3, "B", "-0.5+I*0.8660254037844386", 44
+    )
+    femm_model.lua_model += create_phase(
+        "copper_c",
+        Node(39.285, 26.8865),
+        2,
+        "C",
+        "-0.5-I*0.866025403784439",
+        -44,
+    )
 
     # boundary conditions
     # dirichlet
-    a0 = MagneticDirichlet("a0", 0, 0, 0, 0)  # "name", "a_0", "a_1", "a_2", "phi"
+    a0 = MagneticDirichlet(
+        "a0", 0, 0, 0, 0
+    )  # "name", "a_0", "a_1", "a_2", "phi"
 
     diri = BoundarySnaphot()
     diri.boundary = a0
@@ -97,9 +123,21 @@ def create_snapshot():
     diri.field_type = femm_magnetic  # magnetic field with the femm material
 
     for arc in geo.circle_arcs:
-        if abs((float(arc.start_pt.x) ** 2 + float(arc.start_pt.y) ** 2) ** 0.5 - 12.5) < 1e-3:
+        if (
+            abs(
+                (float(arc.start_pt.x) ** 2 + float(arc.start_pt.y) ** 2) ** 0.5
+                - 12.5
+            )
+            < 1e-3
+        ):
             diri.elements.append(arc)
-        if abs((float(arc.start_pt.x) ** 2 + float(arc.start_pt.y) ** 2) ** 0.5 - 65.0) < 1e-3:
+        if (
+            abs(
+                (float(arc.start_pt.x) ** 2 + float(arc.start_pt.y) ** 2) ** 0.5
+                - 65.0
+            )
+            < 1e-3
+        ):
             diri.elements.append(arc)
     # diri.elements = []
     femm_model.lua_model += diri.create_femm_boundaries()
@@ -141,29 +179,55 @@ def create_snapshot():
 
         ## 2
         if line.start_pt.y < 1e-3:
-            if line.start_pt.x < 39.501 and line.end_pt.x < 39.501 and line.start_pt.x > 25.0:
+            if (
+                line.start_pt.x < 39.501
+                and line.end_pt.x < 39.501
+                and line.start_pt.x > 25.0
+            ):
                 app2.elements.append(line)
 
         if line.start_pt.x < 1e-3:
-            if line.start_pt.y < 39.501 and line.end_pt.y < 39.501 and line.start_pt.y > 25.0:
+            if (
+                line.start_pt.y < 39.501
+                and line.end_pt.y < 39.501
+                and line.start_pt.y > 25.0
+            ):
                 app2.elements.append(line)
 
         ## 3
         if line.start_pt.y < 1e-3:
-            if line.start_pt.x < 40.376 and line.end_pt.x < 40.376 and line.start_pt.x > 39.50:
+            if (
+                line.start_pt.x < 40.376
+                and line.end_pt.x < 40.376
+                and line.start_pt.x > 39.50
+            ):
                 app3.elements.append(line)
 
         if line.start_pt.x < 1e-3:
-            if line.start_pt.y < 40.376 and line.end_pt.y < 40.376 and line.start_pt.y > 39.50:
+            if (
+                line.start_pt.y < 40.376
+                and line.end_pt.y < 40.376
+                and line.start_pt.y > 39.50
+            ):
                 app3.elements.append(line)
 
         ## 4
         if line.start_pt.y < 1e-3:
-            if line.start_pt.x < 65.1 and line.end_pt.x < 65.1 and line.start_pt.x > 40.3 and line.end_pt.x > 40.3:
+            if (
+                line.start_pt.x < 65.1
+                and line.end_pt.x < 65.1
+                and line.start_pt.x > 40.3
+                and line.end_pt.x > 40.3
+            ):
                 app4.elements.append(line)
 
         if line.start_pt.x < 1e-3:
-            if line.start_pt.y < 65.1 and line.end_pt.y < 65.1 and line.start_pt.y > 40.3 and line.end_pt.y > 40.3:
+            if (
+                line.start_pt.y < 65.1
+                and line.end_pt.y < 65.1
+                and line.start_pt.y > 40.3
+                and line.end_pt.y > 40.3
+            ):
                 app4.elements.append(line)
 
     femm_model.lua_model += app1.create_femm_boundaries()

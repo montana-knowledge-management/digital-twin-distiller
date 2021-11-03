@@ -1,9 +1,8 @@
-from adze_modeler.geometry import Geometry
-from adze_modeler.gmsh import GMSHModel
-from adze_modeler.objects import Node, Line
-
 import pyvista as pv
 
+from adze_modeler.geometry import Geometry
+from adze_modeler.gmsh import GMSHModel
+from adze_modeler.objects import Line, Node
 
 # define the geometry by hand, a simple arc
 geo = Geometry()

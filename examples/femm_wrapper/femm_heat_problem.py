@@ -1,11 +1,13 @@
 import os
 
-from adze_modeler.femm_wrapper import FemmExecutor
-from adze_modeler.femm_wrapper import FemmWriter
-from adze_modeler.femm_wrapper import HeatFlowConvection
-from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
-from adze_modeler.femm_wrapper import HeatFlowMaterial
-from adze_modeler.femm_wrapper import femm_heat_flow
+from adze_modeler.femm_wrapper import (
+    FemmExecutor,
+    FemmWriter,
+    HeatFlowConvection,
+    HeatFlowFixedTemperature,
+    HeatFlowMaterial,
+    femm_heat_flow,
+)
 
 
 def c2k(C):

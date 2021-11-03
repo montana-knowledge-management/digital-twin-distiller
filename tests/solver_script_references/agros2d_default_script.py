@@ -16,16 +16,30 @@ geometry = a2d.geometry
 magnetic.adaptivity_type = "disabled"
 
 # MATERIAL DEFINITIONS
-magnetic.add_material("air", {'magnetic_remanence_angle': 0.0, 'magnetic_velocity_y': 0.0, 'magnetic_current_density_external_real': 0.0, 'magnetic_permeability': 1.0, 'magnetic_conductivity': 0.0, 'magnetic_remanence': 0.0, 'magnetic_velocity_angular': 0.0, 'magnetic_velocity_x': 0.0})
+magnetic.add_material(
+    "air",
+    {
+        "magnetic_remanence_angle": 0.0,
+        "magnetic_velocity_y": 0.0,
+        "magnetic_current_density_external_real": 0.0,
+        "magnetic_permeability": 1.0,
+        "magnetic_conductivity": 0.0,
+        "magnetic_remanence": 0.0,
+        "magnetic_velocity_angular": 0.0,
+        "magnetic_velocity_x": 0.0,
+    },
+)
 
 # BOUNDARY DEFINITIONS
-magnetic.add_boundary("d0", "magnetic_potential", {'magnetic_potential_real': 30})
+magnetic.add_boundary(
+    "d0", "magnetic_potential", {"magnetic_potential_real": 30}
+)
 
 # GEOMETRY
 geometry.add_edge(-0.001, 0.0, 0.001, 0.0)
 
 # BLOCK LABELS
-geometry.add_label(0.0, 0.0, materials = {'magnetic' : 'air'})
+geometry.add_label(0.0, 0.0, materials={"magnetic": "air"})
 
 # SOLVE
 problem.solve()

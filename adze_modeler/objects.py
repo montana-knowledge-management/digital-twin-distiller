@@ -2,10 +2,9 @@ import math
 from collections.abc import Iterable
 from copy import copy
 
-from adze_modeler.utils import getID
-from adze_modeler.utils import mirror_point
-from adze_modeler.utils import pairwise
 from numpy import linspace
+
+from adze_modeler.utils import getID, mirror_point, pairwise
 
 
 class Node:
@@ -17,10 +16,14 @@ class Node:
     def __init__(self, x=0.0, y=0.0, id=None, label=None, precision=6):
         self.x = x
         self.y = y
-        self.id = id or getID()  # a node has to got a unique id to be translated or moved
+        self.id = (
+            id or getID()
+        )  # a node has to got a unique id to be translated or moved
         self.label = label  # can be used to denote a group of the elements and make some operation with them
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
-        self.hanging = True  # if its contained by another object it will be set to False
+        self.hanging = (
+            True  # if its contained by another object it will be set to False
+        )
 
     def __getitem__(self, item):
         if item == 0:
@@ -72,7 +75,13 @@ class Node:
         # return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
 
     def __copy__(self):
-        return Node(self.x, self.y, id=getID(), label=self.label, precision=self.precision)
+        return Node(
+            self.x,
+            self.y,
+            id=getID(),
+            label=self.label,
+            precision=self.precision,
+        )
 
     def __iter__(self):
         yield from (self.x, self.y)
@@ -156,7 +165,9 @@ class Line:
         self.label = label
 
     def __copy__(self):
-        return Line(copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label)
+        return Line(
+            copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label
+        )
 
     def distance_to_point(self, px, py):
         """
@@ -245,7 +256,9 @@ class Line:
 class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, center_pt, end_pt, id=None, label=None, max_seg_deg=20):
+    def __init__(
+        self, start_pt, center_pt, end_pt, id=None, label=None, max_seg_deg=20
+    ):
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt
@@ -256,10 +269,16 @@ class CircleArc:
         self.radius = self.start_pt.distance_to(self.center_pt)
         clamp = self.start_pt.distance_to(self.end_pt) / 2.0
         try:
-            self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
-            self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
+            self.theta = round(
+                math.asin(clamp / self.radius) * 180 / math.pi * 2, 2
+            )
+            self.apex_pt = self.start_pt.rotate_about(
+                self.center_pt, math.radians(self.theta / 2)
+            )
         except ValueError:
-            self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(90))
+            self.apex_pt = self.start_pt.rotate_about(
+                self.center_pt, math.radians(90)
+            )
 
     @classmethod
     def from_radius(cls, start_pt: Node, end_pt: Node, r: float = 1.0):
@@ -292,16 +311,28 @@ class CircleArc:
         return min(d1, d2, d3)
 
     def __copy__(self):
-        return CircleArc(copy(self.start_pt), copy(self.center_pt), copy(self.end_pt), max_seg_deg=self.max_seg_deg)
+        return CircleArc(
+            copy(self.start_pt),
+            copy(self.center_pt),
+            copy(self.end_pt),
+            max_seg_deg=self.max_seg_deg,
+        )
 
     def __repr__(self):
         return "{}({!r}, {!r}, {!r}, id={!r},label={!r})".format(
-            self.__class__.__name__, self.start_pt, self.center_pt, self.end_pt, self.id, self.label
+            self.__class__.__name__,
+            self.start_pt,
+            self.center_pt,
+            self.end_pt,
+            self.id,
+            self.label,
         )
 
 
 class CubicBezier:
-    def __init__(self, start_pt, control1, control2, end_pt, id=None, label=None):
+    def __init__(
+        self, start_pt, control1, control2, end_pt, id=None, label=None
+    ):
         self.start_pt = start_pt
         self.control1 = control1
         self.control2 = control2
@@ -311,7 +342,13 @@ class CubicBezier:
 
     def __repr__(self):
         return "{}({!r}, {!r}, {!r}, {!r}, id={!r},label={!r})".format(
-            self.__class__.__name__, self.start_pt, self.control1, self.control2, self.end_pt, self.id, self.label
+            self.__class__.__name__,
+            self.start_pt,
+            self.control1,
+            self.control2,
+            self.end_pt,
+            self.id,
+            self.label,
         )
 
 
@@ -574,7 +611,10 @@ class Rectangle:
 
     def _calc_centerpoint(self):
         """Calculates the center-point of the rectangle."""
-        self.cp = Node((self.a.x + self.b.x + self.c.x + self.d.x) / 4, (self.a.y + self.b.y + self.c.y + self.d.y) / 4)
+        self.cp = Node(
+            (self.a.x + self.b.x + self.c.x + self.d.x) / 4,
+            (self.a.y + self.b.y + self.c.y + self.d.y) / 4,
+        )
 
     def _calc_width_height(self):
         """Calculates the width and the height of the Rectangle."""
@@ -596,7 +636,16 @@ class Rectangle:
         print("--" * 15)
 
     def __iter__(self):
-        yield from (self.a.x, self.a.y, self.b.x, self.b.y, self.c.x, self.c.y, self.d.x, self.d.y)
+        yield from (
+            self.a.x,
+            self.a.y,
+            self.b.x,
+            self.b.y,
+            self.c.x,
+            self.c.y,
+            self.d.x,
+            self.d.y,
+        )
 
     def __copy__(self):
         r = Rectangle(self.a.x, self.a.y, width=1.0, height=1.0)

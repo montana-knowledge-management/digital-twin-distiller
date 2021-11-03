@@ -1,18 +1,17 @@
-from symmetric_model import SymmetircModel
 import math
 import multiprocessing
 import operator
-from adze_modeler.metadata import Agros2DMetadata
-from adze_modeler.metadata import FemmMetadata
-from adze_modeler.platforms.agros2d import Agros2D
-from adze_modeler.platforms.femm import Femm
 from functools import partial
 from pathlib import Path
-from random import choice
-from random import uniform
+from random import choice, uniform
 
 from artap.algorithm_genetic import NSGAII
 from artap.problem import Problem
+from symmetric_model import SymmetircModel
+
+from adze_modeler.metadata import Agros2DMetadata, FemmMetadata
+from adze_modeler.platforms.agros2d import Agros2D
+from adze_modeler.platforms.femm import Femm
 
 DIR_BASE = Path(__file__).parent
 DIR_DATA = DIR_BASE / "data"
@@ -80,11 +79,15 @@ class CoilOptimizationProblem(Problem):
 
             deltaBpz = map(operator.abs, map(operator.sub, Bzp, Bz))
             deltaBpr = map(operator.abs, map(operator.sub, Brp, Br))
-            deltaBp = map(math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBpz, deltaBpr))
+            deltaBp = map(
+                math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBpz, deltaBpr)
+            )
 
             deltaBnz = map(operator.abs, map(operator.sub, Bzn, Bz))
             deltaBnr = map(operator.abs, map(operator.sub, Brn, Br))
-            deltaBn = map(math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBnz, deltaBnr))
+            deltaBn = map(
+                math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBnz, deltaBnr)
+            )
 
             F2 = max(map(operator.add, deltaBp, deltaBn))
 

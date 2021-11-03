@@ -1,5 +1,4 @@
-from abc import ABCMeta
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 
 
 class Metadata(metaclass=ABCMeta):
@@ -103,7 +102,14 @@ class FemmMetadata(Metadata):
     def validate_metadata(self):
         self.validate_file_name()
 
-        if self.unit not in {"inches", "millimeters", "centimeters", "mils", "meters", "micrometers"}:
+        if self.unit not in {
+            "inches",
+            "millimeters",
+            "centimeters",
+            "mils",
+            "meters",
+            "micrometers",
+        }:
             raise ValueError(f"There is no {self.unit} unit.")
 
     def __copy__(self):

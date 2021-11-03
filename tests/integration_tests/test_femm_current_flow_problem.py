@@ -1,12 +1,15 @@
 import os
 import unittest
 
-from adze_modeler.femm_wrapper import CurrentFlowFixedVoltage
-from adze_modeler.femm_wrapper import CurrentFlowMaterial
-from adze_modeler.femm_wrapper import CurrentFlowSurfaceCurrent
-from adze_modeler.femm_wrapper import femm_current_flow
-from adze_modeler.femm_wrapper import FemmWriter
 from importlib_resources import files
+
+from adze_modeler.femm_wrapper import (
+    CurrentFlowFixedVoltage,
+    CurrentFlowMaterial,
+    CurrentFlowSurfaceCurrent,
+    FemmWriter,
+    femm_current_flow,
+)
 
 
 class TestFemmCurrentFlowProblem(unittest.TestCase):
@@ -83,17 +86,33 @@ class TestFemmCurrentFlowProblem(unittest.TestCase):
         writer.add_node(wk / 2 + dk, -hk / 2 - dk / 2)
 
         # Adding arc segments
-        writer.add_arc(-wk / 2, hk / 2 + dk / 2, -wk / 2 - dk, hk / 2 + dk / 2, 180, 1)
-        writer.add_arc(-wk / 2 - dk, hk / 2 + dk / 2, -wk / 2, hk / 2 + dk / 2, 180, 1)
+        writer.add_arc(
+            -wk / 2, hk / 2 + dk / 2, -wk / 2 - dk, hk / 2 + dk / 2, 180, 1
+        )
+        writer.add_arc(
+            -wk / 2 - dk, hk / 2 + dk / 2, -wk / 2, hk / 2 + dk / 2, 180, 1
+        )
 
-        writer.add_arc(-wk / 2, -hk / 2 - dk / 2, -wk / 2 - dk, -hk / 2 - dk / 2, 180, 1)
-        writer.add_arc(-wk / 2 - dk, -hk / 2 - dk / 2, -wk / 2, -hk / 2 - dk / 2, 180, 1)
+        writer.add_arc(
+            -wk / 2, -hk / 2 - dk / 2, -wk / 2 - dk, -hk / 2 - dk / 2, 180, 1
+        )
+        writer.add_arc(
+            -wk / 2 - dk, -hk / 2 - dk / 2, -wk / 2, -hk / 2 - dk / 2, 180, 1
+        )
 
-        writer.add_arc(wk / 2, hk / 2 + dk / 2, wk / 2 + dk, hk / 2 + dk / 2, 180, 1)
-        writer.add_arc(wk / 2 + dk, hk / 2 + dk / 2, wk / 2, hk / 2 + dk / 2, 180, 1)
+        writer.add_arc(
+            wk / 2, hk / 2 + dk / 2, wk / 2 + dk, hk / 2 + dk / 2, 180, 1
+        )
+        writer.add_arc(
+            wk / 2 + dk, hk / 2 + dk / 2, wk / 2, hk / 2 + dk / 2, 180, 1
+        )
 
-        writer.add_arc(wk / 2, -hk / 2 - dk / 2, wk / 2 + dk, -hk / 2 - dk / 2, 180, 1)
-        writer.add_arc(wk / 2 + dk, -hk / 2 - dk / 2, wk / 2, -hk / 2 - dk / 2, 180, 1)
+        writer.add_arc(
+            wk / 2, -hk / 2 - dk / 2, wk / 2 + dk, -hk / 2 - dk / 2, 180, 1
+        )
+        writer.add_arc(
+            wk / 2 + dk, -hk / 2 - dk / 2, wk / 2, -hk / 2 - dk / 2, 180, 1
+        )
 
         # Adding block labels
         bl_copper = ((wt - wcm) / 4 + wcm / 2, 0)
@@ -116,8 +135,12 @@ class TestFemmCurrentFlowProblem(unittest.TestCase):
 
         # Adding materials
         mat_copper = CurrentFlowMaterial("Copper", 58e6, 58e6, 0, 0, 0, 0)
-        mat_cmanganin = CurrentFlowMaterial("Copper-Manganin", 20.833e6, 20.833e6, 0, 0, 0, 0)
-        mat_titanium = CurrentFlowMaterial("Titanium", 1.789e6, 1.789e6, 0, 0, 0, 0)
+        mat_cmanganin = CurrentFlowMaterial(
+            "Copper-Manganin", 20.833e6, 20.833e6, 0, 0, 0, 0
+        )
+        mat_titanium = CurrentFlowMaterial(
+            "Titanium", 1.789e6, 1.789e6, 0, 0, 0, 0
+        )
 
         writer.add_material(mat_copper)
         writer.add_material(mat_cmanganin)
@@ -167,29 +190,49 @@ class TestFemmCurrentFlowProblem(unittest.TestCase):
         writer.lua_model.append(writer.load_solution())
 
         # Examine the results
-        writer.lua_model.append(f"co_selectblock({bl_copper[0]}, {bl_copper[1]})")
-        writer.lua_model.append(f"co_selectblock({-bl_copper[0]}, {bl_copper[1]})")
+        writer.lua_model.append(
+            f"co_selectblock({bl_copper[0]}, {bl_copper[1]})"
+        )
+        writer.lua_model.append(
+            f"co_selectblock({-bl_copper[0]}, {bl_copper[1]})"
+        )
 
-        writer.lua_model.append(f"co_selectblock({bl_cmanganin[0]}, {bl_cmanganin[1]})")
-        writer.lua_model.append(f"co_selectblock({bl_cmanganin[0]}, {-bl_cmanganin[1]})")
+        writer.lua_model.append(
+            f"co_selectblock({bl_cmanganin[0]}, {bl_cmanganin[1]})"
+        )
+        writer.lua_model.append(
+            f"co_selectblock({bl_cmanganin[0]}, {-bl_cmanganin[1]})"
+        )
 
-        writer.lua_model.append(f"co_selectblock({bl_titanium[0]}, {bl_titanium[1]})")
-        writer.lua_model.append(f"co_selectblock({bl_titanium[0]}, {-bl_titanium[1]})")
-        writer.lua_model.append(f"co_selectblock({-bl_titanium[0]}, {bl_titanium[1]})")
-        writer.lua_model.append(f"co_selectblock({-bl_titanium[0]}, {-bl_titanium[1]})")
+        writer.lua_model.append(
+            f"co_selectblock({bl_titanium[0]}, {bl_titanium[1]})"
+        )
+        writer.lua_model.append(
+            f"co_selectblock({bl_titanium[0]}, {-bl_titanium[1]})"
+        )
+        writer.lua_model.append(
+            f"co_selectblock({-bl_titanium[0]}, {bl_titanium[1]})"
+        )
+        writer.lua_model.append(
+            f"co_selectblock({-bl_titanium[0]}, {-bl_titanium[1]})"
+        )
 
         writer.lua_model.append("P = co_blockintegral(0)")  # Power Loss
         writer.lua_model.append(writer.write_out_result("P", "P"))
         writer.lua_model.extend(writer.close())
 
         try:
-            reference = files("tests.integration_tests").joinpath("current_test.lua")
+            reference = files("tests.integration_tests").joinpath(
+                "current_test.lua"
+            )
             with open(reference) as f:
                 content = f.readlines()
                 found = 0
                 for command in writer.lua_model:
                     for line in content:
-                        if command[:8] in line:  # we are expecting some differences in \n's due to the file operations
+                        if (
+                            command[:8] in line
+                        ):  # we are expecting some differences in \n's due to the file operations
                             found += 1
                             break
                 self.assertEqual(len(writer.lua_model), found)

@@ -1,16 +1,16 @@
+from copy import copy
 from pathlib import Path
 from shutil import rmtree
-from copy import copy
 from uuid import uuid4
 
 from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.geometry import Geometry
 from adze_modeler.material import Material
-from adze_modeler.metadata import FemmMetadata, Agros2DMetadata
+from adze_modeler.metadata import Agros2DMetadata, FemmMetadata
+from adze_modeler.objects import Rectangle
 from adze_modeler.platforms.agros2d import Agros2D
 from adze_modeler.platforms.femm import Femm
 from adze_modeler.snapshot import Snapshot
-from adze_modeler.objects import Rectangle
 
 
 class BaseModel:
@@ -19,7 +19,9 @@ class BaseModel:
     dir_resources = dir_current / "resources"
     dir_snapshots = dir_current / "snapshots"
 
-    def __init__(self, i: int = -1, j: int = -1, Ii=1.0, Ij=1.0, exportname: str = None):
+    def __init__(
+        self, i: int = -1, j: int = -1, Ii=1.0, Ij=1.0, exportname: str = None
+    ):
         # paths
         self.name = exportname or str(uuid4())
         self.dir_export = self.dir_snapshots / self.name
@@ -93,7 +95,9 @@ class BaseModel:
             self.snapshot.add_material(Ij)
 
     def define_boundary_conditions(self):
-        a0 = DirichletBoundaryCondition("a0", field_type="magnetic", magnetic_potential=0.0)
+        a0 = DirichletBoundaryCondition(
+            "a0", field_type="magnetic", magnetic_potential=0.0
+        )
         self.snapshot.add_boundary_condition(a0)
 
     def init_geometry(self):
@@ -166,8 +170,8 @@ class BaseModel:
 
 
 if __name__ == "__main__":
-    import numpy as np
     import matplotlib.pyplot as plt
+    import numpy as np
 
     Ii = 1.0
     Ij = 1.0
@@ -212,7 +216,11 @@ if __name__ == "__main__":
 
     plt.matshow(M)
     plt.colorbar()
-    plt.savefig(BaseModel.dir_current / "docs/media/inductance_matrix.png", bbox_inches="tight", dpi=550)
+    plt.savefig(
+        BaseModel.dir_current / "docs/media/inductance_matrix.png",
+        bbox_inches="tight",
+        dpi=550,
+    )
     plt.show()
 
     fix, axes = plt.subplots(3, sharex=True, figsize=(10, 7))
@@ -235,7 +243,11 @@ if __name__ == "__main__":
 
     plt.xlabel("Coils")
     plt.xticks(coils)
-    plt.savefig(BaseModel.dir_current / "docs/media/inductance_change.png", bbox_inches="tight", dpi=550)
+    plt.savefig(
+        BaseModel.dir_current / "docs/media/inductance_change.png",
+        bbox_inches="tight",
+        dpi=550,
+    )
     plt.show()
 
     # Mesh density vs self inductance

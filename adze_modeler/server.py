@@ -4,19 +4,17 @@ import subprocess
 import time
 import traceback
 from pathlib import Path
-from typing import Dict
-from typing import Optional
+from typing import Dict, Optional
 
 import uvicorn
-from adze_modeler.modelpaths import ModelDir
-from adze_modeler.simulation import Simulation
-from fastapi import FastAPI
-from fastapi import Request
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from importlib_resources import files
-from pydantic import BaseModel
-from pydantic import Extra
+from pydantic import BaseModel, Extra
+
+from adze_modeler.modelpaths import ModelDir
+from adze_modeler.simulation import Simulation
 
 
 class InputJson(BaseModel):
@@ -24,10 +22,14 @@ class InputJson(BaseModel):
     Class for validating the input sent to the /process endpoint.
     """
 
-    simulation: Dict = {"type": "default"}
-    model: Optional[Dict] = {}
-    tolerances: Optional[Dict] = {"type": "ff", "parameters": {}, "variables": []}
-    misc: Optional[Dict] = {"processes": 4, "cleanup": True, "exportname": None}
+    simulation: dict = {"type": "default"}
+    model: Optional[dict] = {}
+    tolerances: Optional[dict] = {
+        "type": "ff",
+        "parameters": {},
+        "variables": [],
+    }
+    misc: Optional[dict] = {"processes": 4, "cleanup": True, "exportname": None}
 
     version: Optional[str] = "0.7"
 
@@ -60,15 +62,24 @@ tags_metadata = [
     {
         "name": "process",
         "description": "Run project on a single document sent for the API.",
-        "externalDocs": {"description": "Find out more", "url": "http://montana.ai"},
+        "externalDocs": {
+            "description": "Find out more",
+            "url": "http://montana.ai",
+        },
     },
     {"name": "ping", "description": "Endpoint for pinging server."},
     {
         "name": "docs",
         "description": "Endpoint for OpenAPI documentation.",
-        "externalDocs": {"description": "Find out more", "url": "http://montana.ai"},
+        "externalDocs": {
+            "description": "Find out more",
+            "url": "http://montana.ai",
+        },
     },
-    {"name": "root", "description": "Test page for the API. Endpoint called by the main page of the API test page."},
+    {
+        "name": "root",
+        "description": "Test page for the API. Endpoint called by the main page of the API test page.",
+    },
     {"name": "docs", "description": "Endpoint for the project documentation."},
 ]
 
@@ -116,7 +127,9 @@ def project_documentation(request: Request):
     """
     Endpoint for checking the custom project's documentation.
     """
-    return app.doc_templates.TemplateResponse("index.html", {"request": request, "project_name": app.project.app_name})
+    return app.doc_templates.TemplateResponse(
+        "index.html", {"request": request, "project_name": app.project.app_name}
+    )
 
 
 class Server:
@@ -127,7 +140,10 @@ class Server:
     def __init__(self, project: Simulation):
         self.app = app
         self.app.doc_templates = Jinja2Templates(
-            directory=files("adze_modeler") / "resources" / "doc_template" / "site"
+            directory=files("adze_modeler")
+            / "resources"
+            / "doc_template"
+            / "site"
         )
         self.app.project = project
         self.app.title = self.app.title.format(project.app_name)
@@ -162,10 +178,16 @@ class Server:
         # javascripts_path = os.path.join(asset_path, "javascripts")
         # worker_path = os.path.join(javascripts_path, "workers")
         if not os.path.exists(asset_path) or not os.path.exists(search_path):
-            raise FileNotFoundError('please build the mkdocs site by calling "mkdocs build" in the docs directory')
+            raise FileNotFoundError(
+                'please build the mkdocs site by calling "mkdocs build" in the docs directory'
+            )
 
-        self.app.mount("/assets", StaticFiles(directory=asset_path), name="assets")
-        self.app.mount("/search", StaticFiles(directory=search_path), name="search")
+        self.app.mount(
+            "/assets", StaticFiles(directory=asset_path), name="assets"
+        )
+        self.app.mount(
+            "/search", StaticFiles(directory=search_path), name="search"
+        )
         # self.app.mount("/assets/javascripts/workers", StaticFiles(directory=worker_path), name="workers")
         # self.app.mount("/assets/javascripts", StaticFiles(directory=javascripts_path), name="workers")
 
@@ -208,7 +230,9 @@ class Server:
                 ssl_certfile=self.cert_file_path,
             )
         else:
-            uvicorn.run(self.app, host=self.host, port=self.port, log_level="info")
+            uvicorn.run(
+                self.app, host=self.host, port=self.port, log_level="info"
+            )
 
 
 if __name__ == "__main__":

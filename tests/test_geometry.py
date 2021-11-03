@@ -1,12 +1,12 @@
 import os
 from unittest import TestCase
 
-from adze_modeler.geometry import Geometry
-#from adze_modeler.gmsh import gmsh_writer
-from adze_modeler.objects import CubicBezier
-from adze_modeler.objects import Line
-from adze_modeler.objects import Node
 from importlib_resources import files
+
+from adze_modeler.geometry import Geometry
+
+# from adze_modeler.gmsh import gmsh_writer
+from adze_modeler.objects import CubicBezier, Line, Node
 
 
 class TestGeometry(TestCase):

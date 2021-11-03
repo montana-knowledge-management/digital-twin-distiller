@@ -2,10 +2,13 @@ import unittest
 from collections import Counter
 from math import pi
 
-from adze_modeler.femm_wrapper import FemmWriter
-from adze_modeler.femm_wrapper import MagneticMaterial
-from adze_modeler.femm_wrapper import MagneticMixed
 from importlib_resources import files
+
+from adze_modeler.femm_wrapper import (
+    FemmWriter,
+    MagneticMaterial,
+    MagneticMixed,
+)
 
 
 class TestFemmWriterWithExecutor(unittest.TestCase):
@@ -74,12 +77,16 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
 
         # set coil property
         writer.select_label((ri + ro) / 2, 0)
-        writer.set_blockprop("coil", 0, r / 20, 0, circuit_name="icoil", turns=n, magdirection=0)
+        writer.set_blockprop(
+            "coil", 0, r / 20, 0, circuit_name="icoil", turns=n, magdirection=0
+        )
         writer.clear_selected()
 
         # set air
         writer.select_label(0.75 * r, 0)
-        writer.set_blockprop("air", 0, r / 100, 0, circuit_name="<None>", turns=0, magdirection=0)
+        writer.set_blockprop(
+            "air", 0, r / 100, 0, circuit_name="<None>", turns=0, magdirection=0
+        )
         writer.clear_selected()
 
         # set boundaries
@@ -99,7 +106,9 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
         writer.write("magnetic_ref.lua")
 
         try:
-            reference = files("tests.integration_tests").joinpath("magnetic.lua")
+            reference = files("tests.integration_tests").joinpath(
+                "magnetic.lua"
+            )
             with open(reference) as f:
                 content = f.readlines()
                 counter_test = Counter(content)
@@ -117,7 +126,10 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
                     if "openfile" in key:
                         continue
 
-                    self.assertEqual(counter_reference[key.rstrip()], counter_test[key + "\n"])
+                    self.assertEqual(
+                        counter_reference[key.rstrip()],
+                        counter_test[key + "\n"],
+                    )
 
         except FileNotFoundError:
             self.assertTrue(False)

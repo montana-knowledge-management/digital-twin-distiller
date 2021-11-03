@@ -5,8 +5,7 @@ from adze_modeler.boundaries import BoundaryCondition
 from adze_modeler.geometry import Geometry
 from adze_modeler.material import Material
 from adze_modeler.metadata import Metadata
-from adze_modeler.objects import Line
-from adze_modeler.objects import Node
+from adze_modeler.objects import Line, Node
 from adze_modeler.platforms.platform import Platform
 from adze_modeler.utils import getID
 
@@ -30,7 +29,9 @@ class Snapshot:
         if bc.name in self.boundaries.keys():
             raise ValueError("This boundary is already added")
         elif bc.field != self.platform.metadata.problem_type:
-            raise TypeError(f"Boundary condition field type != problem field type")
+            raise TypeError(
+                f"Boundary condition field type != problem field type"
+            )
         else:
             self.boundaries[bc.name] = bc
 
@@ -39,7 +40,9 @@ class Snapshot:
         if name not in self.boundaries.keys():
             raise ValueError(f'There is no boundary condition called "{name}"')
 
-        closest_line = min(self.lines.values(), key=lambda li: li.distance_to_point(x, y))
+        closest_line = min(
+            self.lines.values(), key=lambda li: li.distance_to_point(x, y)
+        )
 
         self.boundaries[name].assigned.add(closest_line.id)
 
@@ -48,7 +51,10 @@ class Snapshot:
         if name not in self.boundaries.keys():
             raise ValueError(f'There is no boundary condition called "{name}"')
 
-        closest_arc = min(self.circle_arcs.values(), key=lambda arc_i: arc_i.distance_to_point(x, y))
+        closest_arc = min(
+            self.circle_arcs.values(),
+            key=lambda arc_i: arc_i.distance_to_point(x, y),
+        )
 
         self.boundaries[name].assigned.add(closest_arc.id)
 
@@ -106,12 +112,21 @@ class Snapshot:
             for id_i in boundary_i.assigned:
                 if id_i in self.lines.keys():
                     line_i = self.lines.pop(id_i)
-                    self.platform.export_geometry_element(line_i, boundary=name_i)
+                    self.platform.export_geometry_element(
+                        line_i, boundary=name_i
+                    )
                 elif id_i in self.circle_arcs.keys():
                     arc_i = self.circle_arcs.pop(id_i)
-                    self.platform.export_geometry_element(arc_i, boundary=name_i)
+                    self.platform.export_geometry_element(
+                        arc_i, boundary=name_i
+                    )
                 else:
-                    raise ValueError("There is no line with the id:", id_i, "boundary:", boundary_i.name)
+                    raise ValueError(
+                        "There is no line with the id:",
+                        id_i,
+                        "boundary:",
+                        boundary_i.name,
+                    )
 
         # Export the rest
         for id, line_i in self.lines.items():

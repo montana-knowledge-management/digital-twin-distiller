@@ -2,8 +2,7 @@ import itertools
 from typing import Sequence
 
 import numpy as np
-from scipy.linalg import hankel
-from scipy.linalg import toeplitz
+from scipy.linalg import hankel, toeplitz
 
 """
 This code was originally published by the following individuals for use with
@@ -84,8 +83,16 @@ def doe_bbdesign(n: int = 3, center=None):
     for i in range(n - 1):
         for j in range(i + 1, n):
             index = index + 1
-            H[max([0, (index - 1) * H_fact.shape[0]]) : index * H_fact.shape[0], i] = H_fact[:, 0]
-            H[max([0, (index - 1) * H_fact.shape[0]]) : index * H_fact.shape[0], j] = H_fact[:, 1]
+            H[
+                max([0, (index - 1) * H_fact.shape[0]]) : index
+                * H_fact.shape[0],
+                i,
+            ] = H_fact[:, 0]
+            H[
+                max([0, (index - 1) * H_fact.shape[0]]) : index
+                * H_fact.shape[0],
+                j,
+            ] = H_fact[:, 1]
 
     if center is None:
         if n <= 16:
@@ -105,11 +112,15 @@ def doe_pbdesign(n):
     """
     assert n > 0, "Number of factors must be a positive integer"
     keep = int(n)
-    n = 4 * (int(n / 4) + 1)  # calculate the correct number of rows (multiple of 4)
+    n = 4 * (
+        int(n / 4) + 1
+    )  # calculate the correct number of rows (multiple of 4)
     f, e = np.frexp([n, n / 12.0, n / 20.0])
     k = [idx for idx, val in enumerate(np.logical_and(f == 0.5, e > 0)) if val]
 
-    assert isinstance(n, int) and k != [], "Invalid inputs. n must be a multiple of 4."
+    assert (
+        isinstance(n, int) and k != []
+    ), "Invalid inputs. n must be a multiple of 4."
 
     k = k[0]
     e = e[k] - 1
@@ -123,7 +134,10 @@ def doe_pbdesign(n):
                 np.hstack(
                     (
                         np.ones((11, 1)),
-                        toeplitz([-1, -1, 1, -1, -1, -1, 1, 1, 1, -1, 1], [-1, 1, -1, 1, 1, 1, -1, -1, -1, 1, -1]),
+                        toeplitz(
+                            [-1, -1, 1, -1, -1, -1, 1, 1, 1, -1, 1],
+                            [-1, 1, -1, 1, 1, 1, -1, -1, -1, 1, -1],
+                        ),
                     )
                 ),
             )
@@ -136,8 +150,48 @@ def doe_pbdesign(n):
                     (
                         np.ones((19, 1)),
                         hankel(
-                            [-1, -1, 1, 1, -1, -1, -1, -1, 1, -1, 1, -1, 1, 1, 1, 1, -1, -1, 1],
-                            [1, -1, -1, 1, 1, -1, -1, -1, -1, 1, -1, 1, -1, 1, 1, 1, 1, -1, -1],
+                            [
+                                -1,
+                                -1,
+                                1,
+                                1,
+                                -1,
+                                -1,
+                                -1,
+                                -1,
+                                1,
+                                -1,
+                                1,
+                                -1,
+                                1,
+                                1,
+                                1,
+                                1,
+                                -1,
+                                -1,
+                                1,
+                            ],
+                            [
+                                1,
+                                -1,
+                                -1,
+                                1,
+                                1,
+                                -1,
+                                -1,
+                                -1,
+                                -1,
+                                1,
+                                -1,
+                                1,
+                                -1,
+                                1,
+                                1,
+                                1,
+                                1,
+                                -1,
+                                -1,
+                            ],
                         ),
                     )
                 ),
@@ -189,7 +243,9 @@ if __name__ == "__main__":
     factor_levels = 3
     strength = 5
 
-    arrayclass = oapackage.arraydata_t(factor_levels, run_size, strength, number_of_factors)
+    arrayclass = oapackage.arraydata_t(
+        factor_levels, run_size, strength, number_of_factors
+    )
     arr = array(arrayclass.create_root().getarray())
     print(arr + 1)
     # print(*doe_bbdesign(5, center=1), sep='\n')

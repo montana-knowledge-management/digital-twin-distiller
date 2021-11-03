@@ -1,8 +1,8 @@
-from adze_modeler.geometry import Geometry
 from unittest import TestCase
 
 from importlib_resources import files
 
+from adze_modeler.geometry import Geometry
 
 # class TestDXFImport(TestCase):
 #     def test_dxf_import_to_geometry(self):

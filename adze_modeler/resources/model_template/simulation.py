@@ -1,8 +1,11 @@
+from multiprocessing import Pool
+
+from model import ${name}
+
 from adze_modeler.modelpaths import ModelDir
 from adze_modeler.server import Server
 from adze_modeler.simulation import sim
-from model import ${name}
-from multiprocessing import Pool
+
 
 def execute_model(model: ${name}):
     result = model(timeout=2000, cleanup=True)
