@@ -69,11 +69,12 @@ exclude_lines = [
 
 
 [tool.isort]
-line_length = 127
+profile = "black"
+line_length = 80
 case_sensitive = true
 use_parentheses = false
 include_trailing_comma = true
-multi_line_output = 3
+multi_line_output = 8
 force_grid_wrap = 0
 
 # [too.pre-commit.run]
