@@ -30,53 +30,68 @@ scipy="^1.7.0"
 svgpathtools="^1.4.2"
 uvicorn="^0.15.0"
 vedo="^2021"
-gitlint = "*"
 
 [tool.poetry.dev-dependencies]
-black = "^21.10b0"
+black = "*"
 coverage = "*"
-pre-commit="^2.15.0"
+pre-commit="*"
 pytest = "*"
+gitlint = "*"
+isort = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
-line-length = 120
-target-version = ['py37']
-include = '\.pyi?$'
+line-length = 127
+target-version = ['py39']
+exclude = "resources"
 extend-exclude = ' E203, E266, E501, W503, C901, E741, C812, C819, FS002, FS003'
 
+# https://coverage.readthedocs.io/en/6.1.1/config.html
+[tool.coverage.run]
+command_line="-m pytest"
+branch = true
+# omit = [] put pygmsh tests here temporarly
 
 [tool.coverage.report]
+sort = "cover"
 exclude_lines = [
     'if __name__ == "__main__":',
+    'def __repr__',
+    'def __str',
+    '@(abc\.)?abstractmethod'
 ]
 
 
-[tool.coverage.run]
-branch = true
-omit = [
-    ".venv/*",
-]
 
 [tool.isort]
-line_length = 120
+line_length = 127
 case_sensitive = true
-use_parentheses = true
+use_parentheses = false
 include_trailing_comma = true
 multi_line_output = 3
 force_grid_wrap = 0
 
-[tool.pylint.FORMAT]
-max-line-length = 127
+# [too.pre-commit.run]
 
-[tool.pylint.MASTER]
-disable = [
-    "bad-continuation",
-    "duplicate-code",
-    "invalid-name",
-    "missing-docstring",
-    "too-few-public-methods",
-]
+
+# [tool.flake8]
+# ignore = E203, E266, E501, W503, C901, E741, C812, C819, FS002, FS003
+# max-line-length = 120
+# max-complexity = 20
+# select = B,C,E,F,W,T4,B9
+# statistics = True
+
+# [tool.pylint.FORMAT]
+# max-line-length = 127
+
+# [tool.pylint.MASTER]
+# disable = [
+#     "bad-continuation",
+#     "duplicate-code",
+#     "invalid-name",
+#     "missing-docstring",
+#     "too-few-public-methods",
+# ]
