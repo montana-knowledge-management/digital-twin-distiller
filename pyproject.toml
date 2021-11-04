@@ -44,11 +44,16 @@ pyupgrade = "^2.29.0"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-# TODO: exclude tests from black !!
 [tool.black]
 line-length = 80
 target-version = ['py39']
-force-exclude = 'adze_modeler/resources/'
+force-exclude = '''
+  (
+    adze_modeler/resources/
+  | tests/solver_script_references/
+  )
+'''
+
 quiet=true
 # extend-exclude = ' E203, E266, E501, W503, C901, E741, C812, C819, FS002, FS003'
 
