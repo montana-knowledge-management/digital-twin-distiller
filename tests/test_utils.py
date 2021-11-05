@@ -1,6 +1,6 @@
 import unittest
 import pytest
-from math import sqrt
+import os
 
 import adze_modeler.utils as u
 from adze_modeler.objects import Node
@@ -68,6 +68,22 @@ class TestUtils(unittest.TestCase):
         result = u.rms((1, 1, 1))
         self.assertEqual(result, 1)
 
-        input = (2, 4, 8)
-        expected = sqrt(input.map(lambda x: x **2 ))
-        result2 = u.rms(input)
+    def test_pairwise(self):
+        case1 = ('A')
+
+        self.assertTrue(u.pairwise(case1))
+        self.assertEqual(list(u.pairwise(case1)), [])
+
+        case2 = '1234'
+        self.assertEqual(list(u.pairwise(case2)), [('1', '2'), ('2', '3'), ('3', '4')])
+
+    def test_csv_read(self):
+
+        my_path = os.path.abspath(os.path.dirname(__file__))
+        path = os.path.join(my_path, "../resources/test1.csv")
+
+        test = u.csv_read(path, True)
+        self.assertEqual(test, {1.0: (245.0, 54.0, 54.0), 2.0: (12.0, 54.0, 123.0)})
+
+
+
