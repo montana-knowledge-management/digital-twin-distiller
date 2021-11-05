@@ -1,8 +1,9 @@
 import unittest
+import pytest
+from math import sqrt
 
 import adze_modeler.utils as u
 from adze_modeler.objects import Node
-
 
 class TestUtils(unittest.TestCase):
     def test_get_id(self):
@@ -15,3 +16,58 @@ class TestUtils(unittest.TestCase):
 
         p3 = u.mirror_point(p0, p1, p2)
         self.assertEqual(p3, Node(1, 1))
+
+    def test_mm2px(self):
+
+        input1 = 0
+        input2 = 1
+        input3 = 2.75
+        # negative number?
+
+        coverted1 = u.mm2px(input1)
+        coverted2 = u.mm2px(input2)
+        coverted3 = u.mm2px(input3)
+
+        self.assertEqual(coverted1, 0)
+        self.assertEqual(coverted2, int(3.7795275591))
+        self.assertEqual(coverted3, int(10.393700787))
+
+    def test_mm2inch(self):
+        input1 = 0
+        input2 = 1
+        input3 = 25.4
+
+        coverted1 = u.mm2inch(input1)
+        coverted2 = u.mm2inch(input2)
+        coverted3 = u.mm2inch(input3)
+
+        self.assertEqual(coverted1, 0)
+        self.assertEqual(coverted2, 0.03937007874)
+        self.assertEqual(coverted3, 0.999999999996)
+
+    def test_get_width_height(self):
+
+        with pytest.raises(ValueError):
+            u.get_width_height(type_="notexists", aspect=(16, 10), unit="px")
+
+        result = u.get_width_height(
+            type_="minimal",
+            aspect=(16, 9),
+            unit="mm"
+        )
+        scale = 16/9
+        self.assertEqual(result, (30, 30/scale))      # 113, 63
+
+    def test_inch2mm(self):
+        result = u.inch2mm(1)
+
+        self.assertEqual(25.4, result)
+
+    def test_rms(self):
+
+        result = u.rms((1, 1, 1))
+        self.assertEqual(result, 1)
+
+        input = (2, 4, 8)
+        expected = sqrt(input.map(lambda x: x **2 ))
+        result2 = u.rms(input)
