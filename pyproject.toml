@@ -69,7 +69,8 @@ quiet=true
 # https://coverage.readthedocs.io/en/6.1.1/config.html
 
 [tool.coverage.run]
-command_line="-m pytest"
+command_line="-m py.test"
+source=['adze_modeler']
 branch = true
 # omit = [] put pygmsh tests here temporarly
 
@@ -81,6 +82,7 @@ exclude_lines = [
     'def __str',
     '@(abc\.)?abstractmethod'
 ]
+omit=['tests','examples']
 
 
 
