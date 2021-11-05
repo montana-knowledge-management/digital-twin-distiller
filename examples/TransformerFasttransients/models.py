@@ -19,9 +19,7 @@ class BaseModel:
     dir_resources = dir_current / "resources"
     dir_snapshots = dir_current / "snapshots"
 
-    def __init__(
-        self, i: int = -1, j: int = -1, Ii=1.0, Ij=1.0, exportname: str = None
-    ):
+    def __init__(self, i: int = -1, j: int = -1, Ii=1.0, Ij=1.0, exportname: str = None):
         # paths
         self.name = exportname or str(uuid4())
         self.dir_export = self.dir_snapshots / self.name
@@ -95,9 +93,7 @@ class BaseModel:
             self.snapshot.add_material(Ij)
 
     def define_boundary_conditions(self):
-        a0 = DirichletBoundaryCondition(
-            "a0", field_type="magnetic", magnetic_potential=0.0
-        )
+        a0 = DirichletBoundaryCondition("a0", field_type="magnetic", magnetic_potential=0.0)
         self.snapshot.add_boundary_condition(a0)
 
     def init_geometry(self):

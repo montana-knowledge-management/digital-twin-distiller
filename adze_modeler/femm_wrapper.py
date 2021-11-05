@@ -1,8 +1,10 @@
 """
-The goal of this module is to write out the given geometry into a FEMM's lua script.
-The code generated one snapshot from the created model, which can be run during the Optimization.
+The goal of this module is to write out the given geometry into a FEMM's lua
+script.  The code generated one snapshot from the created model, which can be
+run during the Optimization.
 
-The original FEMM code has separate scripting commands for the geometry generation in different subfields
+The original FEMM code has separate scripting commands for the geometry
+generation in different subfields
 
 """
 import subprocess
@@ -46,18 +48,22 @@ MagneticMaterial = namedtuple(
         "H_c",  # Permanent magnet coercivity in Amps/Meter.
         "J",  # Real Applied source current density in Amps/mm2 .
         "Cduct",  # Electrical conductivity of the material in MS/m.
-        "Lam_d",  # Hysteresis lag angle in degrees, used for nonlinear BH curves.
+        # Hysteresis lag angle in degrees, used for nonlinear BH curves.
+        "Lam_d",
         "Phi_hmax",
         "lam_fill",
-        # Fraction of the volume occupied per lamination that is actually filled with iron (Note that this parameter
-        # defaults to 1 the femme preprocessor dialog box because, by default, iron completely fills the volume)
+        # Fraction of the volume occupied per lamination that is actually
+        # filled with iron (Note that this parameter
+        # defaults to 1 the femme preprocessor dialog box because, by default,
+        # iron completely fills the volume)
         "LamType",
         "Phi_hx",
         # Hysteresis lag in degrees in the x-direction for linear problems.
         "Phi_hy",
         # Hysteresis lag in degrees in the y-direction for linear problems.
         "NStrands",
-        # Number of strands in the wire build. Should be 1 for Magnet or Square wire.
+        # Number of strands in the wire build. Should be 1 for Magnet or Square
+        # wire.
         "WireD",
     ],
 )  # Diameter of each wire constituent strand in millimeters.
@@ -87,33 +93,31 @@ CurrentFlowMaterial = namedtuple(
     "current_flow",
     [
         "material_name",
-        "ox",  # Electrical conductivity in the x- or r-direction in units of S/m.
-        "oy",  # Electrical conductivity in the y- or z-direction in units of S/m.
-        "ex",  # Relative permittivity in the x- or r-direction.
-        "ey",  # Relative permittivity in the y- or z-direction.
-        "ltx",  # Dielectric loss tangent in the x- or r-direction.
-        "lty",  # Dielectric loss tangent in the y- or z-direction.
+        # Electrical conductivity in the x- or r-direction in units of S/m.
+        "ox",
+        # Electrical conductivity in the y- or z-direction in units of S/m.
+        "oy",
+        # Relative permittivity in the x- or r-direction.
+        "ex",
+        # Relative permittivity in the y- or z-direction.
+        "ey",
+        # Dielectric loss tangent in the x- or r-direction.
+        "ltx",
+        # Dielectric loss tangent in the y- or z-direction.
+        "lty",
     ],
 )
 
 # Magnetic Boundary Conditions
-MagneticDirichlet = namedtuple(
-    "magnetic_dirichlet", ["name", "a_0", "a_1", "a_2", "phi"]
-)
+MagneticDirichlet = namedtuple("magnetic_dirichlet", ["name", "a_0", "a_1", "a_2", "phi"])
 MagneticMixed = namedtuple("magnetic_mixed", ["name", "c0", "c1"])
 MagneticAnti = namedtuple("magnetic_anti", ["name"])
 MagneticPeriodic = namedtuple("magnetic_periodic", ["name"])
-MagneticAntiPeriodicAirgap = namedtuple(
-    "magnetic_antiperiodic_airgap", ["name", "angle"]
-)
-MagneticPeriodicAirgap = namedtuple(
-    "magnetic_periodic_airgap", ["name", "angle"]
-)
+MagneticAntiPeriodicAirgap = namedtuple("magnetic_antiperiodic_airgap", ["name", "angle"])
+MagneticPeriodicAirgap = namedtuple("magnetic_periodic_airgap", ["name", "angle"])
 
 # HeatFlow Boundary Conditions
-HeatFlowFixedTemperature = namedtuple(
-    "heatflow_fixed_temperature", ["name", "Tset"]
-)
+HeatFlowFixedTemperature = namedtuple("heatflow_fixed_temperature", ["name", "Tset"])
 HeatFlowHeatFlux = namedtuple("heatflow_heat_flux", ["name", "qs"])
 HeatFlowConvection = namedtuple("heatflow_convection", ["name", "h", "Tinf"])
 HeatFlowRadiation = namedtuple("heatflow_radiation", ["name", "beta", "Tinf"])
@@ -121,24 +125,16 @@ HeatFlowPeriodic = namedtuple("heatflow_periodic", ["name"])
 HeatFlowAntiPeriodic = namedtuple("heatflow_anti_periodic", ["name"])
 
 # Electrostatic Boundary Conditions
-ElectrostaticFixedVoltage = namedtuple(
-    "electrostatic_fixed_voltage", ["name", "Vs"]
-)
+ElectrostaticFixedVoltage = namedtuple("electrostatic_fixed_voltage", ["name", "Vs"])
 ElectrostaticMixed = namedtuple("electrostatic_mixed", ["name", "c0", "c1"])
-ElectrostaticSurfaceCharge = namedtuple(
-    "electrostatic_surface_charge", ["name", "qs"]
-)
+ElectrostaticSurfaceCharge = namedtuple("electrostatic_surface_charge", ["name", "qs"])
 ElectrostaticPeriodic = namedtuple("electrostatic_periodic", ["name"])
 ElectrostaticAntiPeriodic = namedtuple("electrostatic_antiperiodic", ["name"])
 
 # Current Flow Boundary Conditions
-CurrentFlowFixedVoltage = namedtuple(
-    "currentflow_fixed_voltage", ["name", "Vs"]
-)
+CurrentFlowFixedVoltage = namedtuple("currentflow_fixed_voltage", ["name", "Vs"])
 CurrentFlowMixed = namedtuple("currentflow_mixed", ["name", "c0", "c1"])
-CurrentFlowSurfaceCurrent = namedtuple(
-    "currentflow_surface_current", ["name", "qs"]
-)
+CurrentFlowSurfaceCurrent = namedtuple("currentflow_surface_current", ["name", "qs"])
 CurrentFlowPeriodic = namedtuple("currentflow_periodidic", ["name"])
 CurrentFlowAntiPeriodic = namedtuple("currentflow_antiperiodic", ["name"])
 
@@ -156,9 +152,7 @@ class FemmWriter:
 
     def validate_field(self, shouldbe=None):
         if self.field not in femm_fields:
-            raise ValueError(
-                f"The physical field ({self.field}) is not defined!"
-            )
+            raise ValueError(f"The physical field ({self.field}) is not defined!")
 
         if shouldbe and shouldbe != self.field:
             raise ValueError(f"({self.field}) != {shouldbe}")
@@ -180,7 +174,8 @@ class FemmWriter:
     def write(self, file_name):
         """Generate a runnable lua-script for a FEMM calculation.
 
-        :param file_name: the code (re)writes the snapshot from the created geometry to the given code
+        :param file_name: the code (re)writes the snapshot from the created
+                          geometry to the given code
         """
 
         with open(file_name, "w") as writer:
@@ -241,27 +236,19 @@ class FemmWriter:
         """
         out_file = str(Path(out_file).resolve().as_posix())
         cmd_list = []
-        # cmd_list.append("showconsole()")  # does nothing if the console is already displayed
-        # cmd_list.append("clearconsole()")  # clears both the input and output windows for a fresh start.
-        cmd_list.append(
-            f'remove("{out_file}")'
-        )  # get rid of the old data file, if it exists
+        # does nothing if the console is already displayed
+        # cmd_list.append("showconsole()")
+        # clears both the input and output windows for a fresh start.
+        # cmd_list.append("clearconsole()")
+        cmd_list.append(f'remove("{out_file}")')  # get rid of the old data file, if it exists
         if self.field == femm_magnetic:
-            cmd_list.append(
-                "newdocument(0)"
-            )  # the 0 specifies a magnetics problem
+            cmd_list.append("newdocument(0)")  # the 0 specifies a magnetics problem
         if self.field == femm_electrostatic:
-            cmd_list.append(
-                "newdocument(1)"
-            )  # the 1 specifies electrostatics problem
+            cmd_list.append("newdocument(1)")  # the 1 specifies electrostatics problem
         if self.field == femm_heat_flow:
-            cmd_list.append(
-                "newdocument(2)"
-            )  # the 2 specifies heat flow problem
+            cmd_list.append("newdocument(2)")  # the 2 specifies heat flow problem
         if self.field == femm_current_flow:
-            cmd_list.append(
-                "newdocument(3)"
-            )  # the 3 specifies current flow problem
+            cmd_list.append("newdocument(3)")  # the 3 specifies current flow problem
 
         # cmd_list.append("mi_hidegrid()")
         cmd = Template('file_out = openfile("$outfile", "w")')
@@ -302,11 +289,12 @@ class FemmWriter:
 
     def analyze(self, flag=1):
         """
+        Runs a FEMM analysis to solve a problem. By default the analysis runs
+        in non-visible mode.
 
-        Runs a FEMM analysis to solve a problem. By default the analysis runs in non-visible mode.
-
-        The flag parameter controls whether the fkern window is visible or minimized. For a visible window,
-        either specify no value for flag or specify 0. For a minimized window, flag should be set to 1.
+        The flag parameter controls whether the fkern window is visible or
+        minimized. For a visible window, either specify no value for flag or
+        specify 0. For a minimized window, flag should be set to 1.
         """
         cmd = None
         self.validate_field()
@@ -355,30 +343,25 @@ class FemmWriter:
         return cmd
 
     def add_segment(self, x1, y1, x2, y2, push=True):
-        """Add a new line segment from node closest to (x1,y1) to node closest to (x2,y2)"""
+        """
+        Add a new line segment from node closest to (x1,y1) to node closest to
+        (x2,y2)
+        """
 
         cmd = None
         self.validate_field()
 
         if self.field == femm_magnetic:
-            cmd = Template(
-                "mi_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)"
-            )
+            cmd = Template("mi_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)")
 
         if self.field == femm_electrostatic:
-            cmd = Template(
-                "ei_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)"
-            )
+            cmd = Template("ei_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)")
 
         if self.field == femm_heat_flow:
-            cmd = Template(
-                "hi_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)"
-            )
+            cmd = Template("hi_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)")
 
         if self.field == femm_current_flow:
-            cmd = Template(
-                "ci_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)"
-            )
+            cmd = Template("ci_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)")
 
         cmd = cmd.substitute(x1_coord=x1, y1_coord=y1, x2_coord=x2, y2_coord=y2)
 
@@ -414,8 +397,8 @@ class FemmWriter:
 
     def add_arc(self, x1, y1, x2, y2, angle, maxseg):
         """
-        Add a new arc segment from the nearest nodeto (x1,y1) to the nearest node to (x2,y2)
-        with angle ‘angle’ divided into ‘maxseg’ segments.
+        Add a new arc segment from the nearest nodeto (x1,y1) to the nearest
+        node to (x2,y2) with angle ‘angle’ divided into ‘maxseg’ segments.
         with angle ‘angle’ divided into ‘maxseg’ segments.
         """
 
@@ -434,9 +417,7 @@ class FemmWriter:
         if self.field == femm_current_flow:
             cmd = Template("ci_addarc($x_1, $y_1, $x_2, $y_2, $angle, $maxseg)")
 
-        cmd = cmd.substitute(
-            x_1=x1, y_1=y1, x_2=x2, y_2=y2, angle=angle, maxseg=maxseg
-        )
+        cmd = cmd.substitute(x_1=x1, y_1=y1, x_2=x2, y_2=y2, angle=angle, maxseg=maxseg)
 
         if FemmWriter.push:
             self.lua_model.append(cmd)
@@ -473,12 +454,9 @@ class FemmWriter:
         cmd = None
         self.validate_field()
 
-        if self.field == femm_magnetic and isinstance(
-            boundary, MagneticDirichlet
-        ):
+        if self.field == femm_magnetic and isinstance(boundary, MagneticDirichlet):
             cmd = Template(
-                "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, "
-                "$c0, $c1, $BdryFormat, $ia, $oa)"
+                "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, " "$c0, $c1, $BdryFormat, $ia, $oa)"
             )
             cmd = cmd.substitute(
                 propname="'" + boundary.name + "'",
@@ -497,8 +475,7 @@ class FemmWriter:
 
         if self.field == femm_magnetic and isinstance(boundary, MagneticMixed):
             cmd = Template(
-                "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, "
-                "$c0, $c1, $BdryFormat, $ia, $oa)"
+                "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, " "$c0, $c1, $BdryFormat, $ia, $oa)"
             )
             cmd = cmd.substitute(
                 propname="'" + boundary.name + "'",
@@ -517,7 +494,7 @@ class FemmWriter:
 
         if self.field == femm_magnetic and isinstance(boundary, MagneticAnti):
             cmd = Template(
-                "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, $c0, $c1, $BdryFormat, $ia, $oa)"
+                "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, " "$Mu, $Sig, $c0, $c1, $BdryFormat, $ia, $oa)"
             )
             cmd = cmd.substitute(
                 propname="'" + boundary.name + "'",
@@ -534,9 +511,7 @@ class FemmWriter:
                 oa=0,
             )
 
-        if self.field == femm_magnetic and isinstance(
-            boundary, MagneticPeriodic
-        ):
+        if self.field == femm_magnetic and isinstance(boundary, MagneticPeriodic):
             cmd = Template(
                 "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, $c0, $c1, $BdryFormat, $ia, $oa)"
             )
@@ -554,9 +529,7 @@ class FemmWriter:
                 ia=0,
                 oa=0,
             )
-        if self.field == femm_magnetic and isinstance(
-            boundary, MagneticAntiPeriodicAirgap
-        ):
+        if self.field == femm_magnetic and isinstance(boundary, MagneticAntiPeriodicAirgap):
             cmd = Template(
                 "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, $c0, $c1, $BdryFormat, $ia, $oa)"
             )
@@ -575,9 +548,7 @@ class FemmWriter:
                 oa=boundary.angle,
             )
 
-        if self.field == femm_magnetic and isinstance(
-            boundary, MagneticPeriodicAirgap
-        ):
+        if self.field == femm_magnetic and isinstance(boundary, MagneticPeriodicAirgap):
             cmd = Template(
                 "mi_addboundprop($propname, $A0, $A1, $A2, $Phi, $Mu, $Sig, $c0, $c1, $BdryFormat, $ia, $oa)"
             )
@@ -598,12 +569,8 @@ class FemmWriter:
 
         # HEATFLOW
 
-        if self.field == femm_heat_flow and isinstance(
-            boundary, HeatFlowFixedTemperature
-        ):
-            cmd = Template(
-                "hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)"
-            )
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowFixedTemperature):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
                 BdryFormat=0,
@@ -614,12 +581,8 @@ class FemmWriter:
                 beta=0,
             )
 
-        if self.field == femm_heat_flow and isinstance(
-            boundary, HeatFlowHeatFlux
-        ):
-            cmd = Template(
-                "hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)"
-            )
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowHeatFlux):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
                 BdryFormat=1,
@@ -630,12 +593,8 @@ class FemmWriter:
                 beta=0,
             )
 
-        if self.field == femm_heat_flow and isinstance(
-            boundary, HeatFlowConvection
-        ):
-            cmd = Template(
-                "hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)"
-            )
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowConvection):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
                 BdryFormat=2,
@@ -646,12 +605,8 @@ class FemmWriter:
                 beta=0,
             )
 
-        if self.field == femm_heat_flow and isinstance(
-            boundary, HeatFlowRadiation
-        ):
-            cmd = Template(
-                "hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)"
-            )
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowRadiation):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
                 BdryFormat=3,
@@ -662,12 +617,8 @@ class FemmWriter:
                 beta=boundary.beta,
             )
 
-        if self.field == femm_heat_flow and isinstance(
-            boundary, HeatFlowPeriodic
-        ):
-            cmd = Template(
-                "hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)"
-            )
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowPeriodic):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
                 BdryFormat=4,
@@ -678,12 +629,8 @@ class FemmWriter:
                 beta=0,
             )
 
-        if self.field == femm_heat_flow and isinstance(
-            boundary, HeatFlowAntiPeriodic
-        ):
-            cmd = Template(
-                "hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)"
-            )
+        if self.field == femm_heat_flow and isinstance(boundary, HeatFlowAntiPeriodic):
+            cmd = Template("hi_addboundprop($propname, $BdryFormat, $Tset, $qs, $Tinf, $h, $beta)")
             cmd = cmd.substitute(
                 propname=f'"{boundary.name}"',
                 BdryFormat=5,
@@ -695,63 +642,35 @@ class FemmWriter:
             )
 
         # Electrostatics
-        if self.field == femm_electrostatic and isinstance(
-            boundary, ElectrostaticFixedVoltage
-        ):
-            cmd = (
-                f'ei_addboundprop("{boundary.name}", {boundary.Vs}, 0, 0, 0, 0)'
-            )
+        if self.field == femm_electrostatic and isinstance(boundary, ElectrostaticFixedVoltage):
+            cmd = f'ei_addboundprop("{boundary.name}", {boundary.Vs}, 0, 0, 0, 0)'
 
-        if self.field == femm_electrostatic and isinstance(
-            boundary, ElectrostaticMixed
-        ):
+        if self.field == femm_electrostatic and isinstance(boundary, ElectrostaticMixed):
             cmd = f'ei_addboundprop("{boundary.name}", 0, 0, {boundary.c0}, {boundary.c1}, 1)'
 
-        if self.field == femm_electrostatic and isinstance(
-            boundary, ElectrostaticSurfaceCharge
-        ):
-            cmd = (
-                f'ei_addboundprop("{boundary.name}", 0, {boundary.qs}, 0, 0, 2)'
-            )
+        if self.field == femm_electrostatic and isinstance(boundary, ElectrostaticSurfaceCharge):
+            cmd = f'ei_addboundprop("{boundary.name}", 0, {boundary.qs}, 0, 0, 2)'
 
-        if self.field == femm_electrostatic and isinstance(
-            boundary, ElectrostaticPeriodic
-        ):
+        if self.field == femm_electrostatic and isinstance(boundary, ElectrostaticPeriodic):
             cmd = f'ei_addboundprop("{boundary.name}", 0, 0, 0, 0, 3)'
 
-        if self.field == femm_electrostatic and isinstance(
-            boundary, ElectrostaticAntiPeriodic
-        ):
+        if self.field == femm_electrostatic and isinstance(boundary, ElectrostaticAntiPeriodic):
             cmd = f'ei_addboundprop("{boundary.name}", 0, 0, 0, 0, 4)'
 
         # Current Flow
-        if self.field == femm_current_flow and isinstance(
-            boundary, CurrentFlowFixedVoltage
-        ):
-            cmd = (
-                f'ci_addboundprop("{boundary.name}", {boundary.Vs}, 0, 0, 0, 0)'
-            )
+        if self.field == femm_current_flow and isinstance(boundary, CurrentFlowFixedVoltage):
+            cmd = f'ci_addboundprop("{boundary.name}", {boundary.Vs}, 0, 0, 0, 0)'
 
-        if self.field == femm_current_flow and isinstance(
-            boundary, CurrentFlowMixed
-        ):
+        if self.field == femm_current_flow and isinstance(boundary, CurrentFlowMixed):
             cmd = f'ci_addboundprop("{boundary.name}", 0, 0, {boundary.c0}, {boundary.c1}, 2)'
 
-        if self.field == femm_current_flow and isinstance(
-            boundary, CurrentFlowSurfaceCurrent
-        ):
-            cmd = (
-                f'ci_addboundprop("{boundary.name}", 0, {boundary.qs}, 0, 0, 2)'
-            )
+        if self.field == femm_current_flow and isinstance(boundary, CurrentFlowSurfaceCurrent):
+            cmd = f'ci_addboundprop("{boundary.name}", 0, {boundary.qs}, 0, 0, 2)'
 
-        if self.field == femm_current_flow and isinstance(
-            boundary, CurrentFlowPeriodic
-        ):
+        if self.field == femm_current_flow and isinstance(boundary, CurrentFlowPeriodic):
             cmd = f'ci_addboundprop("{boundary.name}", 0, 0, 0, 0, 3)'
 
-        if self.field == femm_current_flow and isinstance(
-            boundary, CurrentFlowAntiPeriodic
-        ):
+        if self.field == femm_current_flow and isinstance(boundary, CurrentFlowAntiPeriodic):
             cmd = f'ci_addboundprop("{boundary.name}", 0, 0, 0, 0, 4)'
 
         if FemmWriter.push:
@@ -761,8 +680,9 @@ class FemmWriter:
 
     def add_material(self, material):
         """
-        mi addmaterial("materialname", mu_x, mu_y, H_c, J, Cduct, Lam_d, Phi_hmax,
-                        lam_fill, LamType, Phi_hx, Phi_hy, NStrands, WireD)
+        mi addmaterial("materialname", mu_x, mu_y, H_c, J, Cduct, Lam_d,
+                       Phi_hmax, lam_fill, LamType, Phi_hx, Phi_hy,
+                       NStrands, WireD)
         """
 
         cmd = None
@@ -813,9 +733,7 @@ class FemmWriter:
             )
 
         if self.field == femm_current_flow:
-            cmd = Template(
-                "ci_addmaterial($materialname, $ox, $oy, $ex, $ey, $ltx, $lty)"
-            )
+            cmd = Template("ci_addmaterial($materialname, $ox, $oy, $ex, $ey, $ltx, $lty)")
             cmd = cmd.substitute(
                 materialname=f'"{material.material_name}"',
                 ox=material.ox,
@@ -831,11 +749,10 @@ class FemmWriter:
 
         return cmd
 
-    def add_bhcurve(
-        self, material: MagneticMaterial, file_name, first_column, separator
-    ):
+    def add_bhcurve(self, material: MagneticMaterial, file_name, first_column, separator):
         """
-        This function adds nonlinear property to an already added linear material.
+        This function adds nonlinear property to an already added linear
+        material.
 
         :param material: The material that is being assigned as nonlinear.
         :param file_name: The location of the file that contains the h-b points
@@ -866,7 +783,10 @@ class FemmWriter:
             return cmd
 
     def delete_selected_nodes(self):
-        """Delete all selected nodes, the object should be selected the node selection command."""
+        """
+        Delete all selected nodes, the object should be selected the node
+        selection command.
+        """
 
         cmd = None
         self.validate_field()
@@ -1008,14 +928,15 @@ class FemmWriter:
 
     def add_circprop(self, circuitname, i, circuittype):
         """
-        Adds a new circuit property with name "circuitname" with a prescribed current, i.
-        The circuittype parameter is
+        Adds a new circuit property with name "circuitname" with a prescribed
+        current, i.  The circuittype parameter is
 
         Only in the case of magnetic fields.
 
         :param circuitname: name of the magnetic circuit
         :param i : prescribed current in Amper
-        :param circuittype:  0for a parallel - connected circuit and 1 for a series-connected circuit.
+        :param circuittype: 0 for a parallel - connected circuit and 1 for a
+                            series-connected circuit.
         """
         cmd = f'mi_addcircprop("{circuitname}",{i},{circuittype})'
 
@@ -1150,8 +1071,9 @@ class FemmWriter:
 
     def select_group(self, n):
         """
-        Select the n th group of nodes, segments, arc segments and block labels.
-        This function will clear all previously selected elements and leave the edit mode in 4(group)
+        Select the n th group of nodes, segments, arc segments and block
+        labels.  This function will clear all previously selected elements and
+        leave the edit mode in 4(group)
         """
 
         cmd = None
@@ -1178,9 +1100,11 @@ class FemmWriter:
 
     def select_circle(self, x, y, R, editmode):
         """
-        Select circle selects objects within a circle of radius R centered at(x, y).If only x, y, and R paramters
-        are given, the current edit mode is used.If the editmode parameter is used, 0 denotes nodes, 2 denotes block
-        labels, 2 denotes segments, 3 denotes arcs, and 4 specifies that all entity types are to be selected.
+        Select circle selects objects within a circle of radius R centered
+        at(x, y).If only x, y, and R paramters are given, the current edit mode
+        is used.If the editmode parameter is used, 0 denotes nodes, 2 denotes
+        block labels, 2 denotes segments, 3 denotes arcs, and 4 specifies that
+        all entity types are to be selected.
         """
 
         cmd = None
@@ -1270,13 +1194,18 @@ class FemmWriter:
     ):
         """
         :param propname: boundary property
-        :param elementsize: Local element size along segment no greater than elementsize
-        :param automesh: mesher defers to the element constraint defined by elementsize, 1 = mesher
-                         automatically chooses mesh size along the selected segments
-        :param hide: 0 = not hidden in post-processor, 1 == hidden in post processor
+        :param elementsize: Local element size along segment no greater than
+                            elementsize.
+        :param automesh: mesher defers to the element constraint defined by
+                         elementsize, 1 = mesher automatically chooses mesh
+                         size along the selected segments
+        :param hide: 0 = not hidden in post-processor, 1 == hidden in post
+                     processor
         :param group: A member of group number group
-        :param inductor: A member of the conductor specified by the string "inconductor". If the segment is not
-                         part of a conductor, this parameter can be specified as "<None>".
+        :param inductor: A member of the conductor specified by the string
+                         "inconductor". If the segment is not part of a
+                         conductor, this parameter can be specified as
+                         "<None>".
         """
         prefix = None
         if self.field == femm_magnetic:
@@ -1306,9 +1235,7 @@ class FemmWriter:
         self.validate_field()
 
         if self.field == femm_magnetic:
-            cmd = Template(
-                "mi_setarcsegmentprop($maxsegdeg, $propname, $hide, $group)"
-            )
+            cmd = Template("mi_setarcsegmentprop($maxsegdeg, $propname, $hide, $group)")
             cmd = cmd.substitute(
                 maxsegdeg=maxsegdeg,
                 propname="'" + propname + "'",
@@ -1321,9 +1248,7 @@ class FemmWriter:
 
         return cmd
 
-    def set_blockprop(
-        self, blockname, automesh=1, meshsize=1, group=0, **kwargs
-    ):
+    def set_blockprop(self, blockname, automesh=1, meshsize=1, group=0, **kwargs):
         """
         :param meshsize: default value is None -> invokes automesh
             this command will use automesh option as the default, if the mesh size is not defined
@@ -1365,9 +1290,7 @@ class FemmWriter:
             )
 
         if self.field == femm_heat_flow:
-            cmd = Template(
-                "hi_setblockprop($blockname, $automesh, $meshsize, $group)"
-            )
+            cmd = Template("hi_setblockprop($blockname, $automesh, $meshsize, $group)")
             cmd = cmd.substitute(
                 blockname=f'"{blockname}"',
                 automesh=automesh,
@@ -1376,9 +1299,7 @@ class FemmWriter:
             )
 
         if self.field == femm_electrostatic:
-            cmd = Template(
-                "ei_setblockprop($blockname, $automesh, $meshsize, $group)"
-            )
+            cmd = Template("ei_setblockprop($blockname, $automesh, $meshsize, $group)")
             cmd = cmd.substitute(
                 blockname=f'"{blockname}"',
                 automesh=automesh,
@@ -1387,9 +1308,7 @@ class FemmWriter:
             )
 
         if self.field == femm_current_flow:
-            cmd = Template(
-                "ci_setblockprop($blockname, $automesh, $meshsize, $group)"
-            )
+            cmd = Template("ci_setblockprop($blockname, $automesh, $meshsize, $group)")
             cmd = cmd.substitute(
                 blockname=f'"{blockname}"',
                 automesh=automesh,
@@ -1403,9 +1322,7 @@ class FemmWriter:
         return cmd
 
     # problem commands for the magnetic problem
-    def magnetic_problem(
-        self, freq, unit, type, precision=1e-8, depth=1, minangle=30, acsolver=0
-    ):
+    def magnetic_problem(self, freq, unit, type, precision=1e-8, depth=1, minangle=30, acsolver=0):
         """
          Definition of the magnetic problem, like probdef(0,'inches','axi',1e-8,0,30);
 
@@ -1436,9 +1353,7 @@ class FemmWriter:
         self.validate_field(femm_magnetic)
         self.validate_units(unit)
 
-        cmd = Template(
-            "mi_probdef($frequency,$units,$type,$precision, $depth, $minangle, $acsolver)"
-        )
+        cmd = Template("mi_probdef($frequency,$units,$type,$precision, $depth, $minangle, $acsolver)")
         cmd = cmd.substitute(
             frequency=freq,
             units=r"'" + unit + r"'",
@@ -1491,9 +1406,7 @@ class FemmWriter:
 
         return cmd
 
-    def electrostatic_problem(
-        self, units, type, precision=1e-8, depth=1, minangle=30
-    ):
+    def electrostatic_problem(self, units, type, precision=1e-8, depth=1, minangle=30):
         """
         :param units: "inches", "millimeters", "centimeters", "mils", "meters", "micrometers"
         :param type: "planar", "axi",
@@ -1510,18 +1423,14 @@ class FemmWriter:
         if type not in {"planar", "axi"}:
             raise ValueError(f"Choose either 'planar' or 'axi', not {type}. ")
 
-        cmd = (
-            f'ei_probdef("{units}", "{type}", {precision}, {depth}, {minangle})'
-        )
+        cmd = f'ei_probdef("{units}", "{type}", {precision}, {depth}, {minangle})'
 
         if FemmWriter.push:
             self.lua_model.append(cmd)
 
         return cmd
 
-    def currentflow_problem(
-        self, units, type, frequency=0, precision=1e-8, depth=1, minangle=30
-    ):
+    def currentflow_problem(self, units, type, frequency=0, precision=1e-8, depth=1, minangle=30):
         # TODO: add docstring
         """
         -
@@ -1544,10 +1453,11 @@ class FemmWriter:
 
     def save_as(self, file_name):
         """
-        To solve the problem with FEMM, you have to save it with the save_as command.
+        To solve the problem with FEMM, you have to save it with the save_as
+        command.
 
-        mi_saveas("filename") saves the file with name "filename". Note if you use a path you
-                              must use two backslashes e.g. "c:\\temp\\myfemmfile.fem
+        mi_saveas("filename") saves the file with name "filename". Note if you
+        use a path you must use two backslashes e.g. "c:\\temp\\myfemmfile.fem
         """
 
         cmd = None
@@ -1655,7 +1565,8 @@ class FemmWriter:
              29           y (or z) part of 1×Lorentz force
              30           1×component of Lorentz torque
 
-             This function returns one (possibly complex) value,e.g.:volume = moblockintegral(10)
+             This function returns one (possibly complex) value,e.g.:volume =
+             moblockintegral(10)
         """
 
         cmd = None
@@ -1703,9 +1614,7 @@ class FemmWriter:
 
         return cmd
 
-    def get_circuit_properties(
-        self, circuit_name, result="current, volt, flux"
-    ):
+    def get_circuit_properties(self, circuit_name, result="current, volt, flux"):
         """Used primarily to obtain impedance information associated with circuit properties.
         Properties are returned for the circuit property named "circuit".
         Three values are returned by the function.
@@ -1728,9 +1637,7 @@ class FemmWriter:
 
     def write_out_result(self, key, value):
         # writes out a key_value pair
-        cmd = Template(
-            "write(file_out, '$key', ', ', $value, \"\\{}\")".format("n")
-        )
+        cmd = Template("write(file_out, '$key', ', ', $value, \"\\{}\")".format("n"))
         cmd = cmd.substitute(key=key, value=value)
 
         if FemmWriter.push:
@@ -1773,9 +1680,7 @@ class FemmExecutor:
             cmd_list.append(f"-lua-script={script_file}")
             cmd_list.append("-windowhide")
 
-        proc = subprocess.Popen(
-            cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         timer = Timer(timeout, proc.kill)
         try:
             timer.start()

@@ -18,19 +18,22 @@ repos:
     hooks:
       - id: isort
 
+  - repo: https://github.com/pycqa/pylint
+    rev: v2.11.1
+    entry: pylint
+    files: '^adze_modeler/'
+    types: [file, python]
+    hooks:
+      - id: pylint
+        args: [
+              "--rcfile=pyproject.toml",
+              "-j 4"]
 
-  # - repo: https://github.com/PyCQA/flake8
-  #   rev: 3.9.1
-  #   hooks:
-  #     - id: flake8
-  #       additional_dependencies:
-  #         - flake8-bugbear
-  #         - flake8-implicit-str-concat
-  # - repo: https://github.com/pre-commit/pre-commit-hooks
-  #   rev: v3.4.0
-  #   hooks:
-  #     - id: check-added-large-files
-  #     - id: check-yaml
-  #     - id: end-of-file-fixer
-  #     - id: fix-byte-order-marker
-  #     - id: trailing-whitespace
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.4.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: trailing-whitespace

@@ -74,20 +74,12 @@ class GMSHModel:
                     # firstly, the code ordering the lines into the right order, to form a directed closed loop
                     if not start_point:
                         if edge.id > 0:
-                            start_point = geom.add_point(
-                                [edge.start_pt.x, edge.start_pt.y], self.lcar
-                            )
-                            end_point = geom.add_point(
-                                [edge.end_pt.x, edge.end_pt.y], self.lcar
-                            )
+                            start_point = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
+                            end_point = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
 
                         else:
-                            start_point = geom.add_point(
-                                [edge.end_pt.x, edge.end_pt.y], self.lcar
-                            )
-                            end_point = geom.add_point(
-                                [edge.start_pt.x, edge.start_pt.y], self.lcar
-                            )
+                            start_point = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
+                            end_point = geom.add_point([edge.start_pt.x, edge.start_pt.y], self.lcar)
 
                         first_point = start_point
                     else:
@@ -97,9 +89,7 @@ class GMSHModel:
                             end_point = first_point
                         else:
                             if edge.id > 0:
-                                end_point = geom.add_point(
-                                    [edge.end_pt.x, edge.end_pt.y], self.lcar
-                                )
+                                end_point = geom.add_point([edge.end_pt.x, edge.end_pt.y], self.lcar)
                             else:
                                 end_point = geom.add_point(
                                     [edge.start_pt.x, edge.start_pt.y],
@@ -113,23 +103,15 @@ class GMSHModel:
 
                     # circle arcs
                     if isinstance(edge, obj.CircleArc):
-                        center_pt = geom.add_point(
-                            [edge.center_pt.x, edge.center_pt.y], self.lcar
-                        )
+                        center_pt = geom.add_point([edge.center_pt.x, edge.center_pt.y], self.lcar)
                         # arc_nr = geom.add_circle(start=start_point, center=center_pt, end=end_point)
-                        arc_nr = geom.add_circle_arc(
-                            start=start_point, center=center_pt, end=end_point
-                        )
+                        arc_nr = geom.add_circle_arc(start=start_point, center=center_pt, end=end_point)
                         gmsh_edges.append(arc_nr)
 
                     # bezier curves
                     if isinstance(edge, obj.CubicBezier):
-                        control1 = geom.add_point(
-                            [edge.control1.x, edge.control1.y], self.lcar
-                        )
-                        control2 = geom.add_point(
-                            [edge.control2.x, edge.control2.y], self.lcar
-                        )
+                        control1 = geom.add_point([edge.control1.x, edge.control1.y], self.lcar)
+                        control2 = geom.add_point([edge.control2.x, edge.control2.y], self.lcar)
                         bezier = geom.add_bspline(
                             control_points=[
                                 start_point,
@@ -144,9 +126,7 @@ class GMSHModel:
                     for key, val in self.boundaries.items():
                         if abs(edge.id) in val:
                             if key in self.boundary_queue_gmsh:
-                                self.boundary_queue_gmsh[key].append(
-                                    gmsh_edges[-1]
-                                )
+                                self.boundary_queue_gmsh[key].append(gmsh_edges[-1])
                             else:
                                 self.boundary_queue_gmsh[key] = [gmsh_edges[-1]]
 

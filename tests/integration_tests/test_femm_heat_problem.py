@@ -103,9 +103,7 @@ class TestFemmCurrentFlowProblem(unittest.TestCase):
         writer.close()
 
         try:
-            reference = files("tests.integration_tests").joinpath(
-                "heatflow_test.lua"
-            )
+            reference = files("tests.integration_tests").joinpath("heatflow_test.lua")
             with open(reference) as f:
                 content = f.readlines()
                 counter_test = Counter(content)

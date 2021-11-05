@@ -3,11 +3,7 @@ from collections import Counter
 
 from importlib_resources import files
 
-from adze_modeler.femm_wrapper import (
-    ElectrostaticMaterial,
-    FemmWriter,
-    femm_electrostatic,
-)
+from adze_modeler.femm_wrapper import ElectrostaticMaterial, FemmWriter, femm_electrostatic
 
 
 class TestFemmElectrostaticProblem(unittest.TestCase):
@@ -71,9 +67,7 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
         writer.close()
 
         try:
-            reference = files("tests.integration_tests").joinpath(
-                "electrostatic_test.lua"
-            )
+            reference = files("tests.integration_tests").joinpath("electrostatic_test.lua")
             with open(reference) as f:
                 content = f.readlines()
                 counter_test = Counter(content)

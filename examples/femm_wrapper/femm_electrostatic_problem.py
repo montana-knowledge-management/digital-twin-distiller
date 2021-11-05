@@ -1,11 +1,6 @@
 import os
 
-from adze_modeler.femm_wrapper import (
-    ElectrostaticMaterial,
-    FemmExecutor,
-    FemmWriter,
-    femm_electrostatic,
-)
+from adze_modeler.femm_wrapper import ElectrostaticMaterial, FemmExecutor, FemmWriter, femm_electrostatic
 
 
 # integration test ignored from the unittest list

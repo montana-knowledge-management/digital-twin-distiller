@@ -5,9 +5,7 @@ from adze_modeler.geometry import Geometry
 from adze_modeler.gmsh import GMSHModel
 
 # importing the hand-made svg-image to use it as a FEM model
-eml = files("examples.gmsh-arbitrary-surface.resources").joinpath(
-    "owl-shape.svg"
-)
+eml = files("examples.gmsh-arbitrary-surface.resources").joinpath("owl-shape.svg")
 geo = Geometry()
 geo.import_svg(eml.as_posix())
 

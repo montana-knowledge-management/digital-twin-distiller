@@ -1,10 +1,7 @@
 import unittest
 from pathlib import Path
 
-from adze_modeler.boundaries import (
-    DirichletBoundaryCondition,
-    NeumannBoundaryCondition,
-)
+from adze_modeler.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
 from adze_modeler.geometry import Geometry
 from adze_modeler.material import Material
 from adze_modeler.metadata import Agros2DMetadata, FemmMetadata
@@ -67,19 +64,13 @@ class TestSnapshotAgros2D(unittest.TestCase):
 
     def test_set_add_boundary_condition(self):
         s = self.get_snapshot()
-        s.add_boundary_condition(
-            DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3)
-        )
+        s.add_boundary_condition(DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3))
         self.assertTrue("eper" in s.boundaries)
 
     def test_assign_boundary_condition(self):
         s = self.get_snapshot()
-        s.add_boundary_condition(
-            DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3)
-        )
-        self.assertRaises(
-            ValueError, s.assign_boundary_condition, x=0, y=0, name="falsename"
-        )
+        s.add_boundary_condition(DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3))
+        self.assertRaises(ValueError, s.assign_boundary_condition, x=0, y=0, name="falsename")
 
     def test_add_material(self):
         s = self.get_snapshot()
@@ -108,19 +99,11 @@ class TestSnapshotAgros2D(unittest.TestCase):
         s.add_material(Material("air"))
         s.assign_material(0, 0, "air")
         s.add_geometry(self.get_geometry())
-        s.add_boundary_condition(
-            DirichletBoundaryCondition(
-                "d0", field_type="magnetic", magnetic_potential=30
-            )
-        )
+        s.add_boundary_condition(DirichletBoundaryCondition("d0", field_type="magnetic", magnetic_potential=30))
         f = MockFileHandle()
         # s.export()
         s.export(f)
-        with open(
-            Path(__file__).parent
-            / "solver_script_references"
-            / "agros2d_default_script.py"
-        ) as f_ref:
+        with open(Path(__file__).parent / "solver_script_references" / "agros2d_default_script.py") as f_ref:
             for i, line in enumerate(f_ref.readlines()):
                 if "remove(" in line:
                     continue
@@ -169,19 +152,13 @@ class TestSnapshotFemm(unittest.TestCase):
 
     def test_set_add_boundary_condition(self):
         s = self.get_snapshot()
-        s.add_boundary_condition(
-            DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3)
-        )
+        s.add_boundary_condition(DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3))
         self.assertTrue("eper" in s.boundaries)
 
     def test_assign_boundary_condition(self):
         s = self.get_snapshot()
-        s.add_boundary_condition(
-            DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3)
-        )
-        self.assertRaises(
-            ValueError, s.assign_boundary_condition, x=0, y=0, name="falsename"
-        )
+        s.add_boundary_condition(DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3))
+        self.assertRaises(ValueError, s.assign_boundary_condition, x=0, y=0, name="falsename")
 
     def test_add_material(self):
         s = self.get_snapshot()
@@ -209,17 +186,11 @@ class TestSnapshotFemm(unittest.TestCase):
         s.add_geometry(self.get_geometry())
         s.add_material(Material("air"))
         s.assign_material(0, 0, "air")
-        s.add_boundary_condition(
-            DirichletBoundaryCondition("d0", "magnetic", magnetic_potential=30)
-        )
+        s.add_boundary_condition(DirichletBoundaryCondition("d0", "magnetic", magnetic_potential=30))
         f = MockFileHandle()
         # s.export()
         s.export(f)
-        with open(
-            Path(__file__).parent
-            / "solver_script_references"
-            / "femm_default_script.lua"
-        ) as f_ref:
+        with open(Path(__file__).parent / "solver_script_references" / "femm_default_script.lua") as f_ref:
             for i, line in enumerate(f_ref.readlines()):
                 if "remove(" in line:
                     continue

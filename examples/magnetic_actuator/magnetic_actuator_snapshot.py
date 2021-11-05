@@ -1,10 +1,4 @@
-from adze_modeler.femm_wrapper import (
-    FemmExecutor,
-    FemmWriter,
-    MagneticDirichlet,
-    MagneticMaterial,
-    femm_magnetic,
-)
+from adze_modeler.femm_wrapper import FemmExecutor, FemmWriter, MagneticDirichlet, MagneticMaterial, femm_magnetic
 from adze_modeler.geometry import Geometry
 
 """
@@ -22,9 +16,7 @@ The force exerted on the magnet should be around -4.85 N.
 aluminium = MagneticMaterial("aluminium", 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
 air = MagneticMaterial("air", 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
 steel = MagneticMaterial("steel", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-magnet = MagneticMaterial(
-    "Alnico5", 19.97, 19.97, 51e3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-)
+magnet = MagneticMaterial("Alnico5", 19.97, 19.97, 51e3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 
 def create_snapshot():
@@ -102,9 +94,7 @@ def create_snapshot():
 
     # boundary conditions
     # dirichlet
-    a0 = MagneticDirichlet(
-        "a0", 0, 0, 0, 0
-    )  # "name", "a_0", "a_1", "a_2", "phi"
+    a0 = MagneticDirichlet("a0", 0, 0, 0, 0)  # "name", "a_0", "a_1", "a_2", "phi"
     femm_model.add_boundary(a0)
 
     # set dirichlet boundary condition on the bounding box
@@ -124,9 +114,7 @@ def create_snapshot():
     # Calculate the force acting on the magnet
     femm_model.lua_model.append("mo_selectblock(0.1, 0)")
     femm_model.lua_model.append("Fy=mo_blockintegral(19)")  # manual: page 94
-    femm_model.write_out_result(
-        "Fy", "Fy"
-    )  # write the results into femm_data.csv
+    femm_model.write_out_result("Fy", "Fy")  # write the results into femm_data.csv
 
     femm_model.close()  # close femm
     femm_model.write("actuator.lua")  # dump the entire script into actuator.lua

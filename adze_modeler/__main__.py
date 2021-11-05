@@ -10,9 +10,7 @@ from adze_modeler.modelpaths import ModelDir
 parser = argparse.ArgumentParser(prog="ADZE", description="Create a new Model")
 parser.add_argument("task", help="Select a task: [new, ]")
 parser.add_argument("name", help="The name of the model", default="MODEL")
-parser.add_argument(
-    "location", help="The location of the model", default="APPLICATIONS"
-)
+parser.add_argument("location", help="The location of the model", default="APPLICATIONS")
 args = parser.parse_args()
 
 SRC = Path(__file__).parent.resolve() / "resources"

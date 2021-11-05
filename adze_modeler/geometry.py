@@ -148,9 +148,7 @@ class Geometry:
         self.merge_points()
 
     def meshi_it(self, mesh_strategy):
-        mesh = mesh_strategy(
-            self.nodes, self.lines, self.circle_arcs, self.cubic_beziers
-        )
+        mesh = mesh_strategy(self.nodes, self.lines, self.circle_arcs, self.cubic_beziers)
         return mesh
 
     def __repr__(self):
@@ -287,9 +285,7 @@ class Geometry:
             paths.append(path)
             colors.append("blue")
 
-        svg.wsvg(
-            paths, colors=colors, svgwrite_debug=True, filename=str(file_name)
-        )
+        svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename=str(file_name))
 
     def import_svg(self, svg_img, *args):
         """Imports the svg file into a new geo object. The function gives an automatic id to the function
@@ -326,11 +322,7 @@ class Geometry:
                             control1 = obj.Node(c1.real, c1.imag, id + 1)
                             control2 = obj.Node(c2.real, c2.imag, id + 2)
                             end = obj.Node(s2.real, s2.imag, id + 3)
-                            self.add_cubic_bezier(
-                                obj.CubicBezier(
-                                    start, control1, control2, end, id + 4
-                                )
-                            )
+                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4))
                             id += 5
 
                         if isinstance(element, svg.Arc):
@@ -410,27 +402,11 @@ class Geometry:
                     p2 = tuple(q + t3 * s)
 
         else:
-            up = (
-                -x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2
-            ) / (
-                x1 * y3
-                - x1 * y4
-                - x2 * y3
-                + x2 * y4
-                - x3 * y1
-                + x3 * y2
-                + x4 * y1
-                - x4 * y2
+            up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
-                x1 * y3
-                - x1 * y4
-                - x2 * y3
-                + x2 * y4
-                - x3 * y1
-                + x3 * y2
-                + x4 * y1
-                - x4 * y2
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             if inrange(tp) and inrange(up):
                 p1 = tuple(p + tp * r)
@@ -456,30 +432,22 @@ class Geometry:
                 if p1 is not None:
                     if i != j:
                         # plt.scatter(p1[0], p1[1], c="r", marker="o", s=40)
-                        intersections.append(
-                            (distance(line_1.start_pt, p1), *p1)
-                        )
+                        intersections.append((distance(line_1.start_pt, p1), *p1))
 
                 if p2 is not None:
                     if i != j:
-                        intersections.append(
-                            (distance(line_1.start_pt, p2), *p2)
-                        )
+                        intersections.append((distance(line_1.start_pt, p2), *p2))
                         pass
 
             intersections.sort(key=lambda ii: ii[0])
             for k in range(len(intersections) - 1):
-                start_node = obj.Node(
-                    x=intersections[k][1], y=intersections[k][2], id=getID()
-                )
+                start_node = obj.Node(x=intersections[k][1], y=intersections[k][2], id=getID())
                 end_node = obj.Node(
                     x=intersections[k + 1][1],
                     y=intersections[k + 1][2],
                     id=getID(),
                 )
-                newlines.append(
-                    obj.Line(start_pt=start_node, end_pt=end_node, id=getID())
-                )
+                newlines.append(obj.Line(start_pt=start_node, end_pt=end_node, id=getID()))
 
         self.nodes.clear()
         self.lines.clear()
@@ -518,9 +486,7 @@ class Geometry:
             control1 = complex(*bz.control1)
             control2 = complex(*bz.control2)
             end_pt = complex(*bz.end_pt)
-            paths.append(
-                svgpathtools.CubicBezier(start_pt, control1, control2, end_pt)
-            )
+            paths.append(svgpathtools.CubicBezier(start_pt, control1, control2, end_pt))
 
         svg.wsvg(paths, filename=str(filename))
 

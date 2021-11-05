@@ -1,9 +1,6 @@
 import numpy as np
 
-from adze_modeler.boundaries import (
-    DirichletBoundaryCondition,
-    NeumannBoundaryCondition,
-)
+from adze_modeler.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
 from adze_modeler.material import Material
 from adze_modeler.metadata import Agros2DMetadata, FemmMetadata
 from adze_modeler.model import BaseModel
@@ -50,9 +47,7 @@ class AsymmetircModel(BaseModel):
         self.snapshot = Snapshot(self.platform)
 
     def define_boundary_conditions(self):
-        b1 = DirichletBoundaryCondition(
-            name="a0", field_type="magnetic", magnetic_potential=0.0
-        )
+        b1 = DirichletBoundaryCondition(name="a0", field_type="magnetic", magnetic_potential=0.0)
 
         self.snapshot.add_boundary_condition(b1)
 
@@ -92,20 +87,14 @@ class AsymmetircModel(BaseModel):
         for i in range(Nx):
             for j in range(Ny):
                 eval_point = (xv[j, i], yv[j, i])
-                self.snapshot.add_postprocessing(
-                    "point_value", eval_point, "Bz"
-                )
-                self.snapshot.add_postprocessing(
-                    "point_value", eval_point, "Br"
-                )
+                self.snapshot.add_postprocessing("point_value", eval_point, "Bz")
+                self.snapshot.add_postprocessing("point_value", eval_point, "Br")
 
         self.snapshot.add_postprocessing("mesh_info", None, None)
 
     def build_geometry(self):
         mp_bound = ModelPiece("bound")
-        mp_bound.load_piece_from_svg(
-            self.dir_resources / "problem_boundary.svg"
-        )
+        mp_bound.load_piece_from_svg(self.dir_resources / "problem_boundary.svg")
         mp_bound.put(0, -70)
 
         mp_control = ModelPiece("core")
@@ -143,29 +132,17 @@ if __name__ == "__main__":
     model = AsymmetircModel(X)
     result = model(cleanup=False)
 
-    x = [
-        pointvalue[0] * 1000 for pointvalue in result["Br"]
-    ]  # [x, y, Br(x, y)]
-    y = [
-        pointvalue[1] * 1000 for pointvalue in result["Br"]
-    ]  # [x, y, Br(x, y)]
+    x = [pointvalue[0] * 1000 for pointvalue in result["Br"]]  # [x, y, Br(x, y)]
+    y = [pointvalue[1] * 1000 for pointvalue in result["Br"]]  # [x, y, Br(x, y)]
 
     x_fine = np.linspace(min(x), max(x), 100)
     y_fine = np.linspace(min(y), max(y), 100)
 
-    Bz = [
-        pointvalue[2] * 1000 for pointvalue in result["Bz"]
-    ]  # [x, y, Bz(x, y)]
-    Br = [
-        pointvalue[2] * 1000 for pointvalue in result["Br"]
-    ]  # [x, y, Br(x, y)]
+    Bz = [pointvalue[2] * 1000 for pointvalue in result["Bz"]]  # [x, y, Bz(x, y)]
+    Br = [pointvalue[2] * 1000 for pointvalue in result["Br"]]  # [x, y, Br(x, y)]
 
-    Bz_fine = griddata(
-        (x, y), Bz, (x_fine[None, :], y_fine[:, None]), method="linear"
-    )
-    Br_fine = griddata(
-        (x, y), Br, (x_fine[None, :], y_fine[:, None]), method="linear"
-    )
+    Bz_fine = griddata((x, y), Bz, (x_fine[None, :], y_fine[:, None]), method="linear")
+    Br_fine = griddata((x, y), Br, (x_fine[None, :], y_fine[:, None]), method="linear")
 
     plt.figure(figsize=(6, 6))
     plt.contourf(x_fine, y_fine, Bz_fine)

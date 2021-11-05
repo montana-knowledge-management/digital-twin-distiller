@@ -79,15 +79,11 @@ class CoilOptimizationProblem(Problem):
 
             deltaBpz = map(operator.abs, map(operator.sub, Bzp, Bz))
             deltaBpr = map(operator.abs, map(operator.sub, Brp, Br))
-            deltaBp = map(
-                math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBpz, deltaBpr)
-            )
+            deltaBp = map(math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBpz, deltaBpr))
 
             deltaBnz = map(operator.abs, map(operator.sub, Bzn, Bz))
             deltaBnr = map(operator.abs, map(operator.sub, Brn, Br))
-            deltaBn = map(
-                math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBnz, deltaBnr)
-            )
+            deltaBn = map(math.sqrt, map(lambda a, b: a ** 2 + b ** 2, deltaBnz, deltaBnr))
 
             F2 = max(map(operator.add, deltaBp, deltaBn))
 

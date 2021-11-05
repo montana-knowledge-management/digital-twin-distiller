@@ -18,18 +18,10 @@ def simpleCalc(x_1, y_1, x_2, y_2, r, layernum):
 
     for i in range(-layernum, layernum):
         for j in range(-layernum, layernum):
-            result += inductancefromimages(
-                x_2 + 2 * i * w, y_2 + 2 * j * h, 0, y_1, x_1 - r, y_1
-            )
-            result -= inductancefromimages(
-                -x_2 + 2 * i * w, y_2 + 2 * j * h, 0, y_1, x_1 - r, y_1
-            )
-            result -= inductancefromimages(
-                x_2 + 2 * i * w, -y_2 + 2 * j * h, 0, y_1, x_1 - r, y_1
-            )
-            result += inductancefromimages(
-                -x_2 + 2 * i * w, -y_2 + 2 * j * h, 0, y_1, x_1 - r, y_1
-            )
+            result += inductancefromimages(x_2 + 2 * i * w, y_2 + 2 * j * h, 0, y_1, x_1 - r, y_1)
+            result -= inductancefromimages(-x_2 + 2 * i * w, y_2 + 2 * j * h, 0, y_1, x_1 - r, y_1)
+            result -= inductancefromimages(x_2 + 2 * i * w, -y_2 + 2 * j * h, 0, y_1, x_1 - r, y_1)
+            result += inductancefromimages(-x_2 + 2 * i * w, -y_2 + 2 * j * h, 0, y_1, x_1 - r, y_1)
 
     return result
 

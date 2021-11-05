@@ -127,9 +127,7 @@ def project_documentation(request: Request):
     """
     Endpoint for checking the custom project's documentation.
     """
-    return app.doc_templates.TemplateResponse(
-        "index.html", {"request": request, "project_name": app.project.app_name}
-    )
+    return app.doc_templates.TemplateResponse("index.html", {"request": request, "project_name": app.project.app_name})
 
 
 class Server:
@@ -140,10 +138,7 @@ class Server:
     def __init__(self, project: Simulation):
         self.app = app
         self.app.doc_templates = Jinja2Templates(
-            directory=files("adze_modeler")
-            / "resources"
-            / "doc_template"
-            / "site"
+            directory=files("adze_modeler") / "resources" / "doc_template" / "site"
         )
         self.app.project = project
         self.app.title = self.app.title.format(project.app_name)
@@ -178,16 +173,10 @@ class Server:
         # javascripts_path = os.path.join(asset_path, "javascripts")
         # worker_path = os.path.join(javascripts_path, "workers")
         if not os.path.exists(asset_path) or not os.path.exists(search_path):
-            raise FileNotFoundError(
-                'please build the mkdocs site by calling "mkdocs build" in the docs directory'
-            )
+            raise FileNotFoundError('please build the mkdocs site by calling "mkdocs build" in the docs directory')
 
-        self.app.mount(
-            "/assets", StaticFiles(directory=asset_path), name="assets"
-        )
-        self.app.mount(
-            "/search", StaticFiles(directory=search_path), name="search"
-        )
+        self.app.mount("/assets", StaticFiles(directory=asset_path), name="assets")
+        self.app.mount("/search", StaticFiles(directory=search_path), name="search")
         # self.app.mount("/assets/javascripts/workers", StaticFiles(directory=worker_path), name="workers")
         # self.app.mount("/assets/javascripts", StaticFiles(directory=javascripts_path), name="workers")
 
@@ -230,9 +219,7 @@ class Server:
                 ssl_certfile=self.cert_file_path,
             )
         else:
-            uvicorn.run(
-                self.app, host=self.host, port=self.port, log_level="info"
-            )
+            uvicorn.run(self.app, host=self.host, port=self.port, log_level="info")
 
 
 if __name__ == "__main__":

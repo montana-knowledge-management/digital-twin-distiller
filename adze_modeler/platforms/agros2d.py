@@ -5,11 +5,7 @@ from copy import copy
 from pathlib import Path
 from time import sleep
 
-from adze_modeler.boundaries import (
-    BoundaryCondition,
-    DirichletBoundaryCondition,
-    NeumannBoundaryCondition,
-)
+from adze_modeler.boundaries import BoundaryCondition, DirichletBoundaryCondition, NeumannBoundaryCondition
 from adze_modeler.material import Material
 from adze_modeler.metadata import Metadata
 from adze_modeler.objects import CircleArc, CubicBezier, Line, Node
@@ -32,35 +28,21 @@ class Agros2D(Platform):
 
     def export_metadata(self):
         self.write("problem = a2d.problem(clear=True)")
-        self.write(
-            f'problem.coordinate_type = "{self.metadata.coordinate_type}"'
-        )
-        self.write(
-            f'problem.mesh_type = "{self.metadata.mesh_type}"', nb_newline=2
-        )
+        self.write(f'problem.coordinate_type = "{self.metadata.coordinate_type}"')
+        self.write(f'problem.mesh_type = "{self.metadata.mesh_type}"', nb_newline=2)
         if self.metadata.analysis_type == "harmonic":
             self.write(f"problem.frequency = {self.metadata.frequency}")
 
-        self.write(
-            f'{self.metadata.problem_type} = a2d.field("{self.metadata.problem_type}")'
-        )
-        self.write(
-            f'{self.metadata.problem_type}.analysis_type = "{self.metadata.analysis_type}"'
-        )
-        self.write(
-            f"{self.metadata.problem_type}.number_of_refinements = {self.metadata.nb_refinements}"
-        )
-        self.write(
-            f"{self.metadata.problem_type}.polynomial_order = {self.metadata.polyorder}"
-        )
+        self.write(f'{self.metadata.problem_type} = a2d.field("{self.metadata.problem_type}")')
+        self.write(f'{self.metadata.problem_type}.analysis_type = "{self.metadata.analysis_type}"')
+        self.write(f"{self.metadata.problem_type}.number_of_refinements = {self.metadata.nb_refinements}")
+        self.write(f"{self.metadata.problem_type}.polynomial_order = {self.metadata.polyorder}")
         self.write(
             f'{self.metadata.problem_type}.solver = "{self.metadata.solver}"',
             nb_newline=2,
         )
         self.write("geometry = a2d.geometry", nb_newline=2)
-        self.write(
-            f'{self.metadata.problem_type}.adaptivity_type = "{self.metadata.adaptivity}"'
-        )
+        self.write(f'{self.metadata.problem_type}.adaptivity_type = "{self.metadata.adaptivity}"')
         if self.metadata.adaptivity != "disabled":
             self.write(
                 f'{self.metadata.problem_type}.adaptivity_parameters["tolerance"] = {self.metadata.adaptivity_tol}'
@@ -117,9 +99,7 @@ class Agros2D(Platform):
             x1 = e.end_pt.x * self.metadata.unit
             y1 = e.end_pt.y * self.metadata.unit
 
-            self.write(
-                f"geometry.add_edge({x0}, {y0}, {x1}, {y1}", nb_newline=0
-            )
+            self.write(f"geometry.add_edge({x0}, {y0}, {x1}, {y1}", nb_newline=0)
             if boundary:
                 self.write(
                     f", boundaries={{'{self.metadata.problem_type}': '{boundary}'}}",
@@ -131,9 +111,7 @@ class Agros2D(Platform):
     def export_block_label(self, x, y, mat: Material):
         x = self.metadata.unit * x
         y = self.metadata.unit * y
-        self.write(
-            f"geometry.add_label({x}, {y}, materials = {{'{self.metadata.problem_type}' : '{mat.name}'}})"
-        )
+        self.write(f"geometry.add_label({x}, {y}, materials = {{'{self.metadata.problem_type}' : '{mat.name}'}})")
 
     def export_solving_steps(self):
         self.write("problem.solve()")
@@ -153,32 +131,22 @@ class Agros2D(Platform):
         if action == "point_value":
             x = self.metadata.unit * entity[0]
             y = self.metadata.unit * entity[1]
-            self.write(
-                f'point = {self.metadata.problem_type}.local_values({x}, {y})["{mappings[variable]}"]'
-            )
+            self.write(f'point = {self.metadata.problem_type}.local_values({x}, {y})["{mappings[variable]}"]')
             self.write(
                 f'f.write("{{}}, {x}, {y}, {{}}\\n".format("{variable}", point))',
                 nb_newline=2,
             )
 
         if action == "mesh_info":
-            self.write(
-                f"info = {self.metadata.problem_type}.solution_mesh_info()"
-            )
+            self.write(f"info = {self.metadata.problem_type}.solution_mesh_info()")
             self.write(f'f.write("{{}}, {{}}\\n".format("dofs", info["dofs"]))')
-            self.write(
-                f'f.write("{{}}, {{}}\\n".format("nodes", info["nodes"]))'
-            )
-            self.write(
-                f'f.write("{{}}, {{}}\\n".format("elements", info["elements"]))'
-            )
+            self.write(f'f.write("{{}}, {{}}\\n".format("nodes", info["nodes"]))')
+            self.write(f'f.write("{{}}, {{}}\\n".format("elements", info["elements"]))')
 
         if action == "integration":
             if self.metadata.problem_type == "magnetic":
                 mapping = {"Energy": "Wm"}
-                self.write(
-                    f"val={self.metadata.problem_type}.volume_integrals({entity})[{mapping[variable]!r}]"
-                )
+                self.write(f"val={self.metadata.problem_type}.volume_integrals({entity})[{mapping[variable]!r}]")
                 self.write(f'f.write("{variable}, {{}}\\n".format(val))')
 
     def export_closing_steps(self):

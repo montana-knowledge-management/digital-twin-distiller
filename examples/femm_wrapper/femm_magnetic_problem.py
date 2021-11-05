@@ -1,12 +1,7 @@
 import os
 from math import pi
 
-from adze_modeler.femm_wrapper import (
-    FemmExecutor,
-    FemmWriter,
-    MagneticMaterial,
-    MagneticMixed,
-)
+from adze_modeler.femm_wrapper import FemmExecutor, FemmWriter, MagneticMaterial, MagneticMixed
 
 '''
 class TestFemmExecutor(unittest.TestCase):
@@ -121,16 +116,12 @@ def air_core_coil_inductance():
 
     # set coil property
     writer.select_label((ri + ro) / 2, 0)
-    writer.set_blockprop(
-        "coil", 0, r / 20, 0, circuit_name="icoil", turns=n, magdirection=0
-    )
+    writer.set_blockprop("coil", 0, r / 20, 0, circuit_name="icoil", turns=n, magdirection=0)
     writer.clear_selected()
 
     # set air
     writer.select_label(0.75 * r, 0)
-    writer.set_blockprop(
-        "air", 0, r / 100, 0, circuit_name="<None>", turns=0, magdirection=0
-    )
+    writer.set_blockprop("air", 0, r / 100, 0, circuit_name="<None>", turns=0, magdirection=0)
     writer.clear_selected()
 
     # set boundaries
