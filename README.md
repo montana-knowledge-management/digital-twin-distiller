@@ -13,3 +13,35 @@ Why the name?
 Adze is a simple and versatile tool, which is used from the ancient times for wood carving. This is the similarity with the base concept of this tool, which is
 
 
+## INSTALL
+
+> pip3 install adze-modeler
+
+### For Developers
+Adze project uses poetry for dependency management
+
+Installing poetry on your system
+
+The pip package is deprecated, please download teh installation file
+> curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
+
+Run the installation script
+> python3 install-poetry.py
+
+Adding poetry to the system path add this line to .bashrc
+> export PATH="$HOME/.poetry/bin:$PATH"
+
+If not compiling
+>rm -rf ~/.cache/pypoetry
+
+### Run tests and calculating the coverage automatically
+
+> poetry run coverage run
+
+Generating an html from the results
+> poetry run coverage html
+
+Install commit-msg git hook. It runs on every local commit to check if the commit message conforms to the convention specified in .gitlint
+
+>pre-commit install --hook-type commit-msg --overwrite
+>pre-commit install --hook-type=pre-commit --overwrite

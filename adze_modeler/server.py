@@ -40,23 +40,27 @@ class InputJson(BaseModel):
 
 # Defining the API
 app = FastAPI(title="{} API", docs_url="/apidocs", redoc_url=None)
-# Mounting folders of the default mkdocs documentation to the application.
-app.mount(
-    "/assets",
-    StaticFiles(directory=files("docs") / "site" / "assets"),
-    name="assets",
-)
-app.mount(
-    "/search",
-    StaticFiles(directory=files("docs") / "site" / "search"),
-    name="search",
-)
 
-app.mount(
-    "/images",
-    StaticFiles(directory=files("docs") / "site" / "images"),
-    name="images",
-)
+
+def mounts():
+    # Mounting folders of the default mkdocs documentation to the application.
+    app.mount(
+        "/assets",
+        StaticFiles(directory=files("docs") / "site" / "assets"),
+        name="assets",
+    )
+    app.mount(
+        "/search",
+        StaticFiles(directory=files("docs") / "site" / "search"),
+        name="search",
+    )
+
+    app.mount(
+        "/images",
+        StaticFiles(directory=files("docs") / "site" / "images"),
+        name="images",
+    )
+
 
 tags_metadata = [
     {

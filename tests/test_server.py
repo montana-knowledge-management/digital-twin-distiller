@@ -10,21 +10,21 @@ from adze_modeler.simulation import sim
 class TestIntegratedServer(unittest.TestCase):
     def test_server(self):
         # creates a dummy project with the new command and tests the server of the simulation
-        # rtmain.new('integrated_test_server','.')
+        rtmain.new("integrated_test_server", ".")
 
-        import tests.integrated_test_server.model as m
-
-        # m = __import__("tests/integrated_test_server/model", globals=globals())
-        ModelDir.set_base("test_server")
-
-        # set the model for the simulation
-        sim.set_model(m.integrated_test_server)
-
-        from adze_modeler.server import Server
-
-        model = Server(sim)
-        model.build_docs()
-        model.run()
+        # import tests.integrated_test_server.model as m
+        #
+        # # m = __import__("tests/integrated_test_server/model", globals=globals())
+        # ModelDir.set_base("test_server")
+        #
+        # # set the model for the simulation
+        # sim.set_model(m.integrated_test_server)
+        #
+        # from adze_modeler.server import Server
+        #
+        # model = Server(sim)
+        # model.build_docs()
+        # model.run()
 
         # for path in Path("test_server").glob("**/*"):
         #     if path.is_file():
