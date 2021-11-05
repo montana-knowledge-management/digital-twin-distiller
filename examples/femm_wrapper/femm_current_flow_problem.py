@@ -85,33 +85,17 @@ def current_flow_problem():
     writer.add_node(wk / 2 + dk, -hk / 2 - dk / 2)
 
     # Adding arc segments
-    writer.add_arc(
-        -wk / 2, hk / 2 + dk / 2, -wk / 2 - dk, hk / 2 + dk / 2, 180, 1
-    )
-    writer.add_arc(
-        -wk / 2 - dk, hk / 2 + dk / 2, -wk / 2, hk / 2 + dk / 2, 180, 1
-    )
+    writer.add_arc(-wk / 2, hk / 2 + dk / 2, -wk / 2 - dk, hk / 2 + dk / 2, 180, 1)
+    writer.add_arc(-wk / 2 - dk, hk / 2 + dk / 2, -wk / 2, hk / 2 + dk / 2, 180, 1)
 
-    writer.add_arc(
-        -wk / 2, -hk / 2 - dk / 2, -wk / 2 - dk, -hk / 2 - dk / 2, 180, 1
-    )
-    writer.add_arc(
-        -wk / 2 - dk, -hk / 2 - dk / 2, -wk / 2, -hk / 2 - dk / 2, 180, 1
-    )
+    writer.add_arc(-wk / 2, -hk / 2 - dk / 2, -wk / 2 - dk, -hk / 2 - dk / 2, 180, 1)
+    writer.add_arc(-wk / 2 - dk, -hk / 2 - dk / 2, -wk / 2, -hk / 2 - dk / 2, 180, 1)
 
-    writer.add_arc(
-        wk / 2, hk / 2 + dk / 2, wk / 2 + dk, hk / 2 + dk / 2, 180, 1
-    )
-    writer.add_arc(
-        wk / 2 + dk, hk / 2 + dk / 2, wk / 2, hk / 2 + dk / 2, 180, 1
-    )
+    writer.add_arc(wk / 2, hk / 2 + dk / 2, wk / 2 + dk, hk / 2 + dk / 2, 180, 1)
+    writer.add_arc(wk / 2 + dk, hk / 2 + dk / 2, wk / 2, hk / 2 + dk / 2, 180, 1)
 
-    writer.add_arc(
-        wk / 2, -hk / 2 - dk / 2, wk / 2 + dk, -hk / 2 - dk / 2, 180, 1
-    )
-    writer.add_arc(
-        wk / 2 + dk, -hk / 2 - dk / 2, wk / 2, -hk / 2 - dk / 2, 180, 1
-    )
+    writer.add_arc(wk / 2, -hk / 2 - dk / 2, wk / 2 + dk, -hk / 2 - dk / 2, 180, 1)
+    writer.add_arc(wk / 2 + dk, -hk / 2 - dk / 2, wk / 2, -hk / 2 - dk / 2, 180, 1)
 
     # Adding block labels
     bl_copper = ((wt - wcm) / 4 + wcm / 2, 0)
@@ -134,9 +118,7 @@ def current_flow_problem():
 
     # Adding materials
     mat_copper = CurrentFlowMaterial("Copper", 58e6, 58e6, 0, 0, 0, 0)
-    mat_cmanganin = CurrentFlowMaterial(
-        "Copper-Manganin", 20.833e6, 20.833e6, 0, 0, 0, 0
-    )
+    mat_cmanganin = CurrentFlowMaterial("Copper-Manganin", 20.833e6, 20.833e6, 0, 0, 0, 0)
     mat_titanium = CurrentFlowMaterial("Titanium", 1.789e6, 1.789e6, 0, 0, 0, 0)
 
     writer.add_material(mat_copper)
@@ -190,25 +172,13 @@ def current_flow_problem():
     writer.lua_model.append(f"co_selectblock({bl_copper[0]}, {bl_copper[1]})")
     writer.lua_model.append(f"co_selectblock({-bl_copper[0]}, {bl_copper[1]})")
 
-    writer.lua_model.append(
-        f"co_selectblock({bl_cmanganin[0]}, {bl_cmanganin[1]})"
-    )
-    writer.lua_model.append(
-        f"co_selectblock({bl_cmanganin[0]}, {-bl_cmanganin[1]})"
-    )
+    writer.lua_model.append(f"co_selectblock({bl_cmanganin[0]}, {bl_cmanganin[1]})")
+    writer.lua_model.append(f"co_selectblock({bl_cmanganin[0]}, {-bl_cmanganin[1]})")
 
-    writer.lua_model.append(
-        f"co_selectblock({bl_titanium[0]}, {bl_titanium[1]})"
-    )
-    writer.lua_model.append(
-        f"co_selectblock({bl_titanium[0]}, {-bl_titanium[1]})"
-    )
-    writer.lua_model.append(
-        f"co_selectblock({-bl_titanium[0]}, {bl_titanium[1]})"
-    )
-    writer.lua_model.append(
-        f"co_selectblock({-bl_titanium[0]}, {-bl_titanium[1]})"
-    )
+    writer.lua_model.append(f"co_selectblock({bl_titanium[0]}, {bl_titanium[1]})")
+    writer.lua_model.append(f"co_selectblock({bl_titanium[0]}, {-bl_titanium[1]})")
+    writer.lua_model.append(f"co_selectblock({-bl_titanium[0]}, {bl_titanium[1]})")
+    writer.lua_model.append(f"co_selectblock({-bl_titanium[0]}, {-bl_titanium[1]})")
 
     writer.lua_model.append("P = co_blockintegral(0)")  # Power Loss
     writer.lua_model.append(writer.write_out_result("P", "P"))

@@ -1,9 +1,6 @@
 import unittest
 
-from adze_modeler.boundaries import (
-    DirichletBoundaryCondition,
-    NeumannBoundaryCondition,
-)
+from adze_modeler.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
 
 
 class TestDirichletBoundary(unittest.TestCase):
@@ -31,9 +28,7 @@ class TestDirichletBoundary(unittest.TestCase):
         )
 
     def test_init_with_values(self):
-        bc = DirichletBoundaryCondition(
-            "alma", "electrostatic", fixed_voltage=10
-        )
+        bc = DirichletBoundaryCondition("alma", "electrostatic", fixed_voltage=10)
         self.assertEqual(bc.valuedict["fixed_voltage"], 10)
 
         self.assertRaises(
@@ -100,9 +95,7 @@ class TestNeumannBoundary(unittest.TestCase):
         )
 
     def test_init_with_values(self):
-        bc = NeumannBoundaryCondition(
-            "alma", "electrostatic", surface_charge_density=10
-        )
+        bc = NeumannBoundaryCondition("alma", "electrostatic", surface_charge_density=10)
         self.assertEqual(bc.valuedict["surface_charge_density"], 10)
 
         self.assertRaises(
@@ -124,9 +117,7 @@ class TestNeumannBoundary(unittest.TestCase):
 
     def test_electrostatic_neumann_bc(self):
         bc = self.get_bc("Vg", "electrostatic")
-        self.assertTrue(
-            "surface_charge_density" in bc.accepted_keys["electrostatic"]
-        )
+        self.assertTrue("surface_charge_density" in bc.accepted_keys["electrostatic"])
 
         bc.set_value("surface_charge_density", 42)
         self.assertEqual(42, bc.valuedict["surface_charge_density"])

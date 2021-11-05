@@ -7,12 +7,7 @@ execute a script with gui:
 """
 import sys
 
-from adze_modeler.agros_fields import (
-    ElectrostaticField,
-    HeatFlowField,
-    MagneticField,
-    newline,
-)
+from adze_modeler.agros_fields import ElectrostaticField, HeatFlowField, MagneticField, newline
 from adze_modeler.geometry import Geometry
 
 
@@ -48,9 +43,7 @@ class Agros2DWrapper:
         if coordinate_type in {"planar", "axisymmetric"}:
             self.coordinate_type = coordinate_type
         else:
-            raise ValueError(
-                f'There is no "{coordinate_type}" type of coordinate. ("planar" or "axisymmetric")'
-            )
+            raise ValueError(f'There is no "{coordinate_type}" type of coordinate. ("planar" or "axisymmetric")')
 
     def set_mesh_type(self, mesh_type):
         """
@@ -75,9 +68,7 @@ class Agros2DWrapper:
 
     def add_geometry(self, geo: Geometry):
         for ei in geo.lines:
-            self.edges.append(
-                (ei.start_pt.x, ei.start_pt.y, ei.end_pt.x, ei.end_pt.y)
-            )
+            self.edges.append((ei.start_pt.x, ei.start_pt.y, ei.end_pt.x, ei.end_pt.y))
 
     def add_edge(self, start_x, start_y, end_x, end_y, boundary=None):
         self.edges.append((start_x, start_y, end_x, end_y, boundary))
@@ -113,9 +104,7 @@ class Agros2DWrapper:
                     f'boundaries={{"{self.field.name}": "{ei[4]}"}})'
                 )
             else:
-                print(
-                    f"geometry.add_edge({ei[0]:.4f}, {ei[1]:.4f}, {ei[2]:.4f}, {ei[3]:.4f})"
-                )
+                print(f"geometry.add_edge({ei[0]:.4f}, {ei[1]:.4f}, {ei[2]:.4f}, {ei[3]:.4f})")
 
         newline()
         print("# block labels")

@@ -34,9 +34,7 @@ class BoundaryCondition:
         if key in self.accepted_keys[self.field]:
             self.valuedict[key] = value
         else:
-            raise ValueError(
-                f'There is no "{key}" in {self.field} dirichlet boundary condition.'
-            )
+            raise ValueError(f'There is no "{key}" in {self.field} dirichlet boundary condition.')
 
     def __str__(self):
         st = f"name: {self.name}, type: {self.field}-{self.type}, value(s): "

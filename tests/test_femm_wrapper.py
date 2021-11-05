@@ -192,9 +192,7 @@ class FemmTester(TestCase):
         self.assertEqual("ei_deleteselected", fmw.delete_selected())
 
     def test_delete_selected_nodes(self):
-        self.assertEqual(
-            "mi_deleteselectednodes", FemmWriter().delete_selected_nodes()
-        )
+        self.assertEqual("mi_deleteselectednodes", FemmWriter().delete_selected_nodes())
 
         fmw = FemmWriter()
         fmw.field = femm_current_flow
@@ -207,46 +205,30 @@ class FemmTester(TestCase):
         self.assertEqual("ei_deleteselectednodes", fmw.delete_selected_nodes())
 
     def test_delete_selected_labels(self):
-        self.assertEqual(
-            "mi_deleteselectedlabels", FemmWriter().delete_selected_labels()
-        )
+        self.assertEqual("mi_deleteselectedlabels", FemmWriter().delete_selected_labels())
 
         fmw = FemmWriter()
         fmw.field = femm_current_flow
-        self.assertEqual(
-            "ci_deleteselectedlabels", fmw.delete_selected_labels()
-        )
+        self.assertEqual("ci_deleteselectedlabels", fmw.delete_selected_labels())
 
         fmw.field = femm_heat_flow
-        self.assertEqual(
-            "hi_deleteselectedlabels", fmw.delete_selected_labels()
-        )
+        self.assertEqual("hi_deleteselectedlabels", fmw.delete_selected_labels())
 
         fmw.field = femm_electrostatic
-        self.assertEqual(
-            "ei_deleteselectedlabels", fmw.delete_selected_labels()
-        )
+        self.assertEqual("ei_deleteselectedlabels", fmw.delete_selected_labels())
 
     def test_delete_selected_segments(self):
-        self.assertEqual(
-            "mi_deleteselectedsegments", FemmWriter().delete_selected_segments()
-        )
+        self.assertEqual("mi_deleteselectedsegments", FemmWriter().delete_selected_segments())
 
         fmw = FemmWriter()
         fmw.field = femm_current_flow
-        self.assertEqual(
-            "ci_deleteselectedsegments", fmw.delete_selected_segments()
-        )
+        self.assertEqual("ci_deleteselectedsegments", fmw.delete_selected_segments())
 
         fmw.field = femm_heat_flow
-        self.assertEqual(
-            "hi_deleteselectedsegments", fmw.delete_selected_segments()
-        )
+        self.assertEqual("hi_deleteselectedsegments", fmw.delete_selected_segments())
 
         fmw.field = femm_electrostatic
-        self.assertEqual(
-            "ei_deleteselectedsegments", fmw.delete_selected_segments()
-        )
+        self.assertEqual("ei_deleteselectedsegments", fmw.delete_selected_segments())
 
     def test_delete_selected_arc_segments(self):
         self.assertEqual(
@@ -256,19 +238,13 @@ class FemmTester(TestCase):
 
         fmw = FemmWriter()
         fmw.field = femm_current_flow
-        self.assertEqual(
-            "ci_deleteselectedarcsegments", fmw.delete_selected_arc_segments()
-        )
+        self.assertEqual("ci_deleteselectedarcsegments", fmw.delete_selected_arc_segments())
 
         fmw.field = femm_heat_flow
-        self.assertEqual(
-            "hi_deleteselectedarcsegments", fmw.delete_selected_arc_segments()
-        )
+        self.assertEqual("hi_deleteselectedarcsegments", fmw.delete_selected_arc_segments())
 
         fmw.field = femm_electrostatic
-        self.assertEqual(
-            "ei_deleteselectedarcsegments", fmw.delete_selected_arc_segments()
-        )
+        self.assertEqual("ei_deleteselectedarcsegments", fmw.delete_selected_arc_segments())
 
     def test_clear_seelcted(self):
         self.assertEqual("mi_clearselected()", FemmWriter().clear_selected())
@@ -284,30 +260,20 @@ class FemmTester(TestCase):
         self.assertEqual("ei_clearselected()", fmw.clear_selected())
 
     def test_select_segment(self):
-        self.assertEqual(
-            "mi_selectsegment(1.0, 1.0)", FemmWriter().select_segment(1.0, 1.0)
-        )
+        self.assertEqual("mi_selectsegment(1.0, 1.0)", FemmWriter().select_segment(1.0, 1.0))
 
         fmw = FemmWriter()
         fmw.field = femm_current_flow
-        self.assertEqual(
-            "ci_selectsegment(1.0, 1.0)", fmw.select_segment(1.0, 1.0)
-        )
+        self.assertEqual("ci_selectsegment(1.0, 1.0)", fmw.select_segment(1.0, 1.0))
 
         fmw.field = femm_heat_flow
-        self.assertEqual(
-            "hi_selectsegment(1.0, 1.0)", fmw.select_segment(1.0, 1.0)
-        )
+        self.assertEqual("hi_selectsegment(1.0, 1.0)", fmw.select_segment(1.0, 1.0))
 
         fmw.field = femm_electrostatic
-        self.assertEqual(
-            "ei_selectsegment(1.0, 1.0)", fmw.select_segment(1.0, 1.0)
-        )
+        self.assertEqual("ei_selectsegment(1.0, 1.0)", fmw.select_segment(1.0, 1.0))
 
     def test_select_node(self):
-        self.assertEqual(
-            "mi_selectnode(1.0, 1.0)", FemmWriter().select_node(1.0, 1.0)
-        )
+        self.assertEqual("mi_selectnode(1.0, 1.0)", FemmWriter().select_node(1.0, 1.0))
 
         fmw = FemmWriter()
         fmw.field = femm_current_flow
@@ -320,9 +286,7 @@ class FemmTester(TestCase):
         self.assertEqual("ei_selectnode(1.0, 1.0)", fmw.select_node(1.0, 1.0))
 
     def test_select_label(self):
-        self.assertEqual(
-            "mi_selectlabel(1.0, 1.0)", FemmWriter().select_label(1.0, 1.0)
-        )
+        self.assertEqual("mi_selectlabel(1.0, 1.0)", FemmWriter().select_label(1.0, 1.0))
 
         fmw = FemmWriter()
         fmw.field = femm_current_flow
@@ -420,12 +384,8 @@ class FemmTester(TestCase):
             'ci_probdef("inches", "planar", 100, 1e-08, 1, 30)',
             writer.currentflow_problem("inches", "planar", 100, 1e-8, 1, 30),
         )
-        self.assertRaises(
-            ValueError, writer.currentflow_problem, "eper", "planar"
-        )
-        self.assertRaises(
-            ValueError, writer.currentflow_problem, "meters", "qwertz"
-        )
+        self.assertRaises(ValueError, writer.currentflow_problem, "eper", "planar")
+        self.assertRaises(ValueError, writer.currentflow_problem, "meters", "qwertz")
 
     def test_electrostatic_problem(self):
         writer = FemmWriter()
@@ -434,12 +394,8 @@ class FemmTester(TestCase):
             'ei_probdef("inches", "planar", 1e-08, 1, 30)',
             writer.electrostatic_problem("inches", "planar", 1e-8, 1, 30),
         )
-        self.assertRaises(
-            ValueError, writer.electrostatic_problem, "barack", "planar"
-        )
-        self.assertRaises(
-            ValueError, writer.electrostatic_problem, "mils", "planadawdawr"
-        )
+        self.assertRaises(ValueError, writer.electrostatic_problem, "barack", "planar")
+        self.assertRaises(ValueError, writer.electrostatic_problem, "mils", "planadawdawr")
 
     def test_init_problem(self):
         # TODO: check it
@@ -496,16 +452,12 @@ class FemmTester(TestCase):
         writer = FemmWriter()
         writer.field = femm_electrostatic
         mat = ElectrostaticMaterial("Teflon", 2.1, 2.1, 0)
-        self.assertEqual(
-            'ei_addmaterial("Teflon", 2.1, 2.1, 0)', writer.add_material(mat)
-        )
+        self.assertEqual('ei_addmaterial("Teflon", 2.1, 2.1, 0)', writer.add_material(mat))
 
         # Heat Flow
         writer.field = femm_heat_flow
         mat = HeatFlowMaterial("barack", 1, 2, 3, 4)
-        self.assertEqual(
-            'hi_addmaterial("barack", 1, 2, 3, 4)', writer.add_material(mat)
-        )
+        self.assertEqual('hi_addmaterial("barack", 1, 2, 3, 4)', writer.add_material(mat))
 
         # Current Flow
         writer.field = femm_current_flow
@@ -583,9 +535,7 @@ class FemmTester(TestCase):
         )
 
         el_bc = ElectrostaticMixed("eper", 1, 9)
-        self.assertEqual(
-            'ei_addboundprop("eper", 0, 0, 1, 9, 1)', writer.add_boundary(el_bc)
-        )
+        self.assertEqual('ei_addboundprop("eper", 0, 0, 1, 9, 1)', writer.add_boundary(el_bc))
 
         el_bc = ElectrostaticSurfaceCharge("eper", 156)
         self.assertEqual(
@@ -594,14 +544,10 @@ class FemmTester(TestCase):
         )
 
         el_bc = ElectrostaticPeriodic("eper")
-        self.assertEqual(
-            'ei_addboundprop("eper", 0, 0, 0, 0, 3)', writer.add_boundary(el_bc)
-        )
+        self.assertEqual('ei_addboundprop("eper", 0, 0, 0, 0, 3)', writer.add_boundary(el_bc))
 
         el_bc = ElectrostaticAntiPeriodic("eper")
-        self.assertEqual(
-            'ei_addboundprop("eper", 0, 0, 0, 0, 4)', writer.add_boundary(el_bc)
-        )
+        self.assertEqual('ei_addboundprop("eper", 0, 0, 0, 0, 4)', writer.add_boundary(el_bc))
 
         # Current Flow
         writer.field = femm_current_flow
@@ -624,14 +570,10 @@ class FemmTester(TestCase):
         )
 
         el_bc = CurrentFlowPeriodic("alma")
-        self.assertEqual(
-            'ci_addboundprop("alma", 0, 0, 0, 0, 3)', writer.add_boundary(el_bc)
-        )
+        self.assertEqual('ci_addboundprop("alma", 0, 0, 0, 0, 3)', writer.add_boundary(el_bc))
 
         el_bc = CurrentFlowAntiPeriodic("alma")
-        self.assertEqual(
-            'ci_addboundprop("alma", 0, 0, 0, 0, 4)', writer.add_boundary(el_bc)
-        )
+        self.assertEqual('ci_addboundprop("alma", 0, 0, 0, 0, 4)', writer.add_boundary(el_bc))
 
     def test_addpointprop(self):
         writer = FemmWriter()
@@ -721,9 +663,7 @@ class FemmTester(TestCase):
     def test_setpointprop(self):
         writer = FemmWriter()
         writer.field = femm_electrostatic
-        self.assertEqual(
-            'ei_setnodeprop("eper", 0, "<None>")', writer.set_pointprop("eper")
-        )
+        self.assertEqual('ei_setnodeprop("eper", 0, "<None>")', writer.set_pointprop("eper"))
         self.assertEqual(
             'ei_setnodeprop("eper", 0, "abc")',
             writer.set_pointprop("eper", inductor="abc"),
@@ -738,14 +678,10 @@ class FemmTester(TestCase):
             'hi_setnodeprop("alma", 23, "barack")',
             writer.set_pointprop("alma", 23, "barack"),
         )
-        self.assertEqual(
-            'hi_setnodeprop("alma", 0, "<None>")', writer.set_pointprop("alma")
-        )
+        self.assertEqual('hi_setnodeprop("alma", 0, "<None>")', writer.set_pointprop("alma"))
 
         writer.field = femm_current_flow
-        self.assertEqual(
-            'ci_setnodeprop("eper", 0, "<None>")', writer.set_pointprop("eper")
-        )
+        self.assertEqual('ci_setnodeprop("eper", 0, "<None>")', writer.set_pointprop("eper"))
         self.assertEqual(
             'ci_setnodeprop("eper", 0, "abc")',
             writer.set_pointprop("eper", inductor="abc"),
@@ -760,9 +696,7 @@ class FemmTester(TestCase):
             'mi_setnodeprop("alma", 23, "barack")',
             writer.set_pointprop("alma", 23, "barack"),
         )
-        self.assertEqual(
-            'mi_setnodeprop("alma", 0, "<None>")', writer.set_pointprop("alma")
-        )
+        self.assertEqual('mi_setnodeprop("alma", 0, "<None>")', writer.set_pointprop("alma"))
 
     def test_setsegmentprop(self):
         writer = FemmWriter()
@@ -842,14 +776,10 @@ class FemmTester(TestCase):
         self.assertEqual("mo_lineintegral(0)", FemmWriter().line_integral(0))
 
     def test_block_integral(self):
-        self.assertEqual(
-            "mo_blockintegral(30)", FemmWriter().block_integral(30)
-        )
+        self.assertEqual("mo_blockintegral(30)", FemmWriter().block_integral(30))
 
     def test_get_point_values(self):
-        self.assertEqual(
-            "mo_getpointvalues(0.01, 0)", FemmWriter().get_point_values(0.01, 0)
-        )
+        self.assertEqual("mo_getpointvalues(0.01, 0)", FemmWriter().get_point_values(0.01, 0))
 
     def test_create_geometry(self):
         """create basic objects: nodes, lines and a circle arc to test the basic functionality of the command."""

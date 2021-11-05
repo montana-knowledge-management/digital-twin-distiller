@@ -2,14 +2,7 @@ from copy import copy
 from math import pi
 from unittest import TestCase
 
-from adze_modeler.objects import (
-    CircleArc,
-    CubicBezier,
-    Line,
-    Node,
-    ParametricBezier,
-    Rectangle,
-)
+from adze_modeler.objects import CircleArc, CubicBezier, Line, Node, ParametricBezier, Rectangle
 
 
 class TestNodeOperations(TestCase):
@@ -102,9 +95,7 @@ class TestLine(TestCase):
 
 class TestArc(TestCase):
     def test_creation(self):
-        c = CircleArc(
-            start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0)
-        )
+        c = CircleArc(start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0))
 
         self.assertEqual(c.start_pt, Node(-1, 0))
         self.assertEqual(c.center_pt, Node(0, 0))
@@ -113,9 +104,7 @@ class TestArc(TestCase):
         self.assertAlmostEqual(c.radius, 1.0, 5)
 
     def test_copy(self):
-        c = CircleArc(
-            start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0)
-        )
+        c = CircleArc(start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0))
         c1 = copy(c)
 
         for attr_i in c.__dict__:
@@ -125,9 +114,7 @@ class TestArc(TestCase):
         self.assertNotEqual(c.id, c1.id)
 
     def test_distance(self):
-        c = CircleArc(
-            start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0)
-        )
+        c = CircleArc(start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0))
 
         self.assertAlmostEqual(c.distance_to_point(0, 0), 1.0, 5)
         self.assertAlmostEqual(c.distance_to_point(5, 0), 4.0, 5)

@@ -68,17 +68,11 @@ class Femm(Platform):
         pass
 
     def export_metadata(self):
-        cmdlist = self.writer.init_problem(
-            out_file=self.metadata.file_metrics_name
-        )
+        cmdlist = self.writer.init_problem(out_file=self.metadata.file_metrics_name)
         for cmd_i in cmdlist:
             self.write(cmd_i)
 
-        type_ = (
-            "axi"
-            if self.metadata.coordinate_type == "axisymmetric"
-            else "planar"
-        )
+        type_ = "axi" if self.metadata.coordinate_type == "axisymmetric" else "planar"
         prefix = {"magnetic": "mi", "electrostatic": "mi"}
         if self.metadata.problem_type == "magnetic":
             self.write(
@@ -118,9 +112,7 @@ class Femm(Platform):
 
             self.write(self.writer.add_material(femm_material))
             if isinstance(mat.b, Iterable):
-                assert len(mat.b) == len(
-                    mat.h
-                ), "B and H should have the same length"
+                assert len(mat.b) == len(mat.h), "B and H should have the same length"
                 for bi, hi in zip(mat.b, mat.h):
                     self.write(f'mi_addbhpoint("{mat.name}", {bi}, {hi})')
 
@@ -168,15 +160,11 @@ class Femm(Platform):
 
         if isinstance(b, AntiPeriodicAirGap):
             if self.metadata.problem_type == "magnetic":
-                femm_boundary = MagneticAntiPeriodicAirgap(
-                    name=b.name, angle=b.angle
-                )
+                femm_boundary = MagneticAntiPeriodicAirgap(name=b.name, angle=b.angle)
 
         if isinstance(b, PeriodicAirGap):
             if self.metadata.problem_type == "magnetic":
-                femm_boundary = MagneticPeriodicAirgap(
-                    name=b.name, angle=b.angle
-                )
+                femm_boundary = MagneticPeriodicAirgap(name=b.name, angle=b.angle)
 
         self.write(self.writer.add_boundary(femm_boundary))
 
@@ -194,22 +182,14 @@ class Femm(Platform):
             self.write(self.writer.add_node(e.x, e.y))
 
         if isinstance(e, Line):
-            self.write(
-                self.writer.add_segment(
-                    e.start_pt.x, e.start_pt.y, e.end_pt.x, e.end_pt.y
-                )
-            )
+            self.write(self.writer.add_segment(e.start_pt.x, e.start_pt.y, e.end_pt.x, e.end_pt.y))
             if boundary:
                 # we should give an internal point to select the line
                 m_x = (e.start_pt.x + e.end_pt.x) * 0.5
                 m_y = (e.start_pt.y + e.end_pt.y) * 0.5
 
                 self.write(self.writer.select_segment(m_x, m_y))
-                self.write(
-                    self.writer.set_segment_prop(
-                        boundary, automesh=automesh, elementsize=elementsize
-                    )
-                )
+                self.write(self.writer.set_segment_prop(boundary, automesh=automesh, elementsize=elementsize))
                 self.write(self.writer.clear_selected())
 
         if isinstance(e, CircleArc):
@@ -232,14 +212,8 @@ class Femm(Platform):
             )
 
             if boundary:
-                self.write(
-                    self.writer.select_arc_segment(e.apex_pt.x, e.apex_pt.y)
-                )
-                self.write(
-                    self.writer.set_arc_segment_prop(
-                        e.max_seg_deg, boundary, 0, 0
-                    )
-                )
+                self.write(self.writer.select_arc_segment(e.apex_pt.x, e.apex_pt.y))
+                self.write(self.writer.set_arc_segment_prop(e.max_seg_deg, boundary, 0, 0))
                 self.write(self.writer.clear_selected())
 
     def export_solving_steps(self):
@@ -284,18 +258,12 @@ class Femm(Platform):
                 nb_newline=0,
             )
             self.write(self.writer.get_point_values(x, y))
-            self.write(
-                f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")'
-            )
+            self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
         if action == "mesh_info":
 
-            self.write(
-                f'write(file_out, "nodes, ", {fieldmapping[self.metadata.problem_type]}_numnodes(), "\\n")'
-            )
-            self.write(
-                f'write(file_out, "elements, ", {prefix}_numelements(), "\\n")'
-            )
+            self.write(f'write(file_out, "nodes, ", {fieldmapping[self.metadata.problem_type]}_numnodes(), "\\n")')
+            self.write(f'write(file_out, "elements, ", {prefix}_numelements(), "\\n")')
 
         if action == "integration":
             if self.metadata.problem_type == "magnetic":
@@ -308,20 +276,14 @@ class Femm(Platform):
                     "Torque": 22,
                     "Flux": 1,
                 }
-                assert (
-                    variable in int_type.keys()
-                ), f"There is no variable '{variable}'"
+                assert variable in int_type.keys(), f"There is no variable '{variable}'"
                 if isinstance(entity, Iterable):
                     for x, y in entity:
                         self.write(f"{prefix}_selectblock({x}, {y})")
 
-                self.write(
-                    f"{variable} = {prefix}_blockintegral({int_type[variable]})"
-                )
+                self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
                 self.write(f"{prefix}_clearblock()")
-                self.write(
-                    f'write(file_out, "{variable}, ", {variable}, "\\n")'
-                )
+                self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
 
         if action == "saveimage":
             self.write(f"{prefix}_showdensityplot(0, 0, 0.0, 0.1, 'bmag')")

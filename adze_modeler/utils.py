@@ -138,8 +138,7 @@ def csv_write(file, names, *args):
     file = Path(file)
     assert file.parent.exists(), f"There is no directory: {file.parent}"
     assert len(names) == len(args), (
-        f"The number of names({len(names)}) and "
-        f"the number of columns({len(args)}) are not equal."
+        f"The number of names({len(names)}) and " f"the number of columns({len(args)}) are not equal."
     )
     with open(file, "w", newline="", encoding="UTF8") as f:
         w = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
@@ -190,9 +189,7 @@ def get_polyfit(x, y, N=None, verbose=False):
     p = P.fit(x, y, best_order)
     y_best = p(x_fine)
     if verbose:
-        print(
-            f"Best: MAX: {cases[0][0]:.3f} % RMS: {cases[0][1]:.3f} % order: {best_order}"
-        )
+        print(f"Best: MAX: {cases[0][0]:.3f} % RMS: {cases[0][1]:.3f} % order: {best_order}")
     return x_fine, y_best
 
 

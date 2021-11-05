@@ -34,9 +34,7 @@ class TestMetadata(unittest.TestCase):
         metadata1 = copy(agros_metadata)
 
         for attr_i in metadata1.__dict__:
-            self.assertEqual(
-                getattr(agros_metadata, attr_i), getattr(metadata1, attr_i)
-            )
+            self.assertEqual(getattr(agros_metadata, attr_i), getattr(metadata1, attr_i))
 
         femm_metadata = FemmMetadata()
         femm_metadata.problem_type = "magnetic"
@@ -49,6 +47,4 @@ class TestMetadata(unittest.TestCase):
         metadata2 = copy(femm_metadata)
 
         for attr_i in metadata2.__dict__:
-            self.assertEqual(
-                getattr(femm_metadata, attr_i), getattr(metadata2, attr_i)
-            )
+            self.assertEqual(getattr(femm_metadata, attr_i), getattr(metadata2, attr_i))

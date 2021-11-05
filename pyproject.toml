@@ -1,3 +1,4 @@
+# Main package description
 [tool.poetry]
 name = "ADZE-modeler"
 version = "0.0.1"
@@ -6,9 +7,9 @@ authors = [
     "Tamas Orosz <orosz.tamas@montana.hu>",
     "Krisztian Gado <gado.krisztian@montana.hu>",
 ]
-
 license = "AGPL"
 
+# Project dependencies only
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
 Jinja2="^3.0.1"
@@ -31,6 +32,8 @@ svgpathtools="^1.4.2"
 uvicorn="^0.15.0"
 vedo="^2021"
 
+# Dependencies for developers
+# list all devtools here
 [tool.poetry.dev-dependencies]
 black = "*"
 coverage = "*"
@@ -38,14 +41,20 @@ pre-commit="*"
 pytest = "*"
 gitlint = "*"
 isort = "*"
-pyupgrade = "^2.29.0"
+pyupgrade = "^2.29"
 
+pylint = "^2.11.1"
+# build system setup
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+
+# DEVTOOLS CONFIG #
+
+#BLACK
 [tool.black]
-line-length = 80
+line-length = 120
 target-version = ['py39']
 force-exclude = '''
   (
@@ -53,13 +62,15 @@ force-exclude = '''
   | tests/solver_script_references/
   )
 '''
-
 quiet=true
-# extend-exclude = ' E203, E266, E501, W503, C901, E741, C812, C819, FS002, FS003'
 
+
+# COVERAGE
 # https://coverage.readthedocs.io/en/6.1.1/config.html
+
 [tool.coverage.run]
-command_line="-m pytest"
+command_line="-m py.test"
+source=['adze_modeler']
 branch = true
 # omit = [] put pygmsh tests here temporarly
 
@@ -71,10 +82,16 @@ exclude_lines = [
     'def __str',
     '@(abc\.)?abstractmethod'
 ]
+omit=['tests','examples']
+
+
+
+# ISORT
+# https://pycqa.github.io/isort/docs/configuration/options.html
 
 [tool.isort]
 profile = "black"
-line_length = 80
+line_length = 120
 case_sensitive = true
 use_parentheses = false
 include_trailing_comma = true
@@ -82,23 +99,32 @@ multi_line_output = 3
 force_grid_wrap = 0
 quiet=true
 
-# [too.pre-commit.run]
+[tool.pylint.MASTER]
+max-line-length=120
+fail-under=0.85
+ignore=['LICENSE']
+ignore-paths=['tests', 'resources', 'examples',
+              'adze_modeler/resources']
+disable = [
+    "bad-continuation",
+    "duplicate-code",
+    "invalid-name",
+    "missing-docstring",
+    "too-few-public-methods",
+]
 
-# [tool.flake8]
-# ignore = E203, E266, E501, W503, C901, E741, C812, C819, FS002, FS003
-# max-line-length = 120
-# max-complexity = 20
-# select = B,C,E,F,W,T4,B9
-# statistics = True
-
-# [tool.pylint.FORMAT]
-# max-line-length = 127
-
-# [tool.pylint.MASTER]
+# [too.pylint.message_control]
+# max-line-length = 80
 # disable = [
-#     "bad-continuation",
-#     "duplicate-code",
-#     "invalid-name",
-#     "missing-docstring",
-#     "too-few-public-methods",
+#   "missing-docstring",
+#   "unused-argument",
+#   "no-value-for-parameter",
+#   "no-member",
+#   "no-else-return",
+#   "bad-whitespace",
+#   "bad-continuation",
+#   "line-too-long",
+#   "fixme",
+#   "protected-access",
+#   "too-few-public-methods",
 # ]

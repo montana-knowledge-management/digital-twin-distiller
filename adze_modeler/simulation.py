@@ -39,9 +39,7 @@ class Simulation:
         """
         # TODO: check if model is class and not an object.
 
-        assert issubclass(
-            model, BaseModel
-        ), "model is not a BaseModel subclass."
+        assert issubclass(model, BaseModel), "model is not a BaseModel subclass."
         self.model = model
 
     def _load_defaults(self):
@@ -49,15 +47,11 @@ class Simulation:
         sim_type = self._input["simulation"]["type"]
 
         file_sim = ModelDir.DEFAULTS / "simulation.json"
-        assert (
-            file_sim.exists()
-        ), f"Default simulation.json does not exist @ {file_sim.resolve()}"
+        assert file_sim.exists(), f"Default simulation.json does not exist @ {file_sim.resolve()}"
         with open(file_sim) as f:
             default_cfg = dict(json.load(f))
             if sim_type not in default_cfg.keys():
-                raise ValueError(
-                    f"There is no simulation called {self.cfg_simulation['type']!r}"
-                )
+                raise ValueError(f"There is no simulation called {self.cfg_simulation['type']!r}")
 
             self.cfg_simulation = default_cfg[sim_type]
 
@@ -86,9 +80,7 @@ class Simulation:
         if self.cfg_tolerances["parameters"]:
             for param_i in self.cfg_tolerances["parameters"]:
                 if param_i not in self.cfg_model.keys():
-                    raise ValueError(
-                        f"The model parameter {param_i!r} does not exist."
-                    )
+                    raise ValueError(f"The model parameter {param_i!r} does not exist.")
 
     def run(self):
         """
@@ -121,9 +113,7 @@ class Simulation:
         parameter_tolerances = tuple(self.cfg_tolerances["parameters"].values())
         original_values = tuple(self.cfg_model[pi] for pi in parameter_names)
 
-        result = self.simulations[sim_type](
-            self.model, self.cfg_model, self.cfg_simulation, self.cfg_misc
-        )
+        result = self.simulations[sim_type](self.model, self.cfg_model, self.cfg_simulation, self.cfg_misc)
         self._output["res"] = result
         self._output["tolerances"] = {}
         yref = self._format_result(result)
@@ -146,9 +136,7 @@ class Simulation:
             X = dict(zip(parameter_names, dX))
             self.cfg_model.update(X)
 
-            results = self.simulations[sim_type](
-                self.model, self.cfg_model, self.cfg_simulation, self.cfg_misc
-            )
+            results = self.simulations[sim_type](self.model, self.cfg_model, self.cfg_simulation, self.cfg_misc)
 
             Y.append(self._format_result(results))
 

@@ -16,14 +16,10 @@ class Node:
     def __init__(self, x=0.0, y=0.0, id=None, label=None, precision=6):
         self.x = x
         self.y = y
-        self.id = (
-            id or getID()
-        )  # a node has to got a unique id to be translated or moved
+        self.id = id or getID()  # a node has to got a unique id to be translated or moved
         self.label = label  # can be used to denote a group of the elements and make some operation with them
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
-        self.hanging = (
-            True  # if its contained by another object it will be set to False
-        )
+        self.hanging = True  # if its contained by another object it will be set to False
 
     def __getitem__(self, item):
         if item == 0:
@@ -165,9 +161,7 @@ class Line:
         self.label = label
 
     def __copy__(self):
-        return Line(
-            copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label
-        )
+        return Line(copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label)
 
     def distance_to_point(self, px, py):
         """
@@ -256,9 +250,7 @@ class Line:
 class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(
-        self, start_pt, center_pt, end_pt, id=None, label=None, max_seg_deg=20
-    ):
+    def __init__(self, start_pt, center_pt, end_pt, id=None, label=None, max_seg_deg=20):
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt
@@ -269,16 +261,10 @@ class CircleArc:
         self.radius = self.start_pt.distance_to(self.center_pt)
         clamp = self.start_pt.distance_to(self.end_pt) / 2.0
         try:
-            self.theta = round(
-                math.asin(clamp / self.radius) * 180 / math.pi * 2, 2
-            )
-            self.apex_pt = self.start_pt.rotate_about(
-                self.center_pt, math.radians(self.theta / 2)
-            )
+            self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
+            self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
         except ValueError:
-            self.apex_pt = self.start_pt.rotate_about(
-                self.center_pt, math.radians(90)
-            )
+            self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(90))
 
     @classmethod
     def from_radius(cls, start_pt: Node, end_pt: Node, r: float = 1.0):
@@ -330,9 +316,7 @@ class CircleArc:
 
 
 class CubicBezier:
-    def __init__(
-        self, start_pt, control1, control2, end_pt, id=None, label=None
-    ):
+    def __init__(self, start_pt, control1, control2, end_pt, id=None, label=None):
         self.start_pt = start_pt
         self.control1 = control1
         self.control2 = control2
