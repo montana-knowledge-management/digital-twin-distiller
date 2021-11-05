@@ -9,6 +9,12 @@ from adze_modeler.modelpaths import ModelDir
 
 
 def new(name, location):
+    """
+    Creates a project template in the given location under the given name: ~/location/name
+    :parameter name: creates a new project with the given name
+    :parameter location: creates a project under the given location
+    """
+
     SRC = Path(__file__).parent.resolve() / "resources"
     SRC_CODE = SRC / "model_template"
     SRC_DOC = SRC / "doc_template"
