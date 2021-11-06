@@ -98,9 +98,9 @@ class TestGeometry(TestCase):
         c = Node(0.50000001, 0.0, id = 3)
         d = Node(0.75, 0.75, id = 6)
 
-        l1 = Line(a, b, id=4, label="test")
-        l2 = Line(a, c, id=5, label="test")
-        l3 = Line(c, d, id=9, label="test")
+        l1 = Line(a, b, id=4, label="test1")
+        l2 = Line(a, c, id=5, label="test2")
+        l3 = Line(c, d, id=9, label="test3")
 
         geo.add_node(a)
         geo.add_node(b)

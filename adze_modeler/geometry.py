@@ -32,13 +32,12 @@ class Geometry:
         self.nodes.append(copy(node))
 
     def add_line(self, line):
-        self.lines.append(line)
         # save every start and end points for the geoemtry
-        if line.start_pt not in self.nodes:
-            self.add_node(line.start_pt)
+        line.start_pt=self.append_node(line.start_pt)
+        line.end_pt=self.append_node(line.end_pt)
 
-        if line.end_pt not in self.nodes:
-            self.add_node(line.end_pt)
+        self.lines.append(line)
+
 
     def add_arc(self, arc):
         self.circle_arcs.append(arc)
@@ -147,7 +146,7 @@ class Geometry:
         #         elif {id1, id2} == {id3, id4}:
         #             del self.lines[j]
         lines = self.lines.copy()
-        self.nodes.clear()
+        #self.nodes.clear()
         self.lines.clear()
 
         for li in lines:
