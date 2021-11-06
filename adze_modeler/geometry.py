@@ -271,8 +271,8 @@ class Geometry:
         #     path.append(svg.CubicBezier(p1, c1, c2, p2))
         #     paths.append(path)
         #     colors.append("blue")
-
-        svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename=str(file_name))
+        #str(file_name)
+        svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename='out.svg')
 
     def import_svg(self, svg_img, *args):
         """Imports the svg file into a new geo object. The function gives an automatic id to the function

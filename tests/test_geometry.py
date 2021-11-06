@@ -182,5 +182,5 @@ class TestGeometry(TestCase):
         self.assertEqual(len(geo.circle_arcs),1)
         self.assertEqual(len(geo.cubic_beziers),1)
         self.assertEqual(len(geo.lines),1)
-        #geo.export_svg()
+        geo.export_svg()
         return
