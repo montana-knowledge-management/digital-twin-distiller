@@ -33,26 +33,23 @@ class Geometry:
 
     def add_line(self, line):
         # save every start and end points for the geoemtry
-        line.start_pt=self.append_node(line.start_pt)
-        line.end_pt=self.append_node(line.end_pt)
+        line.start_pt = self.append_node(line.start_pt)
+        line.end_pt = self.append_node(line.end_pt)
 
         self.lines.append(line)
 
-
     def add_arc(self, arc):
+        # save every start and end points for the geoemtry if they are not exists
+        arc.start_pt = self.append_node(arc.start_pt)
+        arc.end_pt = self.append_node(arc.end_pt)
+
         self.circle_arcs.append(arc)
-        # save every start and end points for the geoemtry
-        self.add_node(arc.start_pt)
-        self.add_node(arc.end_pt)
-        # self.add_node(arc.center_pt)
 
     def add_cubic_bezier(self, cb):
+        # save every start and end points for the geoemtry if they are not exists
+        cb.start_pt = self.append_node(cb.start_pt)
+        cb.end_pt = self.append_node(cb.end_pt)
         self.cubic_beziers.append(cb)
-        #
-        self.nodes.append(cb.start_pt)
-        # self.nodes.append(cb.control1)
-        # self.nodes.append(cb.control2)
-        self.nodes.append(cb.end_pt)
 
     def add_rectangle(self, r: obj.Rectangle):
         p = list(r)
@@ -128,25 +125,7 @@ class Geometry:
                     del self.nodes[j]
 
     def merge_lines(self):
-        # self.merge_points()
-        # for i in range(len(self.lines) - 1):
-        #     try:
-        #         id1 = self.lines[i].start_pt.id
-        #         id2 = self.lines[i].end_pt.id
-        #     except IndexError:
-        #         pass
-        #     for j in range(len(self.lines) - 1, i, -1):
-        #         id3 = self.lines[j].start_pt.id
-        #         id4 = self.lines[j].end_pt.id
-        #         l = self.lines[j].start_pt.distance_to(self.lines[j].end_pt)
-        #
-        #         if l < self.epsilon:
-        #             del self.lines[j]
-        #
-        #         elif {id1, id2} == {id3, id4}:
-        #             del self.lines[j]
         lines = self.lines.copy()
-        #self.nodes.clear()
         self.lines.clear()
 
         for li in lines:
@@ -271,27 +250,27 @@ class Geometry:
             paths.append(path)
             colors.append("blue")
 
-        # export the circle arcs
-        for arc in self.circle_arcs:
-            path = svg.Path()
-            path.append(
-                svg.Line(
-                    complex(arc.start_pt.x, arc.start_pt.y).conjugate(),
-                    complex(arc.end_pt.x, arc.end_pt.y).conjugate(),
-                )
-            )
-            paths.append(path)
-            colors.append("blue")
+        # # export the circle arcs
+        # for arc in self.circle_arcs:
+        #     path = svg.Path()
+        #     path.append(
+        #         svg.Line(
+        #             complex(arc.start_pt.x, arc.start_pt.y).conjugate(),
+        #             complex(arc.end_pt.x, arc.end_pt.y).conjugate(),
+        #         )
+        #     )
+        #     paths.append(path)
+        #     colors.append("blue")
 
-        for cb in self.cubic_beziers:
-            path = svg.Path()
-            p1 = complex(cb.start_pt.x, cb.start_pt.y).conjugate()
-            p2 = complex(cb.end_pt.x, cb.end_pt.y).conjugate()
-            c1 = complex(cb.control1.x, cb.control1.y).conjugate()
-            c2 = complex(cb.control2.x, cb.control2.y).conjugate()
-            path.append(svg.CubicBezier(p1, c1, c2, p2))
-            paths.append(path)
-            colors.append("blue")
+        # for cb in self.cubic_beziers:
+        #     path = svg.Path()
+        #     p1 = complex(cb.start_pt.x, cb.start_pt.y).conjugate()
+        #     p2 = complex(cb.end_pt.x, cb.end_pt.y).conjugate()
+        #     c1 = complex(cb.control1.x, cb.control1.y).conjugate()
+        #     c2 = complex(cb.control2.x, cb.control2.y).conjugate()
+        #     path.append(svg.CubicBezier(p1, c1, c2, p2))
+        #     paths.append(path)
+        #     colors.append("blue")
 
         svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename=str(file_name))
 

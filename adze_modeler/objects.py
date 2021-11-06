@@ -335,7 +335,7 @@ class CubicBezier:
             self.label,
         )
 
-
+# Todo: ez a két class mergelhető-e?
 class ParametricBezier:
     def __init__(self, start, c1, c2, end):
         self.p0 = tuple(start)

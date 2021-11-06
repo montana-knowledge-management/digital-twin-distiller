@@ -6,7 +6,7 @@ from importlib_resources import files
 from adze_modeler.geometry import Geometry
 
 # from adze_modeler.gmsh import gmsh_writer
-from adze_modeler.objects import CubicBezier, Line, Node
+from adze_modeler.objects import CubicBezier, Line, Node, CircleArc
 
 
 class TestGeometry(TestCase):
@@ -76,13 +76,13 @@ class TestGeometry(TestCase):
     def test_append_node(self):
 
         geo = Geometry()
-        a = Node(1.0, 0.0, id = 1)
+        a = Node(1.0, 0.0, id=1)
         b = Node(0.5, 0.0, id=2)
         c = Node(0.5000000000001, 0.0, id=3)
 
         geo.add_node(a)
         geo.add_node(b)
-        self.assertEqual(2,len(geo.nodes))
+        self.assertEqual(2, len(geo.nodes))
 
         res = geo.append_node(c)
         self.assertEqual(b, res)
@@ -93,10 +93,10 @@ class TestGeometry(TestCase):
 
         geo = Geometry()
 
-        a = Node(1.0, 0.0, id = 1)
-        b = Node(0.5, 0.0, id = 2)
-        c = Node(0.50000001, 0.0, id = 3)
-        d = Node(0.75, 0.75, id = 6)
+        a = Node(1.0, 0.0, id=1)
+        b = Node(0.5, 0.0, id=2)
+        c = Node(0.50000001, 0.0, id=3)
+        d = Node(0.75, 0.75, id=6)
 
         l1 = Line(a, b, id=4, label="test1")
         l2 = Line(a, c, id=5, label="test2")
@@ -127,41 +127,60 @@ class TestGeometry(TestCase):
         self.assertEqual(len(node_set), 3)
         print(node_set)
 
-# class TestMeshing(TestCase):
-#     def test_mesh_the_triangle(self):
-#         path = files("examples.triangle").joinpath("triangle.svg")
-#         # print(path)
-#         geo = Geometry()
-#         geo.import_svg(path.as_posix())
-#
-#         node = Node(555, -555)
-#         geo.add_node(node)
-#
-#         res = geo.__str__()
-#         self.assertIn(node.__str__(), res)
-#         print(res)
-#         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
-#
-#         try:
-#             os.remove("test.geo_unrolled")
-#         except FileNotFoundError:
-#             try:
-#                 # running tox
-#                 os.remove("tests\test.geo_unrolled")
-#             except FileNotFoundError:
-#                 self.assertTrue(False)
-#
-#     def test_mesh_the_owl(self):
-#         path = files("examples.owl").joinpath("owl-shape.svg")
-#         geo = Geometry()
-#         geo.import_svg(path.as_posix())
-#         gmsh_writer(geo.nodes, geo.lines, geo.circle_arcs, geo.cubic_beziers)
-#
-#         try:
-#             os.remove("test.geo_unrolled")
-#         except FileNotFoundError:
-#             try:
-#                 # running tox
-#                 os.remove("tests\test.geo_unrolled")
-#             except FileNotFoundError:
-#                 self.assertTrue(False)
+    def test_find_surface(self):
+        # in this test example a simple puzzle piece is defined by only simple and connected lines
+        eml = files("tests.pygmsh_tests.test_cases").joinpath("test_lines.svg")
+        geo = Geometry()
+        geo.import_svg(eml.as_posix())
+        # set the tolerance to merge the given lines
+        geo.epsilon = 1e-6
+        geo.merge_points()
+        geo.merge_lines()
+        # there is only one described surface exists in the given geometry
+        surfaces = geo.find_surfaces()
+
+        self.assertEqual(len(surfaces), 1)
+
+    @staticmethod
+    def add_triangular_geometry():
+        # creates a triangular shaped geometry which contains a line, a bezier line and a circle arc
+        geo = Geometry()
+
+        # points
+        a = Node(1.0, 0.0)
+        b = Node(0.0, 1.0)
+        c = Node(-1.0, 0.0)
+
+        origo = Node(0.0, 0.0)
+
+        # control points for the bezier curve
+        c1 = Node(-0.25, -0.9)
+        c2 = Node(-0.75, -0.3)
+
+        # adding the nodes
+        geo.add_node(a)
+        geo.add_node(b)
+        geo.add_node(c)
+
+        line = Line(a,b)
+        bezier = CubicBezier(start_pt=b,  control1=c1, control2=c2, end_pt=c)
+        circle_arc = CircleArc(c,origo,a)
+
+        print(bezier)
+
+        geo.add_line(line)
+        geo.add_arc(circle_arc)
+        geo.add_cubic_bezier(bezier)
+        return geo
+
+    def test_find_surface_loop(self):
+        # in the case of lines, bezier curves and circle arcs
+        geo = self.add_triangular_geometry()
+
+        # adding lines, beziers and circle arcs cannot create new nodes
+        self.assertEqual(len(geo.nodes), 3)
+        self.assertEqual(len(geo.circle_arcs),1)
+        self.assertEqual(len(geo.cubic_beziers),1)
+        self.assertEqual(len(geo.lines),1)
+        #geo.export_svg()
+        return
