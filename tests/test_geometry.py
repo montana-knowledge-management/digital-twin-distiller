@@ -73,6 +73,59 @@ class TestGeometry(TestCase):
         self.assertEqual(len(g.nodes), 34)
         self.assertEqual(len(g.lines), 52)
 
+    def test_append_node(self):
+
+        geo = Geometry()
+        a = Node(1.0, 0.0, id = 1)
+        b = Node(0.5, 0.0, id=2)
+        c = Node(0.5000000000001, 0.0, id=3)
+
+        geo.add_node(a)
+        geo.add_node(b)
+        self.assertEqual(2,len(geo.nodes))
+
+        res = geo.append_node(c)
+        self.assertEqual(b, res)
+        self.assertEqual(2, len(geo.nodes))
+
+    def test_merge_points(self):
+        # after merging the nodes the number of them cannot increased
+
+        geo = Geometry()
+
+        a = Node(1.0, 0.0, id = 1)
+        b = Node(0.5, 0.0, id = 2)
+        c = Node(0.50000001, 0.0, id = 3)
+        d = Node(0.75, 0.75, id = 6)
+
+        l1 = Line(a, b, id=4, label="test")
+        l2 = Line(a, c, id=5, label="test")
+        l3 = Line(c, d, id=9, label="test")
+
+        geo.add_node(a)
+        geo.add_node(b)
+        geo.add_node(c)
+
+        geo.add_line(l1)
+        geo.add_line(l2)
+        geo.add_line(l3)
+
+        geo.merge_points()
+        geo.merge_lines()
+
+        self.assertEqual(3, len(geo.nodes))
+        self.assertEqual(2, len(geo.lines))
+
+        # calculate the total number of the nodes
+        node_set = set()
+        for i in geo.nodes:
+            node_set.add(i.id)
+        for l in geo.lines:
+            node_set.add(l.start_pt.id)
+            node_set.add(l.end_pt.id)
+
+        self.assertEqual(len(node_set), 3)
+        print(node_set)
 
 # class TestMeshing(TestCase):
 #     def test_mesh_the_triangle(self):

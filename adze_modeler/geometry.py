@@ -81,6 +81,15 @@ class Geometry:
         del self.nodes
         self.nodes = temp
 
+    def append_node(self, new_node):
+        """Appends the node to the node list only if its not exists, gives back that node object """
+        for i in range(len(self.nodes)):
+            if self.nodes[i].distance_to(new_node) < self.epsilon:
+                return self.nodes[i]
+
+        self.nodes.append(new_node)
+        return new_node
+
     def merge_points(self):
         for i in range(len(self.nodes) - 1):
             for j in range(len(self.nodes) - 1, i, -1):
@@ -403,10 +412,10 @@ class Geometry:
 
         else:
             up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
-                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
-                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             if inrange(tp) and inrange(up):
                 p1 = tuple(p + tp * r)
