@@ -4,8 +4,7 @@ from unittest import TestCase
 from importlib_resources import files
 
 from adze_modeler.geometry import Geometry
-
-# from adze_modeler.gmsh import gmsh_writer
+from pathlib import Path
 from adze_modeler.objects import CubicBezier, Line, Node, CircleArc
 
 
@@ -149,24 +148,22 @@ class TestGeometry(TestCase):
         # points
         a = Node(1.0, 0.0)
         b = Node(0.0, 1.0)
-        c = Node(-1.0, 0.0)
+        c = Node(-1.0, -0.5)
 
         origo = Node(0.0, 0.0)
 
         # control points for the bezier curve
-        c1 = Node(-0.25, -0.9)
-        c2 = Node(-0.75, -0.3)
+        c1 = Node(-0.25, 0.9)
+        c2 = Node(-0.75, 0.6)
 
         # adding the nodes
         geo.add_node(a)
         geo.add_node(b)
         geo.add_node(c)
 
-        line = Line(a,b)
-        bezier = CubicBezier(start_pt=b,  control1=c1, control2=c2, end_pt=c)
-        circle_arc = CircleArc(c,origo,a)
-
-        print(bezier)
+        line = Line(a, b)
+        bezier = CubicBezier(start_pt=b, control1=c1, control2=c2, end_pt=c)
+        circle_arc = CircleArc(c, origo, a)
 
         geo.add_line(line)
         geo.add_arc(circle_arc)
@@ -179,8 +176,19 @@ class TestGeometry(TestCase):
 
         # adding lines, beziers and circle arcs cannot create new nodes
         self.assertEqual(len(geo.nodes), 3)
-        self.assertEqual(len(geo.circle_arcs),1)
-        self.assertEqual(len(geo.cubic_beziers),1)
-        self.assertEqual(len(geo.lines),1)
+        self.assertEqual(len(geo.circle_arcs), 1)
+        self.assertEqual(len(geo.cubic_beziers), 1)
+        self.assertEqual(len(geo.lines), 1)
+
+        # searching for the closed loop
+        surf = geo.find_surfaces()
+        self.assertEqual(1, len(surf))
+
+        # test that the svg export function is
         geo.export_svg()
-        return
+
+        # deleting the resulting file
+        path = Path('output.svg')
+        if path.is_file():
+            path.unlink()
+

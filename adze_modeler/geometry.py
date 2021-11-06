@@ -4,10 +4,9 @@ This class realize a layer, where the different elements of the geometry can be 
 A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
+import os
 import sys
 from copy import copy, deepcopy
-from math import acos
-from uuid import uuid4
 
 import ezdxf
 import matplotlib.pyplot as plt
@@ -250,29 +249,31 @@ class Geometry:
             paths.append(path)
             colors.append("blue")
 
-        # # export the circle arcs
-        # for arc in self.circle_arcs:
-        #     path = svg.Path()
-        #     path.append(
-        #         svg.Line(
-        #             complex(arc.start_pt.x, arc.start_pt.y).conjugate(),
-        #             complex(arc.end_pt.x, arc.end_pt.y).conjugate(),
-        #         )
-        #     )
-        #     paths.append(path)
-        #     colors.append("blue")
+        # export the circle arcs
+        # TODO: be kellene fejezni
+        for arc in self.circle_arcs:
+            path = svg.Path()
+            path.append(
+                svg.Line(
+                    complex(arc.start_pt.x, arc.start_pt.y).conjugate(),
+                    complex(arc.end_pt.x, arc.end_pt.y).conjugate(),
+                )
+            )
+            paths.append(path)
+            colors.append("blue")
 
-        # for cb in self.cubic_beziers:
-        #     path = svg.Path()
-        #     p1 = complex(cb.start_pt.x, cb.start_pt.y).conjugate()
-        #     p2 = complex(cb.end_pt.x, cb.end_pt.y).conjugate()
-        #     c1 = complex(cb.control1.x, cb.control1.y).conjugate()
-        #     c2 = complex(cb.control2.x, cb.control2.y).conjugate()
-        #     path.append(svg.CubicBezier(p1, c1, c2, p2))
-        #     paths.append(path)
-        #     colors.append("blue")
-        #str(file_name)
-        svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename='out.svg')
+        for cb in self.cubic_beziers:
+            path = svg.Path()
+            p1 = complex(cb.start_pt.x, cb.start_pt.y).conjugate()
+            p2 = complex(cb.end_pt.x, cb.end_pt.y).conjugate()
+            c1 = complex(cb.control1.x, cb.control1.y).conjugate()
+            c2 = complex(cb.control2.x, cb.control2.y).conjugate()
+            path.append(svg.CubicBezier(p1, c1, c2, p2))
+            paths.append(path)
+            colors.append("blue")
+
+        work_dir = os.getcwd()
+        svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename=work_dir+'/'+file_name)
 
     def import_svg(self, svg_img, *args):
         """Imports the svg file into a new geo object. The function gives an automatic id to the function

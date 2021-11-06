@@ -39,6 +39,7 @@ def mm2inch(x):
     """
     return 0.03937007874 * x
 
+
 def get_width_height(type_="onehalf", aspect=(16, 10), unit="px"):
     """
     This function returns the width and the height of a figure in pixels based on the Elsevier
@@ -203,8 +204,8 @@ def pairwise(iterable):
 
 # delete s complete project
 # for path in Path("test_server").glob("**/*"):
-        #     if path.is_file():
-        #         path.unlink()
-        #     elif path.is_dir():
-        #         rmtree(path)
-        #rmtree('test_server')
+#     if path.is_file():
+#         path.unlink()
+#     elif path.is_dir():
+#         rmtree(path)
+# rmtree('test_server')
