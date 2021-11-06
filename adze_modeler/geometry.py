@@ -462,21 +462,22 @@ class Geometry:
 
         # self.merge_points()
 
-    def export_geom(self, filename):
-        paths = []
-        for li in self.lines:
-            start_pt = li.start_pt.x + li.start_pt.y * 1j
-            end_pt = li.end_pt.x + li.end_pt.y * 1j
-            paths.append(svgpathtools.Line(start_pt, end_pt))
-
-        for bz in self.cubic_beziers:
-            start_pt = complex(*bz.start_pt)
-            control1 = complex(*bz.control1)
-            control2 = complex(*bz.control2)
-            end_pt = complex(*bz.end_pt)
-            paths.append(svgpathtools.CubicBezier(start_pt, control1, control2, end_pt))
-
-        svg.wsvg(paths, filename=str(filename))
+    # Todo: szerintem ez az export svg reinkarnációja lehet
+    # def export_geom(self, filename):
+    #     paths = []
+    #     for li in self.lines:
+    #         start_pt = li.start_pt.x + li.start_pt.y * 1j
+    #         end_pt = li.end_pt.x + li.end_pt.y * 1j
+    #         paths.append(svgpathtools.Line(start_pt, end_pt))
+    #
+    #     for bz in self.cubic_beziers:
+    #         start_pt = complex(*bz.start_pt)
+    #         control1 = complex(*bz.control1)
+    #         control2 = complex(*bz.control2)
+    #         end_pt = complex(*bz.end_pt)
+    #         paths.append(svgpathtools.CubicBezier(start_pt, control1, control2, end_pt))
+    #
+    #     svg.wsvg(paths, filename=str(filename))
 
     def __copy__(self):
         g = Geometry()
