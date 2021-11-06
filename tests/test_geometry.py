@@ -192,3 +192,19 @@ class TestGeometry(TestCase):
         if path.is_file():
             path.unlink()
 
+
+    def test_delete_hanging_nodes(self):
+
+        geo = self.add_triangular_geometry()
+
+        # hanging nodes
+        hanging1 = Node(10,10)
+        hanging2 = Node(5,5)
+
+        geo.add_node(hanging1)
+        geo.add_node(hanging2)
+
+        self.assertEqual(len(geo.nodes), 5)
+
+        geo.delete_hanging_nodes()
+        self.assertEqual(len(geo.nodes), 3)
