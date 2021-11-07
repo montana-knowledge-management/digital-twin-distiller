@@ -32,17 +32,16 @@ class TestGMSHWriter(TestCase):
         gmsh = GMSHModel(geo)
         gmsh.gmsh_writer("test1")
 
-        msh_data = read("test1.vtk")
+        msh_data = read("test1.msh")
 
         # tests that the code generates a valid mesh
-        self.assertGreaterEqual(len(msh_data.cells), 3)
+        self.assertGreaterEqual(len(msh_data.cells[0].data), 3)
 
         # check the surface, the surface should contain 8 edges
         self.assertEqual(len(surfaces[0]), 8)
-        self.assertEqual(round(surfaces[0][0].start_pt.x, 1), 103.4)
         # remove the geo and msh files
         remove("test1.geo_unrolled")
-        remove("test1.vtk")
+        remove("test1.msh")
 #
 #     def test_bezier_line_surface(self):
 #         # import the surface

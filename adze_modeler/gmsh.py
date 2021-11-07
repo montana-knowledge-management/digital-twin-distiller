@@ -5,8 +5,6 @@ import pygmsh.geo as gmsh
 import adze_modeler.objects as obj
 from adze_modeler.geometry import Geometry
 
-# from meshio._helpers import read, write
-
 """
 The goal of this class is to export the model geometry into a msh file with pygmsh, this mesh file can be
 translated into various formats with the meshio  [1].
@@ -32,7 +30,7 @@ class GMSHModel:
         self.gmsh_geometry = gmsh.Geometry()
 
         # sets the
-        self.lcar = 0.05  # characteristic length
+        self.lcar = 5  # characteristic length
         self.msh_format = msh_format
         self.dim = 2  # dimension of the mesh
 
