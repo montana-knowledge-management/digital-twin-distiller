@@ -122,6 +122,7 @@ class Geometry:
 
                     del self.nodes[j]
 
+    # Todo: bezierre és circle arcra be kellene fejezni
     def merge_lines(self):
         lines = self.lines.copy()
         self.lines.clear()

@@ -5,7 +5,7 @@ from importlib_resources import files
 
 from adze_modeler.geometry import Geometry
 from pathlib import Path
-from adze_modeler.objects import CubicBezier, Line, Node, CircleArc
+from adze_modeler.objects import CubicBezier, Line, Node, CircleArc, Rectangle
 
 
 class TestGeometry(TestCase):
@@ -221,7 +221,40 @@ class TestGeometry(TestCase):
         self.assertEqual(len(geo.lines), 89)
         self.assertEqual(len(geo.circle_arcs), 101)
         self.assertEqual(len(geo.cubic_beziers), 0)
+        self.assertEqual(len(geo.nodes), 171)
 
 
     def test_geometry_merge(self):
-        geo = self.add_triangular_geometry()
+        geo = Geometry()
+
+        a = Node(1.4, 0.3)
+        b = Node(0.2, 1.2)
+        c = Node(1.0, 0.0)
+        d = Node(0.0, 1.0)
+
+        geo.add_line(Line(a,b))
+        geo.add_line(Line(a,c))
+        geo.add_line(Line(c,d))
+
+        self.assertEqual(len(geo.lines),3)
+        self.assertEqual(len(geo.nodes), 4)
+
+        geo2 = self.add_triangular_geometry()
+
+        self.assertEqual(len(geo2.lines), 1)
+
+        geo.merge_geometry(geo2)
+
+        self.assertEqual(len(geo.lines), 4)
+        self.assertEqual(len(geo.nodes), 7)
+
+    def test_add_rectangle(self):
+
+        geo = Geometry()
+        # unit square
+        rect = Rectangle(width=1, height=1)
+        geo.add_rectangle(rect)
+
+        self.assertEqual(len(geo.nodes),4)
+        self.assertEqual(geo.nodes[0].x , 0)
+        self.assertEqual(geo.nodes[0].y, 0)
