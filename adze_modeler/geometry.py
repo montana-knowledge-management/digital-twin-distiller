@@ -12,7 +12,6 @@ import ezdxf
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import svgpathtools
 import svgpathtools as svg
 
 import adze_modeler.objects as obj
@@ -460,7 +459,6 @@ class Geometry:
         for cb in other.cubic_beziers:
             self.add_cubic_bezier(copy(cb))
 
-        # self.merge_points()
 
     # Todo: szerintem ez az export svg reinkarnációja lehet
     # def export_geom(self, filename):
@@ -554,7 +552,7 @@ class Geometry:
 
         return surfaces
 
-    def plot_connection_graph(self):
+    def plot_connection_graph(self, debug=False):
         """Plots the connection graph of the given task."""
         Graph = nx.Graph()
 
@@ -570,8 +568,9 @@ class Geometry:
 
         nx.draw_networkx(Graph, with_labels=False)
 
-        # Set margins for the axes so that nodes aren't clipped
-        ax = plt.gca()
-        ax.margins(0.20)
-        plt.axis("off")
-        plt.show()
+        if not debug:
+            # Set margins for the axes so that nodes aren't clipped
+            ax = plt.gca()
+            ax.margins(0.20)
+            plt.axis("off")
+            plt.show()

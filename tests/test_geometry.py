@@ -192,6 +192,9 @@ class TestGeometry(TestCase):
         if path.is_file():
             path.unlink()
 
+        # simple check that is it woorks
+        geo.plot_connection_graph(debug=True)
+
     def test_delete_hanging_nodes(self):
 
         geo = self.add_triangular_geometry()
@@ -207,3 +210,18 @@ class TestGeometry(TestCase):
 
         geo.delete_hanging_nodes()
         self.assertEqual(len(geo.nodes), 3)
+
+    def test_import_dxf(self):
+        geo = Geometry()
+        path = files("tests.dxf_test").joinpath("2horse.dxf")
+
+        geo.import_dxf(path.as_posix())
+
+        # tests that all of the lines, circle arcs and beziers status
+        self.assertEqual(len(geo.lines), 89)
+        self.assertEqual(len(geo.circle_arcs), 101)
+        self.assertEqual(len(geo.cubic_beziers), 0)
+
+
+    def test_geometry_merge(self):
+        geo = self.add_triangular_geometry()
