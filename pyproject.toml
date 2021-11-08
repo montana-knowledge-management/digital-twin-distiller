@@ -1,43 +1,46 @@
 # Main package description
 [tool.poetry]
-name = "ADZE-modeler"
-version = "0.0.1"
-description = "Creates an encapsulated FEM simulation"
+name = "Digital-Twin-Distiller"
+version = "2021.11.1"
+description = "Creates an encapsulated replica, a numerical model of a machine, a building or a general workflow"
 authors = [
+    "Daniel Nagy <daniel.nagy@montana.hu>",
     "Tamas Orosz <orosz.tamas@montana.hu>",
     "Krisztian Gado <gado.krisztian@montana.hu>",
+    "Gergely Csanyi <csanyi.gergely@montana.hu>",
+    "Istvan Uveges <istavan.uveges@montana.hu>"
 ]
 license = "AGPL"
 
 # Project dependencies only
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
-Jinja2="^3.0.1"
-aiofiles="^0.7.0"
+Jinja2 = "^3.0.1"
+aiofiles = "^0.7.0"
 ezdxf = "^0.16.5"
 fastapi = "^0.70"
 gmsh = "^4.8.4"
-importlib-resources="^5.4.0"
-mkdocs-git-revision-date-plugin="^0.3.1"
-mkdocs-material="^7.3.6"
-mkdocs="^1.2.3"
-mkdocstrings="^0.16.2"
-networkx="^2.6.3"
-numpy="^1.21.0"
-pydantic="^1.8.2"
-pygmsh="^7.1.13"
-pyvista="^0.32.1"
-scipy="^1.7.0"
-svgpathtools="^1.4.2"
-uvicorn="^0.15.0"
-vedo="^2021"
+importlib-resources = "^5.4.0"
+mkdocs-git-revision-date-plugin = "^0.3.1"
+mkdocs-material = "^7.3.6"
+mkdocs = "^1.2.3"
+mkdocstrings = "^0.16.2"
+networkx = "^2.6.3"
+numpy = "^1.21.0"
+pydantic = "^1.8.2"
+pygmsh = "^7.1.13"
+pyvista = "^0.32.1"
+scipy = "^1.7.0"
+svgpathtools = "^1.4.2"
+uvicorn = "^0.15.0"
+vedo = "^2021"
 
 # Dependencies for developers
 # list all devtools here
 [tool.poetry.dev-dependencies]
 black = "*"
 coverage = "*"
-pre-commit="*"
+pre-commit = "*"
 pytest = "*"
 gitlint = "*"
 isort = "*"
@@ -62,15 +65,15 @@ force-exclude = '''
   | tests/solver_script_references/
   )
 '''
-quiet=true
+quiet = true
 
 
 # COVERAGE
 # https://coverage.readthedocs.io/en/6.1.1/config.html
 
 [tool.coverage.run]
-command_line="-m py.test"
-source=['adze_modeler']
+command_line = "-m py.test"
+source = ['adze_modeler']
 branch = true
 # omit = []
 
@@ -82,7 +85,7 @@ exclude_lines = [
     'def __str',
     '@(abc\.)?abstractmethod'
 ]
-omit=['tests','examples']
+omit = ['tests', 'examples']
 
 
 
@@ -97,14 +100,14 @@ use_parentheses = false
 include_trailing_comma = true
 multi_line_output = 3
 force_grid_wrap = 0
-quiet=true
+quiet = true
 
 [tool.pylint.MASTER]
-max-line-length=120
-fail-under=0.85
-ignore=['LICENSE']
-ignore-paths=['tests', 'resources', 'examples',
-              'adze_modeler/resources']
+max-line-length = 120
+fail-under = 0.85
+ignore = ['LICENSE']
+ignore-paths = ['tests', 'resources', 'examples',
+    'adze_modeler/resources']
 disable = [
     "bad-continuation",
     "duplicate-code",
