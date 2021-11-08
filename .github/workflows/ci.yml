@@ -57,14 +57,3 @@ jobs:
           name: codecov-umbrella # optional
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
-
-  lgtm:
-      runs-on: ubuntu-latest
-      name: True meaning of LGTM
-      steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: LGTM
-        uses: beeceej/lgtm@v0.0.3
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
