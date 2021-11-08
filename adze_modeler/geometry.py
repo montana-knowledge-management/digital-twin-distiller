@@ -27,7 +27,9 @@ class Geometry:
         self.epsilon = 1.0e-5
 
     def add_node(self, node):
-        self.nodes.append(copy(node))
+        # self.nodes.append(copy(node))
+        self.append_node(node)
+        return node
 
     def add_line(self, line):
         # save every start and end points for the geoemtry
@@ -273,7 +275,7 @@ class Geometry:
             colors.append("blue")
 
         work_dir = os.getcwd()
-        svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename=work_dir+'/'+file_name)
+        svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename=work_dir + "/" + file_name)
 
     def import_svg(self, svg_img, *args):
         """Imports the svg file into a new geo object. The function gives an automatic id to the function
@@ -391,10 +393,10 @@ class Geometry:
 
         else:
             up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
-                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
-                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             if inrange(tp) and inrange(up):
                 p1 = tuple(p + tp * r)
@@ -459,7 +461,6 @@ class Geometry:
 
         for cb in other.cubic_beziers:
             self.add_cubic_bezier(copy(cb))
-
 
     # Todo: szerintem ez az export svg reinkarnációja lehet
     # def export_geom(self, filename):

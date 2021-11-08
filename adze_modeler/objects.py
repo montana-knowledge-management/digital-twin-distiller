@@ -321,7 +321,7 @@ class CubicBezier:
         self.control1 = control1
         self.control2 = control2
         self.end_pt = end_pt
-        self.id = id
+        self.id = id or getID()
         self.label = label
 
     def __repr__(self):
@@ -335,7 +335,9 @@ class CubicBezier:
             self.label,
         )
 
+
 # Todo: ez a két class mergelhető-e?
+# TODO: GK: mergelhető
 class ParametricBezier:
     def __init__(self, start, c1, c2, end):
         self.p0 = tuple(start)

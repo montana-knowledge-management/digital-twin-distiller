@@ -202,6 +202,7 @@ def pairwise(iterable):
     next(b, None)
     return zip(a, b)
 
+
 # delete s complete project
 # for path in Path("test_server").glob("**/*"):
 #     if path.is_file():
@@ -209,3 +210,16 @@ def pairwise(iterable):
 #     elif path.is_dir():
 #         rmtree(path)
 # rmtree('test_server')
+
+
+def get_short_id(point, n: int = 6):
+    """
+    This function gives back the Node instances' ID in a more readable string format.
+    This function is used during the various transformation functions that modify the geometry.
+
+    :param point: A Node instance
+    :type: Node
+    :param n: The number of digits that is going to be returned from the Nodes long ID.
+    :type: int
+    """
+    return hex(point.id)[-6:]

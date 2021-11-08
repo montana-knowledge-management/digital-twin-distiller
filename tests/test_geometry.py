@@ -1,10 +1,10 @@
+from pathlib import Path
 from unittest import TestCase
 
 from importlib_resources import files
 
 from adze_modeler.geometry import Geometry
-from pathlib import Path
-from adze_modeler.objects import CubicBezier, Line, Node, CircleArc, Rectangle
+from adze_modeler.objects import CircleArc, CubicBezier, Line, Node, Rectangle
 
 
 class TestGeometry(TestCase):
@@ -187,7 +187,7 @@ class TestGeometry(TestCase):
         geo.export_svg()
 
         # deleting the resulting file
-        path = Path('output.svg')
+        path = Path("output.svg")
         if path.is_file():
             path.unlink()
 
@@ -222,7 +222,6 @@ class TestGeometry(TestCase):
         self.assertEqual(len(geo.cubic_beziers), 0)
         self.assertEqual(len(geo.nodes), 171)
 
-
     def test_geometry_merge(self):
         geo = Geometry()
 
@@ -231,11 +230,11 @@ class TestGeometry(TestCase):
         c = Node(1.0, 0.0)
         d = Node(0.0, 1.0)
 
-        geo.add_line(Line(a,b))
-        geo.add_line(Line(a,c))
-        geo.add_line(Line(c,d))
+        geo.add_line(Line(a, b))
+        geo.add_line(Line(a, c))
+        geo.add_line(Line(c, d))
 
-        self.assertEqual(len(geo.lines),3)
+        self.assertEqual(len(geo.lines), 3)
         self.assertEqual(len(geo.nodes), 4)
 
         geo2 = self.add_triangular_geometry()
@@ -244,8 +243,11 @@ class TestGeometry(TestCase):
 
         geo.merge_geometry(geo2)
 
+        # TODO: GK: Should be 3 or 4? The line (1,0)-(0,1) is duplicated
         self.assertEqual(len(geo.lines), 4)
-        self.assertEqual(len(geo.nodes), 7)
+
+        # GK: Changed from 7 to 5, because of the (0, 1), (1, 0) nodes
+        self.assertEqual(len(geo.nodes), 5)
 
     def test_add_rectangle(self):
 
@@ -254,6 +256,6 @@ class TestGeometry(TestCase):
         rect = Rectangle(width=1, height=1)
         geo.add_rectangle(rect)
 
-        self.assertEqual(len(geo.nodes),4)
-        self.assertEqual(geo.nodes[0].x , 0)
+        self.assertEqual(len(geo.nodes), 4)
+        self.assertEqual(geo.nodes[0].x, 0)
         self.assertEqual(geo.nodes[0].y, 0)
