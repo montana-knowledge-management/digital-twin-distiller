@@ -169,6 +169,7 @@ def csv_read(file, dict_return=False):
 
 
 def get_polyfit(x, y, N=None, verbose=False):
+    """ Fits a polynomial to the measurement points, gives back the refined points."""
     assert len(x) == len(y)
     N = 2 * len(x) + 1 if N is None else int(N)
     x_fine = linspace(min(x), max(x), N)
@@ -223,6 +224,7 @@ def get_short_id(point, n: int = 6):
     :type: int
     """
     return hex(point.id)[-6:]
+
 
 def purge_dir(location, force=False):
     """
