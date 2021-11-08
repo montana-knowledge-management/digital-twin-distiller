@@ -296,6 +296,26 @@ class CircleArc:
         d3 = self.end_pt.distance_to(p)
         return min(d1, d2, d3)
 
+    def __eq__(self, other):
+        """
+        If 2 circles have the same set of points, then they are equal. Any difference will result a False
+        return value.
+        """
+
+        if self.start_pt != other.start_pt:
+            return False
+
+        if self.center_pt != other.center_pt:
+            return False
+
+        if self.apex_pt != other.apex_pt:
+            return False
+
+        if self.end_pt != other.end_pt:
+            return False
+
+        return True
+
     def __copy__(self):
         return CircleArc(
             copy(self.start_pt),
@@ -419,7 +439,24 @@ class ParametricBezier:
 
         return X, Y
 
+    def __eq__(self, other):
+        """
+        If 2 Bezier-Curves have the same set of points, then they are equal.
+        """
 
+        if math.dist(self.p1, other.p1) > 1e-5:
+            return False
+
+        if math.dist(self.p1, other.p1) > 1e-5:
+            return False
+
+        if math.dist(self.p1, other.p1) > 1e-5:
+            return False
+
+        if math.dist(self.p1, other.p1) > 1e-5:
+            return False
+
+        return True
 class Rectangle:
     def __init__(self, x0: float = 0.0, y0: float = 0.0, **kwargs):
         """

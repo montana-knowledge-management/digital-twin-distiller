@@ -200,3 +200,26 @@ class TestModelpiece(unittest.TestCase):
         self.assertEqual(m.geom.circle_arcs[0].center_pt, Node(0, -11))
         self.assertEqual(m.geom.circle_arcs[0].apex_pt, Node(0, -10))
         self.assertEqual(m.geom.circle_arcs[0].end_pt, Node(-1, -11))
+
+    def test_copy(self):
+
+        m = self.get_modelpiece()
+        m1 = m.spawn()
+
+        self.assertNotEqual(m.id, m1.id)
+        for n1, n2 in zip(m.geom.nodes, m1.geom.nodes):
+            self.assertEqual(n1, n2)
+            self.assertNotEqual(n1.id, n2.id)
+
+        for l1, l2 in zip(m.geom.nodes, m1.geom.nodes):
+            self.assertEqual(l1, l2)
+            self.assertNotEqual(l1.id, l2.id)
+
+        for c1, c2 in zip(m.geom.circle_arcs, m1.geom.circle_arcs):
+            self.assertEqual(c1, c2)
+            self.assertNotEqual(c1.id, c2.id)
+
+
+        for bz1, bz2 in zip(m.geom.circle_arcs, m1.geom.circle_arcs):
+            self.assertEqual(bz1, bz2)
+            self.assertNotEqual(bz1.id, bz2.id)
