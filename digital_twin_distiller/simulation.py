@@ -10,7 +10,7 @@ from digital_twin_distiller.modelpaths import ModelDir
 
 
 class Simulation:
-    app_name = "adze project"
+    app_name = "digital twin project"
 
     def __init__(self, model: BaseModel = None):
 

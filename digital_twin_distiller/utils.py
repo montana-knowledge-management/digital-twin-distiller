@@ -5,6 +5,7 @@ from pathlib import Path
 from statistics import fmean
 from uuid import uuid4
 
+import matplotlib.pyplot
 import matplotlib.pyplot as plt
 from numpy import linspace
 from numpy.polynomial import Polynomial as P
@@ -77,8 +78,11 @@ def get_width_height(type_="onehalf", aspect=(16, 10), unit="px"):
     else:
         return units[unit](width), units[unit](height)
 
-
+# TODO: ki kéne tenni sablonba
 def setup_matplotlib():
+    """
+    Sets up a matplotlib template.
+    """
     plt.style.use(["default", "seaborn-bright"])
     w, h = get_width_height(type_="onehalf", aspect=(16, 9), unit="inch")
     plt.rcParams["figure.figsize"] = w, h
@@ -202,15 +206,6 @@ def pairwise(iterable):
     a, b = tee(iterable)
     next(b, None)
     return zip(a, b)
-
-
-# delete s complete project
-# for path in Path("test_server").glob("**/*"):
-#     if path.is_file():
-#         path.unlink()
-#     elif path.is_dir():
-#         rmtree(path)
-# rmtree('test_server')
 
 
 def get_short_id(point, n: int = 6):

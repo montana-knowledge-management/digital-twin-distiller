@@ -5,7 +5,6 @@ import os
 import digital_twin_distiller.utils as u
 from digital_twin_distiller.objects import Node
 
-
 class TestUtils(unittest.TestCase):
     def test_get_id(self):
         self.assertTrue(u.getID() > 0)
@@ -91,3 +90,14 @@ class TestUtils(unittest.TestCase):
         self.assertGreater(len(x_fine), len(x))
         self.assertEqual(round(x_fine[1], 3), 1.333)
         self.assertEqual(round(y_fine[1], 3), 1.764)
+
+    def test_assert_polyfit(self):
+        x = [1, 2]
+        y = [1, 2, 3]
+
+        with self.assertRaises(Exception) as context:
+            x_fine, y_fine = u.get_polyfit(x, y)
+
+    def test_matplotlib_setup(self):
+        # checks if the matplotlib template works correctly, if not it fails.
+        u.setup_matplotlib()
