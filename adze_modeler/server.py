@@ -225,6 +225,9 @@ class Server:
         else:
             uvicorn.run(self.app, host=self.host, port=self.port, log_level="info")
 
+    def __call__(self, *args, **kwargs):
+        self.run()
+
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host="127.0.0.1", port=5000, log_level="info")

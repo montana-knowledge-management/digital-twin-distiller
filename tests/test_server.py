@@ -1,24 +1,71 @@
 import unittest
 from pathlib import Path
-from shutil import rmtree
 
-import adze_modeler.__main__ as rtmain
+from adze_modeler.__main__ import new
 from adze_modeler.modelpaths import ModelDir
 from adze_modeler.simulation import sim
+from adze_modeler.server import Server
+from multiprocessing import Process
+from adze_modeler.utils import purge_dir
+
+CURRENT = Path(__file__).parent
+MODELNAME = 'TestModel'
+MODELPATH = CURRENT / MODELNAME
+
+class TestIntegratedServer(unittest.TestCase):
+    def test_server(self):
+        # creates a dummy model
+        new(MODELNAME, CURRENT)
+
+        # import the model class from the new model
+        modelclass = __import__(str('tests.'+MODELNAME+'.model'), fromlist=['TestModel']).TestModel
+
+        # set the paths for the new model
+        ModelDir.set_base(MODELPATH)
+
+        # plug the model into the simulation
+        sim.set_model(modelclass)
+
+        # plug the simulation into the server
+        model = Server(sim)
+
+        # Create a new Process object
+        serverprocess = Process(target=model)
+
+        # Fire up the server in a new process
+        serverprocess.start()
+
+        # TESTING SECTION
+        # Testing goes here, use requests library to pass requests to the server.
 
 
-# class TestIntegratedServer(unittest.TestCase):
-#     def test_server(self):
-#         # creates a dummy project with the new command and tests the server of the simulation
-#         rtmain.new("integrated_test_server", ".")
-#
-#         # import tests.integrated_test_server.model as m
-#         #
-#         # # m = __import__("tests/integrated_test_server/model", globals=globals())
-#         # ModelDir.set_base("test_server")
-#         #
-#         # # set the model for the simulation
-#         # sim.set_model(m.integrated_test_server)
+        # CLEANUP SECTION
+
+        # kill the serverprocess
+        serverprocess.kill()
+
+        # clean up the modeldir
+        purge_dir(MODELPATH) # DO NOT MODIFY THIS LINE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #         #
 #         # from adze_modeler.server import Server
 #         #
