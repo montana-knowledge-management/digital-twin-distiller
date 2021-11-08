@@ -42,35 +42,35 @@ class TestGMSHWriter(TestCase):
         # remove the geo and msh files
         remove("test1.geo_unrolled")
         remove("test1.msh")
-#
-#     def test_bezier_line_surface(self):
-#         # import the surface
-#         eml = files("tests.pygmsh_tests.test_cases").joinpath("test_bezier.svg")
-#         geo = Geometry()
-#         geo.import_svg(eml.as_posix())
-#         # set the tolerance to merge the given lines
-#         geo.epsilon = 1e-6
-#         geo.merge_points()
-#
-#         # there is only one described surface exists in the given geometry
-#         surfaces = geo.find_surfaces()
-#         geo.plot_connection_graph()
-#         # create a gmsh mesh from the given geometry
-#         gmsh = GMSHModel(geo)
-#         gmsh.gmsh_writer("test2")
-#
-#         msh_data = read("test2.vtk")
-#
-#         # tests that the code generates a valid mesh
-#         self.assertGreaterEqual(len(msh_data.cells), 3)
-#
-#         # check the surface, the surface should contain only 7 edges
-#         self.assertEqual(len(surfaces[0]), 7)
-#         self.assertEqual(round(surfaces[0][0].start_pt.x, 1), 100.1)
-#
-#         # remove the geo and msh files
-#         remove("test2.geo_unrolled")
-#         remove("test2.vtk")
+
+    def test_bezier_line_surface(self):
+        # import the surface
+        eml = files("tests.pygmsh_tests.test_cases").joinpath("test_bezier.svg")
+        geo = Geometry()
+        geo.import_svg(eml.as_posix())
+        # set the tolerance to merge the given lines
+        geo.epsilon = 1e-6
+        geo.merge_points()
+
+        # there is only one described surface exists in the given geometry
+        surfaces = geo.find_surfaces()
+        geo.plot_connection_graph(debug=True)
+        # create a gmsh mesh from the given geometry
+        gmsh = GMSHModel(geo)
+        gmsh.gmsh_writer("test2")
+
+        msh_data = read("test2.msh")
+
+        # tests that the code generates a valid mesh
+        self.assertGreaterEqual(len(msh_data.cells[0].data), 3)
+
+        # check the surface, the surface should contain only 7 edges
+        self.assertEqual(len(surfaces[0]), 7)
+        self.assertEqual(round(surfaces[0][0].start_pt.x, 1), 100.1)
+
+        # remove the geo and msh files
+        remove("test2.geo_unrolled")
+        remove("test2.msh")
 #
 #     def test_circle_defined_surface(self):
 #         # define the geometry by hand, a simple arc

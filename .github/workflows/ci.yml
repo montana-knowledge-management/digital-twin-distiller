@@ -37,12 +37,12 @@ jobs:
           poetry run coverage run --module pytest
       - name: Verify test coverage
         run: |
-          poetry run coverage html
+          poetry run coverage xml
       - name: Archive code coverage report
         uses: actions/upload-artifact@v2
         with:
           name: code-coverage-report
-          path: htmlcov
+          path: xmlcov
         if: ${{ failure() }}
       - uses: codecov/codecov-action@v1
         if: ${{ matrix.python-version == '3.9' }}
