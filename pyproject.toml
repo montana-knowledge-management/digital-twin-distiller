@@ -1,7 +1,7 @@
 # Main package description
 [tool.poetry]
 name = "Digital-Twin-Distiller"
-version = "2021.11.1"
+version = "2021.11.2"
 description = "Creates an encapsulated replica, a numerical model of a machine, a building or a general workflow"
 authors = [
     "MONTANA Knowledge Management ltd. <info@distiller.dev>",

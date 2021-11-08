@@ -71,29 +71,29 @@ class TestGMSHWriter(TestCase):
         # remove the geo and msh files
         remove("test2.geo_unrolled")
         remove("test2.msh")
-#
-#     def test_circle_defined_surface(self):
-#         # define the geometry by hand, a simple arc
-#         geo = Geometry()
-#
-#         a = Node(x=0.0, y=0.0, id=1)
-#         b = Node(x=10.0, y=0.0, id=2)
-#         c = Node(x=0.0, y=10.0, id=3)
-#
-#         geo.add_line(Line(a, b))
-#         geo.add_line(Line(a, c))
-#         geo.add_arc(CircleArc(c, a, b))
-#
-#         # there is only one described surface exists in the given geometry
-#         surfaces = geo.find_surfaces()
-#
-#         gmsh = GMSHModel(geo)
-#         gmsh.gmsh_writer("test3")
-#
-#         # check the surface, the surface should contain only 3 edges
-#         self.assertEqual(len(surfaces[0]), 3)
-#         self.assertEqual(round(surfaces[0][0].start_pt.x, 1), 0.0)
-#
-#         # remove the geo and msh files
-#         remove("test3.geo_unrolled")
-#         remove("test3.vtk")
+
+    def test_circle_defined_surface(self):
+        # define the geometry by hand, a simple arc
+        geo = Geometry()
+
+        a = Node(x=0.0, y=0.0, id=1)
+        b = Node(x=10.0, y=0.0, id=2)
+        c = Node(x=0.0, y=10.0, id=3)
+
+        geo.add_line(Line(a, b))
+        geo.add_line(Line(a, c))
+        geo.add_arc(CircleArc(c, a, b))
+
+        # there is only one described surface exists in the given geometry
+        surfaces = geo.find_surfaces()
+
+        gmsh = GMSHModel(geo)
+        gmsh.gmsh_writer("test3")
+
+        # check the surface, the surface should contain only 3 edges
+        self.assertEqual(len(surfaces[0]), 3)
+        self.assertEqual(round(surfaces[0][0].start_pt.x, 1), 0.0)
+
+        # remove the geo and msh files
+        remove("test3.geo_unrolled")
+        remove("test3.msh")
