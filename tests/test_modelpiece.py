@@ -185,3 +185,18 @@ class TestModelpiece(unittest.TestCase):
         self.assertEqual(m.geom.circle_arcs[0].center_pt, Node(0, 0))
         self.assertEqual(m.geom.circle_arcs[0].apex_pt, Node(0, -10))
         self.assertEqual(m.geom.circle_arcs[0].end_pt, Node(10, 0))
+
+    def test_mirror(self):
+        m = self.get_modelpiece()
+
+        m.put(0, 10, bbox_ref="lower")
+        m.mirror((0, 0), (1, 0))
+
+        self.assertEqual(len(m.geom.nodes), 5)
+        self.assertEqual(m.geom.nodes[0], Node(0, -12))
+        self.assertEqual(m.geom.lines[0].start_pt, Node(0, -11))
+        self.assertEqual(m.geom.lines[0].end_pt, Node(0, -10))
+        self.assertEqual(m.geom.circle_arcs[0].start_pt, Node(1, -11))
+        self.assertEqual(m.geom.circle_arcs[0].center_pt, Node(0, -11))
+        self.assertEqual(m.geom.circle_arcs[0].apex_pt, Node(0, -10))
+        self.assertEqual(m.geom.circle_arcs[0].end_pt, Node(-1, -11))

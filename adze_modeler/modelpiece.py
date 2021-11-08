@@ -123,6 +123,7 @@ class ModelPiece:
             end = mirror_point(p1, p2, self.geom.circle_arcs[i].end_pt)
             self.geom.circle_arcs[i].start_pt = end
             self.geom.circle_arcs[i].center_pt = mirror_point(p1, p2, self.geom.circle_arcs[i].center_pt)
+            self.geom.circle_arcs[i].apex_pt = mirror_point(p1, p2, self.geom.circle_arcs[i].apex_pt)
             self.geom.circle_arcs[i].end_pt = start
 
         for i in range(len(self.geom.lines)):
