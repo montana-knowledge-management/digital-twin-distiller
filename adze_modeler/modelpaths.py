@@ -5,7 +5,7 @@ __all__ = ["ModelDir"]
 
 
 class ModelDir:
-    BASE = Path(__file__)
+    BASE = Path(__file__).parent
     MEDIA = BASE / "media"
     DATA = BASE / "data"
     RESOURCES = BASE / "resources"
@@ -15,7 +15,7 @@ class ModelDir:
 
     @classmethod
     def set_base(cls, base_):
-        base_ = Path(base_)
+        base_ = Path(base_).resolve()
 
         if base_.suffix:
             base_ = base_.parent

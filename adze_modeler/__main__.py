@@ -14,6 +14,9 @@ def new(name, location):
     :parameter name: creates a new project with the given name
     :parameter location: creates a project under the given location
     """
+    location = Path(location)
+    if location.suffix:
+        location = location.parent
 
     SRC = Path(__file__).parent.resolve() / "resources"
     SRC_CODE = SRC / "model_template"

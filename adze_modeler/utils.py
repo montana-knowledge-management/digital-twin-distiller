@@ -233,12 +233,13 @@ def purge_dir(location, force=False):
     # get the location path
     # if its pointing to a file then the parent directory will be the basis.
     location = Path(location)
-    if location.suffix and force:
-        location = location.parent
-    else:
-        raise RuntimeError("Location is pointing to a file. You can delete it alongside with it's parent directory"
-                           "by using the force=True flag. BE CAREFUL! It will delete everything that is located"
-                           " under the files parent directory!")
+    if location.suffix:
+        if force:
+            location = location.parent
+        else:
+            raise RuntimeError("Location is pointing to a file. You can delete it alongside with it's parent directory"
+                               "by using the force=True flag. BE CAREFUL! It will delete everything that is located"
+                               " under the files parent directory!")
 
     # print('Deleting everything under:', location)
     dirs = []
