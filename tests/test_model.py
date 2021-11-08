@@ -2,10 +2,10 @@ import unittest
 from pathlib import Path
 from shutil import rmtree
 
-from adze_modeler.metadata import Agros2DMetadata
-from adze_modeler.model import BaseModel
-from adze_modeler.platforms.agros2d import Agros2D
-from adze_modeler.snapshot import Snapshot
+from digital_twin_distiller.metadata import Agros2DMetadata
+from digital_twin_distiller.model import BaseModel
+from digital_twin_distiller.platforms.agros2d import Agros2D
+from digital_twin_distiller.snapshot import Snapshot
 
 
 class MockModel(BaseModel):

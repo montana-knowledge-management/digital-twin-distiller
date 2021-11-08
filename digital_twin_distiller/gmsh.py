@@ -2,8 +2,8 @@ import gmsh as std_gmsh
 import meshio
 import pygmsh.geo as gmsh
 
-import adze_modeler.objects as obj
-from adze_modeler.geometry import Geometry
+import digital_twin_distiller.objects as obj
+from digital_twin_distiller.geometry import Geometry
 
 """
 The goal of this class is to export the model geometry into a msh file with pygmsh, this mesh file can be

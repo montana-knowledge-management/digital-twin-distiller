@@ -3,11 +3,11 @@ import subprocess
 import sys
 from copy import copy
 
-from adze_modeler.boundaries import BoundaryCondition, DirichletBoundaryCondition, NeumannBoundaryCondition
-from adze_modeler.material import Material
-from adze_modeler.metadata import Metadata
-from adze_modeler.objects import Line, Node
-from adze_modeler.platforms.platform import Platform
+from digital_twin_distiller.boundaries import BoundaryCondition, DirichletBoundaryCondition, NeumannBoundaryCondition
+from digital_twin_distiller.material import Material
+from digital_twin_distiller.metadata import Metadata
+from digital_twin_distiller.objects import Line, Node
+from digital_twin_distiller.platforms.platform import Platform
 
 
 class Agros2D(Platform):

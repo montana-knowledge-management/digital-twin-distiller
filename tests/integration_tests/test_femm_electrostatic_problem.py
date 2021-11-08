@@ -3,7 +3,7 @@ from collections import Counter
 
 from importlib_resources import files
 
-from adze_modeler.femm_wrapper import ElectrostaticMaterial, FemmWriter, femm_electrostatic
+from digital_twin_distiller.femm_wrapper import ElectrostaticMaterial, FemmWriter, femm_electrostatic
 
 
 class TestFemmElectrostaticProblem(unittest.TestCase):

@@ -4,9 +4,9 @@ import operator as op
 import pprint
 from typing import Dict, Sequence
 
-from adze_modeler.doe import *
-from adze_modeler.model import BaseModel
-from adze_modeler.modelpaths import ModelDir
+from digital_twin_distiller.doe import *
+from digital_twin_distiller.model import BaseModel
+from digital_twin_distiller.modelpaths import ModelDir
 
 
 class Simulation:

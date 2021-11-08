@@ -4,7 +4,7 @@ from math import pi
 
 from importlib_resources import files
 
-from adze_modeler.femm_wrapper import FemmWriter, MagneticMaterial, MagneticMixed
+from digital_twin_distiller.femm_wrapper import FemmWriter, MagneticMaterial, MagneticMixed
 
 
 class TestFemmWriterWithExecutor(unittest.TestCase):

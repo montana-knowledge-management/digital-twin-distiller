@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from adze_modeler.geometry import Geometry
+from digital_twin_distiller.geometry import Geometry
 from pathlib import Path
 
 resources = Path(__file__).parent

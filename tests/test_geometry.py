@@ -3,8 +3,8 @@ from unittest import TestCase
 
 from importlib_resources import files
 
-from adze_modeler.geometry import Geometry
-from adze_modeler.objects import CircleArc, CubicBezier, Line, Node, Rectangle
+from digital_twin_distiller.geometry import Geometry
+from digital_twin_distiller.objects import CircleArc, CubicBezier, Line, Node, Rectangle
 
 
 class TestGeometry(TestCase):

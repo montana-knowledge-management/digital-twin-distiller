@@ -46,7 +46,7 @@ RUN dpkg --add-architecture i386 \
 ADD resources/femm42.tar.xz /root/.wine/drive_c/
 
 # Install ADZE-modeler
-COPY adze_modeler/ adze_modeler/
+COPY digital_twin_distiller/ adze_modeler/
 
 # TEST
 # COPY start.sh .

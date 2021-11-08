@@ -14,8 +14,8 @@ import networkx as nx
 import numpy as np
 import svgpathtools as svg
 
-import adze_modeler.objects as obj
-from adze_modeler.utils import getID
+import digital_twin_distiller.objects as obj
+from digital_twin_distiller.utils import getID
 
 
 class Geometry:

@@ -4,7 +4,7 @@ from copy import copy
 
 from numpy import linspace
 
-from adze_modeler.utils import getID, mirror_point, pairwise
+from digital_twin_distiller.utils import getID, mirror_point, pairwise
 
 
 class Node:

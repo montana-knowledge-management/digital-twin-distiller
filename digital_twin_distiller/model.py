@@ -4,9 +4,9 @@ from abc import ABCMeta, abstractmethod
 from pathlib import Path
 from uuid import uuid4
 
-from adze_modeler import objects as obj
-from adze_modeler.geometry import Geometry
-from adze_modeler.snapshot import Snapshot
+from digital_twin_distiller import objects as obj
+from digital_twin_distiller.geometry import Geometry
+from digital_twin_distiller.snapshot import Snapshot
 
 
 class BaseModel(metaclass=ABCMeta):

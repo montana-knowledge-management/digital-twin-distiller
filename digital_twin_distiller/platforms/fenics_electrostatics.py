@@ -1,7 +1,7 @@
 from copy import copy
 
-from adze_modeler.metadata import Metadata
-from adze_modeler.platforms.platform import Platform
+from digital_twin_distiller.metadata import Metadata
+from digital_twin_distiller.platforms.platform import Platform
 
 
 class FenicsElectrostatics(Platform):

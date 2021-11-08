@@ -1,9 +1,9 @@
 import operator
 from math import pi
 
-from adze_modeler.geometry import Geometry
-from adze_modeler.objects import Node
-from adze_modeler.utils import getID, get_short_id, mirror_point
+from digital_twin_distiller.geometry import Geometry
+from digital_twin_distiller.objects import Node
+from digital_twin_distiller.utils import getID, get_short_id, mirror_point
 
 
 class ModelPiece:

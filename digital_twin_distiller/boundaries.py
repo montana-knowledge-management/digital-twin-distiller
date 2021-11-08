@@ -1,4 +1,4 @@
-from adze_modeler.utils import getID
+from digital_twin_distiller.utils import getID
 
 
 class BoundaryCondition:

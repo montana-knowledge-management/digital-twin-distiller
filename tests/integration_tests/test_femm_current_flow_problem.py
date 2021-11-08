@@ -3,7 +3,7 @@ import unittest
 
 from importlib_resources import files
 
-from adze_modeler.femm_wrapper import (
+from digital_twin_distiller.femm_wrapper import (
     CurrentFlowFixedVoltage,
     CurrentFlowMaterial,
     CurrentFlowSurfaceCurrent,

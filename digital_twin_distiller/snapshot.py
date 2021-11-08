@@ -1,10 +1,10 @@
 from collections import defaultdict
 
-from adze_modeler.boundaries import BoundaryCondition
-from adze_modeler.geometry import Geometry
-from adze_modeler.material import Material
-from adze_modeler.platforms.platform import Platform
-from adze_modeler.utils import getID
+from digital_twin_distiller.boundaries import BoundaryCondition
+from digital_twin_distiller.geometry import Geometry
+from digital_twin_distiller.material import Material
+from digital_twin_distiller.platforms.platform import Platform
+from digital_twin_distiller.utils import getID
 
 
 class Snapshot:

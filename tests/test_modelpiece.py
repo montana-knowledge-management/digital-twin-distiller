@@ -1,7 +1,7 @@
 import unittest
 
-from adze_modeler.modelpiece import ModelPiece
-from adze_modeler.objects import CircleArc, Line, Node
+from digital_twin_distiller.modelpiece import ModelPiece
+from digital_twin_distiller.objects import CircleArc, Line, Node
 
 
 class TestModelpiece(unittest.TestCase):

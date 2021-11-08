@@ -2,9 +2,9 @@ from multiprocessing import Pool
 
 from model import MotorSim
 
-from adze_modeler.modelpaths import ModelDir
-from adze_modeler.server import Server
-from adze_modeler.simulation import sim
+from digital_twin_distiller.modelpaths import ModelDir
+from digital_twin_distiller.server import Server
+from digital_twin_distiller.simulation import sim
 
 
 def execute_model(model: MotorSim):

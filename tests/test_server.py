@@ -1,12 +1,12 @@
 import unittest
 from pathlib import Path
 
-from adze_modeler.__main__ import new
-from adze_modeler.modelpaths import ModelDir
-from adze_modeler.simulation import sim
-from adze_modeler.server import Server
+from digital_twin_distiller.__main__ import new
+from digital_twin_distiller.modelpaths import ModelDir
+from digital_twin_distiller.simulation import sim
+from digital_twin_distiller.server import Server
 from multiprocessing import Process
-from adze_modeler.utils import purge_dir
+from digital_twin_distiller.utils import purge_dir
 
 CURRENT = Path(__file__).parent
 MODELNAME = 'TestModel'
@@ -67,7 +67,7 @@ class TestIntegratedServer(unittest.TestCase):
 
 
 #         #
-#         # from adze_modeler.server import Server
+#         # from digital_twin_distiller.server import Server
 #         #
 #         # model = Server(sim)
 #         # model.build_docs()
@@ -81,7 +81,7 @@ class TestIntegratedServer(unittest.TestCase):
 #         rmtree('test_server')
 
 
-# from adze_modeler.server import Server
+# from digital_twin_distiller.server import Server
 # from examples.text_classification.deployment.cached_twenty_news_project import CachedExampleProject
 # from fastapi.testclient import TestClient
 #

@@ -5,7 +5,7 @@ from glob import glob
 from math import asin, pi
 from pathlib import Path
 
-from adze_modeler.boundaries import (
+from digital_twin_distiller.boundaries import (
     AntiPeriodicAirGap,
     AntiPeriodicBoundaryCondition,
     BoundaryCondition,
@@ -14,7 +14,7 @@ from adze_modeler.boundaries import (
     PeriodicAirGap,
     PeriodicBoundaryCondition,
 )
-from adze_modeler.femm_wrapper import (
+from digital_twin_distiller.femm_wrapper import (
     FemmExecutor,
     FemmWriter,
     MagneticAnti,
@@ -29,10 +29,10 @@ from adze_modeler.femm_wrapper import (
     femm_heat_flow,
     femm_magnetic,
 )
-from adze_modeler.material import Material
-from adze_modeler.metadata import Metadata
-from adze_modeler.objects import CircleArc, Line, Node
-from adze_modeler.platforms.platform import Platform
+from digital_twin_distiller.material import Material
+from digital_twin_distiller.metadata import Metadata
+from digital_twin_distiller.objects import CircleArc, Line, Node
+from digital_twin_distiller.platforms.platform import Platform
 
 
 class Femm(Platform):

@@ -1,7 +1,7 @@
 import unittest
 from copy import copy
 
-from adze_modeler.metadata import Agros2DMetadata, FemmMetadata
+from digital_twin_distiller.metadata import Agros2DMetadata, FemmMetadata
 
 
 class TestMetadata(unittest.TestCase):

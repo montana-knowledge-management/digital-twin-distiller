@@ -1,6 +1,6 @@
 import unittest
 
-from adze_modeler.doe import doe_fullfact, doe_bbdesign, doe_ccf, doe_pbdesign
+from digital_twin_distiller.doe import doe_fullfact, doe_bbdesign, doe_ccf, doe_pbdesign
 
 
 class TestDOE(unittest.TestCase):

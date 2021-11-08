@@ -2,8 +2,8 @@ import unittest
 import pytest
 import os
 
-import adze_modeler.utils as u
-from adze_modeler.objects import Node
+import digital_twin_distiller.utils as u
+from digital_twin_distiller.objects import Node
 
 class TestUtils(unittest.TestCase):
     def test_get_id(self):

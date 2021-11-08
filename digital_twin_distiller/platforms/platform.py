@@ -1,8 +1,8 @@
 from abc import ABCMeta, abstractmethod
 
-from adze_modeler.boundaries import BoundaryCondition
-from adze_modeler.material import Material
-from adze_modeler.metadata import Metadata
+from digital_twin_distiller.boundaries import BoundaryCondition
+from digital_twin_distiller.material import Material
+from digital_twin_distiller.metadata import Metadata
 
 
 class Platform(metaclass=ABCMeta):

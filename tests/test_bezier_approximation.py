@@ -3,8 +3,8 @@ import uuid
 
 from importlib_resources import files
 
-from adze_modeler.geometry import Geometry
-from adze_modeler.objects import CubicBezier, Line, Node
+from digital_twin_distiller.geometry import Geometry
+from digital_twin_distiller.objects import CubicBezier, Line, Node
 
 
 class TestBezierApprox(unittest.TestCase):

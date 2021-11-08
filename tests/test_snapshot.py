@@ -1,14 +1,14 @@
 import unittest
 from pathlib import Path
 
-from adze_modeler.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
-from adze_modeler.geometry import Geometry
-from adze_modeler.material import Material
-from adze_modeler.metadata import Agros2DMetadata, FemmMetadata
-from adze_modeler.objects import Line, Node
-from adze_modeler.platforms.agros2d import Agros2D
-from adze_modeler.platforms.femm import Femm
-from adze_modeler.snapshot import Snapshot
+from digital_twin_distiller.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
+from digital_twin_distiller.geometry import Geometry
+from digital_twin_distiller.material import Material
+from digital_twin_distiller.metadata import Agros2DMetadata, FemmMetadata
+from digital_twin_distiller.objects import Line, Node
+from digital_twin_distiller.platforms.agros2d import Agros2D
+from digital_twin_distiller.platforms.femm import Femm
+from digital_twin_distiller.snapshot import Snapshot
 
 
 class MockFileHandle:

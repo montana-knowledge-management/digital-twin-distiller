@@ -13,8 +13,8 @@ from fastapi.templating import Jinja2Templates
 from importlib_resources import files
 from pydantic import BaseModel, Extra
 
-from adze_modeler.modelpaths import ModelDir
-from adze_modeler.simulation import Simulation
+from digital_twin_distiller.modelpaths import ModelDir
+from digital_twin_distiller.simulation import Simulation
 
 
 class InputJson(BaseModel):
@@ -142,7 +142,7 @@ class Server:
     def __init__(self, project: Simulation):
         self.app = app
         self.app.doc_templates = Jinja2Templates(
-            directory=files("adze_modeler") / "resources" / "doc_template" / "site"
+            directory=files("digital_twin_distiller") / "resources" / "doc_template" / "site"
         )
         self.app.project = project
         self.app.title = self.app.title.format(project.app_name)

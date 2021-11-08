@@ -4,9 +4,9 @@ from unittest import TestCase
 from importlib_resources import files
 from meshio._helpers import read
 
-from adze_modeler.geometry import Geometry
-from adze_modeler.gmsh import GMSHModel
-from adze_modeler.objects import CircleArc, Line, Node
+from digital_twin_distiller.geometry import Geometry
+from digital_twin_distiller.gmsh import GMSHModel
+from digital_twin_distiller.objects import CircleArc, Line, Node
 
 # plotting out the mesh
 import pyvista as pv

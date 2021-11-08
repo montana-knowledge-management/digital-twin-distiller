@@ -1,6 +1,6 @@
 import unittest
 
-from adze_modeler.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
+from digital_twin_distiller.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
 
 
 class TestDirichletBoundary(unittest.TestCase):

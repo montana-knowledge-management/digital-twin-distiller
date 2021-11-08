@@ -2,7 +2,7 @@ from copy import copy
 from math import pi
 from unittest import TestCase
 
-from adze_modeler.objects import CircleArc, CubicBezier, Line, Node, ParametricBezier, Rectangle
+from digital_twin_distiller.objects import CircleArc, CubicBezier, Line, Node, ParametricBezier, Rectangle
 
 
 class TestNodeOperations(TestCase):

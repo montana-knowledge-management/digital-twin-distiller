@@ -1,5 +1,5 @@
 import unittest
-from adze_modeler.modelpaths import ModelDir
+from digital_twin_distiller.modelpaths import ModelDir
 from pathlib import Path
 
 CURRENT = Path(__file__)

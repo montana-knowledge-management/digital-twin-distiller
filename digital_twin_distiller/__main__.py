@@ -5,7 +5,7 @@ from os import chdir, getcwd
 from pathlib import Path
 from shutil import copy
 
-from adze_modeler.modelpaths import ModelDir
+from digital_twin_distiller.modelpaths import ModelDir
 
 
 def new(name, location):

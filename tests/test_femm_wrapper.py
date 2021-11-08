@@ -3,8 +3,8 @@ import warnings
 from pathlib import Path
 from unittest import TestCase
 
-import adze_modeler.objects as obj
-from adze_modeler.femm_wrapper import (
+import digital_twin_distiller.objects as obj
+from digital_twin_distiller.femm_wrapper import (
     CurrentFlowAntiPeriodic,
     CurrentFlowFixedVoltage,
     CurrentFlowMaterial,
@@ -34,7 +34,7 @@ from adze_modeler.femm_wrapper import (
     femm_heat_flow,
     femm_magnetic,
 )
-from adze_modeler.geometry import Geometry
+from digital_twin_distiller.geometry import Geometry
 
 
 class FemmTester(TestCase):

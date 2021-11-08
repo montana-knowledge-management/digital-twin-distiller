@@ -73,7 +73,7 @@ quiet = true
 
 [tool.coverage.run]
 command_line = "-m py.test"
-source = ['adze_modeler']
+source = ['digital_twin_distiller']
 branch = true
 # omit = []
 

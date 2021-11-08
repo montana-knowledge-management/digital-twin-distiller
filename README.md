@@ -13,7 +13,7 @@
 > pip3 install adze-modeler
 
 ### For Developers
-Adze project uses poetry for dependency management
+Digital-Twin-Distiller project uses poetry for dependency management
 
 Installing poetry on your system
 
