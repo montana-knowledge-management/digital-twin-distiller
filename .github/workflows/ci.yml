@@ -41,19 +41,9 @@ jobs:
       - name: Verify test coverage
         run: |
           poetry run coverage xml
-#      - name: Archive code coverage report
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: code-coverage-report
-#          path: xmlcov
-#        if: ${{ failure() }}
-#      - uses: codecov/codecov-action@v1
-#        if: ${{ matrix.python-version == '3.9' }}
       - uses: codecov/codecov-action@v2
         with:
-#          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           files: ./coverage.xml # optional
-#          flags: unittests # optional
           name: codecov-umbrella # optional
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
