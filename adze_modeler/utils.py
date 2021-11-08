@@ -223,3 +223,40 @@ def get_short_id(point, n: int = 6):
     :type: int
     """
     return hex(point.id)[-6:]
+
+def purge_dir(location, force=False):
+    """
+    Delete ALL FILES AND DIRECTORIES under location including location itself.
+    USE WITH CAUTION !
+    """
+
+    # get the location path
+    # if its pointing to a file then the parent directory will be the basis.
+    location = Path(location)
+    if location.suffix and force:
+        location = location.parent
+    else:
+        raise RuntimeError("Location is pointing to a file. You can delete it alongside with it's parent directory"
+                           "by using the force=True flag. BE CAREFUL! It will delete everything that is located"
+                           " under the files parent directory!")
+
+    # print('Deleting everything under:', location)
+    dirs = []
+    # iterating over everything that rglob finds
+    for item in location.rglob("**/*"):
+        # if item is a file we delete it
+        if item.suffix:
+            item.unlink()
+        else:
+            # if item is a directory we append it to a list
+            dirs.append(item)
+
+    # we sort the directory list based on their length
+    # Note: Not the string length matters but the part count
+    dirs.sort(key=lambda di: len(di.parts), reverse=True)
+    # we delete the directories from the most nested one to the top level
+    for dir in dirs:
+        dir.rmdir()
+
+    # lastly we delete location itself
+    location.rmdir()
