@@ -16,8 +16,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install GMSH
-          run: |
-            sudo apt-get install gmsh
+        run: |
+          sudo apt-get install gmsh
       - uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0
