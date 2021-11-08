@@ -72,7 +72,7 @@ quiet=true
 command_line="-m py.test"
 source=['adze_modeler']
 branch = true
-# omit = [] put pygmsh tests here temporarly
+# omit = []
 
 [tool.coverage.report]
 sort = "cover"
