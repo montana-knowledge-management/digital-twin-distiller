@@ -34,19 +34,6 @@ class GMSHModel:
         self.msh_format = msh_format
         self.dim = 2  # dimension of the mesh
 
-    @staticmethod
-    def export_mesh_to_dolphin(mesh, cell_type, prune_z=False):
-        cells = mesh.get_cells_type(cell_type)
-        cell_data = mesh.get_cell_data("gmsh:physical", cell_type)
-        out_mesh = meshio.Mesh(
-            points=mesh.points,
-            cells={cell_type: cells},
-            cell_data={"name_to_read": [cell_data]},
-        )
-        if prune_z:
-            out_mesh.prune_z_0()
-        return out_mesh
-
     def gmsh_writer(self, file_name):
         """
         Writes out the previously defined surfaces from the geo object
@@ -144,16 +131,3 @@ class GMSHModel:
             std_gmsh.write(file_name + ".msh")
             std_gmsh.write(file_name + ".geo_unrolled")
             std_gmsh.clear()
-
-            # # create a mesh for dolphin
-            # mesh_from_file = meshio.read(file_name + ".msh")
-            # # line_mesh = self.create_mesh(mesh_from_file, "line", prune_z=True)
-            # # meshio.write(file_name + "_bounds_" + ".xdmf", line_mesh)
-            #
-            # cell_mesh = self.create_mesh(mesh_from_file, "triangle", prune_z=True)
-            # meshio.write(file_name + ".xdmf", cell_mesh)
-            #
-            # # if self.msh_format != '.msh':
-            # #    mesh_from_file = meshio.read(file_name + ".msh")
-            # #    meshio.write(self.msh_format, mesh_from_file)
-            # # mesh.write(file_name + ".xdmf")  # + ".vtk")

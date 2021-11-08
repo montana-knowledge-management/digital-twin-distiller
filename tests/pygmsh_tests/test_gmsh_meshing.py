@@ -8,12 +8,6 @@ from digital_twin_distiller.geometry import Geometry
 from digital_twin_distiller.gmsh import GMSHModel
 from digital_twin_distiller.objects import CircleArc, Line, Node
 
-# plotting out the mesh
-import pyvista as pv
-
-# msh = pv.read(file_name + '.vtk')
-# msh.plot(show_edges=True)
-
 
 class TestGMSHWriter(TestCase):
     def test_only_line_surface(self):
@@ -66,7 +60,6 @@ class TestGMSHWriter(TestCase):
 
         # check the surface, the surface should contain only 7 edges
         self.assertEqual(len(surfaces[0]), 7)
-        #self.assertEqual(round(surfaces[0][0].start_pt.x, 1), 100.1)
 
         # remove the geo and msh files
         remove("test2.geo_unrolled")

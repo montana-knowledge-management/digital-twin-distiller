@@ -80,7 +80,7 @@ class TestUtils(unittest.TestCase):
     def test_csv_read(self):
 
         my_path = os.path.abspath(os.path.dirname(__file__))
-        path = os.path.join(my_path, "../resources/test1.csv")
+        path = os.path.join(my_path, "test_utils/test1.csv")
 
         test = u.csv_read(path, True)
         self.assertEqual(test, {1.0: (245.0, 54.0, 54.0), 2.0: (12.0, 54.0, 123.0)})
