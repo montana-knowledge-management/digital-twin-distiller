@@ -1,11 +1,8 @@
 from collections import defaultdict
-from collections.abc import Iterable
 
 from adze_modeler.boundaries import BoundaryCondition
 from adze_modeler.geometry import Geometry
 from adze_modeler.material import Material
-from adze_modeler.metadata import Metadata
-from adze_modeler.objects import Line, Node
 from adze_modeler.platforms.platform import Platform
 from adze_modeler.utils import getID
 

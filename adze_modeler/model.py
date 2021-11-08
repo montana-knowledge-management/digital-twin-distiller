@@ -2,7 +2,6 @@ import sys
 import traceback
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
-from shutil import rmtree
 from uuid import uuid4
 
 from adze_modeler import objects as obj

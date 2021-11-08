@@ -427,7 +427,6 @@ class Geometry:
                 if p2 is not None:
                     if i != j:
                         intersections.append((distance(line_1.start_pt, p2), *p2))
-                        pass
 
             intersections.sort(key=lambda ii: ii[0])
             for k in range(len(intersections) - 1):

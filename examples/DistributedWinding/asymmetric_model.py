@@ -1,6 +1,4 @@
-import numpy as np
-
-from adze_modeler.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
+from adze_modeler.boundaries import DirichletBoundaryCondition
 from adze_modeler.material import Material
 from adze_modeler.metadata import Agros2DMetadata, FemmMetadata
 from adze_modeler.model import BaseModel

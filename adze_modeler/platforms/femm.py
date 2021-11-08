@@ -169,8 +169,6 @@ class Femm(Platform):
         self.write(self.writer.add_boundary(femm_boundary))
 
     def export_geometry_element(self, e, boundary=None):
-        automesh = 1
-        elementsize = 1
         if self.metadata.elementsize:
             automesh = 0
             elementsize = 1
@@ -296,7 +294,6 @@ class Femm(Platform):
     def export_closing_steps(self):
         for cmd_i in self.writer.close():
             self.write(cmd_i)
-        pass
 
     def execute(self, cleanup=False, timeout=10):
         executor = FemmExecutor()

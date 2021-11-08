@@ -4,7 +4,7 @@ import subprocess
 import time
 import traceback
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Optional
 
 import uvicorn
 from fastapi import FastAPI, Request

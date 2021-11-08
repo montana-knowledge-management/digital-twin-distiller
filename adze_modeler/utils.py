@@ -51,7 +51,7 @@ def get_width_height(type_="onehalf", aspect=(16, 10), unit="px"):
                "single", "onehalf", "full", "double"
         aspect: This iterable specifies the aspect ratio of the figure.
     """
-    width, height = 0, 0
+
     types = {
         "minimal": 30,
         "single": 90,
