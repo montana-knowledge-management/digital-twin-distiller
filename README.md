@@ -10,7 +10,7 @@
 
 ## INSTALL
 
-> pip3 install adze-modeler
+> pip3 install digital-twin-designer
 
 ### For Developers
 Digital-Twin-Distiller project uses poetry for dependency management
