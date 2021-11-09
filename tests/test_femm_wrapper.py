@@ -808,21 +808,17 @@ class FemmTester(TestCase):
         print(cmds)
 
 
-# class TestFemmExecutor(TestCase):
-#     # def test_executor_proper_file(self):
-#     #     testfile = str(Path(__file__).parent / "test.lua")
-#     #     warnings.simplefilter("ignore", ResourceWarning)
-#     #     exec = FemmExecutor()
-#     #     with open(testfile, "w") as f:
-#     #         f.write("quit()")
-#     #     self.assertEqual(True, exec.run_femm(testfile))
+class TestFemmExecutor(TestCase):
 
-#     def test_executor_invalid_file(self):
-#         testfile = str(Path(__file__).parent / "test_invalid.lua")
-#         warnings.simplefilter("ignore", ResourceWarning)
-#         exec = FemmExecutor()
+    def test_executor(self):
+        testfile = str(Path(__file__).parent / "test_invalid.lua")
+        warnings.simplefilter("ignore", ResourceWarning)
+        exec = FemmExecutor()
 
-#         with open(testfile, "w") as f:
-#             f.write("not_existing_command()")
+        with open(testfile, "w") as f:
+            f.write("not_existing_command()")
 
-#         self.assertEqual(None, exec.run_femm(testfile, timeout=0))
+        home = os.path.expanduser('~')
+        ref_cmd = f'wine {home}/.wine/drive_c/femm42/bin/femm.exe -lua-script=/home/gadokrisztian/work/digital-twin-distiller/tests/test_invalid.lua'
+        test_cmd = exec.run_femm(testfile, timeout=0, debug=True)
+        self.assertEqual(ref_cmd, test_cmd)

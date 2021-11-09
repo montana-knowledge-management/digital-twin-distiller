@@ -14,7 +14,7 @@ DEFAULT_REQ = {
     "simulation": {"type": "default"},
     "model": {},
     "tolerances": {"type": "ff", "parameters": {"x0": 1, "mw": 1}, "variables": ["T"]},
-    "misc": {"processes": 4, "cleanup": True},
+    "misc": {"processes": 4, "cleanup": True, "exportname": "testname"},
     "version": "0.7",
 }
 
@@ -72,6 +72,7 @@ class TestSimulation(unittest.TestCase):
 
         sim1.update_input()
 
+        self.assertEqual(sim1.cfg_model["exportname"], "testname")
         self.assertAlmostEqual(sim1.cfg_tolerances["parameters"]["x0"], 1.0, delta=1e-12)
         self.assertTrue("T" in sim1.cfg_tolerances["variables"])
         self.assertTrue(sim1.cfg_tolerances["type"], "ff")
