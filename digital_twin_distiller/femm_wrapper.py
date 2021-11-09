@@ -1690,38 +1690,3 @@ class FemmExecutor:
             stdout, stderr = proc.communicate()
         finally:
             timer.cancel()
-
-        # self.script_file = os.path.basename(script_file)
-        # # under linux we are using wine to run FEMM
-        # if platform == "linux":
-        #     self.femm_command = "wine " + self.femm_path_linux
-        #
-        #     lua_path = os.path.abspath(script_file)
-        #
-        #     arg = None
-        #     if os.path.isfile(lua_path) and platform == "linux":
-        #         arg = '"' + os.popen('winepath -w "' + lua_path + '"').read().strip() + '"'
-        #
-        #     cmd_string = self.femm_command + f" -lua-script={arg}"
-        #
-        #     # out = subprocess.run(cmd_string, shell=True, capture_output=True)
-        #     proc = Popen(shlex.split(cmd_string), stdout=PIPE, stderr=PIPE)
-        #     timer = Timer(timeout, proc.kill)
-        #     try:
-        #         timer.start()
-        #         stdout, stderr = proc.communicate()
-        #     finally:
-        #         timer.cancel()
-        #
-        #     if proc.returncode != 0:
-        #         err = "Unknown error"
-        #         return None
-        #     #     if proc.stderr is not None:
-        #     #         err = f"Cannot run FEMM.\n\n {proc.stderr}"
-        #     #         print(err)
-        #
-        #     # self.problem.logger.error(err)
-        #     # raise RuntimeError(err)
-        #
-        #     else:
-        #         return True

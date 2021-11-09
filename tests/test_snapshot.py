@@ -143,6 +143,8 @@ class TestSnapshotAgros2D(unittest.TestCase):
 
                 self.assertEqual(f.get_line(i), line.rstrip())
 
+        self.assertRaises(Exception, s.execute(cleanup=True))
+
 
 class TestSnapshotFemm(unittest.TestCase):
     def get_geometry(self):
@@ -220,6 +222,8 @@ class TestSnapshotFemm(unittest.TestCase):
         s.add_postprocessing('point_value', [1.0, 1.0], "Bx")
         s.add_postprocessing('integration', [(1.0, 2.0), (3.0, 3.0)], "Energy")
 
+        s.add_postprocessing('saveimage', None, None)
+
         f = MockFileHandle()
         s.export(f)
 
@@ -234,6 +238,10 @@ class TestSnapshotFemm(unittest.TestCase):
         # energy
         self.assertIn(r'mo_selectblock(1.0, 2.0)', f.content)
         self.assertIn(r'Energy = mo_blockintegral(2)', f.content)
+
+        # saveimage
+        self.assertIn(r'mo_refreshview()', f.content)
+        self.assertIn(r'mo_save_bitmap("', f.content)
 
     def test_export(self):
         s = self.get_snapshot()
@@ -263,6 +271,8 @@ class TestSnapshotFemm(unittest.TestCase):
 
                 self.assertEqual(f.get_line(i), line.rstrip())
 
+        # running should cause an exception
+        self.assertRaises(Exception, s.execute(cleanup=True))
 
 if __name__ == "__main__":
     t = TestSnapshotAgros2D()
