@@ -14,6 +14,11 @@ mi_addmaterial('air', 1.0, 1.0, 0.0, 0.0, 0.0, 0, 0.0, 0, 0, 0, 0, 0.0, 1.0)
 -- BOUNDARY DEFINITIONS
 
 mi_addboundprop('d0', 30, 30, 30, 0, 0, 0, 0, 0, 0, 0, 0)
+mi_addboundprop('cekla', 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0)
+mi_addboundprop('retek', 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0)
+mi_addboundprop('mogyoro', 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0)
+mi_addboundprop('g', 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0)
+mi_addboundprop('f0', 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0)
 
 -- GEOMETRY
 

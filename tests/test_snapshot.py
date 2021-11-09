@@ -1,7 +1,8 @@
 import unittest
 from pathlib import Path
 
-from digital_twin_distiller.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
+from digital_twin_distiller.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition, \
+    AntiPeriodicBoundaryCondition, PeriodicBoundaryCondition, AntiPeriodicAirGap, PeriodicAirGap
 from digital_twin_distiller.geometry import Geometry
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import Agros2DMetadata, FemmMetadata
@@ -183,7 +184,16 @@ class TestSnapshotFemm(unittest.TestCase):
 
     def test_assign_boundary_condition(self):
         s = self.get_snapshot()
+        # dirichlet
         s.add_boundary_condition(DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3))
+        # neumann
+        s.add_boundary_condition(NeumannBoundaryCondition("cekla", "magnetic", surface_current=12.4))
+        # anti-periodic
+        s.add_boundary_condition(AntiPeriodicBoundaryCondition("retek", "magnetic"))
+        # periodic
+        s.add_boundary_condition(AntiPeriodicBoundaryCondition("mogyoro", "magnetic"))
+
+        # false boundary condition allocated
         self.assertRaises(ValueError, s.assign_boundary_condition, x=0, y=0, name="falsename")
 
     def test_add_material(self):
@@ -231,6 +241,12 @@ class TestSnapshotFemm(unittest.TestCase):
         s.add_material(Material("air"))
         s.assign_material(0, 0, "air")
         s.add_boundary_condition(DirichletBoundaryCondition("d0", "magnetic", magnetic_potential=30))
+        s.add_boundary_condition(NeumannBoundaryCondition("cekla", "magnetic", surface_current=12.4))
+        s.add_boundary_condition(AntiPeriodicBoundaryCondition("retek", "magnetic"))
+        s.add_boundary_condition(PeriodicBoundaryCondition("mogyoro", "magnetic"))
+        s.add_boundary_condition(AntiPeriodicAirGap("g", "magnetic"))
+        s.add_boundary_condition(PeriodicAirGap("f0", "magnetic"))
+
         f = MockFileHandle()
         # s.export()
         s.export(f)
