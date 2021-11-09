@@ -118,7 +118,7 @@ class Agros2D(Platform):
         self.write(f'f = open(r"{self.metadata.file_metrics_name}", "w")')
 
     # TODO: check!
-    def export_metrics(self, action, entity, variable):
+    def export_results(self, action, entity, variable):
         """
         Exports the given value from the agros2d with the given coordinates.
 

@@ -229,7 +229,7 @@ class Femm(Platform):
         self.write(self.writer.analyze())
         self.write(self.writer.load_solution())
 
-    def export_metrics(self, action, entity, variable):
+    def export_results(self, action, entity, variable):
         mappings = {
             "Bx": "B1",
             "By": "B2",
