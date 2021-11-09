@@ -67,6 +67,11 @@ class TestSnapshotAgros2D(unittest.TestCase):
         s.add_boundary_condition(DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3))
         self.assertTrue("eper" in s.boundaries)
 
+    def test_set_add_neumann_boundary_condition(self):
+        s = self.get_snapshot()
+        s.add_boundary_condition(NeumannBoundaryCondition("malna", "magnetic", surface_current=1.5))
+        self.assertTrue("malna" in s.boundaries)
+
     def test_assign_boundary_condition(self):
         s = self.get_snapshot()
         s.add_boundary_condition(DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3))

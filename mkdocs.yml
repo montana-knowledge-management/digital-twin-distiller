@@ -6,7 +6,7 @@ repo_name: montana-knowledge-management/digital-twin-distiller
 nav:
   - Home: index.md
   - Structure:
-    - BaseModel: adze/basemodel.md
+    - BaseModel: digital-twin-distiller/basemodel.md
   - Examples:
     - Current Balancing: examples/CurrentBalancing/readme.md
     - Transformer Fast Transients: examples/TransformerFasttransients/readme.md
