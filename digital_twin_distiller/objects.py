@@ -460,6 +460,8 @@ class ParametricBezier:
             return False
 
         return True
+
+
 class Rectangle:
     def __init__(self, x0: float = 0.0, y0: float = 0.0, **kwargs):
         """

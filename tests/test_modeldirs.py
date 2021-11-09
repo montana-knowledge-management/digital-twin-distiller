@@ -1,11 +1,12 @@
 import unittest
-from digital_twin_distiller.modelpaths import ModelDir
 from pathlib import Path
+
+from digital_twin_distiller.modelpaths import ModelDir
 
 CURRENT = Path(__file__)
 
-class TestModeldirs(unittest.TestCase):
 
+class TestModeldirs(unittest.TestCase):
     def test_modeldir(self):
         ModelDir.set_base(CURRENT)
 
@@ -16,7 +17,6 @@ class TestModeldirs(unittest.TestCase):
         self.assertEqual(ModelDir.SNAPSHOTS, CURRENT.parent / "snapshots")
         self.assertEqual(ModelDir.DEFAULTS, CURRENT.parent / "defaults")
         self.assertEqual(ModelDir.DOCS, CURRENT.parent / "docs")
-
 
     def test_dir_iter(self):
         ModelDir.set_base(CURRENT.parent)

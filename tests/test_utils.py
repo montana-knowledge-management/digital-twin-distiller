@@ -1,9 +1,11 @@
-import unittest
-import pytest
 import os
+import unittest
+
+import pytest
 
 import digital_twin_distiller.utils as u
 from digital_twin_distiller.objects import Node
+
 
 class TestUtils(unittest.TestCase):
     def test_get_id(self):
@@ -48,11 +50,7 @@ class TestUtils(unittest.TestCase):
         with pytest.raises(ValueError):
             u.get_width_height(type_="notexists", aspect=(16, 10), unit="px")
 
-        result = u.get_width_height(
-            type_="minimal",
-            aspect=(16, 9),
-            unit="mm"
-        )
+        result = u.get_width_height(type_="minimal", aspect=(16, 9), unit="mm")
         scale = 16 / 9
         self.assertEqual(result, (30, 30 / scale))  # 113, 63
 
@@ -68,13 +66,13 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result, 1)
 
     def test_pairwise(self):
-        case1 = ('A')
+        case1 = "A"
 
         self.assertTrue(u.pairwise(case1))
         self.assertEqual(list(u.pairwise(case1)), [])
 
-        case2 = '1234'
-        self.assertEqual(list(u.pairwise(case2)), [('1', '2'), ('2', '3'), ('3', '4')])
+        case2 = "1234"
+        self.assertEqual(list(u.pairwise(case2)), [("1", "2"), ("2", "3"), ("3", "4")])
 
     def test_csv_read(self):
         my_path = os.path.abspath(os.path.dirname(__file__))
@@ -104,8 +102,7 @@ class TestUtils(unittest.TestCase):
         # checks if the matplotlib template works correctly, if not it fails.
         u.setup_matplotlib()
 
-
     def test_depracted(self):
-        f = u.deprecated(lambda x: x**2)
+        f = u.deprecated(lambda x: x ** 2)
         with self.assertWarns(DeprecationWarning):
             f(2.2)

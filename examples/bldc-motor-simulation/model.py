@@ -13,7 +13,7 @@ class MotorSim(BaseModel):
     """docstring for MotorSim"""
 
     def __init__(self, **kwargs):
-        super(MotorSim, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._init_directories()
 
     def setup_solver(self):
@@ -30,7 +30,7 @@ class MotorSim(BaseModel):
         self.snapshot = Snapshot(self.platform)
 
     def define_materials(self):
-        air = Material('air')
+        air = Material("air")
 
         self.snapshot.add_material(air)
 

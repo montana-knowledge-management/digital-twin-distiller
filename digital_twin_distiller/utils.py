@@ -1,4 +1,6 @@
 import csv
+import functools
+import warnings
 from itertools import tee
 from math import sqrt
 from pathlib import Path
@@ -9,8 +11,6 @@ import matplotlib.pyplot
 import matplotlib.pyplot as plt
 from numpy import linspace
 from numpy.polynomial import Polynomial as P
-import functools
-import warnings
 
 
 def getID():
@@ -80,6 +80,7 @@ def get_width_height(type_="onehalf", aspect=(16, 10), unit="px"):
     else:
         return units[unit](width), units[unit](height)
 
+
 # TODO: ki kéne tenni sablonba
 def setup_matplotlib():
     """
@@ -90,17 +91,13 @@ def setup_matplotlib():
     plt.rcParams["figure.figsize"] = w, h
     plt.rcParams["lines.linewidth"] = 1
 
-    SMALL_SIZE = 8
-    MEDIUM_SIZE = 8
-    BIGGER_SIZE = 14
-
-    plt.rc("font", size=MEDIUM_SIZE)  # controls default text sizes
-    plt.rc("axes", titlesize=MEDIUM_SIZE)  # fontsize of the axes title
-    plt.rc("axes", labelsize=MEDIUM_SIZE)  # fontsize of the x and y labels
-    plt.rc("xtick", labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
-    plt.rc("ytick", labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
-    plt.rc("legend", fontsize=MEDIUM_SIZE)  # legend fontsize
-    plt.rc("figure", titlesize=MEDIUM_SIZE)  # fontsize of the figure title
+    plt.rc("font", size=8)  # controls default text sizes
+    plt.rc("axes", titlesize=8)  # fontsize of the axes title
+    plt.rc("axes", labelsize=8)  # fontsize of the x and y labels
+    plt.rc("xtick", labelsize=8)  # fontsize of the tick labels
+    plt.rc("ytick", labelsize=8)  # fontsize of the tick labels
+    plt.rc("legend", fontsize=8)  # legend fontsize
+    plt.rc("figure", titlesize=8)  # fontsize of the figure title
 
     # plt.grid(b=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     # plt.grid(b=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
@@ -175,7 +172,7 @@ def csv_read(file, dict_return=False):
 
 
 def get_polyfit(x, y, N=None, verbose=False):
-    """ Fits a polynomial to the measurement points, gives back the refined points."""
+    """Fits a polynomial to the measurement points, gives back the refined points."""
     assert len(x) == len(y)
     N = 2 * len(x) + 1 if N is None else int(N)
     x_fine = linspace(min(x), max(x), N)
@@ -236,9 +233,11 @@ def purge_dir(location, force=False):
         if force:
             location = location.parent
         else:
-            raise RuntimeError("Location is pointing to a file. You can delete it alongside with it's parent directory"
-                               "by using the force=True flag. BE CAREFUL! It will delete everything that is located"
-                               " under the files parent directory!")
+            raise RuntimeError(
+                "Location is pointing to a file. You can delete it alongside with it's parent directory"
+                "by using the force=True flag. BE CAREFUL! It will delete everything that is located"
+                " under the files parent directory!"
+            )
 
     # print('Deleting everything under:', location)
     dirs = []
@@ -261,18 +260,19 @@ def purge_dir(location, force=False):
     # lastly we delete location itself
     location.rmdir()
 
+
 def deprecated(func):
     """This is a decorator which can be used to mark functions
     as deprecated. It will result in a warning being emitted
     when the function is used.
     Credit: https://stackoverflow.com/questions/2536307/decorators-in-the-python-standard-lib-deprecated-specifically
     """
+
     @functools.wraps(func)
     def new_func(*args, **kwargs):
-        warnings.simplefilter('always', DeprecationWarning)  # turn off filter
-        warnings.warn("Call to deprecated function {}.".format(func.__name__),
-                      category=DeprecationWarning,
-                      stacklevel=2)
-        warnings.simplefilter('default', DeprecationWarning)  # reset filter
+        warnings.simplefilter("always", DeprecationWarning)  # turn off filter
+        warnings.warn(f"Call to deprecated function {func.__name__}.", category=DeprecationWarning, stacklevel=2)
+        warnings.simplefilter("default", DeprecationWarning)  # reset filter
         return func(*args, **kwargs)
+
     return new_func

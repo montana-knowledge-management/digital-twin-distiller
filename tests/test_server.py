@@ -1,21 +1,23 @@
 import unittest
+from multiprocessing import Process
 from pathlib import Path
-import requests
 from time import sleep
+
+import requests
 
 from digital_twin_distiller.__main__ import new
 from digital_twin_distiller.modelpaths import ModelDir
-from digital_twin_distiller.simulationproject import sim
 from digital_twin_distiller.server import Server
-from multiprocessing import Process
+from digital_twin_distiller.simulationproject import sim
 from digital_twin_distiller.utils import purge_dir
 
 CURRENT = Path(__file__).parent
-MODELNAME = 'TestModel'
+MODELNAME = "TestModel"
 MODELPATH = CURRENT / MODELNAME
 
+
 class TestIntegratedServer(unittest.TestCase):
-    serverprocess=None
+    serverprocess = None
 
     @classmethod
     def setUpClass(cls):
@@ -23,7 +25,7 @@ class TestIntegratedServer(unittest.TestCase):
         new(MODELNAME, CURRENT)
 
         # import the model class from the new model
-        modelclass = __import__(str('tests.'+MODELNAME+'.model'), fromlist=['TestModel']).TestModel
+        modelclass = __import__(str("tests." + MODELNAME + ".model"), fromlist=["TestModel"]).TestModel
 
         # set the paths for the new model
         ModelDir.set_base(MODELPATH)
@@ -35,9 +37,7 @@ class TestIntegratedServer(unittest.TestCase):
         model = Server(sim)
 
         # Create a new Process object
-        cls.serverprocess = Process(name='testserver_process',
-                                    target=model,
-                                    daemon=True)
+        cls.serverprocess = Process(name="testserver_process", target=model, daemon=True)
 
         # Fire up the server in a new process
         cls.serverprocess.start()
@@ -50,7 +50,7 @@ class TestIntegratedServer(unittest.TestCase):
         cls.serverprocess.kill()
 
         # clean up the modeldir
-        purge_dir(MODELPATH) # DO NOT MODIFY THIS LINE
+        purge_dir(MODELPATH)  # DO NOT MODIFY THIS LINE
 
     def test_ping(self):
         # sleep(3)
@@ -58,34 +58,11 @@ class TestIntegratedServer(unittest.TestCase):
         # res = requests.get(f'{url}/apidocs', timeout=10,)
         # self.assertEqual(res.status_code, 200)
 
-
         # TESTING SECTION
         # Testing goes here, use requests library to pass requests to the server.
 
         # GK: Temporary placeholder
         self.assertTrue(True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #         #

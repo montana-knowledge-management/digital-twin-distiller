@@ -1,26 +1,21 @@
 import argparse
+import json
 import string
 import subprocess
 from os import chdir, getcwd
 from pathlib import Path
 from shutil import copy
-import json
 
 from digital_twin_distiller.modelpaths import ModelDir
 
-DEFAULT_MODEL = {"x0": 1.0,
-                 "mw": 5,
+DEFAULT_MODEL = {
+    "x0": 1.0,
+    "mw": 5,
 }
 DEFAULT_SIMULATION = {
-    "default": {"t0": 0.0,
-                 "t1": 5.3,
-                 "nstep": 101},
+    "default": {"t0": 0.0, "t1": 5.3, "nstep": 101},
 }
-DEFAULT_MISC = {
-    "processes": 4,
-    "cleanup": True
-}
-
+DEFAULT_MISC = {"processes": 4, "cleanup": True}
 
 
 def new(name, location):

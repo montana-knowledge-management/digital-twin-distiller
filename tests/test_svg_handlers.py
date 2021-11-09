@@ -1,13 +1,14 @@
+from pathlib import Path
 from unittest import TestCase
 
 from digital_twin_distiller.geometry import Geometry
-from pathlib import Path
 
 resources = Path(__file__).parent
 
+
 class TestSvgImport(TestCase):
     def test_owl_import_to_geometry(self):
-        eml = Path(resources / 'svgtests' / 'owl-shape.svg')
+        eml = Path(resources / "svgtests" / "owl-shape.svg")
         geo = Geometry()
         geo.import_svg(eml.as_posix())
 
@@ -20,7 +21,7 @@ class TestSvgImport(TestCase):
         self.assertTrue(len(geo.circle_arcs) == 0)
 
     def test_approximate_owl(self):
-        eml = Path(resources / 'svgtests' / 'owl-shape.svg')
+        eml = Path(resources / "svgtests" / "owl-shape.svg")
         geo = Geometry()
         geo.import_svg(eml.as_posix())
 

@@ -78,7 +78,7 @@ class Geometry:
         self.nodes = temp
 
     def append_node(self, new_node):
-        """Appends the node to the node list only if its not exists, gives back that node object """
+        """Appends the node to the node list only if its not exists, gives back that node object"""
         for i in range(len(self.nodes)):
             if self.nodes[i].distance_to(new_node) < self.epsilon:
                 return self.nodes[i]
@@ -153,7 +153,6 @@ class Geometry:
 
             if e.dxftype() == "POLYLINE":
                 print(e.__dict__)
-
 
     @staticmethod
     def casteljau(bezier: obj.CubicBezier):
@@ -281,7 +280,6 @@ class Geometry:
                             center = obj.Node(p2.real, p2.imag)
                             end = obj.Node(p3.real, p3.imag)
                             self.add_arc(obj.CircleArc(start, center, end))
-
 
     def get_line_intersetions(self, line_1, line_2):
         """

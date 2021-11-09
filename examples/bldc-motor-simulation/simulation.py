@@ -12,11 +12,12 @@ def execute_model(model: MotorSim):
     return result
 
 
-@sim.register('default')
+@sim.register("default")
 def default_simulation(model, modelparams, simparams, miscparams):
     return "Hello World!"
 
-@sim.register('default')
+
+@sim.register("default")
 def default_simulation(model, modelparams, simparams, miscparams):
     return "Hello World!"
 

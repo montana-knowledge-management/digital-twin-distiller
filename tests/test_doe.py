@@ -1,10 +1,9 @@
 import unittest
 
-from digital_twin_distiller.doe import doe_fullfact, doe_bbdesign, doe_ccf, doe_pbdesign
+from digital_twin_distiller.doe import doe_bbdesign, doe_ccf, doe_fullfact, doe_pbdesign
 
 
 class TestDOE(unittest.TestCase):
-
     def test_boxbehnkendesign(self):
         self.assertEqual(doe_bbdesign(3, center=1)[0], [-1, -1, 0])
         self.assertEqual(len(doe_bbdesign(3, center=1)), 13)
@@ -17,4 +16,3 @@ class TestDOE(unittest.TestCase):
 
     def test_ccf(self):
         self.assertEqual(len(doe_ccf(4)), 25)
-

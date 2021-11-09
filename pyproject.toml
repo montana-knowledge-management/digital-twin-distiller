@@ -64,7 +64,7 @@ line-length = 120
 target-version = ['py39']
 force-exclude = '''
   (
-    adze_modeler/resources/
+    digital-twin-distiller/resources/
   | tests/solver_script_references/
   )
 '''
@@ -110,7 +110,7 @@ max-line-length = 120
 fail-under = 0.85
 ignore = ['LICENSE']
 ignore-paths = ['tests', 'resources', 'examples',
-    'adze_modeler/resources']
+    'digital-twin-distiller/resources']
 disable = [
     "bad-continuation",
     "duplicate-code",

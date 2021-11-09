@@ -6,12 +6,10 @@ from digital_twin_distiller.objects import CircleArc, Line, Node
 
 class TestModelpiece(unittest.TestCase):
     def get_modelpiece(self):
-        m = ModelPiece('test')
+        m = ModelPiece("test")
         n0 = Node(0, 1)
         l0 = Line(Node(0, 0), Node(0, -1))
-        c0 = CircleArc(start_pt=Node(-1, 0),
-                       center_pt=Node(0, 0),
-                       end_pt=Node(1, 0))
+        c0 = CircleArc(start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0))
 
         self.assertEqual(c0.apex_pt, Node(0, -1))
 
@@ -46,7 +44,6 @@ class TestModelpiece(unittest.TestCase):
     def test_put_lower_left(self):
         m = self.get_modelpiece()
 
-
         m.put(10, 10, bbox_ref="lower-left")
 
         self.assertEqual(len(m.geom.nodes), 5)
@@ -61,7 +58,6 @@ class TestModelpiece(unittest.TestCase):
     def test_put_lower_right(self):
         m = self.get_modelpiece()
 
-
         m.put(10, 10, bbox_ref="lower-right")
 
         self.assertEqual(len(m.geom.nodes), 5)
@@ -75,7 +71,6 @@ class TestModelpiece(unittest.TestCase):
 
     def test_put_upper_left(self):
         m = self.get_modelpiece()
-
 
         m.put(10, 10, bbox_ref="upper-left")
 
@@ -218,7 +213,6 @@ class TestModelpiece(unittest.TestCase):
         for c1, c2 in zip(m.geom.circle_arcs, m1.geom.circle_arcs):
             self.assertEqual(c1, c2)
             self.assertNotEqual(c1.id, c2.id)
-
 
         for bz1, bz2 in zip(m.geom.circle_arcs, m1.geom.circle_arcs):
             self.assertEqual(bz1, bz2)

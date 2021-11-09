@@ -196,7 +196,6 @@ class Femm(Platform):
             radius = e.start_pt.distance_to(e.center_pt)
             clamp = e.start_pt.distance_to(e.end_pt) / 2.0
             theta = round(asin(clamp / radius) * 180 / pi * 2, 2)
-            internal_pt = e.start_pt.rotate_about(e.center_pt, theta / 2)
 
             self.write(
                 self.writer.add_arc(
