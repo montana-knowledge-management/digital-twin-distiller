@@ -95,8 +95,27 @@ class TestSnapshotAgros2D(unittest.TestCase):
         self.assertTrue(len(s.lines) == 1)
         self.assertTrue(len(s.nodes) == 2)
 
-    def test_add_postprocessing(self):
-        ...
+    def test_export_results(self):
+        s = self.get_snapshot()
+        s.add_postprocessing('mesh_info', None, None)
+        s.add_postprocessing('point_value', [1.0, 1.0], "Bx")
+        s.add_postprocessing('integration', [(1.0, 2.0), (3.0, 3.0)], "Energy")
+        f = MockFileHandle()
+        s.export(f)
+
+        # mesh data
+        self.assertIn(r'info = magnetic.solution_mesh_info()', f.content)
+        self.assertIn(r'f.write("{}, {}\n".format("dofs", info["dofs"]))', f.content)
+        self.assertIn(r'f.write("{}, {}\n".format("nodes", info["nodes"]))', f.content)
+        self.assertIn(r'f.write("{}, {}\n".format("elements", info["elements"])', f.content)
+
+        # point value
+        self.assertIn(r'point = magnetic.local_values(0.001, 0.001)["Brx"]', f.content)
+        self.assertIn(r'f.write("{}, 0.001, 0.001, {}\n".format("Bx", point))', f.content)
+
+        # integral value
+        self.assertIn(r"magnetic.volume_integrals([(1.0, 2.0), (3.0, 3.0)])", f.content)
+        self.assertIn(r'f.write("Energy, {}\n".format(val))', f.content)
 
     # TODO: ??
     def test_export(self):
@@ -185,8 +204,26 @@ class TestSnapshotFemm(unittest.TestCase):
         self.assertTrue(len(s.lines) == 1)
         self.assertTrue(len(s.nodes) == 2)
 
-    def test_add_postprocessing(self):
-        ...
+    def test_export_results(self):
+        s = self.get_snapshot()
+        s.add_postprocessing('mesh_info', None, None)
+        s.add_postprocessing('point_value', [1.0, 1.0], "Bx")
+        s.add_postprocessing('integration', [(1.0, 2.0), (3.0, 3.0)], "Energy")
+
+        f = MockFileHandle()
+        s.export(f)
+
+        # mesh info
+        self.assertIn(r'write(file_out, "nodes, ", mo_numnodes(), "\n")', f.content)
+        self.assertIn(r'write(file_out, "elements, ", mo_numelements(), "\n")', f.content)
+
+        # point values
+        self.assertIn(r'A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph = mo_getpointvalues(1.0, 1.0)', f.content)
+        self.assertIn(r'write(file_out, "Bx, 1.0, 1.0, ", B1, "\n")', f.content)
+
+        # energy
+        self.assertIn(r'mo_selectblock(1.0, 2.0)', f.content)
+        self.assertIn(r'Energy = mo_blockintegral(2)', f.content)
 
     def test_export(self):
         s = self.get_snapshot()
