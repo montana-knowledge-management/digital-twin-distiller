@@ -810,6 +810,7 @@ class FemmTester(TestCase):
 
 class TestFemmExecutor(TestCase):
 
+    # TODO: generalize
     def test_executor(self):
         testfile = str(Path(__file__).parent / "test_invalid.lua")
         warnings.simplefilter("ignore", ResourceWarning)

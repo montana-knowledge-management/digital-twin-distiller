@@ -123,7 +123,7 @@ class Agros2D(Platform):
         Exports the given value from the agros2d with the given coordinates.
 
         :param action: 'point_value', 'mesh_info', 'integration'
-        :param entity: looking for the closest mesh element (entity) at the given point.
+        :param entity:  list, looking for the closest mesh element (entity) at the given point. [x1,y1]
         :variable: W_m, exports the magnetic field energy at the given location.
         """
         mappings = {
