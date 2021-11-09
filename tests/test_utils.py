@@ -103,3 +103,9 @@ class TestUtils(unittest.TestCase):
     def test_matplotlib_setup(self):
         # checks if the matplotlib template works correctly, if not it fails.
         u.setup_matplotlib()
+
+
+    def test_depracted(self):
+        f = u.deprecated(lambda x: x**2)
+        with self.assertWarns(DeprecationWarning):
+            f(2.2)

@@ -17,7 +17,7 @@ class TestGMSHWriter(TestCase):
         geo.import_svg(eml.as_posix())
         # set the tolerance to merge the given lines
         geo.epsilon = 1e-6
-        geo.merge_points()
+        # geo.merge_points()
         geo.merge_lines()
         # there is only one described surface exists in the given geometry
         surfaces = geo.find_surfaces()
@@ -44,7 +44,7 @@ class TestGMSHWriter(TestCase):
         geo.import_svg(eml.as_posix())
         # set the tolerance to merge the given lines
         geo.epsilon = 1e-6
-        geo.merge_points()
+        # geo.merge_points()
 
         # there is only one described surface exists in the given geometry
         surfaces = geo.find_surfaces()

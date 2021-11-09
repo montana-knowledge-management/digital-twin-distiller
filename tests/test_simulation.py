@@ -16,7 +16,7 @@ DEFAULT_REQ = {
     "model": {},
     "tolerances": {
         "type": "ff",
-        "parameters": {"x0": 0.5},
+        "parameters": {"x0": 1, "mw":1},
         "variables": ["T"]
     },
     "misc": {
@@ -41,11 +41,10 @@ class TestSimulation(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        pass
         # CLEANUP SECTION
 
         # clean up the modeldir
-        # purge_dir(MODELPATH) # DO NOT MODIFY THIS LINE
+        purge_dir(MODELPATH) # DO NOT MODIFY THIS LINE
 
     def test_init(self):
         sim1 = SimulationProject(None)
@@ -81,14 +80,25 @@ class TestSimulation(unittest.TestCase):
 
         sim1.update_input()
 
-        self.assertAlmostEqual(sim1.cfg_tolerances["parameters"]["x0"], 0.5, delta=1e-12)
+        self.assertAlmostEqual(sim1.cfg_tolerances["parameters"]["x0"], 1.0, delta=1e-12)
         self.assertTrue('T' in sim1.cfg_tolerances['variables'])
         self.assertTrue(sim1.cfg_tolerances['type'], 'ff')
 
 
-    # def test_run(self):
-    #     sim1 = SimulationProject(self.modelclass)
-    #     sim1._input = DEFAULT_REQ
-    #     sim1._load_defaults()
-    #
-    #     sim1.update_input()
+    def test_run(self):
+        def default_sim(model, modelparams, simparams, miscparams):
+            x0 = modelparams['x0']
+            mw = modelparams['mw']
+            return {'T': 1+x0*10 + mw*100}
+
+
+        sim1 = SimulationProject(self.modelclass)
+        sim1._input = DEFAULT_REQ
+        sim1._load_defaults()
+        sim1.update_input()
+
+        sim1.register('default')(default_sim)
+
+
+        sim1.run()
+        self.assertAlmostEqual(sim1._output['res']['T'], 511.0)

@@ -108,7 +108,6 @@ class TestGeometry(TestCase):
         geo.add_line(l2)
         geo.add_line(l3)
 
-        geo.merge_points()
         geo.merge_lines()
 
         self.assertEqual(3, len(geo.nodes))
@@ -132,7 +131,7 @@ class TestGeometry(TestCase):
         geo.import_svg(eml.as_posix())
         # set the tolerance to merge the given lines
         geo.epsilon = 1e-6
-        geo.merge_points()
+
         geo.merge_lines()
         # there is only one described surface exists in the given geometry
         surfaces = geo.find_surfaces()

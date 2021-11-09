@@ -43,7 +43,7 @@ class GMSHModel:
         gmsh_edges = []  # the id numbers for the gmsh edges
 
         with gmsh.Geometry() as geom:
-            self.geometry.merge_points()
+            # self.geometry.merge_points()
             surfaces = self.geometry.find_surfaces()
 
             # the code iterates over the different element types
