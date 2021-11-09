@@ -1,9 +1,6 @@
 import unittest
 from multiprocessing import Process
 from pathlib import Path
-from time import sleep
-
-import requests
 
 from digital_twin_distiller.__main__ import new
 from digital_twin_distiller.modelpaths import ModelDir

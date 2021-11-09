@@ -74,7 +74,7 @@ class Platform(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def export_metrics(self, action, entity, variable):
+    def export_results(self, action, entity, variable):
         ...
 
     @abstractmethod

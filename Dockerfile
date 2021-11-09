@@ -25,7 +25,7 @@ RUN apt-get update \
 COPY requirements.txt .
 # Use this to fast install packages
 RUN pip3 install --no-cache-dir -r requirements.txt
-RUN echo "/ADZE/" > /usr/local/lib/python3.8/site-packages/adze.pth
+RUN echo "/ADZE/" > /usr/local/lib/python3.8/site-packages/digital-twin-distiller.pth
 
 
 # WINE

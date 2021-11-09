@@ -117,7 +117,15 @@ class Agros2D(Platform):
 
         self.write(f'f = open(r"{self.metadata.file_metrics_name}", "w")')
 
-    def export_metrics(self, action, entity, variable):
+    # TODO: check!
+    def export_results(self, action, entity, variable):
+        """
+        Exports the given value from the agros2d with the given coordinates.
+
+        :param action: 'point_value', 'mesh_info', 'integration'
+        :param entity: looking for the closest mesh element (entity) at the given point.
+        :variable: W_m, exports the magnetic field energy at the given location.
+        """
         mappings = {
             "Bx": "Brx",
             "By": "Bry",
