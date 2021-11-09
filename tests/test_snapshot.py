@@ -100,11 +100,13 @@ class TestSnapshotAgros2D(unittest.TestCase):
 
     # TODO: ??
     def test_export(self):
+        # compares the created model with a reference script
         s = self.get_snapshot()
         s.add_material(Material("air"))
         s.assign_material(0, 0, "air")
         s.add_geometry(self.get_geometry())
         s.add_boundary_condition(DirichletBoundaryCondition("d0", field_type="magnetic", magnetic_potential=30))
+        s.add_boundary_condition(NeumannBoundaryCondition("n0", field_type="magnetic", surface_current=0))
         f = MockFileHandle()
         # s.export()
         s.export(f)

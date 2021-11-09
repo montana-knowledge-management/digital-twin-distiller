@@ -20,6 +20,7 @@ magnetic.add_material("air", {'magnetic_remanence_angle': 0.0, 'magnetic_velocit
 
 # BOUNDARY DEFINITIONS
 magnetic.add_boundary("d0", "magnetic_potential", {'magnetic_potential_real': 30})
+magnetic.add_boundary("n0", "magnetic_surface_current", {'magnetic_surface_current_real': 0})
 
 # GEOMETRY
 geometry.add_edge(-0.001, 0.0, 0.001, 0.0)
