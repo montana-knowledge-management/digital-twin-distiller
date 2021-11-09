@@ -9,7 +9,7 @@ from digital_twin_distiller.model import BaseModel
 from digital_twin_distiller.modelpaths import ModelDir
 
 
-class Simulation:
+class SimulationProject:
     app_name = "digital twin project"
 
     def __init__(self, model: BaseModel = None):
@@ -225,4 +225,4 @@ class Simulation:
         return _decorator
 
 
-sim = Simulation()
+sim = SimulationProject()

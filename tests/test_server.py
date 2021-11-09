@@ -1,9 +1,11 @@
 import unittest
 from pathlib import Path
+import requests
+from time import sleep
 
 from digital_twin_distiller.__main__ import new
 from digital_twin_distiller.modelpaths import ModelDir
-from digital_twin_distiller.simulation import sim
+from digital_twin_distiller.simulationproject import sim
 from digital_twin_distiller.server import Server
 from multiprocessing import Process
 from digital_twin_distiller.utils import purge_dir
@@ -13,7 +15,10 @@ MODELNAME = 'TestModel'
 MODELPATH = CURRENT / MODELNAME
 
 class TestIntegratedServer(unittest.TestCase):
-    def test_server(self):
+    serverprocess=None
+
+    @classmethod
+    def setUpClass(cls):
         # creates a dummy model
         new(MODELNAME, CURRENT)
 
@@ -30,22 +35,36 @@ class TestIntegratedServer(unittest.TestCase):
         model = Server(sim)
 
         # Create a new Process object
-        serverprocess = Process(target=model)
+        cls.serverprocess = Process(name='testserver_process',
+                                    target=model,
+                                    daemon=True)
 
         # Fire up the server in a new process
-        serverprocess.start()
+        cls.serverprocess.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        # CLEANUP SECTION
+
+        # kill the serverprocess
+        cls.serverprocess.kill()
+
+        # clean up the modeldir
+        purge_dir(MODELPATH) # DO NOT MODIFY THIS LINE
+
+    def test_ping(self):
+        # sleep(3)
+        url = "http://0.0.0.0:5000"
+        res = requests.get(f'{url}/apidocs', timeout=10,)
+        self.assertEqual(res.status_code, 200)
+
 
         # TESTING SECTION
         # Testing goes here, use requests library to pass requests to the server.
 
 
-        # CLEANUP SECTION
 
-        # kill the serverprocess
-        serverprocess.kill()
 
-        # clean up the modeldir
-        purge_dir(MODELPATH) # DO NOT MODIFY THIS LINE
 
 
 

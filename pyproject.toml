@@ -46,8 +46,10 @@ pytest = "*"
 gitlint = "*"
 isort = "*"
 pyupgrade = "^2.29"
-
 pylint = "^2.11.1"
+requests = "^2.26.0"
+
+
 # build system setup
 [build-system]
 requires = ["poetry-core>=1.0.0"]

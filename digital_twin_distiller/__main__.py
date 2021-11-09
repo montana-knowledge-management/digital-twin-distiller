@@ -4,8 +4,23 @@ import subprocess
 from os import chdir, getcwd
 from pathlib import Path
 from shutil import copy
+import json
 
 from digital_twin_distiller.modelpaths import ModelDir
+
+DEFAULT_MODEL = {"x0": 1.0,
+                 "mw": 5,
+}
+DEFAULT_SIMULATION = {
+    "default": {"t0": 0.0,
+                 "t1": 5.3,
+                 "nstep": 101},
+}
+DEFAULT_MISC = {
+    "processes": 4,
+    "cleanup": True
+}
+
 
 
 def new(name, location):
@@ -46,13 +61,13 @@ def new(name, location):
 
     #  default json-s
     with open(ModelDir.DEFAULTS / "model.json", "w") as f:
-        f.write("{}")
+        json.dump(DEFAULT_MODEL, f, indent=2)
 
     with open(ModelDir.DEFAULTS / "simulation.json", "w") as f:
-        print("{", '  "default": {}', "}", sep="\n", file=f)
+        json.dump(DEFAULT_SIMULATION, f, indent=2)
 
     with open(ModelDir.DEFAULTS / "misc.json", "w") as f:
-        f.write("{}")
+        json.dump(DEFAULT_MISC, f, indent=2)
 
     # replace the model name in the files
     for file_i in DST.rglob("*"):

@@ -63,6 +63,8 @@ class TestUtils(unittest.TestCase):
 
     def test_rms(self):
         result = u.rms((1, 1, 1))
+        # TODO: float-int comparison is unstable, it would be
+        # better to use assertAlmostEqual(result, 1.0, delta=1e-12)
         self.assertEqual(result, 1)
 
     def test_pairwise(self):

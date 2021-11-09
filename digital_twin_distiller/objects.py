@@ -232,6 +232,9 @@ class Line:
         return reqAns
 
     def __eq__(self, other):
+        """
+        TODO: docstring here
+        """
         d1 = self.start_pt.distance_to(other.start_pt)
         d2 = self.start_pt.distance_to(other.end_pt)
         d3 = self.end_pt.distance_to(other.start_pt)

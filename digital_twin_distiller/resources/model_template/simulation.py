@@ -4,7 +4,7 @@ from model import ${name}
 
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.server import Server
-from digital_twin_distiller.simulation import sim
+from digital_twin_distiller.simulationproject import sim
 
 
 def execute_model(model: ${name}):

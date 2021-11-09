@@ -14,7 +14,7 @@ from importlib_resources import files
 from pydantic import BaseModel, Extra
 
 from digital_twin_distiller.modelpaths import ModelDir
-from digital_twin_distiller.simulation import Simulation
+from digital_twin_distiller.simulationproject import SimulationProject
 
 
 class InputJson(BaseModel):
@@ -139,7 +139,7 @@ class Server:
     Server for running a custom project as an API.
     """
 
-    def __init__(self, project: Simulation):
+    def __init__(self, project: SimulationProject):
         self.app = app
         self.app.doc_templates = Jinja2Templates(
             directory=files("digital_twin_distiller") / "resources" / "doc_template" / "site"
