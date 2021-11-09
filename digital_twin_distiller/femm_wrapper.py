@@ -1660,7 +1660,7 @@ class FemmExecutor:
     femm_path_windows = r"C:\femm42\bin\femm.exe"
     executable = femm_path_linux
 
-    def run_femm(self, script_file, timeout=10):
+    def run_femm(self, script_file, timeout=10, debug=False):
         """This function runs the femm simulation via filelink"""
 
         cmd_list = []
@@ -1679,6 +1679,9 @@ class FemmExecutor:
             cmd_list.append(FemmExecutor.executable)
             cmd_list.append(f"-lua-script={script_file}")
             cmd_list.append("-windowhide")
+
+        if debug:
+            return ' '.join(cmd_list)
 
         proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         timer = Timer(timeout, proc.kill)
