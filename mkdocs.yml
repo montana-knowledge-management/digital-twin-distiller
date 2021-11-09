@@ -1,7 +1,7 @@
-site_name: Adze-modeler
-site_url: https://github.com/robust-design-stack/adze-modeler
-repo_url: https://github.com/robust-design-stack/adze-modeler
-repo_name: robust-design-stack/adze-modeler
+site_name: Digital-Twin-Distiller
+site_url: https://github.com//montana-knowledge-management/digital-twin-distiller
+repo_url: https://github.com//montana-knowledge-management/digital-twin-distiller
+repo_name: montana-knowledge-management/digital-twin-distiller
 
 nav:
   - Home: index.md
