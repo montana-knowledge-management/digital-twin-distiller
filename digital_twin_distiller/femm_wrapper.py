@@ -749,38 +749,38 @@ class FemmWriter:
 
         return cmd
 
-    def add_bhcurve(self, material: MagneticMaterial, file_name, first_column, separator):
-        """
-        This function adds nonlinear property to an already added linear
-        material.
-
-        :param material: The material that is being assigned as nonlinear.
-        :param file_name: The location of the file that contains the h-b points
-        :param first_column: Assign the first column as either "h" or "b"
-        :param separator: The separator that is used in the file
-        """
-        cmd = ""
-        with open(file_name) as f:
-            h = 0
-            b = 0
-            if first_column.lower() == "h":
-                h = 0
-                b = 1
-            else:
-                h = 1
-                b = 0
-
-            for line in f.readlines():
-                try:
-                    line = [float(li) for li in line.strip().split(separator)]
-                    cmd += f'mi_addbhpoint("{material.material_name}", {line[b]}, {line[h]})\n'
-                except ValueError:
-                    continue
-
-        if self.push:
-            self.lua_model.append(cmd)
-        else:
-            return cmd
+    # def add_bhcurve(self, material: MagneticMaterial, file_name, first_column, separator):
+    #     """
+    #     This function adds nonlinear property to an already added linear
+    #     material.
+    #
+    #     :param material: The material that is being assigned as nonlinear.
+    #     :param file_name: The location of the file that contains the h-b points
+    #     :param first_column: Assign the first column as either "h" or "b"
+    #     :param separator: The separator that is used in the file
+    #     """
+    #     cmd = ""
+    #     with open(file_name) as f:
+    #         h = 0
+    #         b = 0
+    #         if first_column.lower() == "h":
+    #             h = 0
+    #             b = 1
+    #         else:
+    #             h = 1
+    #             b = 0
+    #
+    #         for line in f.readlines():
+    #             try:
+    #                 line = [float(li) for li in line.strip().split(separator)]
+    #                 cmd += f'mi_addbhpoint("{material.material_name}", {line[b]}, {line[h]})\n'
+    #             except ValueError:
+    #                 continue
+    #
+    #     if self.push:
+    #         self.lua_model.append(cmd)
+    #     else:
+    #         return cmd
 
     def delete_selected_nodes(self):
         """

@@ -195,6 +195,10 @@ class Femm(Platform):
             # to achieve this the start node rotated with deg/2
             radius = e.start_pt.distance_to(e.center_pt)
             clamp = e.start_pt.distance_to(e.end_pt) / 2.0
+            # GK: TODO: the next line will raise an exception if the arc is a half circle:
+            # the start, center, end points will be on the same line therefore radius == clamp/2
+            # and asin(1) -> inf. possible solution is to put this into a try block as in the 
+            # objects.CircleArc.__init__ function.
             theta = round(asin(clamp / radius) * 180 / pi * 2, 2)
 
             self.write(

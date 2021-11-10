@@ -6,10 +6,11 @@ from digital_twin_distiller.boundaries import DirichletBoundaryCondition, Neuman
 from digital_twin_distiller.geometry import Geometry
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import Agros2DMetadata, FemmMetadata
-from digital_twin_distiller.objects import Line, Node
+from digital_twin_distiller.objects import CircleArc, Line, Node
 from digital_twin_distiller.platforms.agros2d import Agros2D
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
+from digital_twin_distiller.femm_wrapper import femm_magnetic, femm_electrostatic, femm_current_flow, femm_heat_flow
 
 
 class MockFileHandle:
@@ -179,6 +180,32 @@ class TestSnapshotFemm(unittest.TestCase):
             metadata.compatible_platform,
         )
 
+    def test_platform_init(self):
+        metadata = self.get_metadata()
+        platform = Femm(metadata)
+        self.assertEqual(platform.writer.field, femm_magnetic)
+
+        metadata = self.get_metadata()
+        metadata.problem_type = 'electrostatic'
+        platform = Femm(metadata)
+        self.assertEqual(platform.writer.field, femm_electrostatic)
+
+        metadata = self.get_metadata()
+        metadata.problem_type = 'heat'
+        platform = Femm(metadata)
+        self.assertEqual(platform.writer.field, femm_heat_flow)
+
+        metadata = self.get_metadata()
+        metadata.problem_type = 'current'
+        platform = Femm(metadata)
+        self.assertEqual(platform.writer.field, femm_current_flow)
+
+        metadata = self.get_metadata()
+        metadata.problem_type = 'falsefield'
+        with self.assertRaises(ValueError):
+            Femm(metadata)
+
+
     def test_set_add_boundary_condition(self):
         s = self.get_snapshot()
         s.add_boundary_condition(DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3))
@@ -274,6 +301,51 @@ class TestSnapshotFemm(unittest.TestCase):
         # running should cause an exception
         self.assertRaises(Exception, s.execute(cleanup=True))
 
-if __name__ == "__main__":
-    t = TestSnapshotAgros2D()
-    t.test_export()
+    def test_export_geometry_entities(self):
+        s = self.get_snapshot()
+        s.add_boundary_condition(DirichletBoundaryCondition("eper", "magnetic", magnetic_potential=3))
+        g = Geometry()
+        f = MockFileHandle()
+        n0 = Node(0, 0)
+        n1 = Node(1, 0)
+        n2 = Node(1, 1)
+        n3 = Node(0, 1)
+
+        l1 = Line(n0, n1)
+        l2 = Line(n1, n2)
+        l3 = Line(n2, n3)
+        l4 = Line(n3, n0)
+
+        c1 = CircleArc(Node(0, 0.5), Node(0.5, 0.5), Node(1, 0.5))
+
+        g.add_node(n0)
+        g.add_node(n1)
+        g.add_node(n2)
+        g.add_node(n3)
+
+        g.add_line(l1)
+        g.add_line(l2)
+        g.add_line(l3)
+        g.add_line(l4)
+
+        g.add_arc(c1)
+
+        s.add_geometry(g)
+        s.assign_boundary_condition(0.5, 0, name="eper")
+        s.export(f)
+
+
+        self.assertIn(r'mi_addnode(0, 0)', f.content)
+        self.assertIn(r'mi_addnode(1, 0)', f.content)
+        self.assertIn(r'mi_addnode(1, 1)', f.content)
+        self.assertIn(r'mi_addnode(0, 1)', f.content)
+        self.assertIn(r'mi_addnode(0, 0.5)', f.content)
+        self.assertIn(r'mi_addnode(1, 0.5)', f.content)
+        self.assertIn(r'mi_addsegment(0, 0, 1, 0)', f.content)
+        self.assertIn(r'mi_selectsegment(0.5, 0.0)', f.content)
+        self.assertIn(r'mi_setsegmentprop("eper", None, 1, 0, 0, "<None>")', f.content)
+        self.assertIn(r'mi_clearselected()', f.content)
+        self.assertIn(r'mi_addsegment(1, 0, 1, 1)', f.content)
+        self.assertIn(r'mi_addsegment(1, 1, 0, 1)', f.content)
+        self.assertIn(r'mi_addsegment(0, 1, 0, 0)', f.content)
+        self.assertIn(r'mi_addarc(0, 0.5, 1, 0.5, 180.0, 20)', f.content)

@@ -9,3 +9,4 @@ from digital_twin_distiller.boundaries import (
 from digital_twin_distiller.objects import CircleArc, Line, Node, ParametricBezier, Rectangle
 
 from digital_twin_distiller.material import Material
+from digital_twin_distiller.geometry import Geometry
