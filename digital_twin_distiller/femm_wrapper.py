@@ -1687,6 +1687,7 @@ class FemmExecutor:
         timer = Timer(timeout, proc.kill)
         try:
             timer.start()
-            stdout, stderr = proc.communicate()
+            # stdout, stderr = proc.communicate()
+            proc.communicate()
         finally:
             timer.cancel()

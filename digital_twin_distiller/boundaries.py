@@ -1,5 +1,3 @@
-from digital_twin_distiller.utils import getID
-
 
 class BoundaryCondition:
     accepted_keys = {

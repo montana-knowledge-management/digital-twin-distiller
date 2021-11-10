@@ -7,7 +7,6 @@ from pathlib import Path
 from statistics import fmean
 from uuid import uuid4
 
-import matplotlib.pyplot
 import matplotlib.pyplot as plt
 from numpy import linspace
 from numpy.polynomial import Polynomial as P
