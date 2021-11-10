@@ -10,12 +10,25 @@ class TestNodeOperations(TestCase):
         # initialize without an id number
         self.assertEqual((1.0, 1.0), Node(1.0, 1.0).as_tuple())
 
+    def test_getitem(self):
+        n = Node(-1, 3)
+        self.assertAlmostEqual(n[0], -1, delta=1e-12)
+        self.assertAlmostEqual(n[1],  3, delta=1e-12)
+
+        with self.assertRaises(IndexError):
+            print(n[100])
+
     def test_operators(self):
         n0 = Node(5, -1)
         n1 = Node(-5, 1)
         n0 = n0 + n1
         self.assertEqual(n0, Node(0, 0))
         self.assertEqual(n0 + 6, Node(6, 6))
+
+        n0 = Node(2, -43)
+        n0 = n0 + (-2, 43)
+        self.assertAlmostEqual(n0.x, 0.0, delta=1e-12)
+        self.assertAlmostEqual(n0.y, 0.0, delta=1e-12)
 
     def test_iter(self):
         n0 = Node(9, 6)
@@ -62,6 +75,11 @@ class TestNodeOperations(TestCase):
         n1 = Node(0, 1)
         self.assertAlmostEqual(n0.angle_to(n1), 355 / 113 / 2, 3)
 
+    def test_mean(self):
+        n0 = Node(10, 10)
+        n1 = Node(-10, -10)
+        m = n0.mean(n1)
+        self.assertEqual(m, Node(0.0, 0.0))        
 
 class TestLine(TestCase):
     def test_init_line(self):
@@ -103,6 +121,10 @@ class TestArc(TestCase):
         self.assertEqual(c.apex_pt, Node(0, -1))
         self.assertAlmostEqual(c.radius, 1.0, 5)
 
+
+        c2 = CircleArc(Node(-1, 0), Node(0,0), Node(1,0))
+        self.assertEqual(c2.center_pt, Node(0, 0))
+
     def test_copy(self):
         c = CircleArc(start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0))
         c1 = copy(c)
@@ -121,6 +143,17 @@ class TestArc(TestCase):
         self.assertAlmostEqual(c.distance_to_point(-5, 0), 4.0, 5)
         self.assertAlmostEqual(c.distance_to_point(0, -5), 4.0, 5)
 
+    def test_from_rad(self):
+        n0 = Node(-1, 0)
+        n1 = Node(1, 0)
+
+        c = CircleArc.from_radius(n0, n1, 1)
+        self.assertAlmostEqual(c.center_pt, Node(0, 0))
+
+    def test_eq(self):
+        c0 = CircleArc(Node(-1, 0), Node(0, 0), Node(1, 0))
+        c1 = CircleArc.from_radius(Node(-1, 0), Node(1, 0), 1)
+        self.assertEqual(c0, c1)
 
 class TestCubicBezier(TestCase):
     def test_init_bezier(self):
@@ -187,7 +220,7 @@ class TestParametricBezier(TestCase):
 
         with self.assertRaises(AssertionError):
             x, y = bz(5)
-
+    
 
 class TesRectangle(TestCase):
     def test_creation(self):
