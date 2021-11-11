@@ -237,6 +237,8 @@ def purge_dir(location, force=False):
                 "by using the force=True flag. BE CAREFUL! It will delete everything that is located"
                 " under the files parent directory!"
             )
+    if not location.exists():
+        return False
 
     # print('Deleting everything under:', location)
     dirs = []
