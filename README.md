@@ -5,6 +5,7 @@
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/robust-design-stack/adze-modeler.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/robust-design-stack/adze-modeler/context:python)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Code Style](https://badgen.net/badge/Code%20Style/black?labelColor=2e3a44&color=000000)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/robust-design-stack/Adze-modeler">
 
 
