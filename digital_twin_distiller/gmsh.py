@@ -49,7 +49,7 @@ class GMSHModel:
 
                 # firstly, we have to build a closed loop from the edges of the surface, this closed loop should be
                 # a directed graph, therefore it is important to write out the lines in the right order
-                closed_loop = []
+                # closed_loop = []
                 start_point = None
                 end_point = None
                 for index, edge in enumerate(sf):
@@ -125,7 +125,8 @@ class GMSHModel:
                 geom.add_physical(val, label=key)
 
             # geom.save_geometry(file_name + '.geo_unrolled') physical domain saving not working with it
-            mesh = geom.generate_mesh(dim=self.dim)
+            # mesh = geom.generate_mesh(dim=self.dim)
+            geom.generate_mesh(dim=self.dim)
             std_gmsh.write(file_name + ".msh")
             std_gmsh.write(file_name + ".geo_unrolled")
             std_gmsh.clear()
