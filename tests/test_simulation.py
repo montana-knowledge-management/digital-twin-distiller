@@ -3,7 +3,7 @@ from pathlib import Path
 
 from digital_twin_distiller.__main__ import new
 from digital_twin_distiller.modelpaths import ModelDir
-from digital_twin_distiller.simulationproject import SimulationProject, sim
+from digital_twin_distiller.simulationproject import SimulationProject
 from digital_twin_distiller.utils import purge_dir
 
 CURRENT = Path(__file__).parent
@@ -35,6 +35,7 @@ class TestSimulation(unittest.TestCase):
     def tearDownClass(cls):
         # CLEANUP SECTION
 
+
         # clean up the modeldir
         purge_dir(MODELPATH)  # DO NOT MODIFY THIS LINE
 
@@ -60,7 +61,7 @@ class TestSimulation(unittest.TestCase):
         self.assertAlmostEqual(sim1.cfg_simulation["t1"], 5.3, delta=1e-12)
         self.assertEqual(int(sim1.cfg_simulation["nstep"]), 101)
 
-        self.assertFalse(sim.cfg_tolerances)
+        self.assertFalse(sim1.cfg_tolerances)
 
         self.assertEqual(sim1.cfg_misc["processes"], 4)
         self.assertEqual(sim1.cfg_misc["cleanup"], True)
