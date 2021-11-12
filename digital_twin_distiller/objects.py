@@ -4,7 +4,7 @@ from copy import copy
 
 from numpy import linspace
 
-from digital_twin_distiller.utils import getID, mirror_point, pairwise
+from digital_twin_distiller.utils import getID, mirror_point, pairwise, get_phi
 
 
 class Node:
@@ -84,6 +84,32 @@ class Node:
 
     def __abs__(self):
         return self.length()
+
+    def __lt__(self, o):
+        """
+        This function compares the operands l2 value with its l2 value. If they're equal (whitin tolerance)
+        that means the nodes are on the same circle. If that's the case then check their angle return accordingly.
+        If the l2 values are different then one node is obviously bigger than the other. In that case check the
+        differences sign.
+        :param o: other Node
+        :return: True or False
+        """
+        diff = abs(self) - abs(o)
+        tol = 1e-5
+
+        phi_self = get_phi(*self, tol=tol)
+        phi_other = get_phi(*o, tol=tol)
+
+        if abs(diff) < tol:
+            # They're on the same circle, more checks needed to decide
+            if (phi_self - phi_other) < - tol:
+                return True
+            else:
+                return False
+        elif diff < -tol:
+            return True
+        else:
+            return False
 
     def length(self):
         return math.sqrt(self.x ** 2 + self.y ** 2)
