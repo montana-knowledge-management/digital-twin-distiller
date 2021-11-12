@@ -285,3 +285,17 @@ def deprecated(func):
         return func(*args, **kwargs)
 
     return new_func
+
+def get_phi(x, y, tol=1e-5):
+    """
+    This function calculates the angle between a point and the x axis.
+    :return [0, 360]
+    """
+    phi = atan2(y, x) * 180.0 / pi
+
+    if phi < -tol:
+        phi += 360.0
+
+    phi = fmod(phi + tol, 360.0) - tol
+
+    return phi
