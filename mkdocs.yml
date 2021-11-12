@@ -1,12 +1,12 @@
-site_name: Adze-modeler
-site_url: https://github.com/robust-design-stack/adze-modeler
-repo_url: https://github.com/robust-design-stack/adze-modeler
-repo_name: robust-design-stack/adze-modeler
+site_name: Digital-Twin-Distiller
+site_url: https://github.com//montana-knowledge-management/digital-twin-distiller
+repo_url: https://github.com//montana-knowledge-management/digital-twin-distiller
+repo_name: montana-knowledge-management/digital-twin-distiller
 
 nav:
   - Home: index.md
   - Structure:
-    - BaseModel: adze/basemodel.md
+    - BaseModel: digital-twin-distiller/basemodel.md
   - Examples:
     - Current Balancing: examples/CurrentBalancing/readme.md
     - Transformer Fast Transients: examples/TransformerFasttransients/readme.md

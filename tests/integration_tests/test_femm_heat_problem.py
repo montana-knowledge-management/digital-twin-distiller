@@ -1,12 +1,15 @@
 import unittest
-from adze_modeler.femm_wrapper import femm_heat_flow
-from adze_modeler.femm_wrapper import FemmWriter
-from adze_modeler.femm_wrapper import HeatFlowConvection
-from adze_modeler.femm_wrapper import HeatFlowFixedTemperature
-from adze_modeler.femm_wrapper import HeatFlowMaterial
 from collections import Counter
 
 from importlib_resources import files
+
+from digital_twin_distiller.femm_wrapper import (
+    FemmWriter,
+    HeatFlowConvection,
+    HeatFlowFixedTemperature,
+    HeatFlowMaterial,
+    femm_heat_flow,
+)
 
 
 def c2k(C):
@@ -108,7 +111,21 @@ class TestFemmCurrentFlowProblem(unittest.TestCase):
 
                 for key in counter_reference.keys():
                     # print(f'|{key}|', counter_reference[key.rstrip()], counter_test[key + "\n"])
-                    self.assertEqual(counter_reference[key.rstrip()], counter_test[key + "\n"])
+
+                    # filter out path related commands
+                    if "remove(" in key:
+                        continue
+
+                    if "saveas" in key:
+                        continue
+
+                    if "openfile" in key:
+                        continue
+
+                    self.assertEqual(
+                        counter_reference[key.rstrip()],
+                        counter_test[key + "\n"],
+                    )
 
         except FileNotFoundError:
             self.assertTrue(False)

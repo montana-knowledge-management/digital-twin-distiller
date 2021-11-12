@@ -1,6 +1,7 @@
 import unittest
-from adze_modeler.material import Material
 from copy import copy
+
+from digital_twin_distiller.material import Material
 
 
 class TestMaterial(unittest.TestCase):

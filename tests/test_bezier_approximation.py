@@ -1,11 +1,10 @@
 import unittest
 import uuid
-from adze_modeler.geometry import Geometry
-from adze_modeler.objects import CubicBezier
-from adze_modeler.objects import Line
-from adze_modeler.objects import Node
 
 from importlib_resources import files
+
+from digital_twin_distiller.geometry import Geometry
+from digital_twin_distiller.objects import CubicBezier, Line, Node
 
 
 class TestBezierApprox(unittest.TestCase):

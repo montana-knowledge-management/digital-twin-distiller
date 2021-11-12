@@ -1,11 +1,11 @@
+import os
 import unittest
-from adze_modeler.femm_wrapper import FemmWriter
-from adze_modeler.femm_wrapper import MagneticMaterial
-from adze_modeler.femm_wrapper import MagneticMixed
 from collections import Counter
 from math import pi
-
+from os import remove
 from importlib_resources import files
+
+from digital_twin_distiller.femm_wrapper import FemmWriter, MagneticMaterial, MagneticMixed
 
 
 class TestFemmWriterWithExecutor(unittest.TestCase):
@@ -107,7 +107,22 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
 
                 for key in counter_reference.keys():
                     # print(f'|{key}|', counter_reference[key.rstrip()], counter_test[key + "\n"])
-                    self.assertEqual(counter_reference[key.rstrip()], counter_test[key + "\n"])
+                    # filter out path related commands
+                    if "remove(" in key:
+                        continue
+
+                    if "saveas" in key:
+                        continue
+
+                    if "openfile" in key:
+                        continue
+
+                    self.assertEqual(
+                        counter_reference[key.rstrip()],
+                        counter_test[key + "\n"],
+                    )
+
+            os.remove('magnetic_ref.lua')
 
         except FileNotFoundError:
             self.assertTrue(False)

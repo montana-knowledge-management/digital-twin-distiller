@@ -5,28 +5,35 @@ repos:
     rev: v2.13.0
     hooks:
       - id: pyupgrade
-        args: ["--py36-plus"]
-  - repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.5.0
-    hooks:
-      - id: reorder-python-imports
-        name: Reorder Python imports (src, tests)
-        files: "^(?!examples/)"
-        args: ["--application-directories", "src"]
+        # TODO: migrate this to pyproject.toml
+        args: ['--py39-plus', '--exit-zero-even-if-changed']
+
   - repo: https://github.com/psf/black
     rev: 21.4b0
     hooks:
       - id: black
-  - repo: https://github.com/PyCQA/flake8
-    rev: 3.9.1
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.8.0
     hooks:
-      - id: flake8
-        additional_dependencies:
-          - flake8-bugbear
-          - flake8-implicit-str-concat
+      - id: isort
+
+  - repo: https://github.com/pycqa/pylint
+    rev: v2.11.1
+    entry: pylint
+    files: '^digital_twin_distiller/'
+    types: [file, python]
+    hooks:
+      - id: pylint
+        args: [
+              "--rcfile=pyproject.toml",
+              "-j 4"]
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.4.0
     hooks:
+      - id: check-added-large-files
+      - id: check-yaml
+      - id: end-of-file-fixer
       - id: fix-byte-order-marker
       - id: trailing-whitespace
-      - id: end-of-file-fixer

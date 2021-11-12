@@ -1,10 +1,9 @@
 import unittest
-from adze_modeler.femm_wrapper import ElectrostaticMaterial
-from adze_modeler.femm_wrapper import femm_electrostatic
-from adze_modeler.femm_wrapper import FemmWriter
 from collections import Counter
 
 from importlib_resources import files
+
+from digital_twin_distiller.femm_wrapper import ElectrostaticMaterial, FemmWriter, femm_electrostatic
 
 
 class TestFemmElectrostaticProblem(unittest.TestCase):
@@ -76,7 +75,20 @@ class TestFemmElectrostaticProblem(unittest.TestCase):
 
                 for key in counter_reference.keys():
                     # print(f'|{key}|', counter_reference[key.rstrip()], counter_test[key + "\n"])
-                    self.assertEqual(counter_reference[key.rstrip()], counter_test[key + "\n"])
+                    # filter out path related commands
+                    if "remove(" in key:
+                        continue
+
+                    if "saveas" in key:
+                        continue
+
+                    if "openfile" in key:
+                        continue
+
+                    self.assertEqual(
+                        counter_reference[key.rstrip()],
+                        counter_test[key + "\n"],
+                    )
 
         except FileNotFoundError:
             self.assertTrue(False)

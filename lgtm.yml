@@ -1,0 +1,3 @@
+path_classifiers:
+  test:
+      - exclude: digital_twin_distiller/resources

@@ -1,6 +1,6 @@
 import unittest
-from adze_modeler.boundaries import DirichletBoundaryCondition
-from adze_modeler.boundaries import NeumannBoundaryCondition
+
+from digital_twin_distiller.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
 
 
 class TestDirichletBoundary(unittest.TestCase):
@@ -12,18 +12,32 @@ class TestDirichletBoundary(unittest.TestCase):
         bc = self.get_bc("alma", "magnetic")
         self.assertEqual("magnetic", bc.field)
 
-        self.assertRaises(ValueError, DirichletBoundaryCondition, name="alma", field_type="DummyFieldType")
+        self.assertRaises(
+            ValueError,
+            DirichletBoundaryCondition,
+            name="alma",
+            field_type="DummyFieldType",
+        )
 
     def test_proper_representation(self):
         bc = self.get_bc("alma", "magnetic")
         bc.set_value("magnetic_potential", 2)
-        self.assertEqual(bc.__str__(), "name: alma, type: magnetic-dirichlet, value(s): magnetic_potential: 2")
+        self.assertEqual(
+            bc.__str__(),
+            "name: alma, type: magnetic-dirichlet, value(s): magnetic_potential: 2",
+        )
 
     def test_init_with_values(self):
         bc = DirichletBoundaryCondition("alma", "electrostatic", fixed_voltage=10)
         self.assertEqual(bc.valuedict["fixed_voltage"], 10)
 
-        self.assertRaises(ValueError, DirichletBoundaryCondition, name="alma", field_type="heat", magnetic_potential=10)
+        self.assertRaises(
+            ValueError,
+            DirichletBoundaryCondition,
+            name="alma",
+            field_type="heat",
+            magnetic_potential=10,
+        )
 
     def test_magnetic_dirichlet_bc(self):
         bc = self.get_bc("a0", "magnetic")
@@ -65,18 +79,32 @@ class TestNeumannBoundary(unittest.TestCase):
         bc = self.get_bc("alma", "magnetic")
         self.assertEqual("magnetic", bc.field)
 
-        self.assertRaises(ValueError, NeumannBoundaryCondition, name="alma", field_type="DummyFieldType")
+        self.assertRaises(
+            ValueError,
+            NeumannBoundaryCondition,
+            name="alma",
+            field_type="DummyFieldType",
+        )
 
     def test_proper_representation(self):
         bc = self.get_bc("alma", "magnetic")
         bc.set_value("surface_current", 2)
-        self.assertEqual(bc.__str__(), "name: alma, type: magnetic-neumann, value(s): surface_current: 2")
+        self.assertEqual(
+            bc.__str__(),
+            "name: alma, type: magnetic-neumann, value(s): surface_current: 2",
+        )
 
     def test_init_with_values(self):
         bc = NeumannBoundaryCondition("alma", "electrostatic", surface_charge_density=10)
         self.assertEqual(bc.valuedict["surface_charge_density"], 10)
 
-        self.assertRaises(ValueError, NeumannBoundaryCondition, name="alma", field_type="heat", magnetic_potential=10)
+        self.assertRaises(
+            ValueError,
+            NeumannBoundaryCondition,
+            name="alma",
+            field_type="heat",
+            magnetic_potential=10,
+        )
 
     def test_magnetic_neumann_bc(self):
         bc = self.get_bc("a0", "magnetic")

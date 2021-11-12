@@ -1,12 +1,8 @@
-from adze_modeler.objects import CircleArc
-from adze_modeler.objects import CubicBezier
-from adze_modeler.objects import Line
-from adze_modeler.objects import Node
-from adze_modeler.objects import ParametricBezier
-from adze_modeler.objects import Rectangle
 from copy import copy
 from math import pi
 from unittest import TestCase
+
+from digital_twin_distiller.objects import CircleArc, CubicBezier, Line, Node, ParametricBezier, Rectangle
 
 
 class TestNodeOperations(TestCase):
@@ -14,12 +10,25 @@ class TestNodeOperations(TestCase):
         # initialize without an id number
         self.assertEqual((1.0, 1.0), Node(1.0, 1.0).as_tuple())
 
+    def test_getitem(self):
+        n = Node(-1, 3)
+        self.assertAlmostEqual(n[0], -1, delta=1e-12)
+        self.assertAlmostEqual(n[1],  3, delta=1e-12)
+
+        with self.assertRaises(IndexError):
+            print(n[100])
+
     def test_operators(self):
         n0 = Node(5, -1)
         n1 = Node(-5, 1)
         n0 = n0 + n1
         self.assertEqual(n0, Node(0, 0))
         self.assertEqual(n0 + 6, Node(6, 6))
+
+        n0 = Node(2, -43)
+        n0 = n0 + (-2, 43)
+        self.assertAlmostEqual(n0.x, 0.0, delta=1e-12)
+        self.assertAlmostEqual(n0.y, 0.0, delta=1e-12)
 
     def test_iter(self):
         n0 = Node(9, 6)
@@ -66,6 +75,11 @@ class TestNodeOperations(TestCase):
         n1 = Node(0, 1)
         self.assertAlmostEqual(n0.angle_to(n1), 355 / 113 / 2, 3)
 
+    def test_mean(self):
+        n0 = Node(10, 10)
+        n1 = Node(-10, -10)
+        m = n0.mean(n1)
+        self.assertEqual(m, Node(0.0, 0.0))        
 
 class TestLine(TestCase):
     def test_init_line(self):
@@ -107,6 +121,10 @@ class TestArc(TestCase):
         self.assertEqual(c.apex_pt, Node(0, -1))
         self.assertAlmostEqual(c.radius, 1.0, 5)
 
+
+        c2 = CircleArc(Node(-1, 0), Node(0,0), Node(1,0))
+        self.assertEqual(c2.center_pt, Node(0, 0))
+
     def test_copy(self):
         c = CircleArc(start_pt=Node(-1, 0), center_pt=Node(0, 0), end_pt=Node(1, 0))
         c1 = copy(c)
@@ -125,6 +143,17 @@ class TestArc(TestCase):
         self.assertAlmostEqual(c.distance_to_point(-5, 0), 4.0, 5)
         self.assertAlmostEqual(c.distance_to_point(0, -5), 4.0, 5)
 
+    def test_from_rad(self):
+        n0 = Node(-1, 0)
+        n1 = Node(1, 0)
+
+        c = CircleArc.from_radius(n0, n1, 1)
+        self.assertAlmostEqual(c.center_pt, Node(0, 0))
+
+    def test_eq(self):
+        c0 = CircleArc(Node(-1, 0), Node(0, 0), Node(1, 0))
+        c1 = CircleArc.from_radius(Node(-1, 0), Node(1, 0), 1)
+        self.assertEqual(c0, c1)
 
 class TestCubicBezier(TestCase):
     def test_init_bezier(self):
@@ -150,34 +179,33 @@ class TestCubicBezier(TestCase):
 
 class TestParametricBezier(TestCase):
     def test_init(self):
-        bz = ParametricBezier(start_pt=(1, 0), end_pt=(10, 0), c1=(2, 2), c2=(5, 5))
+        bz = ParametricBezier((1, 0), (2, 2), (5, 5), (10, 0))
         self.assertEqual(bz.p0, (1, 0))
         self.assertEqual(bz.p1, (2, 2))
         self.assertEqual(bz.p2, (5, 5))
         self.assertEqual(bz.p3, (10, 0))
 
     def test_set(self):
-        bz = ParametricBezier(start_pt=(1, 0), end_pt=(10, 0), c1=(2, 2), c2=(5, 5))
+        bz = ParametricBezier((1, 0), (2, 2), (5, 5), (10, 0))
 
-        bz.set(start_pt=(0, 0))
+        bz.set(start=(0, 0))
         self.assertEqual(bz.p0, (0, 0))
         self.assertEqual(bz.p1, (2, 2))
         self.assertEqual(bz.p2, (5, 5))
         self.assertEqual(bz.p3, (10, 0))
 
     def test_approximate(self):
-        bz = ParametricBezier(start_pt=(0, 0), end_pt=(10, 0), c1=(2.5, 0), c2=(7.5, 0))
+        bz = ParametricBezier((0, 0), (2.5, 0), (7.5, 0), (10, 0))
 
-        xref, yref = [0, 5.0, 5.0, 10], [0, 0.0, 0.0, 0]
-        xapp, yapp = bz.approximate(1)
-        for xi_r, xi_app in zip(xref, xapp):
-            self.assertAlmostEqual(xi_r, xi_app)
-
-        for yi_r, yi_app in zip(yref, yapp):
-            self.assertAlmostEqual(yi_r, yi_app)
+        reflines = [
+            Line(Node(0, 0), Node(5.0, 0)),
+            Line(Node(5.0, 0), Node(10.0, 0)),
+        ]
+        for refl, l in zip(reflines, bz.approximate(2)):
+            self.assertEqual(refl, l)
 
     def test_call(self):
-        bz = ParametricBezier(start_pt=(0, 0), end_pt=(10, 0), c1=(2.5, 0), c2=(7.5, 0))
+        bz = ParametricBezier((0, 0), (2.5, 0), (7.5, 0), (10, 0))
         x, y = bz(0)
         self.assertAlmostEqual(x, 0.0, 5)
         self.assertAlmostEqual(y, 0.0, 5)
@@ -192,7 +220,7 @@ class TestParametricBezier(TestCase):
 
         with self.assertRaises(AssertionError):
             x, y = bz(5)
-
+    
 
 class TesRectangle(TestCase):
     def test_creation(self):
@@ -295,3 +323,8 @@ class TesRectangle(TestCase):
         self.assertEqual(r.d, r1.d)
         self.assertAlmostEqual(r.width, r1.width, 5)
         self.assertAlmostEqual(r.height, r1.height, 5)
+
+
+if __name__ == "__main__":
+    t = TestParametricBezier()
+    t.test_call()

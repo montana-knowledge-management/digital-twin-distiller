@@ -23,7 +23,7 @@ calculations. It sets up the proper paths and automatically builds, executes and
 retrives the results. The users only required to fill the provided abstract
 methods to get a fully functional model. If you are not familiar with the
 `BaseModel` class, we suggest to take a look at
-[this](../../adze/basemodel.md) section of the documentation.
+[this](../../digital-twin-distiller/basemodel.md) section of the documentation.
 
 
 ## Asymmetric case
