@@ -61,7 +61,7 @@ build-backend = "poetry.core.masonry.api"
 #BLACK
 [tool.black]
 line-length = 120
-target-version = ['py39']
+target-version = ['py38']
 force-exclude = '''
   (
     digital-twin-distiller/resources/

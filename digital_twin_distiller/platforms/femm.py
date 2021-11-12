@@ -27,7 +27,7 @@ from digital_twin_distiller.femm_wrapper import (
     femm_current_flow,
     femm_electrostatic,
     femm_heat_flow,
-    femm_magnetic,
+    femm_magnetic, ElectrostaticFixedVoltage, ElectrostaticSurfaceCharge, ElectrostaticMaterial,
 )
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import Metadata
@@ -116,6 +116,13 @@ class Femm(Platform):
                 for bi, hi in zip(mat.b, mat.h):
                     self.write(f'mi_addbhpoint("{mat.name}", {bi}, {hi})')
 
+        if self.metadata.problem_type == "electrostatic":
+            femm_material = ElectrostaticMaterial(material_name=mat.name,
+                                                  ex=mat.epsioln_r,
+                                                  ey=mat.epsioln_r,
+                                                  qv=mat.qv)
+            self.write(self.writer.add_material(femm_material))
+
     def export_block_label(self, x, y, mat: Material):
         x = float(x)
         y = float(y)
@@ -142,6 +149,10 @@ class Femm(Platform):
                     phi=0,
                 )
 
+            if self.metadata.problem_type == 'electrostatic':
+                femm_boundary = ElectrostaticFixedVoltage(name=b.name,
+                                                          Vs=b.valuedict['fixed_voltage'])
+
         if isinstance(b, NeumannBoundaryCondition):
             if self.metadata.problem_type == "magnetic":
                 femm_boundary = MagneticMixed(
@@ -149,6 +160,10 @@ class Femm(Platform):
                     c0=0,
                     c1=0,
                 )
+
+            if self.metadata.problem_type == 'electrostatic':
+                femm_boundary = ElectrostaticSurfaceCharge(name=b.name,
+                                                           qs=b.valuedict['surface_charge_density'])
 
         if isinstance(b, AntiPeriodicBoundaryCondition):
             if self.metadata.problem_type == "magnetic":
@@ -277,14 +292,26 @@ class Femm(Platform):
                     "Torque": 22,
                     "Flux": 1,
                 }
-                assert variable in int_type.keys(), f"There is no variable '{variable}'"
-                if isinstance(entity, Iterable):
-                    for x, y in entity:
-                        self.write(f"{prefix}_selectblock({x}, {y})")
+                # assert variable in int_type.keys(), f"There is no variable '{variable}'"
+                # if isinstance(entity, Iterable):
+                #     for x, y in entity:
+                #         self.write(f"{prefix}_selectblock({x}, {y})")
+                #
+                # self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
+                # self.write(f"{prefix}_clearblock()")
+                # self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
 
-                self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
-                self.write(f"{prefix}_clearblock()")
-                self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
+            if self.metadata.problem_type == "electrostatic":
+                int_type = {"Energy": 0}
+
+            assert variable in int_type.keys(), f"There is no variable '{variable}'"
+            if isinstance(entity, Iterable):
+                for x, y in entity:
+                    self.write(f"{prefix}_selectblock({x}, {y})")
+
+            self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
+            self.write(f"{prefix}_clearblock()")
+            self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
 
         if action == "saveimage":
             self.write(f"{prefix}_showdensityplot(0, 0, 0.0, 0.1, 'bmag')")
