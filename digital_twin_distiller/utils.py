@@ -1,7 +1,7 @@
 import csv
 import functools
 import warnings
-from itertools import tee, chain
+from itertools import tee, zip_longest
 from math import sqrt, pi, atan2, fmod
 from pathlib import Path
 from statistics import fmean
@@ -206,12 +206,12 @@ def pairwise(iterable, includelast=False):
     """
 
     a, b = tee(iterable)
-    if includelast:
-        b = chain(b, next(b, None))
-    else:
-        next(b, None)
+    c = next(b, None)
 
-    return zip(a, b)
+    if includelast:
+        return zip_longest(a, b, fillvalue=c)
+    else:
+        return zip(a, b)
 
 
 def get_short_id(point, n: int = 6):
