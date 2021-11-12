@@ -292,26 +292,26 @@ class Femm(Platform):
                     "Torque": 22,
                     "Flux": 1,
                 }
-                # assert variable in int_type.keys(), f"There is no variable '{variable}'"
-                # if isinstance(entity, Iterable):
-                #     for x, y in entity:
-                #         self.write(f"{prefix}_selectblock({x}, {y})")
-                #
-                # self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
-                # self.write(f"{prefix}_clearblock()")
-                # self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
+                assert variable in int_type.keys(), f"There is no variable '{variable}'"
+                if isinstance(entity, Iterable):
+                    for x, y in entity:
+                        self.write(f"{prefix}_selectblock({x}, {y})")
+
+                self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
+                self.write(f"{prefix}_clearblock()")
+                self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
 
             if self.metadata.problem_type == "electrostatic":
                 int_type = {"Energy": 0}
 
-            assert variable in int_type.keys(), f"There is no variable '{variable}'"
-            if isinstance(entity, Iterable):
-                for x, y in entity:
-                    self.write(f"{prefix}_selectblock({x}, {y})")
+                assert variable in int_type.keys(), f"There is no variable '{variable}'"
+                if isinstance(entity, Iterable):
+                    for x, y in entity:
+                        self.write(f"{prefix}_selectblock({x}, {y})")
 
-            self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
-            self.write(f"{prefix}_clearblock()")
-            self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
+                self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
+                self.write(f"{prefix}_clearblock()")
+                self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
 
         if action == "saveimage":
             self.write(f"{prefix}_showdensityplot(0, 0, 0.0, 0.1, 'bmag')")

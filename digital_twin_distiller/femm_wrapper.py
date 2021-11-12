@@ -1235,7 +1235,7 @@ class FemmWriter:
         self.validate_field()
 
         if self.field == femm_magnetic:
-            cmd = Template('mi_setarcsegmentprop($maxsegdeg, $propname, $hide, $group, "<None>")')
+            cmd = Template('mi_setarcsegmentprop($maxsegdeg, $propname, $hide, $group)')
             cmd = cmd.substitute(
                 maxsegdeg=maxsegdeg,
                 propname="'" + propname + "'",
