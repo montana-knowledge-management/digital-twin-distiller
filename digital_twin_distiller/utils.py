@@ -1,8 +1,8 @@
 import csv
 import functools
 import warnings
-from itertools import tee
-from math import sqrt
+from itertools import tee, chain
+from math import sqrt, pi, atan2, fmod
 from pathlib import Path
 from statistics import fmean
 from uuid import uuid4
@@ -196,13 +196,21 @@ def get_polyfit(x, y, N=None, verbose=False):
     return x_fine, y_best
 
 
-def pairwise(iterable):
+def pairwise(iterable, includelast=False):
     """
     # pairwise('ABCDEFG') --> AB BC CD DE EF FG
     https://docs.python.org/3/library/itertools.html#itertools.pairwise
+
+    If incudelast:
+        pairwise('ABCDEFG') --> AB BC CD DE EF FG GA
     """
+
     a, b = tee(iterable)
-    next(b, None)
+    if includelast:
+        b = chain(b, next(b, None))
+    else:
+        next(b, None)
+
     return zip(a, b)
 
 

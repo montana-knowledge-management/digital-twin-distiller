@@ -1,3 +1,5 @@
+from digital_twin_distiller.utils import *
+
 from digital_twin_distiller.boundaries import (
     AntiPeriodicAirGap,
     AntiPeriodicBoundaryCondition,
