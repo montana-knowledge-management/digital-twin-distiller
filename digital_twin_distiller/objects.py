@@ -99,17 +99,28 @@ class Node:
 
         phi_self = get_phi(*self, tol=tol)
         phi_other = get_phi(*o, tol=tol)
+        angle_diff = phi_self - phi_other
 
-        if abs(diff) < tol:
-            # They're on the same circle, more checks needed to decide
-            if (phi_self - phi_other) < - tol:
+        if abs(angle_diff) < tol:
+            if diff < -tol:
                 return True
             else:
                 return False
-        elif diff < -tol:
+        elif angle_diff < -tol:
             return True
         else:
             return False
+
+        # if abs(diff) < tol:
+        #     # They're on the same circle, more checks needed to decide
+        #     if (phi_self - phi_other) < - tol:
+        #         return True
+        #     else:
+        #         return False
+        # elif diff < -tol:
+        #     return True
+        # else:
+        #     return False
 
     def length(self):
         return math.sqrt(self.x ** 2 + self.y ** 2)
