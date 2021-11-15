@@ -37,6 +37,7 @@ uvicorn = "^0.15.0"
 vedo = "^2021"
 
 # Dependencies for developers
+Shapely = "^1.8.0"
 # list all devtools here
 [tool.poetry.dev-dependencies]
 black = "*"
