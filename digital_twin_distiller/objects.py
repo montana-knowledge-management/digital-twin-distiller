@@ -4,7 +4,7 @@ from copy import copy
 
 from numpy import linspace
 
-from digital_twin_distiller.utils import getID, mirror_point, pairwise, get_phi
+from digital_twin_distiller.utils import get_short_id, getID, mirror_point, pairwise, get_phi
 
 
 class Node:
@@ -122,8 +122,11 @@ class Node:
         # else:
         #     return False
 
+    def __hash__(self):
+        return int(get_short_id(self), base=16)
+
     def length(self):
-        return math.sqrt(self.x ** 2 + self.y ** 2)
+        return math.hypot(*self)
 
     def distance_to(self, p):
         """Calculate the distance between two points."""
