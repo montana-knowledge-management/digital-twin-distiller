@@ -90,11 +90,11 @@ class NgElectrostatics(Platform):
         self.ng_export_postprocessing()
         self.ng_export_closing_steps()
         
-
     def ng_export_preamble(self):
         self.comment("PREAMBLE", 1)
-        self.comment("empty", 1)
-        
+        self.write('from ngsolve import *')
+        self.write('from netgen.geom2d import SplineGeometry', 2)
+        self.write('geo = SplineGeometry()')       
         self.newline(2)
 
     def ng_export_metadata(self):
