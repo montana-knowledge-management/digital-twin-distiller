@@ -40,7 +40,7 @@ class NgElectrostatics(Platform):
         ...
 
     def export_material_definition(self, mat: Material):
-        ...
+        self.mat[mat.name] = mat
 
     def export_block_label(self, x, y, mat: Material):
         ...
@@ -49,7 +49,19 @@ class NgElectrostatics(Platform):
         ...
 
     def export_geometry_element(self, e, boundary=None):
-        ...
+        if isinstance(e, Node):
+            self.G.add_node(e)
+        
+        if isinstance(e, Line):
+            attributes = self.edge_attribures.copy()
+            attributes['type'] = 'line'
+            self.G.add_edge(e.start_pt, e.end_pt, **attributes) 
+
+        if isinstance(e, CircleArc):
+            attributes = self.edge_attribures.copy()
+            attributes['type'] = 'arc'
+            attributes['center_pt'] = tuple(e.center_pt)
+            self.G.add_edge(e.start_pt, e.end_pt, **attributes)
 
     def export_solving_steps(self):
         ...
