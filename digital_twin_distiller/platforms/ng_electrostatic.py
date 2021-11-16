@@ -110,3 +110,30 @@ class NgElectrostatics(Platform):
         self.comment("empty", 1)
         
         self.newline(2)
+
+    ###################################################################
+
+    def render_geo(self):
+        plt.figure()
+        for nodes, attrs in self.H.edges.items():
+            n1, n2 = nodes
+            cp = n1.mean(n2)
+            ul = 0.5 * n1.unit_to(n2).rotate(pi/2)
+            ur = 0.5 * n1.unit_to(n2).rotate(-pi/2)
+
+            plt.text(*(cp+ul), attrs['leftdomain'], horizontalalignment='right', verticalalignment='bottom')
+            plt.text(*(cp+ur), attrs['rightdomain'], horizontalalignment='left', verticalalignment='top')
+            
+            plt.plot([n1.x, n2.x], [n1.y, n2.y], 'k-')
+            plt.scatter(*n1, c='red', zorder=12)
+            plt.scatter(*n2, c='red', zorder=12)
+
+        # render material labels
+        for name, mat_i in self.mat.items():
+            for xi, yi in mat_i.assigned:
+                plt.scatter(xi, yi, c='green', s=80, zorder=100)
+                plt.text(xi+0.1, yi+0.1, name, verticalalignment='bottom', horizontalalignment='left')
+
+
+        plt.show()
+
