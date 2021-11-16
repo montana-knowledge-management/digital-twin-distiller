@@ -104,7 +104,6 @@ class NgElectrostatics(Platform):
         
         self.newline(2)
 
-
     def ng_export_closing_steps(self):
         self.comment('CLOSING STEPS', 1)
         self.comment("empty", 1)
@@ -137,3 +136,20 @@ class NgElectrostatics(Platform):
 
         plt.show()
 
+    def compose_geometry(self):
+        material_counter = 1
+        mat_i = self.mat['pvc']
+        mat_label = Node(*mat_i.assigned[0])
+        start_node = min(self.G.nodes, key=lambda ni: ni.distance_to(mat_label))
+        cycles = nx.cycle_basis(self.G, start_node)
+        for cycle in cycles:
+            edges = pairwise(cycle, includelast=True)
+            n0, n1 = next(edges)
+            side = get_right_left(n0, n1, mat_label)
+            attributes = {**self.G[n0][n1], side:material_counter}
+            self.H.add_edge(n0, n1, **attributes)
+
+            for n_start, n_end in edges:
+                # __import__('pudb').set_trace()
+                attributes = {**self.G[n_start][n_end], side:material_counter}
+                self.H.add_edge(n_start, n_end, **attributes)
