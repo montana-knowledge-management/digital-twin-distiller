@@ -1,8 +1,31 @@
-from digital_twin_distiller import Material
+from math import pi
+
+import matplotlib.pyplot as plt
+import networkx as nx
+import subprocess
+from threading import Timer
+from digital_twin_distiller import CircleArc, Line, Material, Node
 from digital_twin_distiller.boundaries import BoundaryCondition
+from digital_twin_distiller.metadata import NgElectrostaticMetadata
 from digital_twin_distiller.platforms.platform import Platform
+from digital_twin_distiller.utils import get_right_left, pairwise
+
 
 class NgElectrostatics(Platform):
+
+    def __init__(self, m: NgElectrostaticMetadata):
+        super(NgElectrostatics, self).__init__(m)
+
+        self.G = nx.Graph()
+        self.H = nx.DiGraph()
+
+        self.edge_attribures = {'type': None,
+                                'rightdomain': 0, 'leftdomain': 0,
+                                'bc': -1, 'mat':-1}
+
+        # materials
+        self.mat = {}
+
     def __copy__(self):
         pass
 
