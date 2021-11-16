@@ -73,9 +73,20 @@ class NgElectrostatics(Platform):
         ...
 
     def execute(self, cleanup=False, timeout=10):
+        self.compose_geometry()
         self.open()
         self.ng_export()
         self.close()
+
+        proc = subprocess.Popen(['netgen', self.file_script_handle.name],
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        timer = Timer(timeout, proc.kill)
+        try:
+            timer.start()
+            # stdout, stderr = proc.communicate()
+            proc.communicate()
+        finally:
+            timer.cancel()
 
     ######################################################################
     
