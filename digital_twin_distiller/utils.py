@@ -196,7 +196,7 @@ def get_polyfit(x, y, N=None, verbose=False):
     return x_fine, y_best
 
 
-def pairwise(iterable, includelast=False):
+def pairwise(iterable, cycle=False):
     """
     # pairwise('ABCDEFG') --> AB BC CD DE EF FG
     https://docs.python.org/3/library/itertools.html#itertools.pairwise
@@ -208,7 +208,7 @@ def pairwise(iterable, includelast=False):
     a, b = tee(iterable)
     c = next(b, None)
 
-    if includelast:
+    if cycle:
         return zip_longest(a, b, fillvalue=c)
     else:
         return zip(a, b)
@@ -318,10 +318,9 @@ def get_right_left(a, b, c):
     if side == -1:
         return "rightdomain"
 
-    if side == 0:
-        return "online"
-
     if side == 1:
         return "leftdomain"
 
-    return
+    if side == 0:
+        # raise ValueError(f'{c} is on the {a} -> {b} Line.')
+        return "online"

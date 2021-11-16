@@ -158,7 +158,7 @@ class NgElectrostatics(Platform):
 
     def ng_export_solving_steps(self):
         self.comment("SOLVER", 1)
-        self.write(f"fes = H1(mesh, order=3, dirichlet=[1,2,3,4])")
+        self.write(f'fes = H1(mesh, order=3, dirichlet="gnd")')
 
         self.write("u = fes.TrialFunction()")
         self.write("v = fes.TestFunction()")
@@ -197,8 +197,8 @@ class NgElectrostatics(Platform):
         for nodes, attrs in self.H.edges.items():
             n1, n2 = nodes
             cp = n1.mean(n2)
-            ul = 0.5 * n1.unit_to(n2).rotate(pi / 2)
-            ur = 0.5 * n1.unit_to(n2).rotate(-pi / 2)
+            ul = 0.05 * n1.unit_to(n2).rotate(pi / 2)
+            ur = 0.05 * n1.unit_to(n2).rotate(-pi / 2)
 
             plt.text(*(cp + ul), attrs["leftdomain"], horizontalalignment="right", verticalalignment="bottom")
             plt.text(*(cp + ur), attrs["rightdomain"], horizontalalignment="left", verticalalignment="top")
@@ -219,16 +219,19 @@ class NgElectrostatics(Platform):
         material_counter = 1
         mat_i = self.mat["pvc"]
         mat_label = Node(*mat_i.assigned[0])
-        start_node = min(self.G.nodes, key=lambda ni: ni.distance_to(mat_label))
-        cycles = nx.cycle_basis(self.G, start_node)
-        for cycle in cycles:
-            edges = pairwise(cycle, includelast=True)
-            n0, n1 = next(edges)
-            side = get_right_left(n0, n1, mat_label)
-            attributes = {**self.G[n0][n1], side: material_counter}
-            self.H.add_edge(n0, n1, **attributes)
 
+        # start_node = min(self.G.nodes, key=lambda ni: ni.distance_to(mat_label))
+        cycles = nx.cycle_basis(self.G)
+        for cycle in cycles:
+            edges = list(pairwise(cycle, cycle=True))
+            area = 0.0
             for n_start, n_end in edges:
-                # __import__('pudb').set_trace()
-                attributes = {**self.G[n_start][n_end], side: material_counter}
-                self.H.add_edge(n_start, n_end, **attributes)
+                area += (n_end.x-n_start.x) * (n_end.y + n_start.y)
+                self.H.add_edge(n_start, n_end, **self.G[n_start][n_end])
+
+            orientation = 'counter-clockwise' if area < 0 else 'clockwise'
+            for n_start, n_end in edges:
+                if orientation == 'clockwise':
+                    self.H[n_start][n_end]['rightdomain'] = material_counter
+                else:
+                    self.H[n_start][n_end]['leftdomain'] = material_counter
