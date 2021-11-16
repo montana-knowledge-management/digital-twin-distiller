@@ -123,8 +123,26 @@ class NgElectrostatics(Platform):
 
     def ng_export_geometry(self):
         self.comment("GEOMETRY", 1)
-        self.comment("empty", 1)
         
+        nodecounter = 0
+        nodes = {}
+
+        for ni in self.H.nodes:
+            self.write(f'geo.AppendPoint({ni.x}, {ni.y})')
+            nodes[ni] = nodecounter
+            nodecounter += 1
+
+
+        for ei, attr in self.H.edges.items():
+            ni, nj = ei
+            self.write(f'geo.Append(["line", {nodes[ni]}, {nodes[nj]}],'
+                       f' leftdomain={attr["leftdomain"]},'
+                       f' rightdomain={attr["rightdomain"]},'
+                       f' bc="gnd")')
+
+
+        self.write(f'mesh = Mesh(geo.GenerateMesh(maxh=0.1))')
+
         self.newline(2)
 
     def ng_export_solving_steps(self):
