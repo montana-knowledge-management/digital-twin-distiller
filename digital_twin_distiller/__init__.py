@@ -1,5 +1,3 @@
-from digital_twin_distiller.utils import *
-
 from digital_twin_distiller.boundaries import (
     AntiPeriodicAirGap,
     AntiPeriodicBoundaryCondition,
@@ -8,10 +6,9 @@ from digital_twin_distiller.boundaries import (
     PeriodicAirGap,
     PeriodicBoundaryCondition,
 )
-from digital_twin_distiller.objects import CircleArc, Line, Node, ParametricBezier, Rectangle
-
-from digital_twin_distiller.material import Material
 from digital_twin_distiller.geometry import Geometry
-
+from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import *
+from digital_twin_distiller.objects import CircleArc, Line, Node, ParametricBezier, Rectangle
 from digital_twin_distiller.platforms import *
+from digital_twin_distiller.utils import *

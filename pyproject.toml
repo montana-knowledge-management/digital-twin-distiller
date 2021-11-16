@@ -65,7 +65,7 @@ line-length = 120
 target-version = ['py38']
 force-exclude = '''
   (
-    digital-twin-distiller/resources/
+    digital_twin_distiller/resources/
   | tests/solver_script_references/
   )
 '''

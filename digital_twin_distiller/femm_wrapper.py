@@ -1235,7 +1235,7 @@ class FemmWriter:
         self.validate_field()
 
         if self.field == femm_magnetic:
-            cmd = Template('mi_setarcsegmentprop($maxsegdeg, $propname, $hide, $group)')
+            cmd = Template("mi_setarcsegmentprop($maxsegdeg, $propname, $hide, $group)")
             cmd = cmd.substitute(
                 maxsegdeg=maxsegdeg,
                 propname="'" + propname + "'",
@@ -1690,7 +1690,7 @@ class FemmExecutor:
             cmd_list.append("-windowhide")
 
         if debug:
-            return ' '.join(cmd_list)
+            return " ".join(cmd_list)
 
         proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         timer = Timer(timeout, proc.kill)

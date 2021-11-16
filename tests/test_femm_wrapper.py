@@ -819,9 +819,9 @@ class TestFemmExecutor(TestCase):
         with open(testfile, "w") as f:
             f.write("not_existing_command()")
 
-        home = os.path.expanduser('~')
-        ref_cmd = f'wine {home}/.wine/drive_c/femm42/bin/femm.exe -lua-script={home}'
-        ref_cmd_end = f'/digital-twin-distiller/tests/test_invalid.lua'
+        home = os.path.expanduser("~")
+        ref_cmd = f"wine {home}/.wine/drive_c/femm42/bin/femm.exe -lua-script={home}"
+        ref_cmd_end = f"/digital-twin-distiller/tests/test_invalid.lua"
 
         test_cmd = exec.run_femm(testfile, timeout=0, debug=True)
         # test part 1

@@ -2,7 +2,7 @@ import csv
 import functools
 import warnings
 from itertools import tee, zip_longest
-from math import sqrt, pi, atan2, fmod
+from math import atan2, fmod, pi, sqrt
 from pathlib import Path
 from statistics import fmean
 from uuid import uuid4
@@ -286,6 +286,7 @@ def deprecated(func):
 
     return new_func
 
+
 def get_phi(x, y, tol=1e-5):
     """
     This function calculates the angle between a point and the x axis.
@@ -300,26 +301,27 @@ def get_phi(x, y, tol=1e-5):
 
     return phi
 
+
 def get_right_left(a, b, c):
     """
     This function will tell if the point c is on the right/left side of the a->b line (order matters).
-    
+
     Credit: https://stackoverflow.com/questions/1560492/how-to-tell-whether-a-point-is-to-the-right-or-left-side-of-a-line
-    
+
     Returns:
         left: 1
         on the line: 0
         right: -1
     """
-    side = int(sign((b.x - a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x)))
+    side = int(sign((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)))
 
     if side == -1:
-        return 'rightdomain'
+        return "rightdomain"
 
     if side == 0:
-        return 'online'
+        return "online"
 
     if side == 1:
-        return 'leftdomain'
+        return "leftdomain"
 
-    return 
+    return

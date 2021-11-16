@@ -55,10 +55,16 @@ class BaseModel(metaclass=ABCMeta):
         """
         self.geom.add_line(obj.Line(obj.Node(x0, y0), obj.Node(x1, y1)))
 
-    def add_circle_arc(self, x_start:float, y_start:float,
-                x_center:float, y_center:float,
-                x_end:float, y_end:float,
-                max_seg_deg=20):
+    def add_circle_arc(
+        self,
+        x_start: float,
+        y_start: float,
+        x_center: float,
+        y_center: float,
+        x_end: float,
+        y_end: float,
+        max_seg_deg=20,
+    ):
         """
         Conviniently add a circle arc to the `geom` attribute.
 
@@ -71,10 +77,14 @@ class BaseModel(metaclass=ABCMeta):
             y_end: y coordinate of the end point
             max_seg_deg: the number of line segments that approximate the arc
         """
-        self.geom.add_arc(obj.CircleArc(obj.Node(x_start, y_start),
-                                        obj.Node(x_center, y_center),
-                                        obj.Node(x_end, y_end),
-                                        max_seg_deg=max_seg_deg))
+        self.geom.add_arc(
+            obj.CircleArc(
+                obj.Node(x_start, y_start),
+                obj.Node(x_center, y_center),
+                obj.Node(x_end, y_end),
+                max_seg_deg=max_seg_deg,
+            )
+        )
 
     def assign_material(self, x, y, name) -> object:
         """

@@ -148,7 +148,7 @@ class NgElectrostaticMetadata(Metadata):
         super().__init__()
         self.compatible_platform = "ngsolve"
         self.coordinate_type = "planar"
-        self.problem_type = 'electrostatic'
+        self.problem_type = "electrostatic"
         self.file_suffix = ".py"
         self.depth = 1
 

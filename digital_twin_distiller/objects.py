@@ -4,7 +4,7 @@ from copy import copy
 
 from numpy import linspace
 
-from digital_twin_distiller.utils import get_short_id, getID, mirror_point, pairwise, get_phi
+from digital_twin_distiller.utils import getID, get_phi, get_short_id, mirror_point, pairwise
 
 
 class Node:

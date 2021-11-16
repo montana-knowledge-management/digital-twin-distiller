@@ -1,5 +1,4 @@
-from digital_twin_distiller.platforms.platform import Platform
-
-from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.platforms.agros2d import Agros2D
+from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.platforms.ng_electrostatic import NgElectrostatics
+from digital_twin_distiller.platforms.platform import Platform
