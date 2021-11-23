@@ -300,27 +300,3 @@ def get_phi(x, y, tol=1e-5):
     phi = fmod(phi + tol, 360.0) - tol
 
     return phi
-
-
-def get_right_left(a, b, c):
-    """
-    This function will tell if the point c is on the right/left side of the a->b line (order matters).
-
-    Credit: https://stackoverflow.com/questions/1560492/how-to-tell-whether-a-point-is-to-the-right-or-left-side-of-a-line
-
-    Returns:
-        left: 1
-        on the line: 0
-        right: -1
-    """
-    side = int(sign((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)))
-
-    if side == -1:
-        return "rightdomain"
-
-    if side == 1:
-        return "leftdomain"
-
-    if side == 0:
-        # raise ValueError(f'{c} is on the {a} -> {b} Line.')
-        return "online"
