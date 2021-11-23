@@ -1,5 +1,4 @@
 import subprocess
-from math import pi
 from threading import Timer
 
 import matplotlib.pyplot as plt
@@ -9,7 +8,10 @@ from digital_twin_distiller import CircleArc, Line, Material, Node
 from digital_twin_distiller.boundaries import BoundaryCondition
 from digital_twin_distiller.metadata import NgElectrostaticMetadata
 from digital_twin_distiller.platforms.platform import Platform
-from digital_twin_distiller.utils import get_right_left, pairwise
+from digital_twin_distiller.utils import pairwise
+from shapely.geometry import Point, LinearRing, Polygon
+import itertools as it
+
 
 
 class NgElectrostatics(Platform):
@@ -209,14 +211,45 @@ class NgElectrostatics(Platform):
         plt.show()
 
     def compose_geometry(self):
-        material_counter = 1
-        mat_i = self.mat["pvc"]
-        mat_label = Node(*mat_i.assigned[0])
+        """
+        1. Find all cycles in the undirected graph
+        2. Select the cycles that contains only 1 label
+        3. Transform the cycles into directed graphs
+        4. merge these graphs
+        """
+        # material_counter = 1
+        # mat_i = self.mat["pvc"]
+        # mat_label = Node(*mat_i.assigned[0])
 
-        # start_node = min(self.G.nodes, key=lambda ni: ni.distance_to(mat_label))
-        cycles = nx.cycle_basis(self.G)
-        for cycle in cycles:
-            edges = list(pairwise(cycle, cycle=True))
+        # convert the cycles into a list of undirected graphs
+        allcycle = self._find_all_cycles(self.G)
+
+        loops, labels = self._filter_cycles(allcycle)
+
+        surfaces = self._generate_surfaces(loops, labels)
+
+        self.H = nx.DiGraph()
+        for si in surfaces:
+            for u, v, attr in si.edges(data=True):
+                if self.H.has_edge(u, v):
+                    attr2 = self.H.get_edge_data(u, v)
+                    if attr2['leftdomain'] == 0:
+                        self.H[u][v]['leftdomain'] = attr['leftdomain']
+
+                    if attr2['rightdomain'] == 0:
+                        self.H[u][v]['rightdomain'] = attr['rightdomain']
+
+
+                elif self.H.has_edge(v, u):
+                    attr2 = self.H.get_edge_data(v, u)
+                    if attr2['leftdomain'] == 0:
+                        self.H[v][u]['leftdomain'] = attr['r']
+
+                    if attr2['rightdomain'] == 0:
+                        self.H[v][u]['rightdomain'] = attr['leftdomain']
+
+                else:
+                    self.H.add_edge(u, v, **attr)
 
     def _find_all_cycles(self, G):
         """
