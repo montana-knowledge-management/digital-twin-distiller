@@ -139,20 +139,23 @@ class NgElectrostatics(Platform):
     def ng_export_geometry(self):
         self.comment("GEOMETRY", 1)
 
-        nodecounter = 0
+        nodecounter = it.count()
         nodes = {}
+
+        materials = dict(zip(self.mat.keys(), it.count(1)))
+        materials[0] = 0
 
         for ni in self.H.nodes:
             self.write(f"geo.AppendPoint({ni.x}, {ni.y})")
-            nodes[ni] = nodecounter
-            nodecounter += 1
+            nodes[ni] = next(nodecounter)
 
-        for ei, attr in self.H.edges.items():
-            ni, nj = ei
+        for ni, nj, attr in self.H.edges(data=True):
+            left_material = attr["leftdomain"]
+            right_material = attr["rightdomain"]
             self.write(
                 f'geo.Append(["line", {nodes[ni]}, {nodes[nj]}],'
-                f' leftdomain={attr["leftdomain"]},'
-                f' rightdomain={attr["rightdomain"]},'
+                f' leftdomain={materials[left_material]},'
+                f' rightdomain={materials[right_material]},'
                 f' bc="gnd")'
             )
 
