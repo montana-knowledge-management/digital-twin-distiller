@@ -217,6 +217,60 @@ class NgElectrostatics(Platform):
         cycles = nx.cycle_basis(self.G)
         for cycle in cycles:
             edges = list(pairwise(cycle, cycle=True))
+
+    def _find_all_cycles(self, G):
+        """
+        forked from networkx dfs_edges function. Assumes nodes are integers, or at least
+        types which work with min() and > .
+
+        Credit: https://gist.github.com/joe-jordan/6548029
+        """
+
+        nodes = [list(i)[0] for i in nx.connected_components(G)]
+
+        # extra variables for cycle detection:
+        cycle_stack = []
+        output_cycles = set()
+
+        def get_hashable_cycle(cycle):
+            """cycle as a tuple in a deterministic order."""
+            m = min(cycle)
+            mi = cycle.index(m)
+            mi_plus_1 = mi + 1 if mi < len(cycle) - 1 else 0
+            if cycle[mi - 1] > cycle[mi_plus_1]:
+                result = cycle[mi:] + cycle[:mi]
+            else:
+                result = list(reversed(cycle[:mi_plus_1])) + list(reversed(cycle[mi_plus_1:]))
+            return tuple(result)
+
+        for start in nodes:
+            if start in cycle_stack:
+                continue
+            cycle_stack.append(start)
+
+            stack = [(start, iter(G[start]))]
+            while stack:
+                parent, children = stack[-1]
+                try:
+                    child = next(children)
+
+                    if child not in cycle_stack:
+                        cycle_stack.append(child)
+                        stack.append((child, iter(G[child])))
+                    else:
+                        i = cycle_stack.index(child)
+                        if i < len(cycle_stack) - 2:
+                            output_cycles.add(get_hashable_cycle(cycle_stack[i:]))
+
+                except StopIteration:
+                    stack.pop()
+                    cycle_stack.pop()
+
+        allcycle = (tuple(i) for i in output_cycles)
+
+        # convert cycles into graphs
+        return tuple(nx.Graph(pairwise(cycle, cycle=True)) for cycle in allcycle)
+
             area = 0.0
             for n_start, n_end in edges:
                 area += (n_end.x-n_start.x) * (n_end.y + n_start.y)
