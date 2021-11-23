@@ -30,7 +30,7 @@ class Node:
             raise IndexError
 
     def __le__(self, other):
-        if self < other or self==other:
+        if self < other or self == other:
             return True
 
         return False
@@ -70,14 +70,14 @@ class Node:
 
     def __str__(self):
         # return f"({self.x:.1f}, {self.y:.1f}, label={self.label})"
-        # return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
+        return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
         # return f"N({self.x:.1f}, {self.y:.1f}, {self.label})"
-        return f"{self.label}"
+        # return f"{self.label}"
 
     def __repr__(self):
-        # return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
+        return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
         # return f"N({self.x:.1f}, {self.y:.1f}, {self.label})"
-        return f"{self.label}"
+        # return f"{self.label}"
 
     def __copy__(self):
         return Node(

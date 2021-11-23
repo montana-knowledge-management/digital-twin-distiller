@@ -1,17 +1,16 @@
+import itertools as it
 import subprocess
 from threading import Timer
 
 import matplotlib.pyplot as plt
 import networkx as nx
+from shapely.geometry import LinearRing, Point, Polygon
 
 from digital_twin_distiller import CircleArc, Line, Material, Node
 from digital_twin_distiller.boundaries import BoundaryCondition
 from digital_twin_distiller.metadata import NgElectrostaticMetadata
 from digital_twin_distiller.platforms.platform import Platform
 from digital_twin_distiller.utils import pairwise
-from shapely.geometry import Point, LinearRing, Polygon
-import itertools as it
-
 
 
 class NgElectrostatics(Platform):
@@ -154,8 +153,8 @@ class NgElectrostatics(Platform):
             right_material = attr["rightdomain"]
             self.write(
                 f'geo.Append(["line", {nodes[ni]}, {nodes[nj]}],'
-                f' leftdomain={materials[left_material]},'
-                f' rightdomain={materials[right_material]},'
+                f" leftdomain={materials[left_material]},"
+                f" rightdomain={materials[right_material]},"
                 f' bc="gnd")'
             )
 
@@ -220,39 +219,18 @@ class NgElectrostatics(Platform):
         3. Transform the cycles into directed graphs
         4. merge these graphs
         """
-        # material_counter = 1
-        # mat_i = self.mat["pvc"]
-        # mat_label = Node(*mat_i.assigned[0])
 
         # convert the cycles into a list of undirected graphs
         allcycle = self._find_all_cycles(self.G)
 
+        # filter the cycles
         loops, labels = self._filter_cycles(allcycle)
 
+        # generate surfaces
         surfaces = self._generate_surfaces(loops, labels)
 
-        self.H = nx.DiGraph()
-        for si in surfaces:
-            for u, v, attr in si.edges(data=True):
-                if self.H.has_edge(u, v):
-                    attr2 = self.H.get_edge_data(u, v)
-                    if attr2['leftdomain'] == 0:
-                        self.H[u][v]['leftdomain'] = attr['leftdomain']
-
-                    if attr2['rightdomain'] == 0:
-                        self.H[u][v]['rightdomain'] = attr['rightdomain']
-
-
-                elif self.H.has_edge(v, u):
-                    attr2 = self.H.get_edge_data(v, u)
-                    if attr2['leftdomain'] == 0:
-                        self.H[v][u]['leftdomain'] = attr['r']
-
-                    if attr2['rightdomain'] == 0:
-                        self.H[v][u]['rightdomain'] = attr['leftdomain']
-
-                else:
-                    self.H.add_edge(u, v, **attr)
+        # merge surfaces into the H directed graph
+        self.H = self._merge_surfaces(surfaces)
 
     def _find_all_cycles(self, G):
         """
@@ -307,42 +285,107 @@ class NgElectrostatics(Platform):
         # convert cycles into graphs
         return tuple(nx.Graph(pairwise(cycle, cycle=True)) for cycle in allcycle)
 
-    def _filter_cycles(self, cycles):
+    def _filter_cycles(self, cycles: list):
+        """
+        This function filters the cycles based on how many labels one cycle contains.
+        """
         labelcounter = []
         for Hi in cycles:
             labels_i = []
+            # convert the cycle into a polygon
             lr = Polygon(LinearRing([tuple(ni) for ni in Hi.nodes]))
+
+            # iterate over the materials
             for mat_name, mat_i in self.mat.items():
-                for lable_position in mat_i.assigned:
-                    if lr.contains(Point(lable_position)):
+                # iterate over the materials label points
+                for label_position in mat_i.assigned:
+                    # if the label is in the polygon append it to the label set
+                    if lr.contains(Point(label_position)):
                         labels_i.append(mat_name)
 
+            # append all labels that is in 1 cycle to the labelcounter list
             labelcounter.append(labels_i)
 
+        # labelselector is now a list of lists, now we have to select the elements with length=1
+        # selector is now a list of booleans
         selector = tuple(map(lambda li: len(li) == 1, labelcounter))
+
+        # using selector, filter the cycles and labels
         loops = it.compress(cycles, selector)
         selected_labels = tuple(li[0] for li in it.compress(labelcounter, selector))
 
         return loops, selected_labels
 
     def _generate_surfaces(self, loops, labels):
+        """
+        This function turns a list of undirected graphs into a list of
+        directed graphs with edge attributes. These edge attributes are the
+        leftdomain and rightdomain with the proper material names.
+        """
         surfaces = []
         for loop, label in zip(loops, labels):
+            # the new surface
             si = nx.DiGraph()
-            area = 0.0
+
+            # only 1 cycle exist
             edges = nx.find_cycle(loop)
+
+            # the signed area will help to decide the orientation of the cycle found above.
+            area = 0.0
             for n_start, n_end in edges:
-                attrs = {'leftdomain': 0, 'rightdomain': 0}
+                # copy the default edge attributes
+                attrs = self.edge_attribures.copy()
+
+                # add the new edges' contribution to the area
                 area += (n_end.x - n_start.x) * (n_end.y + n_start.y)
+
+                # add the edge to the surface
                 si.add_edge(n_start, n_end, **attrs)
 
-            orientation = 'counter-clockwise' if area < 0 else 'clockwise'
+            # iterate over the edges and set the materials name on the left/right side based on the cycles' orientation
+            orientation = "counter-clockwise" if area < 0 else "clockwise"
             for n_start, n_end in edges:
-                if orientation == 'clockwise':
-                    si[n_start][n_end]['rightdomain'] = label
+                if orientation == "clockwise":
+                    si[n_start][n_end]["rightdomain"] = label
                 else:
-                    si[n_start][n_end]['leftdomain'] = label
+                    si[n_start][n_end]["leftdomain"] = label
 
             surfaces.append(si)
 
         return surfaces
+
+    def _merge_surfaces(self, surfaces: list):
+        """
+        This function takes a list of directed graph and merges them into 1 directed graph.
+        It will detect the edges that are already in the graph and update the edge attributes
+        accordingly. This happens regardless of the edges' direction: (u, v) == (v, u)
+
+        """
+
+        T = nx.DiGraph()
+
+        # iterate over the surfaces
+        for si in surfaces:
+
+            # iterate over the surface edges
+            for u, v, attr in si.edges(data=True):
+                if T.has_edge(u, v):
+                    attr2 = T.get_edge_data(u, v)
+                    if attr2["leftdomain"] == 0:
+                        T[u][v]["leftdomain"] = attr["leftdomain"]
+
+                    if attr2["rightdomain"] == 0:
+                        T[u][v]["rightdomain"] = attr["rightdomain"]
+
+                elif T.has_edge(v, u):
+                    attr2 = T.get_edge_data(v, u)
+                    if attr2["leftdomain"] == 0:
+                        T[v][u]["leftdomain"] = attr["r"]
+
+                    if attr2["rightdomain"] == 0:
+                        T[v][u]["rightdomain"] = attr["leftdomain"]
+
+                else:
+                    T.add_edge(u, v, **attr)
+
+        return T
