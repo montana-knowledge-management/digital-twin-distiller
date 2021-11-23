@@ -271,6 +271,24 @@ class NgElectrostatics(Platform):
         # convert cycles into graphs
         return tuple(nx.Graph(pairwise(cycle, cycle=True)) for cycle in allcycle)
 
+    def _filter_cycles(self, cycles):
+        labelcounter = []
+        for Hi in cycles:
+            labels_i = []
+            lr = Polygon(LinearRing([tuple(ni) for ni in Hi.nodes]))
+            for mat_name, mat_i in self.mat.items():
+                for lable_position in mat_i.assigned:
+                    if lr.contains(Point(lable_position)):
+                        labels_i.append(mat_name)
+
+            labelcounter.append(labels_i)
+
+        selector = tuple(map(lambda li: len(li) == 1, labelcounter))
+        loops = it.compress(cycles, selector)
+        selected_labels = tuple(li[0] for li in it.compress(labelcounter, selector))
+
+        return loops, selected_labels
+
             area = 0.0
             for n_start, n_end in edges:
                 area += (n_end.x-n_start.x) * (n_end.y + n_start.y)
