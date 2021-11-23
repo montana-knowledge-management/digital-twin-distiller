@@ -289,14 +289,24 @@ class NgElectrostatics(Platform):
 
         return loops, selected_labels
 
+    def _generate_surfaces(self, loops, labels):
+        surfaces = []
+        for loop, label in zip(loops, labels):
+            si = nx.DiGraph()
             area = 0.0
+            edges = nx.find_cycle(loop)
             for n_start, n_end in edges:
-                area += (n_end.x-n_start.x) * (n_end.y + n_start.y)
-                self.H.add_edge(n_start, n_end, **self.G[n_start][n_end])
+                attrs = {'leftdomain': 0, 'rightdomain': 0}
+                area += (n_end.x - n_start.x) * (n_end.y + n_start.y)
+                si.add_edge(n_start, n_end, **attrs)
 
             orientation = 'counter-clockwise' if area < 0 else 'clockwise'
             for n_start, n_end in edges:
                 if orientation == 'clockwise':
-                    self.H[n_start][n_end]['rightdomain'] = material_counter
+                    si[n_start][n_end]['rightdomain'] = label
                 else:
-                    self.H[n_start][n_end]['leftdomain'] = material_counter
+                    si[n_start][n_end]['leftdomain'] = label
+
+            surfaces.append(si)
+
+        return surfaces
