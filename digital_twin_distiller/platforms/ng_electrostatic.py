@@ -19,7 +19,7 @@ class NgElectrostatics(Platform):
         self.G = nx.Graph()
         self.H = nx.DiGraph()
 
-        self.edge_attribures = {"type": None, "rightdomain": 0, "leftdomain": 0, "bc": -1, "mat": -1}
+        self.edge_attribures = {"type": None, "rightdomain": 0, "leftdomain": 0, "bc": -1}
 
         # materials
         self.mat = {}
@@ -72,6 +72,8 @@ class NgElectrostatics(Platform):
 
     def execute(self, cleanup=False, timeout=10):
         self.compose_geometry()
+        # self.render_geo()
+        # exit(0)
 
         self.open()
         self.ng_export()
@@ -193,26 +195,17 @@ class NgElectrostatics(Platform):
     ###################################################################
 
     def render_geo(self):
-        plt.figure()
-        for nodes, attrs in self.H.edges.items():
-            n1, n2 = nodes
-            cp = n1.mean(n2)
-            ul = 0.05 * n1.unit_to(n2).rotate(pi / 2)
-            ur = 0.05 * n1.unit_to(n2).rotate(-pi / 2)
+        pos = {ni: (ni.x, ni.y) for ni in self.G.nodes}
+        plt.figure(figsize=(10, 10))
+        nx.draw(self.H, pos)
 
-            plt.text(*(cp + ul), attrs["leftdomain"], horizontalalignment="right", verticalalignment="bottom")
-            plt.text(*(cp + ur), attrs["rightdomain"], horizontalalignment="left", verticalalignment="top")
-
-            plt.plot([n1.x, n2.x], [n1.y, n2.y], "k-")
-            plt.scatter(*n1, c="red", zorder=12)
-            plt.scatter(*n2, c="red", zorder=12)
-
-        # render material labels
-        for name, mat_i in self.mat.items():
-            for xi, yi in mat_i.assigned:
-                plt.scatter(xi, yi, c="green", s=80, zorder=100)
-                plt.text(xi + 0.1, yi + 0.1, name, verticalalignment="bottom", horizontalalignment="left")
-
+        edge_labels = {}
+        for u, v, data in self.H.edges(data=True):
+            edge_labels[u, v] = f"l - {data['leftdomain']}\nr - {data['rightdomain']}"
+        # for li in labels:
+        #     plt.scatter(*li, c='k')
+        #     plt.text(li.x + 0.05, li.y + 0.05, li.label, horizontalalignment='left')
+        nx.draw_networkx_edge_labels(self.H, pos, edge_labels, rotate=False)
         plt.show()
 
     def compose_geometry(self):
