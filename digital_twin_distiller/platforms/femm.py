@@ -323,7 +323,7 @@ class Femm(Platform):
         for cmd_i in self.writer.close():
             self.write(cmd_i)
 
-    def execute(self, cleanup=False, timeout=10):
+    def execute(self, cleanup=False, timeout=10, **kwargs):
         executor = FemmExecutor()
         try:
             executor.run_femm(self.metadata.file_script_name, timeout=timeout)
