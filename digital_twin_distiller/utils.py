@@ -8,8 +8,26 @@ from statistics import fmean
 from uuid import uuid4
 
 import matplotlib.pyplot as plt
-from numpy import linspace, sign
+from numpy import linspace
 from numpy.polynomial import Polynomial as P
+
+__all__ = [
+    "getID",
+    "mirror_point",
+    "mm2px",
+    "mm2inch",
+    "get_width_height",
+    "setup_matplotlib",
+    "inch2mm",
+    "rms",
+    "csv_write",
+    "get_polyfit",
+    "pairwise",
+    "get_short_id",
+    "purge_dir",
+    "deprecated",
+    "get_phi",
+]
 
 
 def getID():

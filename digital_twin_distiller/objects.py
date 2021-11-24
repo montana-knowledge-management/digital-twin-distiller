@@ -35,6 +35,18 @@ class Node:
 
         return False
 
+    def __ge__(self, other):
+        if self > other or self == other:
+            return True
+
+        return False
+
+    def __gt__(self, other):
+        if not self == other and not self < other:
+            return True
+        else:
+            return False
+
     def __eq__(self, other):
         return abs(self.x - other.x) < 1e-5 and abs(self.y - other.y) < 1e-5
 

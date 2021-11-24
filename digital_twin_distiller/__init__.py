@@ -11,7 +11,7 @@ from digital_twin_distiller.boundaries import (
 )
 from digital_twin_distiller.geometry import Geometry
 from digital_twin_distiller.material import Material
-from digital_twin_distiller.metadata import *
+from digital_twin_distiller.metadata import FemmMetadata, Agros2DMetadata, NgSolveMetadata, NgElectrostaticMetadata
 from digital_twin_distiller.platforms import *
 
 from digital_twin_distiller.model import BaseModel

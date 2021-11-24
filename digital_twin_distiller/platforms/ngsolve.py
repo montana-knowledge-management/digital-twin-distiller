@@ -1,7 +1,6 @@
 import itertools as it
 import subprocess
 from abc import ABCMeta, abstractmethod
-from copy import copy
 from threading import Timer
 
 import matplotlib.pyplot as plt
