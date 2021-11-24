@@ -4,6 +4,9 @@ from digital_twin_distiller.platforms.ngsolve import NgSolve
 
 
 class NgElectrostatics(NgSolve):
+    """
+    Electrostatic field solver with NgSolve
+    """
     def __copy__(self):
         return NgElectrostatics(copy(self.metadata))
 

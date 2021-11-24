@@ -15,6 +15,13 @@ from digital_twin_distiller.utils import pairwise
 
 
 class NgSolve(Platform, metaclass=ABCMeta):
+    """
+    Realize an abstract class for the ngsolve based platforms. NgSolve lets to create a specific fem solver for your
+    custom partial differential equation system.
+
+    Every solution should be defined as a separate platform, like ng_electrostatic.
+    """
+
     def __init__(self, m: NgSolveMetadata):
         super().__init__(m)
 
