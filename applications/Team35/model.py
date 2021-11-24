@@ -47,9 +47,19 @@ class Team35(BaseModel):
         self.snapshot = Snapshot(platform)
 
     def define_materials(self):
-        air = Material('air')
+        exctitation = Material("J+")
+        exctitation.Je = 2e6
+        # exctitation.meshsize = 1
 
+        air = Material("air")
+        # air.meshsize = 0.7
+
+        control = Material("control")
+        # control.meshsize = 0.1
+
+        self.snapshot.add_material(exctitation)
         self.snapshot.add_material(air)
+        self.snapshot.add_material(control)
 
     def define_boundary_conditions(self):
         a0 = DirichletBoundaryCondition("a0", field_type="magnetic", magnetic_potential=0.0)
