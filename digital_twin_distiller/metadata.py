@@ -143,7 +143,23 @@ class FemmMetadata(Metadata):
         return newm
 
 
-class NgElectrostaticMetadata(Metadata):
+class NgSolveMetadata(Metadata):
+    def __init__(self):
+        super().__init__()
+        self.compatible_platform = "ngsolve"
+        self.coordinate_type = "planar"
+        self.problem_type = "electrostatic"
+        self.file_suffix = ".py"
+        self.depth = 1
+
+    def validate_metadata(self):
+        self.validate_file_name()
+
+    def __copy__(self):
+        ...
+
+
+class NgElectrostaticMetadata(NgSolveMetadata):
     def __init__(self):
         super().__init__()
         self.compatible_platform = "ngsolve"
