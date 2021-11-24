@@ -1,17 +1,19 @@
-from adze_modeler.modelpaths import ModelDir
-from adze_modeler.server import Server
-from adze_modeler.simulation import sim
+from digital_twin_distiller.modelpaths import ModelDir
+from digital_twin_distiller.server import Server
+from digital_twin_distiller.simulationproject import sim
 from model import BLDCMotor
 from multiprocessing import Pool
 from time import perf_counter
 from numpy import linspace
 from random import normalvariate
 
+
 def execute_model(model: BLDCMotor):
     t0 = perf_counter()
     result = model(timeout=2000, cleanup=False)
     t1 = perf_counter()
     return result
+
 
 @sim.register('basic')
 def basic_run(model, modelparams, simprams, miscparams):
@@ -20,10 +22,11 @@ def basic_run(model, modelparams, simprams, miscparams):
     result['Torque'] *= 8
     return result
 
+
 @sim.register('cogging')
 def cogging_torque(model, modelparams, simprams, miscparams):
     theta0 = simprams.get('theta0', 0)
-    theta1 = simprams.get('theta1', 360/24)
+    theta1 = simprams.get('theta1', 360 / 24)
     nsteps = simprams.get('nsteps', 12)
     theta = linspace(theta0, theta1, nsteps)
     models = []
@@ -36,8 +39,8 @@ def cogging_torque(model, modelparams, simprams, miscparams):
 
     return results
 
-if __name__=='__main__':
 
+if __name__ == '__main__':
     ModelDir.set_base(__file__)
     # set the model for the simulation
     sim.set_model(BLDCMotor)
