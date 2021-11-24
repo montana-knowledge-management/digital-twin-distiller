@@ -305,7 +305,7 @@ contains 4 line segments and we have to specify 4 points near to them to assign 
 condition. Any point is sufficient that is close enough to these lines, but
 calculating their center point is much easier.
 
-![](media/z0_boundary.svg)
+![](images/z0_boundary.svg)
 
 ``` python hl_lines="7-9 13 15-18 20-24 26-33"
     def define_boundary_conditions(self):
@@ -461,7 +461,7 @@ plt.title(r'B$_z$ [mT]')
 plt.colorbar()
 plt.show()
 ```
-![](media/Bz.png)
+![](images/Bz.png)
 
 And one for the $r$ component:
 ``` python
@@ -475,9 +475,9 @@ plt.colorbar()
 plt.show()
 ```
 
-![](media/Br.png)
+![](images/Br.png)
 
 
 The same results but with an asymmetric model:
-![](media/Bz_asym.png)
-![](media/Br_asym.png)
+![](images/Bz_asym.png)
+![](images/Br_asym.png)

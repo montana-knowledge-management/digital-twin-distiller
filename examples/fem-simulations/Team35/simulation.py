@@ -3,7 +3,7 @@ from multiprocessing import Pool
 from model import Team35
 
 from digital_twin_distiller.modelpaths import ModelDir
-from digital_twin_distiller.server import Server
+from digital_twin_distiller.server import Server, mounts
 from digital_twin_distiller.simulationproject import sim
 
 
@@ -25,4 +25,5 @@ if __name__ == "__main__":
 
     model = Server(sim)
     model.build_docs()
+    mounts()
     model.run()
