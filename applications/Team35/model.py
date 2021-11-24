@@ -99,10 +99,40 @@ class Team35(BaseModel):
         self.snapshot.add_postprocessing("mesh_info", None, None)
 
     def build_geometry(self):
-        # ...
+        mp_bound = ModelPiece("bound")
+        mp_bound.load_piece_from_svg(ModelDir.RESOURCES / "problem_boundary.svg")
+        mp_bound.put(0, 0)
+
+        mp_control = ModelPiece("core")
+        mp_control.load_piece_from_svg(ModelDir.RESOURCES / "core_half.svg")
+        mp_control.put(0, 0)
+
+        mp_coil = ModelPiece("coil")
+        mp_coil.load_piece_from_svg(ModelDir.RESOURCES / "coil.svg")
+
+        h = 1.5
+        w = 1.0
+        self.geom.merge_geometry(mp_bound.geom)
+        self.geom.merge_geometry(mp_control.geom)
+
+        for i, ri in enumerate(self.X):
+            coil = mp_coil.spawn()
+            offsetz = i * h
+            coil.put(ri, offsetz)
+            self.geom.merge_geometry(coil.geom)
+            self.label_queue.append((ri + w / 2, offsetz + h / 2, "J+"))
+
+        self.geom.generate_intersections()
         self.snapshot.add_geometry(self.geom)
 
 
+
+        self.assign_material(3, 1, "control")
+        self.assign_material(30, 30, "air")
+
+
 if __name__ == "__main__":
-    m = Team35(exportname="dev")
+
+    X = [10] * 10
+    m = Team35(X, exportname="dev")
     print(m(cleanup=False))
