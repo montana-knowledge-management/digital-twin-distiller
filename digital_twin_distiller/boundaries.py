@@ -1,4 +1,3 @@
-
 class BoundaryCondition:
     accepted_keys = {
         "electrostatic": [],

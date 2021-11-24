@@ -35,7 +35,6 @@ class TestSimulation(unittest.TestCase):
     def tearDownClass(cls):
         # CLEANUP SECTION
 
-
         # clean up the modeldir
         purge_dir(MODELPATH)  # DO NOT MODIFY THIS LINE
 

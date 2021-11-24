@@ -2,21 +2,24 @@ import unittest
 from pathlib import Path
 from shutil import rmtree
 
+from digital_twin_distiller import DirichletBoundaryCondition, Line, Material, Node
 from digital_twin_distiller.metadata import Agros2DMetadata
 from digital_twin_distiller.model import BaseModel
 from digital_twin_distiller.platforms.agros2d import Agros2D
 from digital_twin_distiller.snapshot import Snapshot
 
-from digital_twin_distiller import Node, Line, DirichletBoundaryCondition, Material
 
 def mock_export(*args, **kwargs):
     return True
 
+
 def mock_execute(*args, **kwargs):
     return True
 
+
 def mock_results():
-    return {'a': 3, 'b': 4}
+    return {"a": 3, "b": 4}
+
 
 class MockModel(BaseModel):
     def __init__(self, **kwargs):
@@ -43,7 +46,7 @@ class MockModel(BaseModel):
         self.snapshot.retrive_results = mock_results
 
     def add_postprocessing(self):
-        self.snapshot.add_postprocessing('mesh_info', None, None)
+        self.snapshot.add_postprocessing("mesh_info", None, None)
 
     def define_materials(self):
         m = Material("testmaterial")
@@ -94,7 +97,6 @@ class TestModel(unittest.TestCase):
         self.dir_media.rmdir()
         self.dir_data.rmdir()
 
-
     def test_add_line(self):
         m = MockModel(exportname="test_name")
 
@@ -135,7 +137,6 @@ class TestModel(unittest.TestCase):
         self.assertFalse(Node(0, 0) in m.geom.nodes)
         self.assertFalse(Node(0, -1) in m.geom.nodes)
 
-
     def test_assign_material(self):
         m = MockModel(exportname="test_name")
 
@@ -156,7 +157,6 @@ class TestModel(unittest.TestCase):
         self.assertEqual(len(m.boundary_queue), 1)
         self.assertEquals(m.boundary_queue[0], (0, 1, "testboundary"))
 
-
     def test_assign_boundary_arc(self):
         m = MockModel(exportname="test_name")
 
@@ -171,28 +171,28 @@ class TestModel(unittest.TestCase):
 
         m = MockModel(exportname="test_name")
         m.add_line(1, 1, 1, -1)
-        m.add_circle_arc(-1, 0, 0, 0, 1,0)
+        m.add_circle_arc(-1, 0, 0, 0, 1, 0)
         m.assign_material(0, 1, "testmaterial")
         m.assign_boundary(1, 0, "testboundary")
         m.assign_boundary_arc(0, 1, "testboundary")
 
-
-
         res = m(cleanup=False, devmode=False)
-        self.assertTrue(res['a'], 5)
-        self.assertTrue(res['b'], 6)
+        self.assertTrue(res["a"], 5)
+        self.assertTrue(res["b"], 6)
 
-        src = Path(__file__).parent / 'snapshots/test_name'
+        src = Path(__file__).parent / "snapshots/test_name"
         src.mkdir(parents=True, exist_ok=True)
-        with open(src /'P_test_name.py', 'w') as f:
-            f.write('testtext')
+        with open(src / "P_test_name.py", "w") as f:
+            f.write("testtext")
         res = m(cleanup=True, devmode=False)
-        self.assertTrue(res['a'], 5)
-        self.assertTrue(res['b'], 6)
+        self.assertTrue(res["a"], 5)
+        self.assertTrue(res["b"], 6)
 
         # this should raise an exception therefore
         # the return value should be a None
-        def f(): raise
+        def f():
+            raise
+
         m.build_geometry = f
         res = m(cleanup=False, devmode=False)
         self.assertTrue(res is None)

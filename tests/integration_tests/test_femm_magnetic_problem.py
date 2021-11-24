@@ -3,6 +3,7 @@ import unittest
 from collections import Counter
 from math import pi
 from os import remove
+
 from importlib_resources import files
 
 from digital_twin_distiller.femm_wrapper import FemmWriter, MagneticMaterial, MagneticMixed
@@ -122,7 +123,7 @@ class TestFemmWriterWithExecutor(unittest.TestCase):
                         counter_test[key + "\n"],
                     )
 
-            os.remove('magnetic_ref.lua')
+            os.remove("magnetic_ref.lua")
 
         except FileNotFoundError:
             self.assertTrue(False)

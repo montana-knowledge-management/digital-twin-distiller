@@ -1,8 +1,8 @@
 import csv
 import functools
 import warnings
-from itertools import tee
-from math import sqrt
+from itertools import tee, zip_longest
+from math import atan2, fmod, pi, sqrt
 from pathlib import Path
 from statistics import fmean
 from uuid import uuid4
@@ -10,6 +10,24 @@ from uuid import uuid4
 import matplotlib.pyplot as plt
 from numpy import linspace
 from numpy.polynomial import Polynomial as P
+
+__all__ = [
+    "getID",
+    "mirror_point",
+    "mm2px",
+    "mm2inch",
+    "get_width_height",
+    "setup_matplotlib",
+    "inch2mm",
+    "rms",
+    "csv_write",
+    "get_polyfit",
+    "pairwise",
+    "get_short_id",
+    "purge_dir",
+    "deprecated",
+    "get_phi",
+]
 
 
 def getID():
@@ -196,14 +214,22 @@ def get_polyfit(x, y, N=None, verbose=False):
     return x_fine, y_best
 
 
-def pairwise(iterable):
+def pairwise(iterable, cycle=False):
     """
     # pairwise('ABCDEFG') --> AB BC CD DE EF FG
     https://docs.python.org/3/library/itertools.html#itertools.pairwise
+
+    If incudelast:
+        pairwise('ABCDEFG') --> AB BC CD DE EF FG GA
     """
+
     a, b = tee(iterable)
-    next(b, None)
-    return zip(a, b)
+    c = next(b, None)
+
+    if cycle:
+        return zip_longest(a, b, fillvalue=c)
+    else:
+        return zip(a, b)
 
 
 def get_short_id(point, n: int = 6):
@@ -277,3 +303,18 @@ def deprecated(func):
         return func(*args, **kwargs)
 
     return new_func
+
+
+def get_phi(x, y, tol=1e-5):
+    """
+    This function calculates the angle between a point and the x axis.
+    :return [0, 360]
+    """
+    phi = atan2(y, x) * 180.0 / pi
+
+    if phi < -tol:
+        phi += 360.0
+
+    phi = fmod(phi + tol, 360.0) - tol
+
+    return phi

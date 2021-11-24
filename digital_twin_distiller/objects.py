@@ -4,7 +4,7 @@ from copy import copy
 
 from numpy import linspace
 
-from digital_twin_distiller.utils import getID, mirror_point, pairwise
+from digital_twin_distiller.utils import getID, get_phi, get_short_id, mirror_point, pairwise
 
 
 class Node:
@@ -28,6 +28,24 @@ class Node:
             return self.y
         else:
             raise IndexError
+
+    def __le__(self, other):
+        if self < other or self == other:
+            return True
+
+        return False
+
+    def __ge__(self, other):
+        if self > other or self == other:
+            return True
+
+        return False
+
+    def __gt__(self, other):
+        if not self == other and not self < other:
+            return True
+        else:
+            return False
 
     def __eq__(self, other):
         return abs(self.x - other.x) < 1e-5 and abs(self.y - other.y) < 1e-5
@@ -65,10 +83,13 @@ class Node:
     def __str__(self):
         # return f"({self.x:.1f}, {self.y:.1f}, label={self.label})"
         return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
+        # return f"N({self.x:.1f}, {self.y:.1f}, {self.label})"
+        # return f"{self.label}"
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.x!r}, {self.y!r}, id={self.id!r},label={self.label!r})"
-        # return f"{self.__class__.__name__}({self.x:.1f}, {self.y:.1f}, id={hex(self.id)[-5:]})"
+        # return f"N({self.x:.1f}, {self.y:.1f}, {self.label})"
+        # return f"{self.label}"
 
     def __copy__(self):
         return Node(
@@ -85,8 +106,48 @@ class Node:
     def __abs__(self):
         return self.length()
 
+    def __lt__(self, o):
+        """
+        This function compares the operands l2 value with its l2 value. If they're equal (whitin tolerance)
+        that means the nodes are on the same circle. If that's the case then check their angle return accordingly.
+        If the l2 values are different then one node is obviously bigger than the other. In that case check the
+        differences sign.
+        :param o: other Node
+        :return: True or False
+        """
+        diff = abs(self) - abs(o)
+        tol = 1e-5
+
+        phi_self = get_phi(*self, tol=tol)
+        phi_other = get_phi(*o, tol=tol)
+        angle_diff = phi_self - phi_other
+
+        if abs(angle_diff) < tol:
+            if diff < -tol:
+                return True
+            else:
+                return False
+        elif angle_diff < -tol:
+            return True
+        else:
+            return False
+
+        # if abs(diff) < tol:
+        #     # They're on the same circle, more checks needed to decide
+        #     if (phi_self - phi_other) < - tol:
+        #         return True
+        #     else:
+        #         return False
+        # elif diff < -tol:
+        #     return True
+        # else:
+        #     return False
+
+    def __hash__(self):
+        return int(get_short_id(self), base=16)
+
     def length(self):
-        return math.sqrt(self.x ** 2 + self.y ** 2)
+        return math.hypot(*self)
 
     def distance_to(self, p):
         """Calculate the distance between two points."""

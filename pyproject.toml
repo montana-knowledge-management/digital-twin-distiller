@@ -37,13 +37,13 @@ uvicorn = "^0.15.0"
 vedo = "^2021"
 
 # Dependencies for developers
+Shapely = "^1.8.0"
 # list all devtools here
 [tool.poetry.dev-dependencies]
 black = "*"
 coverage = "*"
 pre-commit = "*"
 pytest = "*"
-gitlint = "*"
 isort = "*"
 pyupgrade = "^2.29"
 pylint = "^2.11.1"
@@ -64,7 +64,7 @@ line-length = 120
 target-version = ['py38']
 force-exclude = '''
   (
-    digital-twin-distiller/resources/
+    digital_twin_distiller/resources/
   | tests/solver_script_references/
   )
 '''
@@ -104,6 +104,7 @@ include_trailing_comma = true
 multi_line_output = 3
 force_grid_wrap = 0
 quiet = true
+skip="__init__.py"
 
 [tool.pylint.MASTER]
 max-line-length = 120

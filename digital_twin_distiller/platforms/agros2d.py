@@ -158,7 +158,7 @@ class Agros2D(Platform):
     def export_closing_steps(self):
         self.write("f.close()")
 
-    def execute(self, cleanup=False, timeout=10):
+    def execute(self, cleanup=False, timeout=10, **kwargs):
         try:
             if sys.platform == "linux":
                 subprocess.run(

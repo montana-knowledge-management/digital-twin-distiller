@@ -1,8 +1,15 @@
 import unittest
 from pathlib import Path
 
-from digital_twin_distiller.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition, \
-    AntiPeriodicBoundaryCondition, PeriodicBoundaryCondition, AntiPeriodicAirGap, PeriodicAirGap
+from digital_twin_distiller.boundaries import (
+    AntiPeriodicAirGap,
+    AntiPeriodicBoundaryCondition,
+    DirichletBoundaryCondition,
+    NeumannBoundaryCondition,
+    PeriodicAirGap,
+    PeriodicBoundaryCondition,
+)
+from digital_twin_distiller.femm_wrapper import femm_current_flow, femm_electrostatic, femm_heat_flow, femm_magnetic
 from digital_twin_distiller.geometry import Geometry
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import Agros2DMetadata, FemmMetadata
@@ -10,7 +17,6 @@ from digital_twin_distiller.objects import CircleArc, Line, Node
 from digital_twin_distiller.platforms.agros2d import Agros2D
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
-from digital_twin_distiller.femm_wrapper import femm_magnetic, femm_electrostatic, femm_current_flow, femm_heat_flow
 
 
 class MockFileHandle:
@@ -99,14 +105,14 @@ class TestSnapshotAgros2D(unittest.TestCase):
 
     def test_export_results(self):
         s = self.get_snapshot()
-        s.add_postprocessing('mesh_info', None, None)
-        s.add_postprocessing('point_value', [1.0, 1.0], "Bx")
-        s.add_postprocessing('integration', [(1.0, 2.0), (3.0, 3.0)], "Energy")
+        s.add_postprocessing("mesh_info", None, None)
+        s.add_postprocessing("point_value", [1.0, 1.0], "Bx")
+        s.add_postprocessing("integration", [(1.0, 2.0), (3.0, 3.0)], "Energy")
         f = MockFileHandle()
         s.export(f)
 
         # mesh data
-        self.assertIn(r'info = magnetic.solution_mesh_info()', f.content)
+        self.assertIn(r"info = magnetic.solution_mesh_info()", f.content)
         self.assertIn(r'f.write("{}, {}\n".format("dofs", info["dofs"]))', f.content)
         self.assertIn(r'f.write("{}, {}\n".format("nodes", info["nodes"]))', f.content)
         self.assertIn(r'f.write("{}, {}\n".format("elements", info["elements"])', f.content)
@@ -186,25 +192,24 @@ class TestSnapshotFemm(unittest.TestCase):
         self.assertEqual(platform.writer.field, femm_magnetic)
 
         metadata = self.get_metadata()
-        metadata.problem_type = 'electrostatic'
+        metadata.problem_type = "electrostatic"
         platform = Femm(metadata)
         self.assertEqual(platform.writer.field, femm_electrostatic)
 
         metadata = self.get_metadata()
-        metadata.problem_type = 'heat'
+        metadata.problem_type = "heat"
         platform = Femm(metadata)
         self.assertEqual(platform.writer.field, femm_heat_flow)
 
         metadata = self.get_metadata()
-        metadata.problem_type = 'current'
+        metadata.problem_type = "current"
         platform = Femm(metadata)
         self.assertEqual(platform.writer.field, femm_current_flow)
 
         metadata = self.get_metadata()
-        metadata.problem_type = 'falsefield'
+        metadata.problem_type = "falsefield"
         with self.assertRaises(ValueError):
             Femm(metadata)
-
 
     def test_set_add_boundary_condition(self):
         s = self.get_snapshot()
@@ -245,11 +250,11 @@ class TestSnapshotFemm(unittest.TestCase):
 
     def test_export_results(self):
         s = self.get_snapshot()
-        s.add_postprocessing('mesh_info', None, None)
-        s.add_postprocessing('point_value', [1.0, 1.0], "Bx")
-        s.add_postprocessing('integration', [(1.0, 2.0), (3.0, 3.0)], "Energy")
+        s.add_postprocessing("mesh_info", None, None)
+        s.add_postprocessing("point_value", [1.0, 1.0], "Bx")
+        s.add_postprocessing("integration", [(1.0, 2.0), (3.0, 3.0)], "Energy")
 
-        s.add_postprocessing('saveimage', None, None)
+        s.add_postprocessing("saveimage", None, None)
 
         f = MockFileHandle()
         s.export(f)
@@ -259,15 +264,15 @@ class TestSnapshotFemm(unittest.TestCase):
         self.assertIn(r'write(file_out, "elements, ", mo_numelements(), "\n")', f.content)
 
         # point values
-        self.assertIn(r'A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph = mo_getpointvalues(1.0, 1.0)', f.content)
+        self.assertIn(r"A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph = mo_getpointvalues(1.0, 1.0)", f.content)
         self.assertIn(r'write(file_out, "Bx, 1.0, 1.0, ", B1, "\n")', f.content)
 
         # energy
-        self.assertIn(r'mo_selectblock(1.0, 2.0)', f.content)
-        self.assertIn(r'Energy = mo_blockintegral(2)', f.content)
+        self.assertIn(r"mo_selectblock(1.0, 2.0)", f.content)
+        self.assertIn(r"Energy = mo_blockintegral(2)", f.content)
 
         # saveimage
-        self.assertIn(r'mo_refreshview()', f.content)
+        self.assertIn(r"mo_refreshview()", f.content)
         self.assertIn(r'mo_save_bitmap("', f.content)
 
     def test_export(self):
@@ -334,18 +339,17 @@ class TestSnapshotFemm(unittest.TestCase):
         s.assign_boundary_condition(0.5, 0, name="eper")
         s.export(f)
 
-
-        self.assertIn(r'mi_addnode(0, 0)', f.content)
-        self.assertIn(r'mi_addnode(1, 0)', f.content)
-        self.assertIn(r'mi_addnode(1, 1)', f.content)
-        self.assertIn(r'mi_addnode(0, 1)', f.content)
-        self.assertIn(r'mi_addnode(0, 0.5)', f.content)
-        self.assertIn(r'mi_addnode(1, 0.5)', f.content)
-        self.assertIn(r'mi_addsegment(0, 0, 1, 0)', f.content)
-        self.assertIn(r'mi_selectsegment(0.5, 0.0)', f.content)
+        self.assertIn(r"mi_addnode(0, 0)", f.content)
+        self.assertIn(r"mi_addnode(1, 0)", f.content)
+        self.assertIn(r"mi_addnode(1, 1)", f.content)
+        self.assertIn(r"mi_addnode(0, 1)", f.content)
+        self.assertIn(r"mi_addnode(0, 0.5)", f.content)
+        self.assertIn(r"mi_addnode(1, 0.5)", f.content)
+        self.assertIn(r"mi_addsegment(0, 0, 1, 0)", f.content)
+        self.assertIn(r"mi_selectsegment(0.5, 0.0)", f.content)
         self.assertIn(r'mi_setsegmentprop("eper", None, 1, 0, 0, "<None>")', f.content)
-        self.assertIn(r'mi_clearselected()', f.content)
-        self.assertIn(r'mi_addsegment(1, 0, 1, 1)', f.content)
-        self.assertIn(r'mi_addsegment(1, 1, 0, 1)', f.content)
-        self.assertIn(r'mi_addsegment(0, 1, 0, 0)', f.content)
-        self.assertIn(r'mi_addarc(0, 0.5, 1, 0.5, 180.0, 20)', f.content)
+        self.assertIn(r"mi_clearselected()", f.content)
+        self.assertIn(r"mi_addsegment(1, 0, 1, 1)", f.content)
+        self.assertIn(r"mi_addsegment(1, 1, 0, 1)", f.content)
+        self.assertIn(r"mi_addsegment(0, 1, 0, 0)", f.content)
+        self.assertIn(r"mi_addarc(0, 0.5, 1, 0.5, 180.0, 20)", f.content)

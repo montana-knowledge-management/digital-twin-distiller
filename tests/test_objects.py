@@ -13,7 +13,7 @@ class TestNodeOperations(TestCase):
     def test_getitem(self):
         n = Node(-1, 3)
         self.assertAlmostEqual(n[0], -1, delta=1e-12)
-        self.assertAlmostEqual(n[1],  3, delta=1e-12)
+        self.assertAlmostEqual(n[1], 3, delta=1e-12)
 
         with self.assertRaises(IndexError):
             print(n[100])
@@ -79,7 +79,8 @@ class TestNodeOperations(TestCase):
         n0 = Node(10, 10)
         n1 = Node(-10, -10)
         m = n0.mean(n1)
-        self.assertEqual(m, Node(0.0, 0.0))        
+        self.assertEqual(m, Node(0.0, 0.0))
+
 
 class TestLine(TestCase):
     def test_init_line(self):
@@ -121,8 +122,7 @@ class TestArc(TestCase):
         self.assertEqual(c.apex_pt, Node(0, -1))
         self.assertAlmostEqual(c.radius, 1.0, 5)
 
-
-        c2 = CircleArc(Node(-1, 0), Node(0,0), Node(1,0))
+        c2 = CircleArc(Node(-1, 0), Node(0, 0), Node(1, 0))
         self.assertEqual(c2.center_pt, Node(0, 0))
 
     def test_copy(self):
@@ -154,6 +154,7 @@ class TestArc(TestCase):
         c0 = CircleArc(Node(-1, 0), Node(0, 0), Node(1, 0))
         c1 = CircleArc.from_radius(Node(-1, 0), Node(1, 0), 1)
         self.assertEqual(c0, c1)
+
 
 class TestCubicBezier(TestCase):
     def test_init_bezier(self):
@@ -220,7 +221,7 @@ class TestParametricBezier(TestCase):
 
         with self.assertRaises(AssertionError):
             x, y = bz(5)
-    
+
 
 class TesRectangle(TestCase):
     def test_creation(self):

@@ -15,6 +15,9 @@ from digital_twin_distiller.boundaries import (
     PeriodicBoundaryCondition,
 )
 from digital_twin_distiller.femm_wrapper import (
+    ElectrostaticFixedVoltage,
+    ElectrostaticMaterial,
+    ElectrostaticSurfaceCharge,
     FemmExecutor,
     FemmWriter,
     MagneticAnti,
@@ -27,7 +30,7 @@ from digital_twin_distiller.femm_wrapper import (
     femm_current_flow,
     femm_electrostatic,
     femm_heat_flow,
-    femm_magnetic, ElectrostaticFixedVoltage, ElectrostaticSurfaceCharge, ElectrostaticMaterial,
+    femm_magnetic,
 )
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import Metadata
@@ -117,10 +120,7 @@ class Femm(Platform):
                     self.write(f'mi_addbhpoint("{mat.name}", {bi}, {hi})')
 
         if self.metadata.problem_type == "electrostatic":
-            femm_material = ElectrostaticMaterial(material_name=mat.name,
-                                                  ex=mat.epsioln_r,
-                                                  ey=mat.epsioln_r,
-                                                  qv=mat.qv)
+            femm_material = ElectrostaticMaterial(material_name=mat.name, ex=mat.epsioln_r, ey=mat.epsioln_r, qv=mat.qv)
             self.write(self.writer.add_material(femm_material))
 
     def export_block_label(self, x, y, mat: Material):
@@ -149,9 +149,8 @@ class Femm(Platform):
                     phi=0,
                 )
 
-            if self.metadata.problem_type == 'electrostatic':
-                femm_boundary = ElectrostaticFixedVoltage(name=b.name,
-                                                          Vs=b.valuedict['fixed_voltage'])
+            if self.metadata.problem_type == "electrostatic":
+                femm_boundary = ElectrostaticFixedVoltage(name=b.name, Vs=b.valuedict["fixed_voltage"])
 
         if isinstance(b, NeumannBoundaryCondition):
             if self.metadata.problem_type == "magnetic":
@@ -161,9 +160,8 @@ class Femm(Platform):
                     c1=0,
                 )
 
-            if self.metadata.problem_type == 'electrostatic':
-                femm_boundary = ElectrostaticSurfaceCharge(name=b.name,
-                                                           qs=b.valuedict['surface_charge_density'])
+            if self.metadata.problem_type == "electrostatic":
+                femm_boundary = ElectrostaticSurfaceCharge(name=b.name, qs=b.valuedict["surface_charge_density"])
 
         if isinstance(b, AntiPeriodicBoundaryCondition):
             if self.metadata.problem_type == "magnetic":
@@ -212,7 +210,7 @@ class Femm(Platform):
             clamp = e.start_pt.distance_to(e.end_pt) / 2.0
             # GK: TODO: the next line will raise an exception if the arc is a half circle:
             # the start, center, end points will be on the same line therefore radius == clamp/2
-            # and asin(1) -> inf. possible solution is to put this into a try block as in the 
+            # and asin(1) -> inf. possible solution is to put this into a try block as in the
             # objects.CircleArc.__init__ function.
             theta = round(asin(clamp / radius) * 180 / pi * 2, 2)
 
@@ -325,7 +323,7 @@ class Femm(Platform):
         for cmd_i in self.writer.close():
             self.write(cmd_i)
 
-    def execute(self, cleanup=False, timeout=10):
+    def execute(self, cleanup=False, timeout=10, **kwargs):
         executor = FemmExecutor()
         try:
             executor.run_femm(self.metadata.file_script_name, timeout=timeout)
