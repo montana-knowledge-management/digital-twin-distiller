@@ -189,6 +189,7 @@ class Geometry:
         """
         Creates an svg image from the geometry objects.
         """
+        file_name = str(file_name)
 
         # every object handled as a separate path
 
