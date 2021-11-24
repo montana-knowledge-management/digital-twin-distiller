@@ -24,5 +24,5 @@ if __name__ == "__main__":
     sim.set_model(Team35)
 
     model = Server(sim)
-    # model.build_docs()
+    model.build_docs()
     model.run()
