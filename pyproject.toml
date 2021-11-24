@@ -105,6 +105,7 @@ include_trailing_comma = true
 multi_line_output = 3
 force_grid_wrap = 0
 quiet = true
+skip="__init__.py"
 
 [tool.pylint.MASTER]
 max-line-length = 120
