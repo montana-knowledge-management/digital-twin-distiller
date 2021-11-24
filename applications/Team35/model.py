@@ -62,10 +62,26 @@ class Team35(BaseModel):
         self.snapshot.add_material(control)
 
     def define_boundary_conditions(self):
-        a0 = DirichletBoundaryCondition("a0", field_type="magnetic", magnetic_potential=0.0)
+        b1 = DirichletBoundaryCondition(name="a0", field_type="magnetic", magnetic_potential=0.0)
+        n0 = NeumannBoundaryCondition(name="n0", field_type="magnetic", surface_current=0.0)
 
-        # Adding boundary conditions to the snapshot
-        self.snapshot.add_boundary_condition(a0)
+        self.snapshot.add_boundary_condition(b1)
+        self.snapshot.add_boundary_condition(n0)
+
+        self.boundary_queue.append((0, 2.5, "a0"))
+        self.boundary_queue.append((0, 25, "a0"))
+        self.boundary_queue.append((40, 140, "a0"))
+        self.boundary_queue.append((140, 40, "a0"))
+
+        p0 = (2.5, 0.0)
+        p1 = ((self.X[0] + 5) / 2, 0.0)
+        p2 = (self.X[0] + 0.5, 0.0)
+        p3 = ((self.X[0] + 1.0 + 140) / 2, 0.0)
+        
+        self.assign_boundary(p0[0], p0[1], "n0")
+        self.assign_boundary(p1[0], p1[1], "n0")
+        self.assign_boundary(p2[0], p2[1], "n0")
+        self.assign_boundary(p3[0], p3[1], "n0")
 
     def add_postprocessing(self):
         points = [(0, 0)]
