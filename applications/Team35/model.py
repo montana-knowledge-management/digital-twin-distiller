@@ -84,8 +84,19 @@ class Team35(BaseModel):
         self.assign_boundary(p3[0], p3[1], "n0")
 
     def add_postprocessing(self):
-        points = [(0, 0)]
-        self.snapshot.add_postprocessing("integration", points, "Energy")
+        Nx = 10
+        Ny = 10
+        px = np.linspace(0.001, 5, Nx)
+        py = np.linspace(0.001, 5, Ny)
+        xv, yv = np.meshgrid(px, py, sparse=False, indexing="xy")
+
+        for i in range(Nx):
+            for j in range(Ny):
+                eval_point = (xv[j, i], yv[j, i])
+                self.snapshot.add_postprocessing("point_value", eval_point, "Bz")
+                self.snapshot.add_postprocessing("point_value", eval_point, "Br")
+
+        self.snapshot.add_postprocessing("mesh_info", None, None)
 
     def build_geometry(self):
         # ...
