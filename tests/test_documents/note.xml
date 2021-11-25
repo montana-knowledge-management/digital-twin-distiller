@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<envelope>
+<note>
+    <to>
+        <value>Tove</value>
+    </to>
+    <from>
+        <value>Jani</value>
+    </from>
+    <heading>
+        <value>Reminder</value>
+    </heading>
+    <body>
+        <value>Don't forget me this weekend!</value>
+    </body>
+</note>
+</envelope>
+</root>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<S:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:S="http://www.w3.org/2003/05/soap-envelope">
+   <env:Header/>
+   <S:Body>
+      <searchResults xsi:schemaLocation="http://eur-lex.europa.eu/search https://eur-lex.europa.eu/eurlex-ws?xsd=3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:searchLayerHelper="xalan//eu.europa.ec.op.searchlayer.domain.util.SearchLayerHelper" xmlns="http://eur-lex.europa.eu/search">
+         <numhits>1</numhits>
+         <totalhits>1</totalhits>
+         <page>1</page>
+         <language>hu</language>
+         <result>
+            <reference>hun_cellar:92d2117e-0ed7-4cc7-93a9-a39dfb68df06_hu</reference>
+            <rank>1</rank>
+            <content>
+               <NOTICE>
+                     <ECLI>
+                        <VALUE>ECLI:EU:C:2007:55</VALUE>
+                     </ECLI>
+                     <ID_CELEX>
+                        <VALUE>62005CJ0048</VALUE>
+                     </ID_CELEX>
+               </NOTICE>
+            </content>
+         </result>
+      </searchResults>
+   </S:Body>
+</S:Envelope>

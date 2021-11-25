@@ -1,0 +1,7 @@
+Moore's law
+-----------
+
+Moore's law is the observation that the number of transistors in a dense integrated circuit (IC)
+doubles about every two years. Moore's law is an observation and projection of a historical trend.
+Rather than a law of physics, it is an empirical relationship linked to gains from experience in
+production.

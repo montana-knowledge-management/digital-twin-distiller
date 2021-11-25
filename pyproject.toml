@@ -38,6 +38,7 @@ vedo = "^2021"
 
 # Dependencies for developers
 Shapely = "^1.8.0"
+tika = "^1.24"
 # list all devtools here
 [tool.poetry.dev-dependencies]
 black = "*"
