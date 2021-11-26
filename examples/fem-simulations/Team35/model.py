@@ -7,16 +7,17 @@ from digital_twin_distiller import Agros2DMetadata, FemmMetadata
 from digital_twin_distiller import Snapshot
 from digital_twin_distiller import ModelPiece
 import numpy as np
+import operator as op
 
 ModelDir.set_base(__file__)
 
-class Team35(BaseModel):
+class DistributedWinding(BaseModel):
     """docstring for Team35"""
     def __init__(self, X:list, **kwargs):
         assert len(X) == 10
         self.X = X.copy()
 
-        super(Team35, self).__init__(**kwargs)
+        super(DistributedWinding, self).__init__(**kwargs)
         self._init_directories()
 
     def setup_solver(self):
@@ -38,12 +39,13 @@ class Team35(BaseModel):
         agros_metadata.nb_refinements = 0
         agros_metadata.adaptivity = "hp-adaptivity"
         agros_metadata.polyorder = 2
-        agros_metadata.adaptivity_tol = 0.001
+        # agros_metadata.adaptivity_tol = 0.001
+        agros_metadata.adaptivity_tol = 1
 
         platform_femm = Femm(femm_metadata)
         platform_agros = Agros2D(agros_metadata)
 
-        platform = platform_femm
+        platform = platform_agros
         self.snapshot = Snapshot(platform)
 
     def define_materials(self):
@@ -133,6 +135,6 @@ class Team35(BaseModel):
 
 if __name__ == "__main__":
 
-    X = [10] * 10
-    m = Team35(X, exportname="dev")
+    X = [10] *10
+    m = DistributedWinding(X, exportname="dev")
     print(m(cleanup=False))
