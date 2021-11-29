@@ -262,3 +262,29 @@ class TestGeometry(TestCase):
         self.assertEqual(len(geo.nodes), 4)
         self.assertEqual(geo.nodes[0].x, 0)
         self.assertEqual(geo.nodes[0].y, 0)
+
+    def test_delete_lines(self):
+        g = Geometry()
+
+        n0 = Node(0, 0)
+        n1 = Node(1, 0)
+        n2 = Node(1, 1)
+        n3 = Node(0, 1)
+
+        l0 = Line(n0, n1)
+        l1 = Line(n1, n2)
+        l2 = Line(n2, n3)
+        l3 = Line(n3, n0)
+
+        g.add_line(l0)
+        g.add_line(l1)
+        g.add_line(l2)
+        g.add_line(l3)
+
+        self.assertEqual(len(g.lines), 4)
+
+        # delete l0
+        g.delete_line(0.5, 0)
+        self.assertEqual(len(g.lines), 3)
+        self.assertFalse(l0 in g.lines)
+

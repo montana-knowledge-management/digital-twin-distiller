@@ -103,6 +103,15 @@ class Geometry:
     def meshi_it(self, mesh_strategy):
         mesh = mesh_strategy(self.nodes, self.lines, self.circle_arcs, self.cubic_beziers)
         return mesh
+    
+    def delete_line(self, x:float, y:float):
+        """
+        This functin deletes the line from the geometry closest to the x, y coordinates.
+        """
+        closest_line = min(self.lines, key=lambda li: li.distance_to_point(x, y))
+        idx = self.lines.index(closest_line)
+        self.lines.pop(idx)
+
 
     def __repr__(self):
         msg = ""
