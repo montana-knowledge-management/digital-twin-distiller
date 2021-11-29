@@ -51,7 +51,9 @@ class Geometry:
         # save every start and end points for the geoemtry if they are not exists
         cb.start_pt = self.append_node(cb.start_pt)
         cb.end_pt = self.append_node(cb.end_pt)
-        self.cubic_beziers.append(cb)
+        
+        if cb not in self.cubic_beziers:
+            self.cubic_beziers.append(cb)
 
     def add_rectangle(self, r: obj.Rectangle):
         p = list(r)
