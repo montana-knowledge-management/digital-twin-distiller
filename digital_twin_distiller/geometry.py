@@ -36,7 +36,8 @@ class Geometry:
         line.start_pt = self.append_node(line.start_pt)
         line.end_pt = self.append_node(line.end_pt)
 
-        self.lines.append(line)
+        if line not in self.lines:
+            self.lines.append(line)
 
     def add_arc(self, arc):
         # save every start and end points for the geoemtry if they are not exists
