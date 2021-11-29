@@ -12,16 +12,16 @@ class CoilOptimizationProblem(Problem):
         self.name = "Team35 Test Problem"
 
         self.parameters = [
-            {"name": "r0", "bounds": [5.5, 20]},
-            {"name": "r1", "bounds": [5.5, 20]},
-            {"name": "r2", "bounds": [5.5, 20]},
-            {"name": "r3", "bounds": [5.5, 20]},
-            {"name": "r4", "bounds": [5.5, 20]},
-            {"name": "r5", "bounds": [5.5, 20]},
-            {"name": "r6", "bounds": [5.5, 20]},
-            {"name": "r7", "bounds": [5.5, 20]},
-            {"name": "r8", "bounds": [5.5, 20]},
-            {"name": "r9", "bounds": [5.5, 20]},
+            {"name": "r0", "bounds": [5, 20]},
+            {"name": "r1", "bounds": [5, 20]},
+            {"name": "r2", "bounds": [5, 20]},
+            {"name": "r3", "bounds": [5, 20]},
+            {"name": "r4", "bounds": [5, 20]},
+            {"name": "r5", "bounds": [5, 20]},
+            {"name": "r6", "bounds": [5, 20]},
+            {"name": "r7", "bounds": [5, 20]},
+            {"name": "r8", "bounds": [5, 20]},
+            {"name": "r9", "bounds": [5, 20]},
         ]
 
         self.costs = [
