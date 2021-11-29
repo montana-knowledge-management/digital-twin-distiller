@@ -43,8 +43,9 @@ class Geometry:
         # save every start and end points for the geoemtry if they are not exists
         arc.start_pt = self.append_node(arc.start_pt)
         arc.end_pt = self.append_node(arc.end_pt)
-
-        self.circle_arcs.append(arc)
+        
+        if arc not in self.circle_arcs:
+            self.circle_arcs.append(arc)
 
     def add_cubic_bezier(self, cb):
         # save every start and end points for the geoemtry if they are not exists
