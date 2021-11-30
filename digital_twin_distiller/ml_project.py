@@ -15,7 +15,7 @@ from importlib_resources import files
 supported_extensions = [JSON, TXT, PDF]
 
 
-class AbstractProject:
+class MachineLearningProject:
     log = logging.getLogger(__name__)
     # This folder contains the index page for the api endpoint
     #template_folder = files("digital_twin_distiller") / "resources" / "templates"
