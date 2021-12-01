@@ -87,30 +87,32 @@ class MachineLearningProject:
     #             JsonWriter().write(data, "tmp.json")
 
     def bulk_input_directory(self, directory_name, extension=JSON, key=None):
-        """Reads the data into a dictionary, where the key is the filename than the"""
+        """
+        Reads the data into a dictionary, where the key is the filename than the
+        """
 
         if extension not in supported_extensions:
-            print(f"{extension} - extension is not supported.")
-            return
+            raise ValueError(f"{extension} - extension is not supported.")
 
         for file in os.listdir(directory_name):
             inp_dict = None
             if file.endswith(extension):
-                temp = os.path.join(directory_name, file)
+                file_path = os.path.join(directory_name, file)
                 if extension == JSON:
-                    inp_dict = self.open_data_file(rdr.JsonReader(), temp)
+                    inp_dict = self.open_data_file(rdr.JsonReader(), file_path, key)
 
                 if extension == PDF:
-                    inp_dict = self.open_data_file(rdr.PdfReader(), temp, key)
+                    inp_dict = self.open_data_file(rdr.PdfReader(), file_path, key)
 
                 if extension == TXT:
-                    inp_dict = self.open_data_file(rdr.TextReader(), temp, key)
+                    inp_dict = self.open_data_file(rdr.TextReader(), file_path, key)
 
                 if inp_dict:
                     self._input_data.append(inp_dict)
 
     def open_data_file(self, reader, file_name, key=None):
-        """Stores the input data in  a dictionary, or the content under a dictionary key.
+        """
+        Stores the input data in  a dictionary, or the content under a dictionary key.
 
         Possible usage of the function in different example cases:
 

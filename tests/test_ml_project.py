@@ -83,3 +83,27 @@ class TestMLProject(unittest.TestCase):
         data = {"test": 2}
         dummy = DummySubTask()
         self.assertEqual(dummy(data), 2)
+
+    def test_bulk_input_directory(self):
+        test_doc_path = files("tests") / "test_documents"
+        project = mlp.MachineLearningProject()
+        # testing pdf
+        project.bulk_input_directory(directory_name=test_doc_path, extension=".pdf", key="PDF")
+        self.assertIsNotNone(project._input_data[0].get("PDF"))
+        self.assertEqual(len(project._input_data), 2)
+        # testing txt
+        project._input_data = []
+        project.bulk_input_directory(directory_name=test_doc_path, extension=".txt", key="TXT")
+        self.assertIsNotNone(project._input_data[0].get("TXT"))
+        self.assertEqual(len(project._input_data), 1)
+        #testing json
+        project._input_data = []
+        project.bulk_input_directory(directory_name=test_doc_path, extension=".json", key="JSON")
+        self.assertIsNotNone(project._input_data[0].get("JSON"))
+        self.assertEqual(len(project._input_data), 1)
+
+    def test_bulk_input_directory_not_supported_input(self):
+        project = mlp.MachineLearningProject()
+        with self.assertRaises(ValueError) as context:
+            project.bulk_input_directory(directory_name=files("tests") / "test_documents", extension=".doc", key=None)
+            self.assertIn(".doc - extension is not supported.", context.exception)
