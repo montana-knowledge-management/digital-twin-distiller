@@ -18,8 +18,8 @@ supported_extensions = [JSON, TXT, PDF]
 class MachineLearningProject:
     log = logging.getLogger(__name__)
     # This folder contains the index page for the api endpoint
-    #template_folder = files("digital_twin_distiller") / "resources" / "templates"
-    #static_folder = files("digital_twin_distiller") / "resources" / "static"
+    # template_folder = files("digital_twin_distiller") / "resources" / "templates"
+    # static_folder = files("digital_twin_distiller") / "resources" / "static"
 
     port = 9099
     debug = False
@@ -68,22 +68,23 @@ class MachineLearningProject:
     def cache(self):
         pass
 
-    def http_input(self, http_input, file_format, reader=None, output_directory="/tmp/"):
-        """
-        TODO: this function should be finished and discussed!
-        """
-
-        response = requests.get(http_input)
-        filename = response.url.split("/")[-1]
-
-        if file_format == PDF:
-            path = os.path.join(output_directory, filename)
-
-            with open(path, "wb") as file:
-                file.write(response.content)
-            if reader:
-                data = reader().read(path)
-                JsonWriter().write(data, "tmp.json")
+    # TODO: this part is going to be replaced by the S3 bucket solution.
+    # def http_input(self, http_input, file_format, reader=None, output_directory="/tmp/"):
+    #     """
+    #     This function should be finished and discussed! Not finished yet!
+    #     """
+    #
+    #     response = requests.get(http_input)
+    #     filename = response.url.split("/")[-1]
+    #
+    #     if file_format == PDF:
+    #         path = os.path.join(output_directory, filename)
+    #
+    #         with open(path, "wb") as file:
+    #             file.write(response.content)
+    #         if reader:
+    #             data = reader().read(path)
+    #             JsonWriter().write(data, "tmp.json")
 
     def bulk_input_directory(self, directory_name, extension=JSON, key=None):
         """Reads the data into a dictionary, where the key is the filename than the"""
@@ -195,17 +196,6 @@ class Classifier(AbstractSubTask):
 
 
 class ExtractorAbstract(AbstractSubTask):
-    def __init__(self):
-        super().__init__()
-        self.define_options()
-
-    @abstractmethod
-    def define_options(self):
-        ...
-
-
-class NormalizerAbstract(AbstractSubTask):
-    # a kind of post-processor, which works on a key and gives back the normalized value of this key
     def __init__(self):
         super().__init__()
         self.define_options()
