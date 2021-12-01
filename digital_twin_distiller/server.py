@@ -34,7 +34,7 @@ class InputJsonSim(BaseModel):
     Class for validating the input sent to the /process endpoint for SimulationProject.
     """
 
-    simulation: dict = {"type": "default"}
+    simulation: Optional[dict] = {"type": "default"}
     model: Optional[dict] = {}
     tolerances: Optional[dict] = {
         "type": "ff",
@@ -42,8 +42,8 @@ class InputJsonSim(BaseModel):
         "variables": [],
     }
     misc: Optional[dict] = {"processes": 4, "cleanup": True, "exportname": None}
-
-    version: Optional[str] = "0.7"
+    # TODO: get this version number from poetry, what do we want from this version
+    version: Optional[str] = "2021.12"
 
     # Setting for keeping the additional keys in the input json intact
     class Config:
@@ -53,25 +53,25 @@ class InputJsonSim(BaseModel):
 # Defining the API
 app = FastAPI(title="{} API", docs_url="/apidocs", redoc_url=None)
 
-
-def mounts():
-    # Mounting folders of the default mkdocs documentation to the application.
-    app.mount(
-        "/assets",
-        StaticFiles(directory=files("docs") / "site" / "assets"),
-        name="assets",
-    )
-    app.mount(
-        "/search",
-        StaticFiles(directory=files("docs") / "site" / "search"),
-        name="search",
-    )
-
-    app.mount(
-        "/images",
-        StaticFiles(directory=files("docs") / "site" / "images"),
-        name="images",
-    )
+# TODO: CSG: In my opinion this is useless in this current form.
+# def mounts():
+#     # Mounting folders of the default mkdocs documentation to the application.
+#     app.mount(
+#         "/assets",
+#         StaticFiles(directory=files("docs") / "site" / "assets"),
+#         name="assets",
+#     )
+#     app.mount(
+#         "/search",
+#         StaticFiles(directory=files("docs") / "site" / "search"),
+#         name="search",
+#     )
+#
+#     app.mount(
+#         "/images",
+#         StaticFiles(directory=files("docs") / "site" / "images"),
+#         name="images",
+#     )
 
 
 tags_metadata = [
@@ -137,18 +137,10 @@ async def process_ml(item: InputJsonML):
     The endpoint performs automatic input validation via the Item class.
     """
     data = json.loads(item.json())
-    try:
-        if data:
-            app.project.add_single_input(data)
-            app.project.run()
-    except Exception as e:
-        app.project._output["exception"] = {
-            "type": e.__class__.__name__,
-            "message": str(e),
-            "traceback": traceback.format_exc(),
-        }
-    finally:
-        return app.project.get_single_output()
+    if data:
+        app.project.add_single_input(data)
+        app.project.run()
+    return app.project.get_single_output()
 
 
 @app.get("/ping", include_in_schema=True, tags=["ping"])
@@ -175,7 +167,10 @@ class Server:
     Server for running a custom project as an API.
     """
 
-    def __init__(self, project: [SimulationProject, MachineLearningProject]):
+    def __init__(self, project):
+        """
+        :param project: either MachineLearningProject or SimulationProject instance
+        """
         self.app = app
         self.app.doc_templates = Jinja2Templates(
             directory=files("digital_twin_distiller") / "resources" / "doc_template" / "site"
@@ -188,7 +183,7 @@ class Server:
         self.cert_file_path = None
         self.key_file_path = None
 
-        # self.set_project_mkdocs_dir_path(ModelDir.DOCS)
+        self.set_project_mkdocs_dir_path(ModelDir.DOCS)
 
     def set_cert_file_path(self, cert_file_path):
         self.cert_file_path = cert_file_path
