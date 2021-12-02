@@ -2,14 +2,14 @@ from copy import copy
 from pathlib import Path
 
 from digital_twin_distiller.boundaries import DirichletBoundaryCondition, AntiPeriodicBoundaryCondition, AntiPeriodicAirGap, PeriodicBoundaryCondition
-from adze_modeler.material import Material
-from adze_modeler.metadata import FemmMetadata
-from adze_modeler.model import BaseModel
-from adze_modeler.modelpiece import ModelPiece
-from adze_modeler.objects import Node, CircleArc, Rectangle, Line
-from adze_modeler.platforms.femm import Femm
-from adze_modeler.snapshot import Snapshot
-from adze_modeler.utils import inch2mm
+from digital_twin_distiller.material import Material
+from digital_twin_distiller.metadata import FemmMetadata
+from digital_twin_distiller.model import BaseModel
+from digital_twin_distiller.modelpiece import ModelPiece
+from digital_twin_distiller.objects import Node, CircleArc, Rectangle, Line
+from digital_twin_distiller.platforms.femm import Femm
+from digital_twin_distiller.snapshot import Snapshot
+from digital_twin_distiller.utils import inch2mm
 import math
 from time import perf_counter
 

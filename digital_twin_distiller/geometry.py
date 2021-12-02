@@ -86,6 +86,45 @@ class Geometry:
         self.nodes.append(new_node)
         return new_node
 
+    # Todo: Added because of Prius motor
+    def merge_points(self):
+        for i in range(len(self.nodes) - 1):
+            for j in range(len(self.nodes) - 1, i, -1):
+                if self.nodes[i].distance_to(self.nodes[j]) < self.epsilon:
+
+                    # renumber the start/end points of the different shape elements
+                    # 1/ lines
+                    for line in self.lines:
+                        if line.start_pt.id == self.nodes[j].id:
+                            line.start_pt.id = self.nodes[i].id
+
+                        if line.end_pt.id == self.nodes[j].id:
+                            line.end_pt.id = self.nodes[i].id
+
+                    # 2/ arcs
+                    for arcs in self.circle_arcs:
+                        if arcs.start_pt.id == self.nodes[j].id:
+                            arcs.start_pt.id = self.nodes[i].id
+
+                        if arcs.end_pt.id == self.nodes[j].id:
+                            arcs.end_pt.id = self.nodes[i].id
+
+                    # 3/ bezier curves
+                    for cb in self.cubic_beziers:
+                        if cb.start_pt.id == self.nodes[j].id:
+                            cb.start_pt.id = self.nodes[i].id
+
+                        if cb.control1.id == self.nodes[j].id:
+                            cb.control1.id = self.nodes[i].id
+
+                        if cb.control2.id == self.nodes[j].id:
+                            cb.control2.id = self.nodes[i].id
+
+                        if cb.end_pt.id == self.nodes[j].id:
+                            cb.end_pt.id = self.nodes[i].id
+
+                    del self.nodes[j]
+
     # Todo: bezierre és circle arcra be kellene fejezni
     def merge_lines(self):
         lines = self.lines.copy()
