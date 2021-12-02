@@ -11,96 +11,12 @@ from digital_twin_distiller.utils import purge_dir
 from time import sleep
 import requests
 
-CURRENT = Path(__file__).parent
-MODELNAME = "TestModel"
-MODELPATH = CURRENT / MODELNAME
-
-# class TestIntegratedServer(unittest.TestCase):
-#     serverprocess = None
-#
-#     @classmethod
-#     def setUpClass(cls):
-#         # creates a dummy model
-#         new(MODELNAME, CURRENT)
-#
-#         # import the model class from the new model
-#         modelclass = __import__(str("tests." + MODELNAME + ".model"), fromlist=["TestModel"]).TestModel
-#
-#         # set the paths for the new model
-#         ModelDir.set_base(MODELPATH)
-#
-#         # plug the model into the simulation
-#         sim.set_model(modelclass)
-#
-#         # plug the simulation into the server
-#         model = Server(sim)
-#
-#         # Create a new Process object
-#         cls.serverprocess = Process(name="testserver_process", target=model, daemon=True)
-#
-#         # Fire up the server in a new process
-#         cls.serverprocess.start()
-#
-#     @classmethod
-#     def tearDownClass(cls):
-#         # CLEANUP SECTION
-#
-#         # kill the serverprocess
-#         cls.serverprocess.kill()
-#
-#         # clean up the modeldir
-#         purge_dir(MODELPATH)  # DO NOT MODIFY THIS LINE TODO: OT: why???
-#
-#     # def test_ping(self):
-#     #     sleep(2)
-#     #     url = "http://0.0.0.0:5000"
-#     #     res = requests.get(f'{url}/ping', timeout=10, )
-#     #     print(res.json())
-#     #     self.assertEqual(res.status_code, 200)
-#
-#     def test_root(self):
-#         sleep(2)
-#         url = "http://0.0.0.0:5000"
-#         res = requests.get(f'{url}/', timeout=10, )
-#         print(res.json())
-#         self.assertEqual(res.status_code, 200)
-#
-# # def test_missing_text_key_sim(self):
-# #     sleep(2)
-# #     wrong_json = {"test": "Without Text key."}
-# #     url = "http://0.0.0.0:5000"
-# #     response = requests.post(f'{url}/process_sim', timeout=10, json=wrong_json,
-# #                              headers={"Content-Type": "application/json"})
-# #     print(response.json())
-# #     self.assertTrue(response.status_code, 200)
-# #     self.assertDictEqual(
-# #         response.json(),
-# #         {"detail": [{"loc": ["body", "simulation"], "msg": "field required", "type": "value_error.missing"}]},
-# #     )
-#
-# # TESTING SECTION
-# # Testing goes here, use requests library to pass requests to the server.
-#
-# # TODO: GK: Temporary placeholder
-# # self.assertTrue(True)
-#
-# #
-# # from digital_twin_distiller.server import Server
-# #
-# # model = Server(sim)
-# # model.build_docs()
-# # model.run()
-#
-# # for path in Path("test_server").glob("**/*"):
-# #     if path.is_file():
-# #         path.unlink()
-# #     elif path.is_dir():
-# #         rmtree(path)
-# # rmtree('test_server')
-
-
 from digital_twin_distiller.ml_project import MachineLearningProject
 from fastapi.testclient import TestClient
+
+CURRENT = Path(__file__).parent
+MODELNAME = "TestServer"
+MODELPATH = CURRENT / MODELNAME
 
 
 class DummyMLandSimulationProject(MachineLearningProject):
@@ -117,18 +33,16 @@ class DummyMLandSimulationProject(MachineLearningProject):
 
 class TestServer(unittest.TestCase):
     new(MODELNAME, CURRENT)
+
     # HTTP client
     example_project = DummyMLandSimulationProject(app_name="test_name")
     server = Server(example_project)
-    # server.set_project_mkdocs_dir_path(ModelDir.DOCS)
     client = TestClient(server.app)
 
     # HTTPS client
     server2 = Server(example_project)
     server2.set_key_file_path("some_path")
     server2.set_cert_file_path("some_path")
-
-    # https_client = TestClient(server2.app)
 
     def test_http_ping(self):
         response = self.client.get("/ping")
@@ -191,3 +105,9 @@ class TestServer(unittest.TestCase):
             self.server.set_project_mkdocs_dir_path(".")
             self.assertIn('please build the mkdocs site by calling "mkdocs build" in the docs directory',
                           context.exception)
+
+    @classmethod
+    def tearDownClass(cls):
+        # CLEANUP SECTION
+        # clean up the modeldir
+        purge_dir(MODELPATH)
