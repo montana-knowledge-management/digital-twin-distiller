@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # set the model for the simulation
     sim.set_model(${name})
 
-    model = Server(sim)
+    model = Encapsulator(sim)
     model.build_docs()
     mounts()
     model.run()
