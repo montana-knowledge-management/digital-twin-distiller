@@ -53,27 +53,6 @@ class InputJsonSim(BaseModel):
 # Defining the API
 app = FastAPI(title="{} API", docs_url="/apidocs", redoc_url=None)
 
-# TODO: CSG: In my opinion this is useless in this current form.
-# def mounts():
-#     # Mounting folders of the default mkdocs documentation to the application.
-#     app.mount(
-#         "/assets",
-#         StaticFiles(directory=files("docs") / "site" / "assets"),
-#         name="assets",
-#     )
-#     app.mount(
-#         "/search",
-#         StaticFiles(directory=files("docs") / "site" / "search"),
-#         name="search",
-#     )
-#
-#     app.mount(
-#         "/images",
-#         StaticFiles(directory=files("docs") / "site" / "images"),
-#         name="images",
-#     )
-
-
 tags_metadata = [
     {
         "name": "process_ml",
