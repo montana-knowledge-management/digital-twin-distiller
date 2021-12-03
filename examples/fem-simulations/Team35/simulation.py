@@ -2,7 +2,7 @@
 from model import DistributedWinding
 
 from digital_twin_distiller.modelpaths import ModelDir
-from digital_twin_distiller.server import Server, mounts
+from digital_twin_distiller.encapsulator import Encapsulator, mounts
 from digital_twin_distiller.simulationproject import sim
 from operator import itemgetter
 from math import inf
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     # set the model for the simulation
     sim.set_model(DistributedWinding)
 
-    model = Server(sim)
+    model = Encapsulator(sim)
     model.build_docs()
     mounts()
     model.run()

@@ -141,7 +141,7 @@ def project_documentation(request: Request):
     return app.doc_templates.TemplateResponse("index.html", {"request": request, "project_name": app.project.app_name})
 
 
-class Server:
+class Encapsulator:
     """
     Server for running a custom project as an API.
     """

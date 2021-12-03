@@ -5,7 +5,7 @@ import os
 
 from digital_twin_distiller.__main__ import new
 from digital_twin_distiller.modelpaths import ModelDir
-from digital_twin_distiller.server import Server
+from digital_twin_distiller.encapsulator import Encapsulator
 from digital_twin_distiller.simulationproject import sim, SimulationProject
 from digital_twin_distiller.utils import purge_dir
 from time import sleep
@@ -36,11 +36,11 @@ class TestServer(unittest.TestCase):
 
     # HTTP client
     example_project = DummyMLandSimulationProject(app_name="test_name")
-    server = Server(example_project)
+    server = Encapsulator(example_project)
     client = TestClient(server.app)
 
     # HTTPS client
-    server2 = Server(example_project)
+    server2 = Encapsulator(example_project)
     server2.set_key_file_path("some_path")
     server2.set_cert_file_path("some_path")
 

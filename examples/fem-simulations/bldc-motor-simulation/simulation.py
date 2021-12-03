@@ -1,5 +1,5 @@
 from digital_twin_distiller.modelpaths import ModelDir
-from digital_twin_distiller.server import Server
+from digital_twin_distiller.encapsulator import Encapsulator
 from digital_twin_distiller.simulationproject import sim
 from model import BLDCMotor
 from multiprocessing import Pool
@@ -45,5 +45,5 @@ if __name__ == '__main__':
     # set the model for the simulation
     sim.set_model(BLDCMotor)
 
-    model = Server(sim)
+    model = Encapsulator(sim)
     model.run()
