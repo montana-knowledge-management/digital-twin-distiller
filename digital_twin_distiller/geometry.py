@@ -36,20 +36,24 @@ class Geometry:
         line.start_pt = self.append_node(line.start_pt)
         line.end_pt = self.append_node(line.end_pt)
 
-        self.lines.append(line)
+        if line not in self.lines:
+            self.lines.append(line)
 
     def add_arc(self, arc):
         # save every start and end points for the geoemtry if they are not exists
         arc.start_pt = self.append_node(arc.start_pt)
         arc.end_pt = self.append_node(arc.end_pt)
-
-        self.circle_arcs.append(arc)
+        
+        if arc not in self.circle_arcs:
+            self.circle_arcs.append(arc)
 
     def add_cubic_bezier(self, cb):
         # save every start and end points for the geoemtry if they are not exists
         cb.start_pt = self.append_node(cb.start_pt)
         cb.end_pt = self.append_node(cb.end_pt)
-        self.cubic_beziers.append(cb)
+        
+        if cb not in self.cubic_beziers:
+            self.cubic_beziers.append(cb)
 
     def add_rectangle(self, r: obj.Rectangle):
         p = list(r)
@@ -99,6 +103,15 @@ class Geometry:
     def meshi_it(self, mesh_strategy):
         mesh = mesh_strategy(self.nodes, self.lines, self.circle_arcs, self.cubic_beziers)
         return mesh
+    
+    def delete_line(self, x:float, y:float):
+        """
+        This functin deletes the line from the geometry closest to the x, y coordinates.
+        """
+        closest_line = min(self.lines, key=lambda li: li.distance_to_point(x, y))
+        idx = self.lines.index(closest_line)
+        self.lines.pop(idx)
+
 
     def __repr__(self):
         msg = ""
@@ -189,6 +202,7 @@ class Geometry:
         """
         Creates an svg image from the geometry objects.
         """
+        file_name = str(file_name)
 
         # every object handled as a separate path
 
