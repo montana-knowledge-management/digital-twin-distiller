@@ -5,7 +5,7 @@ from model import BLDCMotor
 from multiprocessing import Pool
 from time import perf_counter
 from numpy import linspace
-from random import normalvariate
+from digital_twin_distiller.server import mounts
 
 
 def execute_model(model: BLDCMotor):
@@ -46,4 +46,6 @@ if __name__ == '__main__':
     sim.set_model(BLDCMotor)
 
     model = Server(sim)
+    model.build_docs()
+    mounts()
     model.run()

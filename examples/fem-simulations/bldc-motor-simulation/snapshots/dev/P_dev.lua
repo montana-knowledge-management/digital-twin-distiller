@@ -1,9 +1,9 @@
 
 -- PROBLEM
 
-remove("/home/oroszt/Projects/digital-twin-distiller/examples/bldc-motor-simulation/snapshots/dev/S_dev.csv")
+remove("C:/Users/kuczm/PycharmProjects/digital-twin-distiller/examples/fem-simulations/bldc-motor-simulation/snapshots/dev/S_dev.csv")
 newdocument(0)
-file_out = openfile("/home/oroszt/Projects/digital-twin-distiller/examples/bldc-motor-simulation/snapshots/dev/S_dev.csv", "w")
+file_out = openfile("C:/Users/kuczm/PycharmProjects/digital-twin-distiller/examples/fem-simulations/bldc-motor-simulation/snapshots/dev/S_dev.csv", "w")
 mi_probdef(0.0,'millimeters','planar',1e-08, 50.0, 30, 0)
 mi_smartmesh(0)
 
@@ -162,20 +162,20 @@ mi_addsegment(-10.734270277840768, 25.914820886941595, -10.810806964313786, 26.0
 mi_selectsegment(-10.772538621077278, 26.007208840192725)
 mi_setsegmentprop("PB2", None, 1, 0, 0, "<None>")
 mi_clearselected()
-mi_addsegment(9.662756667218515, 23.32795819590999, 10.61946524813124, 25.637657027188208)
-mi_selectsegment(10.141110957674877, 24.4828076115491)
-mi_setsegmentprop("PB3", None, 1, 0, 0, "<None>")
-mi_clearselected()
 mi_addsegment(-9.662756667218515, 23.32795819590999, -10.61946524813124, 25.637657027188208)
 mi_selectsegment(-10.141110957674877, 24.4828076115491)
 mi_setsegmentprop("PB3", None, 1, 0, 0, "<None>")
 mi_clearselected()
-mi_addsegment(-4.362591128962023, 10.532226670628669, -9.662756667218515, 23.32795819590999)
-mi_selectsegment(-7.012673898090269, 16.93009243326933)
-mi_setsegmentprop("PB4", None, 1, 0, 0, "<None>")
+mi_addsegment(9.662756667218515, 23.32795819590999, 10.61946524813124, 25.637657027188208)
+mi_selectsegment(10.141110957674877, 24.4828076115491)
+mi_setsegmentprop("PB3", None, 1, 0, 0, "<None>")
 mi_clearselected()
 mi_addsegment(4.362591128962023, 10.532226670628669, 9.662756667218515, 23.32795819590999)
 mi_selectsegment(7.012673898090269, 16.93009243326933)
+mi_setsegmentprop("PB4", None, 1, 0, 0, "<None>")
+mi_clearselected()
+mi_addsegment(-4.362591128962023, 10.532226670628669, -9.662756667218515, 23.32795819590999)
+mi_selectsegment(-7.012673898090269, 16.93009243326933)
 mi_setsegmentprop("PB4", None, 1, 0, 0, "<None>")
 mi_clearselected()
 mi_addarc(10.734270277840768, 25.914820886941595, -10.734270277840768, 25.914820886941595, 45.0, 1)
@@ -273,7 +273,7 @@ mi_clearselected()
 
 -- SOLVE
 
-mi_saveas("/home/oroszt/Projects/digital-twin-distiller/examples/bldc-motor-simulation/snapshots/dev/P_dev.fem")
+mi_saveas("C:/Users/kuczm/PycharmProjects/digital-twin-distiller/examples/fem-simulations/bldc-motor-simulation/snapshots/dev/P_dev.fem")
 mi_analyze(1)
 mi_loadsolution()
 
