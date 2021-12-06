@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import svgpathtools as svg
+import pygmsh
 
 import digital_twin_distiller.objects as obj
 from digital_twin_distiller.utils import getID
@@ -43,7 +44,7 @@ class Geometry:
         # save every start and end points for the geoemtry if they are not exists
         arc.start_pt = self.append_node(arc.start_pt)
         arc.end_pt = self.append_node(arc.end_pt)
-        
+
         if arc not in self.circle_arcs:
             self.circle_arcs.append(arc)
 
@@ -51,7 +52,7 @@ class Geometry:
         # save every start and end points for the geoemtry if they are not exists
         cb.start_pt = self.append_node(cb.start_pt)
         cb.end_pt = self.append_node(cb.end_pt)
-        
+
         if cb not in self.cubic_beziers:
             self.cubic_beziers.append(cb)
 
@@ -103,15 +104,14 @@ class Geometry:
     def meshi_it(self, mesh_strategy):
         mesh = mesh_strategy(self.nodes, self.lines, self.circle_arcs, self.cubic_beziers)
         return mesh
-    
-    def delete_line(self, x:float, y:float):
+
+    def delete_line(self, x: float, y: float):
         """
         This functin deletes the line from the geometry closest to the x, y coordinates.
         """
         closest_line = min(self.lines, key=lambda li: li.distance_to_point(x, y))
         idx = self.lines.index(closest_line)
         self.lines.pop(idx)
-
 
     def __repr__(self):
         msg = ""
@@ -132,6 +132,18 @@ class Geometry:
             msg += str(cubicbezier) + "\n"
 
         return msg
+
+    def import_geo(self, geo_file):
+        """Supports the gmsh's geometry function as a geometry input via PyGMSH"""
+
+        geo = pygmsh.built_in.Geometry()
+
+        with open(geo_file, 'r') as fin:
+            geo._GMSH_CODE.append(fin.read())
+
+        print(geo)
+
+        return
 
     def import_dxf(self, dxf_file):
         try:
@@ -360,10 +372,10 @@ class Geometry:
 
         else:
             up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
-                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
-                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             if inrange(tp) and inrange(up):
                 p1 = tuple(p + tp * r)
