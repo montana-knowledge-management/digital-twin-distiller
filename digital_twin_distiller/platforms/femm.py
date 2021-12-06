@@ -20,6 +20,7 @@ from digital_twin_distiller.femm_wrapper import (
     ElectrostaticSurfaceCharge,
     FemmExecutor,
     FemmWriter,
+    HeatFlowFixedTemperature,
     MagneticAnti,
     MagneticAntiPeriodicAirgap,
     MagneticDirichlet,
@@ -27,6 +28,7 @@ from digital_twin_distiller.femm_wrapper import (
     MagneticMixed,
     MagneticPeriodic,
     MagneticPeriodicAirgap,
+    HeatFlowMaterial,
     femm_current_flow,
     femm_electrostatic,
     femm_heat_flow,
@@ -123,6 +125,16 @@ class Femm(Platform):
             femm_material = ElectrostaticMaterial(material_name=mat.name, ex=mat.epsioln_r, ey=mat.epsioln_r, qv=mat.qv)
             self.write(self.writer.add_material(femm_material))
 
+        if self.metadata.problem_type == "heat":
+            femm_material = HeatFlowMaterial(
+                    material_name=mat.name,
+                    kx = mat.kx,
+                    ky = mat.ky,
+                    qv = mat.qv,
+                    kt = mat.kt,
+                    )
+            self.write(self.writer.add_material(femm_material))
+
     def export_block_label(self, x, y, mat: Material):
         x = float(x)
         y = float(y)
@@ -151,6 +163,9 @@ class Femm(Platform):
 
             if self.metadata.problem_type == "electrostatic":
                 femm_boundary = ElectrostaticFixedVoltage(name=b.name, Vs=b.valuedict["fixed_voltage"])
+
+            if self.metadata.problem_type == 'heat':
+                femm_boundary = HeatFlowFixedTemperature(name=b.name, Tset=b.valuedict["temperature"])
 
         if isinstance(b, NeumannBoundaryCondition):
             if self.metadata.problem_type == "magnetic":

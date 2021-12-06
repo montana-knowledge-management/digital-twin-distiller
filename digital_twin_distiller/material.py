@@ -24,7 +24,12 @@ class Material:
         self.fill_factor = 0
         self.diameter = 1.0
         self.phi_hmax = 0.0
+
+        # FEMM HEAT
+        self.kx = 1.0 
+        self.ky = 1.0 
         self.qv = 0.0
+        self.kt = 0.0
 
         self.assigned = []  # a set of (x, y) tuples
         self.meshsize = 0
