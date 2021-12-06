@@ -153,4 +153,5 @@ sandbox/
 /applications/BoschTopSecret/
 /applications/BoschTopSecretClasses/
 /applications/*/snapshots/
+snapshots/
 /venv3/
