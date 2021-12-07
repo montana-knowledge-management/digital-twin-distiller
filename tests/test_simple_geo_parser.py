@@ -35,4 +35,11 @@ class SimpleGEOparser(TestCase):
         # the only one valid line object should  imported correctly
         self.assertEqual(test_geo.lines[0].id, 1)
         self.assertEqual(len(test_geo.lines), 1)
-        #self.assertEqual(test_geo.lines[0].end_pt.id, 2)
+        self.assertEqual(test_geo.lines[0].end_pt.id, 2)
+
+    def test_first_gmsh_geo_example(self):
+        path = files("tests.test_geo_geometry").joinpath("geo_import_test.geo")
+        test_geo = geo_parser(path.as_posix())
+
+        self.assertEqual(test_geo.lines[0].id, 1)
+        self.assertEqual(len(test_geo.lines), 4)

@@ -77,8 +77,7 @@ def geo_parser(geo_file):
                     item_data = match.group(2)  # "4, 1"
                     item_data = item_data.split(",")[:2]
                     item_data = [float(it.strip()) for it in item_data]  # [0.1, 0.0]
-                    # print(match.string)
-                    print("line data", item_id, item_data)
+
                     try:
                         geo.add_line(Line(id=int(item_id), start_pt=geo.find_node(int(item_data[0])),
                                           end_pt=geo.find_node(int(item_data[1]))))
@@ -92,8 +91,7 @@ def geo_parser(geo_file):
                     item_data = match.group(2)  # "33, 291, 57"
                     item_data = item_data.split(",")[:3]
                     item_data = [float(it.strip()) for it in item_data]  # [0.1, 0.0]
-                    # print(match.string)
-                    print("circle data", item_id, item_data)
+                    
                     try:
                         geo.add_arc(CircleArc(id=int(item_id), start_pt=geo.find_node(int(item_data[0])),
                                               center_pt=geo.find_node(int(item_data[1])),
