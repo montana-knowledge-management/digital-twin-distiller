@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import svgpathtools as svg
-import pygmsh
 
 import digital_twin_distiller.objects as obj
 from digital_twin_distiller.utils import getID
@@ -113,6 +112,10 @@ class Geometry:
         idx = self.lines.index(closest_line)
         self.lines.pop(idx)
 
+    def find_node(self, id: int):
+        """Finds and gives back a node with the given id"""
+        return next((x for x in self.nodes if x.id == id), None)
+
     def __repr__(self):
         msg = ""
         msg += "\n Nodes:       \n -----------------------\n"
@@ -136,12 +139,22 @@ class Geometry:
     def import_geo(self, geo_file):
         """Supports the gmsh's geometry function as a geometry input via PyGMSH"""
 
-        geo = pygmsh.built_in.Geometry()
+        keys = ('Point', 'Line')
 
-        with open(geo_file, 'r') as fin:
-            geo._GMSH_CODE.append(fin.read())
-
-        print(geo)
+        # with open(geo_file, 'r') as file_object:
+        #     row = file_object.readline()
+        #     while row:
+        #         # at each row check for a match with a regex
+        #         #key, match = _parse_line(row)
+        #
+        #         for key in keys:
+        #
+        #
+        #         # extract school name
+        #         if key == 'point':
+        #             school = match.group('school')
+        #
+        #         row = file_object.readline()
 
         return
 

@@ -209,6 +209,12 @@ class TestGeometry(TestCase):
         geo.delete_hanging_nodes()
         self.assertEqual(len(geo.nodes), 3)
 
+    def test_import_geo(self):
+        geo = Geometry()
+        path = files("tests.test_geo_geometry").joinpath("geo_import_test.geo")
+
+        geo.import_geo(path.as_posix())
+
     def test_import_dxf(self):
         geo = Geometry()
         path = files("tests.dxf_test").joinpath("2horse.dxf")
@@ -243,7 +249,7 @@ class TestGeometry(TestCase):
         geo.merge_geometry(geo2)
 
         # TODO: GK: Should be 3 or 4? The line (1,0)-(0,1) is duplicated
-        #self.assertEqual(len(geo.lines), 4)
+        # self.assertEqual(len(geo.lines), 4)
 
         # GK: changed to 3 because of add_line function now checks if the line 
         # is already present in the geometry
@@ -287,4 +293,3 @@ class TestGeometry(TestCase):
         g.delete_line(0.5, 0)
         self.assertEqual(len(g.lines), 3)
         self.assertFalse(l0 in g.lines)
-
