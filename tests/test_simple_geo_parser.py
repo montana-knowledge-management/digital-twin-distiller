@@ -24,7 +24,15 @@ class SimpleGEOparser(TestCase):
         self.assertEqual(test_geo.circle_arcs[0].start_pt.id, 1)
         self.assertEqual(test_geo.circle_arcs[0].end_pt.id, 1336)
 
+        # point 3 should be imported from the geo file
+        self.assertEqual(test_geo.nodes[3].id, 3)
+        self.assertEqual(test_geo.nodes[3].x, 0.1)
 
     def test_base_object_invalid(self):
-        path = files("tests.test_geo_geometry").joinpath("base_objects.geo")
+        path = files("tests.test_geo_geometry").joinpath("invalid_line_object.geo")
         test_geo = geo_parser(path.as_posix())
+        # this test should handle the comments properly and shouldnt fail on the example file
+        # the only one valid line object should  imported correctly
+        self.assertEqual(test_geo.lines[0].id, 1)
+        self.assertEqual(len(test_geo.lines), 1)
+        #self.assertEqual(test_geo.lines[0].end_pt.id, 2)

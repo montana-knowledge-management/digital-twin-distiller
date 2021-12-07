@@ -8,7 +8,7 @@ from digital_twin_distiller.objects import Node, Line, CircleArc
 # Circle(60) = {33, 291, 57};
 
 rx_dict = {
-    'comment': re.compile(r'^CTR'),
+    'comment': re.compile(r'[/]{2}'),
     'point': re.compile(r'Point\((\d+)\)[\s=]{1,5}\{(.+?)\};'),
     'line': re.compile(r'Line\((\d+)\)[\s=]{1,5}\{(.+?)\};'),
     'circle': re.compile(r'Circle\((\d+)\)[\s=]{1,5}\{(.+?)\};'),
@@ -33,6 +33,10 @@ def _parse_line(line):
     return None, None
 
 
+def line_breaker(row: str):
+    temp = row.split(';')
+
+
 def geo_parser(geo_file):
     """
     Collects the imported entities into a geometry object and returns with a geo object of these geometries.
@@ -47,50 +51,55 @@ def geo_parser(geo_file):
         row = file_object.readline()
         while row:
             # at each line check for a match with a regex
-            key, match = _parse_line(row)
-            if key == 'point':
-                # Example:
-                # Point(2) = {.1, 0,  0, lc};
-                item_id = match.group(1)  # "2"
-                item_data = match.group(2)  # ".1, 0,  0, lc"
-                item_data = item_data.split(",")[:2]
-                item_data = [float(it.strip()) for it in item_data]  # [0.1, 0.0]
+            parts = row.split(';')
 
-                try:
-                    geo.add_node(Node(id=int(item_id), x=float(item_data[0]), y=float(item_data[1])))
-                except:
-                    raise ValueError("String data inserted instead of the point data")
+            for row_part in parts:
+                row_part += ';'  # inserting back the cutted ;
 
-            if key == 'line':
-                # Example
-                # Line(4) = {4, 1};
-                item_id = match.group(1)  # "4"
-                item_data = match.group(2)  # "4, 1"
-                item_data = item_data.split(",")[:2]
-                item_data = [float(it.strip()) for it in item_data]  # [0.1, 0.0]
-                # print(match.string)
-                print("line data", item_id, item_data)
-                try:
-                    geo.add_line(Line(id=int(item_id), start_pt=geo.find_node(int(item_data[0])),
-                                      end_pt=geo.find_node(int(item_data[1]))))
-                except:
-                    raise ValueError("Invalid point objects in the geometry")
+                key, match = _parse_line(row_part)
+                if key == 'point':
+                    # Example:
+                    # Point(2) = {.1, 0,  0, lc};
+                    item_id = match.group(1)  # "2"
+                    item_data = match.group(2)  # ".1, 0,  0, lc"
+                    item_data = item_data.split(",")[:2]
+                    item_data = [float(it.strip()) for it in item_data]  # [0.1, 0.0]
 
-            if key == 'circle':
-                # Example
-                #  Circle(60) = {33, 291, 57};
-                item_id = match.group(1)  # "60"
-                item_data = match.group(2)  # "33, 291, 57"
-                item_data = item_data.split(",")[:3]
-                item_data = [float(it.strip()) for it in item_data]  # [0.1, 0.0]
-                # print(match.string)
-                print("circle data", item_id, item_data)
-                try:
-                    geo.add_arc(CircleArc(id=int(item_id), start_pt=geo.find_node(int(item_data[0])),
-                                          center_pt=geo.find_node(int(item_data[1])),
-                                          end_pt=geo.find_node(int(item_data[2]))))
-                except:
-                    raise ValueError("Invalid point objects in the geometry")
+                    try:
+                        geo.add_node(Node(id=int(item_id), x=float(item_data[0]), y=float(item_data[1])))
+                    except:
+                        raise ValueError("String data inserted instead of the point data")
+
+                if key == 'line':
+                    # Example
+                    # Line(4) = {4, 1};
+                    item_id = match.group(1)  # "4"
+                    item_data = match.group(2)  # "4, 1"
+                    item_data = item_data.split(",")[:2]
+                    item_data = [float(it.strip()) for it in item_data]  # [0.1, 0.0]
+                    # print(match.string)
+                    print("line data", item_id, item_data)
+                    try:
+                        geo.add_line(Line(id=int(item_id), start_pt=geo.find_node(int(item_data[0])),
+                                          end_pt=geo.find_node(int(item_data[1]))))
+                    except:
+                        raise ValueError("Invalid point objects in the geometry")
+
+                if key == 'circle':
+                    # Example
+                    #  Circle(60) = {33, 291, 57};
+                    item_id = match.group(1)  # "60"
+                    item_data = match.group(2)  # "33, 291, 57"
+                    item_data = item_data.split(",")[:3]
+                    item_data = [float(it.strip()) for it in item_data]  # [0.1, 0.0]
+                    # print(match.string)
+                    print("circle data", item_id, item_data)
+                    try:
+                        geo.add_arc(CircleArc(id=int(item_id), start_pt=geo.find_node(int(item_data[0])),
+                                              center_pt=geo.find_node(int(item_data[1])),
+                                              end_pt=geo.find_node(int(item_data[2]))))
+                    except:
+                        raise ValueError("Invalid point objects in the geometry")
 
             row = file_object.readline()
 
