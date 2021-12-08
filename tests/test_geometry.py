@@ -209,12 +209,6 @@ class TestGeometry(TestCase):
         geo.delete_hanging_nodes()
         self.assertEqual(len(geo.nodes), 3)
 
-    def test_import_geo(self):
-        geo = Geometry()
-        path = files("tests.test_geo_geometry").joinpath("geo_import_test.geo")
-
-        geo.import_geo(path.as_posix())
-
     def test_import_dxf(self):
         geo = Geometry()
         path = files("tests.dxf_test").joinpath("2horse.dxf")
