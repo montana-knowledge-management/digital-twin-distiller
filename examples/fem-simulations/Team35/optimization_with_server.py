@@ -1,10 +1,10 @@
 import json
 from math import inf
+from operator import itemgetter
 
 import requests
 from artap.algorithm_genetic import NSGAII
 from artap.problem import Problem
-from operator import itemgetter
 
 
 class CoilOptimizationProblem(Problem):
@@ -24,25 +24,18 @@ class CoilOptimizationProblem(Problem):
             {"name": "r9", "bounds": [5, 20]},
         ]
 
-        self.costs = [
-            {"name": "f_1", "criteria": "minimize"}
-        ]
+        self.costs = [{"name": "f_1", "criteria": "minimize"}]
 
     def evaluate(self, individual):
         x = individual.vector
         x1 = [round(xi, 2) for xi in x]
         print("called with", x1, end=" ")
-        req = {
-            "simulation": {
-                "type": "default",
-                "x": x
-            }
-        }
+        req = {"simulation": {"type": "default", "x": x}}
         url = "http://192.168.0.117:5000/process"
         result = requests.post(url=url, data=json.dumps(req))
         if result.status_code == 200:
             # result.json() -> {'res': {'f1': 0.00015563575447000003}}
-            f1 = result.json().get('res').get('f1')
+            f1 = result.json().get("res").get("f1")
             print(f1)
             return [f1]
         else:

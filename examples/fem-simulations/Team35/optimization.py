@@ -1,10 +1,9 @@
 from math import inf
+from operator import itemgetter
 
 from artap.algorithm_genetic import NSGAII
 from artap.problem import Problem
-from operator import itemgetter
 from model import DistributedWinding
-
 
 
 class CoilOptimizationProblem(Problem):
@@ -24,16 +23,14 @@ class CoilOptimizationProblem(Problem):
             {"name": "r9", "bounds": [5, 20]},
         ]
 
-        self.costs = [
-            {"name": "f_1", "criteria": "minimize"}
-        ]
+        self.costs = [{"name": "f_1", "criteria": "minimize"}]
 
     def evaluate(self, individual):
         x = individual.vector
 
         x1 = [round(xi, 2) for xi in x]
         print("called with", x1, end=" ")
-        assert len(x)==10
+        assert len(x) == 10
 
         try:
             model = DistributedWinding(x)
@@ -45,11 +42,12 @@ class CoilOptimizationProblem(Problem):
             B0 = 2e-3
             f1 = max(map(lambda Bz_i: abs(Bz_i - B0), Bz))
 
-            print('DONE')
+            print("DONE")
             return [f1]
         except:
-            print('FAILED')
+            print("FAILED")
             return [inf]
+
 
 if __name__ == "__main__":
 
