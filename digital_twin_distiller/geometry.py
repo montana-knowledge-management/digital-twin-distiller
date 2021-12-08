@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import svgpathtools as svg
-
 import digital_twin_distiller.objects as obj
 from digital_twin_distiller.utils import getID
 
@@ -43,7 +42,7 @@ class Geometry:
         # save every start and end points for the geoemtry if they are not exists
         arc.start_pt = self.append_node(arc.start_pt)
         arc.end_pt = self.append_node(arc.end_pt)
-        
+
         if arc not in self.circle_arcs:
             self.circle_arcs.append(arc)
 
@@ -51,7 +50,7 @@ class Geometry:
         # save every start and end points for the geoemtry if they are not exists
         cb.start_pt = self.append_node(cb.start_pt)
         cb.end_pt = self.append_node(cb.end_pt)
-        
+
         if cb not in self.cubic_beziers:
             self.cubic_beziers.append(cb)
 
@@ -103,8 +102,8 @@ class Geometry:
     def meshi_it(self, mesh_strategy):
         mesh = mesh_strategy(self.nodes, self.lines, self.circle_arcs, self.cubic_beziers)
         return mesh
-    
-    def delete_line(self, x:float, y:float):
+
+    def delete_line(self, x: float, y: float):
         """
         This functin deletes the line from the geometry closest to the x, y coordinates.
         """
@@ -112,6 +111,9 @@ class Geometry:
         idx = self.lines.index(closest_line)
         self.lines.pop(idx)
 
+    def find_node(self, id: int):
+        """Finds and gives back a node with the given id"""
+        return next((x for x in self.nodes if x.id == id), None)
 
     def __repr__(self):
         msg = ""
@@ -132,6 +134,7 @@ class Geometry:
             msg += str(cubicbezier) + "\n"
 
         return msg
+
 
     def import_dxf(self, dxf_file):
         try:
@@ -360,10 +363,10 @@ class Geometry:
 
         else:
             up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
-                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
-                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             if inrange(tp) and inrange(up):
                 p1 = tuple(p + tp * r)
@@ -427,23 +430,6 @@ class Geometry:
 
         for cb in other.cubic_beziers:
             self.add_cubic_bezier(copy(cb))
-
-    # Todo: szerintem ez az export svg reinkarnációja lehet
-    # def export_geom(self, filename):
-    #     paths = []
-    #     for li in self.lines:
-    #         start_pt = li.start_pt.x + li.start_pt.y * 1j
-    #         end_pt = li.end_pt.x + li.end_pt.y * 1j
-    #         paths.append(svgpathtools.Line(start_pt, end_pt))
-    #
-    #     for bz in self.cubic_beziers:
-    #         start_pt = complex(*bz.start_pt)
-    #         control1 = complex(*bz.control1)
-    #         control2 = complex(*bz.control2)
-    #         end_pt = complex(*bz.end_pt)
-    #         paths.append(svgpathtools.CubicBezier(start_pt, control1, control2, end_pt))
-    #
-    #     svg.wsvg(paths, filename=str(filename))
 
     def __copy__(self):
         g = Geometry()
