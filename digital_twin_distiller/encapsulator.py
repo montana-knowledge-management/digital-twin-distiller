@@ -13,15 +13,16 @@ from fastapi.templating import Jinja2Templates
 from importlib_resources import files
 from pydantic import BaseModel, Extra
 
+from digital_twin_distiller.ml_project import MachineLearningProject
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.simulationproject import SimulationProject
-from digital_twin_distiller.ml_project import MachineLearningProject
 
 
 class InputJsonML(BaseModel):
     """
     Class for validating the input sent to the /process endpoint for MachineLearningProject.
     """
+
     text: str
 
     # Setting for keeping the additional keys in the input json intact
@@ -171,7 +172,7 @@ class Encapsulator:
         self.key_file_path = key_file_path
 
     def set_project_mkdocs_dir_path(self, mkdocs_path):
-        """
+        r"""
         The function shows an mk-docs documentation under the /docs Endpoint.
 
         The function waits for the mk-docs documentation project's folder and shows to the \site page where is the

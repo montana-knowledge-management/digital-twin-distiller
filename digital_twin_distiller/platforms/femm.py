@@ -5,6 +5,7 @@ from glob import glob
 from math import asin, pi
 from pathlib import Path
 
+from digital_twin_distiller import ModelDir
 from digital_twin_distiller.boundaries import (
     AntiPeriodicAirGap,
     AntiPeriodicBoundaryCondition,
@@ -21,6 +22,7 @@ from digital_twin_distiller.femm_wrapper import (
     FemmExecutor,
     FemmWriter,
     HeatFlowFixedTemperature,
+    HeatFlowMaterial,
     MagneticAnti,
     MagneticAntiPeriodicAirgap,
     MagneticDirichlet,
@@ -28,7 +30,6 @@ from digital_twin_distiller.femm_wrapper import (
     MagneticMixed,
     MagneticPeriodic,
     MagneticPeriodicAirgap,
-    HeatFlowMaterial,
     femm_current_flow,
     femm_electrostatic,
     femm_heat_flow,
@@ -38,6 +39,8 @@ from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import Metadata
 from digital_twin_distiller.objects import CircleArc, Line, Node
 from digital_twin_distiller.platforms.platform import Platform
+
+from digital_twin_distiller.femm_wrapper import HeatFlowHeatFlux
 
 
 class Femm(Platform):
@@ -78,7 +81,7 @@ class Femm(Platform):
             self.write(cmd_i)
 
         type_ = "axi" if self.metadata.coordinate_type == "axisymmetric" else "planar"
-        prefix = {"magnetic": "mi", "electrostatic": "mi"}
+        prefix = {"magnetic": "mi", "electrostatic": "ei", "heat": "hi"}
         if self.metadata.problem_type == "magnetic":
             self.write(
                 self.writer.magnetic_problem(
@@ -89,6 +92,19 @@ class Femm(Platform):
                     depth=self.metadata.depth,
                     minangle=self.metadata.minangle,
                     acsolver=self.metadata.acsolver,
+                )
+            )
+
+        if self.metadata.problem_type == "heat":
+            self.write(
+                self.writer.heat_problem(
+                    units=self.metadata.unit,
+                    type=type_,
+                    precision=self.metadata.precision,
+                    depth=self.metadata.depth,
+                    minangle=self.metadata.minangle,
+                    prevsoln=None,
+                    timestep=1e-3,
                 )
             )
 
@@ -127,12 +143,12 @@ class Femm(Platform):
 
         if self.metadata.problem_type == "heat":
             femm_material = HeatFlowMaterial(
-                    material_name=mat.name,
-                    kx = mat.kx,
-                    ky = mat.ky,
-                    qv = mat.qv,
-                    kt = mat.kt,
-                    )
+                material_name=mat.name,
+                kx=mat.kx,
+                ky=mat.ky,
+                qv=mat.qv,
+                kt=mat.kt,
+            )
             self.write(self.writer.add_material(femm_material))
 
     def export_block_label(self, x, y, mat: Material):
@@ -164,7 +180,7 @@ class Femm(Platform):
             if self.metadata.problem_type == "electrostatic":
                 femm_boundary = ElectrostaticFixedVoltage(name=b.name, Vs=b.valuedict["fixed_voltage"])
 
-            if self.metadata.problem_type == 'heat':
+            if self.metadata.problem_type == "heat":
                 femm_boundary = HeatFlowFixedTemperature(name=b.name, Tset=b.valuedict["temperature"])
 
         if isinstance(b, NeumannBoundaryCondition):
@@ -174,6 +190,9 @@ class Femm(Platform):
                     c0=0,
                     c1=0,
                 )
+
+            if self.metadata.problem_type == "heat":
+                femm_boundary = HeatFlowHeatFlux(name=b.name, qs=b.valuedict["heat_flux"])
 
             if self.metadata.problem_type == "electrostatic":
                 femm_boundary = ElectrostaticSurfaceCharge(name=b.name, qs=b.valuedict["surface_charge_density"])
@@ -331,7 +350,7 @@ class Femm(Platform):
             self.write(f"{prefix}_showcontourplot(-1)")
             self.write(f"{prefix}_resize(600, 600)")
             self.write(f"{prefix}_refreshview()")
-            path = str(Path(str(entity) + ".bmp").resolve().as_posix())
+            path = str((ModelDir.MEDIA / f"{entity}.bmp").resolve().as_posix())
             self.write(f'{prefix}_save_bitmap("{path}");')
 
     def export_closing_steps(self):

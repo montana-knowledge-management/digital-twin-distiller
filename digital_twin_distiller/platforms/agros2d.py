@@ -50,25 +50,39 @@ class Agros2D(Platform):
             )
 
     def export_material_definition(self, mat: Material):
-        mdict = {
-            "magnetic_remanence_angle": mat.remanence_angle,
-            "magnetic_velocity_y": mat.vy,
-            "magnetic_current_density_external_real": mat.Je.real,
-            "magnetic_current_density_external_imag": mat.Je.imag,
-            "magnetic_permeability": mat.mu_r,
-            "magnetic_conductivity": mat.conductivity,
-            "magnetic_remanence": mat.remanence,
-            "magnetic_velocity_angular": mat.angluar_velocity,
-            "magnetic_velocity_x": mat.vx,
-        }
-        if self.metadata.analysis_type != "harmonic":
-            mdict.pop("magnetic_current_density_external_imag")
+        field = self.metadata.problem_type
+        if field == "magnetic":
+            mdict = {
+                "magnetic_remanence_angle": mat.remanence_angle,
+                "magnetic_velocity_y": mat.vy,
+                "magnetic_current_density_external_real": mat.Je.real,
+                "magnetic_current_density_external_imag": mat.Je.imag,
+                "magnetic_permeability": mat.mu_r,
+                "magnetic_conductivity": mat.conductivity,
+                "magnetic_remanence": mat.remanence,
+                "magnetic_velocity_angular": mat.angluar_velocity,
+                "magnetic_velocity_x": mat.vx,
+            }
+            if self.metadata.analysis_type != "harmonic":
+                mdict.pop("magnetic_current_density_external_imag")
 
-        self.write(f'magnetic.add_material("{mat.name}", {str(mdict)})')
+        if field == "heat":
+            mdict = {
+                    "heat_density": mat.material_density,
+                    "heat_conductivity": mat.heat_conductivity,
+                    "heat_volume_heat": mat.volume_heat,
+                    "heat_specific_heat": mat.specific_heat,
+                    "heat_velocity_angular": mat.angluar_velocity,
+                    "heat_velocity_x": mat.vx,
+                    "heat_velocity_y": mat.vy
+                }
+
+        self.write(f'{field}.add_material("{mat.name}", {str(mdict)})')
 
     def export_boundary_definition(self, boundary: BoundaryCondition):
         typename = None
-        if self.metadata.problem_type == "magnetic":
+        field = self.metadata.problem_type
+        if field == "magnetic":
             if isinstance(boundary, DirichletBoundaryCondition):
                 typename = "magnetic_potential"
                 A = boundary.valuedict.pop("magnetic_potential")
@@ -83,8 +97,33 @@ class Agros2D(Platform):
                 if self.metadata.problem_type == "harmonic":
                     boundary.valuedict["magnetic_surface_current_imag"] = A.imag
 
+            boundaryvalues = boundary.valuedict.copy()
+
+        if field == "heat":
+            boundaryvalues = {
+                    "heat_radiation_ambient_temperature": 293.15,
+                    "heat_convection_external_temperature":293.15,
+                    "heat_convection_heat_transfer_coefficient":5.0,
+                    "heat_heat_flux":0.0,
+                    "heat_radiation_emissivity":0.0,
+                    "heat_temperature":0.0
+                    }
+            if isinstance(boundary, DirichletBoundaryCondition):
+                typename = "heat_temperature"
+                boundaryvalues.clear()
+                boundaryvalues["heat_temperature"] = boundary.valuedict["temperature"]
+
+            if isinstance(boundary, NeumannBoundaryCondition):
+                typename = "heat_heat_flux" # yes, 2 x heat
+                boundaryvalues.pop("heat_temperature")
+                # GK: TODO: untangle the other mapping
+                boundaryvalues["heat_heat_flux"]= boundary.valuedict["heat_flux"]
+
+
+
+
         self.write(
-            f'{self.metadata.problem_type}.add_boundary("{boundary.name}", "{typename}", {str(boundary.valuedict)})'
+            f'{field}.add_boundary("{boundary.name}", "{typename}", {str(boundaryvalues)})'
         )
 
     def export_geometry_element(self, e, boundary=None):

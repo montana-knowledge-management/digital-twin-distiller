@@ -2,8 +2,8 @@ from multiprocessing import Pool
 
 from model import ${name}
 
-from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.encapsulator import Encapsulator, mounts
+from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.simulationproject import sim
 
 

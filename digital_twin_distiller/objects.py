@@ -309,7 +309,6 @@ class Line:
     def __call__(self, t: float):
         assert (0 <= t) and (t <= 1), f"t [0, 1] not {t}"
         return self.start_pt + (self.end_pt - self.start_pt) * t
-        
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"

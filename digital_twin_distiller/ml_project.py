@@ -3,14 +3,13 @@ import os
 import socket
 from abc import abstractmethod
 
-import digital_twin_distiller.text_readers as rdr
 import pkg_resources
 import requests
-from digital_twin_distiller.keywords import JSON
-from digital_twin_distiller.keywords import PDF
-from digital_twin_distiller.keywords import TXT
-from digital_twin_distiller.text_writers import JsonWriter
 from importlib_resources import files
+
+import digital_twin_distiller.text_readers as rdr
+from digital_twin_distiller.keywords import JSON, PDF, TXT
+from digital_twin_distiller.text_writers import JsonWriter
 
 supported_extensions = [JSON, TXT, PDF]
 

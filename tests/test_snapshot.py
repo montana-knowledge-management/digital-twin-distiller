@@ -1,5 +1,6 @@
-import unittest
+import math
 from pathlib import Path
+import unittest
 
 from digital_twin_distiller.boundaries import (
     AntiPeriodicAirGap,
@@ -9,7 +10,12 @@ from digital_twin_distiller.boundaries import (
     PeriodicAirGap,
     PeriodicBoundaryCondition,
 )
-from digital_twin_distiller.femm_wrapper import femm_current_flow, femm_electrostatic, femm_heat_flow, femm_magnetic
+from digital_twin_distiller.femm_wrapper import (
+    femm_current_flow,
+    femm_electrostatic,
+    femm_heat_flow,
+    femm_magnetic,
+)
 from digital_twin_distiller.geometry import Geometry
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import Agros2DMetadata, FemmMetadata
@@ -353,3 +359,25 @@ class TestSnapshotFemm(unittest.TestCase):
         self.assertIn(r"mi_addsegment(1, 1, 0, 1)", f.content)
         self.assertIn(r"mi_addsegment(0, 1, 0, 0)", f.content)
         self.assertIn(r"mi_addarc(0, 0.5, 1, 0.5, 180.0, 20)", f.content)
+
+    def test_retrive_results(self):
+        s = self.get_snapshot()
+        result_file = Path(s.platform.metadata.file_metrics_name)
+
+        with open(result_file, 'w', encoding='utf-8') as f: 
+            print("dofs, 10168", file=f)
+            print("nodes, 2360", file=f)
+            print("elements, 1125", file=f)
+            print("Bx, 1, 2, 33", file=f)
+
+        results = s.retrive_results()
+        result_file.unlink()
+
+        self.assertEqual(10168, results['dofs'])
+        self.assertEqual(2360, results['nodes'])
+        self.assertEqual(1125, results['elements'])
+
+        self.assertTrue(len(results["Bx"]))
+        self.assertListEqual([1.0, 2.0, 33.0], list(results["Bx"][0]))
+
+        
