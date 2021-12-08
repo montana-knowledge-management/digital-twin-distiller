@@ -1,13 +1,13 @@
 from multiprocessing import Pool
 
-from model import lshape_domain
+from model import LShapeDomain
 
 from digital_twin_distiller.encapsulator import Encapsulator, mounts
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.simulationproject import sim
 
 
-def execute_model(model: lshape_domain):
+def execute_model(model: LShapeDomain):
     result = model(timeout=2000, cleanup=True)
     return result
 
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     ModelDir.set_base(__file__)
 
     # set the model for the simulation
-    sim.set_model(lshape_domain)
+    sim.set_model(LShapeDomain)
 
     model = Encapsulator(sim)
     model.build_docs()
