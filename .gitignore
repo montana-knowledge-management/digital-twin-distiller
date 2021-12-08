@@ -1,8 +1,13 @@
 
 TestMotor/
 
+
 # FEMM
 magnetic_ref.lua
+test_invalid.lua
+
+# ngSolve
+testscriptname.py
 
 
 # Byte-compiled / optimized / DLL files

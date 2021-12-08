@@ -3,7 +3,7 @@ from math import atan, hypot, sqrt
 
 from numpy import arctan, linspace
 
-from digital_twin_distiller import Line, Node
+from digital_twin_distiller import Agros2D, Agros2DMetadata, Line, Node
 from digital_twin_distiller.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import FemmMetadata
@@ -12,7 +12,6 @@ from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
 from digital_twin_distiller.utils import pairwise
-from digital_twin_distiller import Agros2DMetadata, Agros2D
 
 ModelDir.set_base(__file__)
 
@@ -58,7 +57,7 @@ class ThermalShock(BaseModel):
         agros_metadata.polyorder = 4
         agros_metadata.adaptivity_tol = 0.15
         agros_metadata.adaptivity_steps = 10
-        
+
         self.platform = Agros2D(agros_metadata)
 
         self.snapshot = Snapshot(self.platform)
@@ -106,7 +105,7 @@ class ThermalShock(BaseModel):
         l4 = Line(a, d)
         self.assign_material(0.5, 0.5, "air")
 
-        u = lambda x, y: arctan(self.alpha*(hypot(x-1.25, y+0.25)-1))
+        u = lambda x, y: arctan(self.alpha * (hypot(x - 1.25, y + 0.25) - 1))
 
         # GAMMA 1
         t1 = linspace(0, 1, self.n_gamma1 + 1)
@@ -123,7 +122,6 @@ class ThermalShock(BaseModel):
             # self.geom.nodes.append(l.end_pt)
             # self.geom.lines.append(l)
             self.snapshot.boundaries.get(boundary_id).assigned.add(l.id)
-
 
         # GAMMA 2
         t2 = linspace(0, 1, self.n_gamma2 + 1)
@@ -146,7 +144,6 @@ class ThermalShock(BaseModel):
         # self.geom.nodes.append(l2.end_pt)
         # self.geom.lines.append(l2)
         # self.snapshot.boundaries.get("n0").assigned.add(l2.id)
-
 
         # GAMMA 3
         t3 = linspace(0, 1, self.n_gamma3 + 1)

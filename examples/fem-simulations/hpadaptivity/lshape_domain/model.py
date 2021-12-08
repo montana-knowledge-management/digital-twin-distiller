@@ -8,10 +8,12 @@ from digital_twin_distiller.snapshot import Snapshot
 
 ModelDir.set_base(__file__)
 
+
 class lshape_domain(BaseModel):
     """docstring for lshape_domain"""
+
     def __init__(self, **kwargs):
-        super(lshape_domain, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._init_directories()
 
     def setup_solver(self):
@@ -28,7 +30,7 @@ class lshape_domain(BaseModel):
         self.snapshot = Snapshot(self.platform)
 
     def define_materials(self):
-        air = Material('air')
+        air = Material("air")
 
         self.snapshot.add_material(air)
 

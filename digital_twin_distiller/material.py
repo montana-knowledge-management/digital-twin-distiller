@@ -38,8 +38,6 @@ class Material:
         self.volume_heat = 0.0
         self.specific_heat = 0.0
 
-        
-
         self.assigned = []  # a set of (x, y) tuples
         self.meshsize = 0
 

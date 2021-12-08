@@ -68,14 +68,14 @@ class Agros2D(Platform):
 
         if field == "heat":
             mdict = {
-                    "heat_density": mat.material_density,
-                    "heat_conductivity": mat.heat_conductivity,
-                    "heat_volume_heat": mat.volume_heat,
-                    "heat_specific_heat": mat.specific_heat,
-                    "heat_velocity_angular": mat.angluar_velocity,
-                    "heat_velocity_x": mat.vx,
-                    "heat_velocity_y": mat.vy
-                }
+                "heat_density": mat.material_density,
+                "heat_conductivity": mat.heat_conductivity,
+                "heat_volume_heat": mat.volume_heat,
+                "heat_specific_heat": mat.specific_heat,
+                "heat_velocity_angular": mat.angluar_velocity,
+                "heat_velocity_x": mat.vx,
+                "heat_velocity_y": mat.vy,
+            }
 
         self.write(f'{field}.add_material("{mat.name}", {str(mdict)})')
 
@@ -101,30 +101,25 @@ class Agros2D(Platform):
 
         if field == "heat":
             boundaryvalues = {
-                    "heat_radiation_ambient_temperature": 293.15,
-                    "heat_convection_external_temperature":293.15,
-                    "heat_convection_heat_transfer_coefficient":5.0,
-                    "heat_heat_flux":0.0,
-                    "heat_radiation_emissivity":0.0,
-                    "heat_temperature":0.0
-                    }
+                "heat_radiation_ambient_temperature": 293.15,
+                "heat_convection_external_temperature": 293.15,
+                "heat_convection_heat_transfer_coefficient": 5.0,
+                "heat_heat_flux": 0.0,
+                "heat_radiation_emissivity": 0.0,
+                "heat_temperature": 0.0,
+            }
             if isinstance(boundary, DirichletBoundaryCondition):
                 typename = "heat_temperature"
                 boundaryvalues.clear()
                 boundaryvalues["heat_temperature"] = boundary.valuedict["temperature"]
 
             if isinstance(boundary, NeumannBoundaryCondition):
-                typename = "heat_heat_flux" # yes, 2 x heat
+                typename = "heat_heat_flux"  # yes, 2 x heat
                 boundaryvalues.pop("heat_temperature")
                 # GK: TODO: untangle the other mapping
-                boundaryvalues["heat_heat_flux"]= boundary.valuedict["heat_flux"]
+                boundaryvalues["heat_heat_flux"] = boundary.valuedict["heat_flux"]
 
-
-
-
-        self.write(
-            f'{field}.add_boundary("{boundary.name}", "{typename}", {str(boundaryvalues)})'
-        )
+        self.write(f'{field}.add_boundary("{boundary.name}", "{typename}", {str(boundaryvalues)})')
 
     def export_geometry_element(self, e, boundary=None):
         if isinstance(e, Node):

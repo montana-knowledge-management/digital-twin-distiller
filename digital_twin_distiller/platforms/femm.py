@@ -22,6 +22,7 @@ from digital_twin_distiller.femm_wrapper import (
     FemmExecutor,
     FemmWriter,
     HeatFlowFixedTemperature,
+    HeatFlowHeatFlux,
     HeatFlowMaterial,
     MagneticAnti,
     MagneticAntiPeriodicAirgap,
@@ -39,8 +40,6 @@ from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import Metadata
 from digital_twin_distiller.objects import CircleArc, Line, Node
 from digital_twin_distiller.platforms.platform import Platform
-
-from digital_twin_distiller.femm_wrapper import HeatFlowHeatFlux
 
 
 class Femm(Platform):
