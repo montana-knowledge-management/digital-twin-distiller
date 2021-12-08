@@ -81,6 +81,19 @@ class Femm(Platform):
 
         type_ = "axi" if self.metadata.coordinate_type == "axisymmetric" else "planar"
         prefix = {"magnetic": "mi", "electrostatic": "ei", "heat": "hi"}
+
+        
+        if self.metadata.problem_type == "electrostatic":
+            self.write(
+                self.writer.electrostatic_problem(
+                    units=self.metadata.unit,
+                    type=type_,
+                    precision=self.metadata.precision,
+                    depth=self.metadata.depth,
+                    minangle=self.metadata.minangle,
+                )
+            )
+
         if self.metadata.problem_type == "magnetic":
             self.write(
                 self.writer.magnetic_problem(

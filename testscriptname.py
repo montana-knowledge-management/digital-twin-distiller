@@ -1,7 +1,7 @@
 # PREAMBLE
 
-from ngsolve import *
 from netgen.geom2d import SplineGeometry
+from ngsolve import *
 
 geo = SplineGeometry()
 
@@ -11,17 +11,14 @@ geo = SplineGeometry()
 # empty
 
 
-
 # MATERIAL DEFINITIONS
 
 # empty
 
 
-
 # BOUNDARY DEFINITIONS
 
 # empty
-
 
 
 # GEOMETRY
@@ -60,21 +57,20 @@ mesh = Mesh(geo.GenerateMesh(maxh=0.1))
 # empty
 
 
-
 # SOLVER
 
 fes = H1(mesh, order=3, dirichlet="gnd")
 u = fes.TrialFunction()
 v = fes.TestFunction()
 f = LinearForm(fes)
-f += 32 * (y*(1-y)+x*(1-x)) * v * dx
+f += 32 * (y * (1 - y) + x * (1 - x)) * v * dx
 a = BilinearForm(fes, symmetric=True)
-a += grad(u)*grad(v)*dx
+a += grad(u) * grad(v) * dx
 a.Assemble()
 f.Assemble()
 gfu = GridFunction(fes)
 gfu.vec.data = a.mat.Inverse(fes.FreeDofs(), inverse="sparsecholesky") * f.vec
-Draw (gfu)
+Draw(gfu)
 
 
 # POSTPROCESSING AND EXPORTING
@@ -82,10 +78,6 @@ Draw (gfu)
 # empty
 
 
-
 # CLOSING STEPS
 
 # empty
-
-
-
