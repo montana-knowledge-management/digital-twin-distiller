@@ -1,10 +1,15 @@
+from copy import copy
 from itertools import count
-from math import atan, hypot, sqrt
+from math import atan, gamma, hypot, sqrt
 
+import networkx as nx
 from numpy import arctan, linspace
 
 from digital_twin_distiller import Agros2D, Agros2DMetadata, Line, Node
-from digital_twin_distiller.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
+from digital_twin_distiller.boundaries import (
+    DirichletBoundaryCondition,
+    NeumannBoundaryCondition,
+)
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import FemmMetadata
 from digital_twin_distiller.model import BaseModel
@@ -16,15 +21,16 @@ from digital_twin_distiller.utils import pairwise
 ModelDir.set_base(__file__)
 
 
+def get_u(x:float, y:float):
+    alpha = 60
+    return atan(alpha * (hypot(x - 1.25, y + 0.25) - 1))
+
 class ThermalShock(BaseModel):
     """docstring for hpadaptivity"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._init_directories()
-
-        self.alpha = kwargs.get("alpha", 60.0)
-        self.r0 = kwargs.get("r0", 1.0)
 
         self.nsteps = kwargs.get("nsteps", 10)
 
@@ -58,7 +64,7 @@ class ThermalShock(BaseModel):
         agros_metadata.adaptivity_tol = 0.15
         agros_metadata.adaptivity_steps = 10
 
-        self.platform = Agros2D(agros_metadata)
+        # self.platform = Agros2D(agros_metadata)
 
         self.snapshot = Snapshot(self.platform)
 
@@ -92,7 +98,7 @@ class ThermalShock(BaseModel):
     def add_postprocessing(self):
         self.snapshot.add_postprocessing("mesh_info", None, None)
 
-    def build_geometry(self):
+    def build_geometry_old(self):
         # ...
         a = Node(0, 0)
         b = Node(1, 0)
@@ -181,7 +187,86 @@ class ThermalShock(BaseModel):
 
         self.snapshot.add_geometry(self.geom)
 
+    def build_geometry(self):
+
+        N = self.nsteps
+        G = nx.grid_2d_graph(N+1, N+1)
+
+        for u, v in G.edges:
+            if not G.nodes[u]:
+                newnode = Node(u[0] / N, u[1] / N)
+                G.nodes[u]['node'] = newnode
+                self.geom.nodes.append(newnode)
+
+            if not G.nodes[v]:
+                newnode = Node(v[0] / N, v[1] / N)
+                G.nodes[v]['node'] = newnode
+                self.geom.nodes.append(newnode)
+
+            U = G.nodes[u]['node']
+            V = G.nodes[v]['node']
+            l = Line(U, V)
+            self.geom.lines.append(l)
+            G.edges[u, v]['id'] = l.id
+
+            # assign boundary conditions on the edges
+            gamma_value = get_u(*l(0.5))
+            if u[1]== 0 and v[1] == 0: # GAMMA 1
+                boundary_id = f"gamma_1_{u[0]+1}"
+                self.snapshot.boundaries.get(boundary_id).set_value("temperature", gamma_value)
+                self.snapshot.boundaries.get(boundary_id).assigned.add(l.id)
+
+            elif u[0] == N and v[0]==N: # GAMMA 2
+                boundary_id = f"gamma_2_{v[1]}"
+                self.snapshot.boundaries.get(boundary_id).set_value("temperature", gamma_value)
+                self.snapshot.boundaries.get(boundary_id).assigned.add(l.id)
+
+            elif u[1] == N and v[1] == N: # GAMMA 3
+                boundary_id = f"gamma_3_{u[0]+1}"
+                self.snapshot.boundaries.get(boundary_id).set_value("temperature", gamma_value)
+                self.snapshot.boundaries.get(boundary_id).assigned.add(l.id)
+
+            elif u[0] == 0 and v[0] == 0: # GAMMA 4
+                boundary_id = f"gamma_4_{v[1]}"
+                self.snapshot.boundaries.get(boundary_id).set_value("temperature", gamma_value)
+                self.snapshot.boundaries.get(boundary_id).assigned.add(l.id)
+                
+
+
+
+
+        # place labels
+        def f(x, y):
+            alpha = 60
+            r0 = (1.25, -0.25)
+            r = hypot(x, y)
+            dr = hypot(x-r0[0], y-r0[1])
+            nominator = alpha * (alpha ** 2 * dr ** 2 + 1) + 2 * alpha ** 3 * r * dr
+            denominator = r * (alpha ** 2 * dr ** 2 + 1) ** 2
+            return nominator / denominator
+
+        Q = Material("Q")
+
+        label = Node(0.5/N, 0.5/N)
+        for i in range(N):
+            for j in range(N):
+                Qi = copy(Q)
+                Qi.name = f"Q_{i}_{j}"
+                Qi.qv = f(label.x, label.y)
+                self.snapshot.add_material(Qi)
+                self.assign_material(label.x, label.y, Qi.name)
+                label.move_xy(0, 1/N)
+
+            label.move_xy(1/N, -1)
+
+
+
+
+
+        # exit(0)
+        
+        self.snapshot.add_geometry(self.geom)
 
 if __name__ == "__main__":
-    m = ThermalShock(exportname="dev", nsteps=100)
+    m = ThermalShock(exportname="dev", nsteps=50)
     print(m(cleanup=False, devmode=False))

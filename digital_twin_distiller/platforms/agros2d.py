@@ -52,11 +52,8 @@ class Agros2D(Platform):
     def export_material_definition(self, mat: Material):
         field = self.metadata.problem_type
 
-        if field=="electrostatic":
-            mdict = {
-                    "electrostatic_charge_density": mat.Rho,
-                    "electrostatic_permittivity": mat.epsioln_r
-                    }
+        if field == "electrostatic":
+            mdict = {"electrostatic_charge_density": mat.Rho, "electrostatic_permittivity": mat.epsioln_r}
 
         if field == "magnetic":
             mdict = {
@@ -93,16 +90,11 @@ class Agros2D(Platform):
         if field == "electrostatic":
             if isinstance(boundary, DirichletBoundaryCondition):
                 typename = "electrostatic_potential"
-                boundaryvalues = {
-                        "electrostatic_potential": boundary.valuedict["fixed_voltage"]
-                        }
-                
+                boundaryvalues = {"electrostatic_potential": boundary.valuedict["fixed_voltage"]}
 
             if isinstance(boundary, NeumannBoundaryCondition):
                 typename = "electrostatic_surface_charge_density"
-                boundaryvalues = {
-                        "electrostatic_surface_charge_density": boundary.valuedict["surface_charge_density"]
-                        }
+                boundaryvalues = {"electrostatic_surface_charge_density": boundary.valuedict["surface_charge_density"]}
 
         if field == "magnetic":
             if isinstance(boundary, DirichletBoundaryCondition):

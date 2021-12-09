@@ -19,7 +19,7 @@ class LShapeDomain(BaseModel):
         super().__init__(**kwargs)
         self._init_directories()
 
-        self.l = kwargs.get('l ', 0.001)
+        self.l = kwargs.get('l', 0.005)
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -27,7 +27,7 @@ class LShapeDomain(BaseModel):
         femm_metadata.coordinate_type = "planar"
         femm_metadata.file_script_name = self.file_solver_script
         femm_metadata.file_metrics_name = self.file_solution
-        femm_metadata.unit = "meters"
+        femm_metadata.unit = "centimeters"
         femm_metadata.smartmesh = False
         femm_metadata.depth = 1
 
@@ -39,10 +39,10 @@ class LShapeDomain(BaseModel):
         agros_metadata.problem_type = "electrostatic"
         agros_metadata.coordinate_type = "planar"
         agros_metadata.analysis_type = "steadystate"
-        agros_metadata.unit = 1
+        agros_metadata.unit = 0.01
         agros_metadata.nb_refinements = 0
         agros_metadata.adaptivity = "hp-adaptivity"
-        agros_metadata.polyorder = 4
+        agros_metadata.polyorder = 1
         agros_metadata.adaptivity_tol = 0.15
         agros_metadata.adaptivity_steps = 10
 
@@ -115,4 +115,4 @@ class LShapeDomain(BaseModel):
 
 if __name__ == "__main__":
     m = LShapeDomain(exportname="dev")
-    print(m(cleanup=False, devmode=False))
+    print(m(cleanup=False, devmode=True))
