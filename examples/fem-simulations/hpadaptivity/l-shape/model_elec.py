@@ -45,7 +45,7 @@ class LShape(BaseModel):
     def define_materials(self):
         air = Material("air")
         air.meshsize = 0.01
-        air.epsioln_r = (1/8.856e-12)
+        air.epsioln_r = (1/8.8541878128e-12)
 
         self.snapshot.add_material(air)
 
