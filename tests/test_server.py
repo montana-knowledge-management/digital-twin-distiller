@@ -1,18 +1,18 @@
+import os
 import unittest
 from multiprocessing import Process
 from pathlib import Path
-import os
+from time import sleep
+
+import requests
+from fastapi.testclient import TestClient
 
 from digital_twin_distiller.__main__ import new
-from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.encapsulator import Encapsulator
-from digital_twin_distiller.simulationproject import sim, SimulationProject
-from digital_twin_distiller.utils import purge_dir
-from time import sleep
-import requests
-
 from digital_twin_distiller.ml_project import MachineLearningProject
-from fastapi.testclient import TestClient
+from digital_twin_distiller.modelpaths import ModelDir
+from digital_twin_distiller.simulationproject import SimulationProject, sim
+from digital_twin_distiller.utils import purge_dir
 
 CURRENT = Path(__file__).parent
 MODELNAME = "TestServer"
@@ -73,11 +73,16 @@ class TestServer(unittest.TestCase):
     def test_with_text_key_sim(self):
         response = self.client.post("/process_sim", json={}, headers={"Content-Type": "application/json"})
         self.assertTrue(response.status_code, 200)
-        self.assertDictEqual(response.json(), {'simulation': {'type': 'default'}, 'model': {},
-                                               'tolerances': {'type': 'ff', 'parameters': {}, 'variables': []},
-                                               'misc': {'processes': 4, 'cleanup': True, 'exportname': None},
-                                               'version': '2021.12'}
-                             )
+        self.assertDictEqual(
+            response.json(),
+            {
+                "simulation": {"type": "default"},
+                "model": {},
+                "tolerances": {"type": "ff", "parameters": {}, "variables": []},
+                "misc": {"processes": 4, "cleanup": True, "exportname": None},
+                "version": "2021.12",
+            },
+        )
 
     def test_with_text_key_ml(self):
         good_json = {"text": "With text key."}
@@ -103,8 +108,9 @@ class TestServer(unittest.TestCase):
     def test_asset_not_exists(self):
         with self.assertRaises(FileNotFoundError) as context:
             self.server.set_project_mkdocs_dir_path(".")
-            self.assertIn('please build the mkdocs site by calling "mkdocs build" in the docs directory',
-                          context.exception)
+            self.assertIn(
+                'please build the mkdocs site by calling "mkdocs build" in the docs directory', context.exception
+            )
 
     @classmethod
     def tearDownClass(cls):

@@ -111,6 +111,7 @@ class Geometry:
         idx = self.lines.index(closest_line)
         self.lines.pop(idx)
 
+
     def find_node(self, id: int):
         """Finds and gives back a node with the given id"""
         return next((x for x in self.nodes if x.id == id), None)

@@ -1,23 +1,32 @@
-from digital_twin_distiller import DirichletBoundaryCondition, NeumannBoundaryCondition
-from digital_twin_distiller import Material
-from digital_twin_distiller import BaseModel
-from digital_twin_distiller import ModelDir
-from digital_twin_distiller import Agros2D, Femm
-from digital_twin_distiller import Agros2DMetadata, FemmMetadata
-from digital_twin_distiller import Snapshot
-from digital_twin_distiller import ModelPiece
-import numpy as np
 import operator as op
+
+import numpy as np
+
+from digital_twin_distiller import (
+    Agros2D,
+    Agros2DMetadata,
+    BaseModel,
+    DirichletBoundaryCondition,
+    Femm,
+    FemmMetadata,
+    Material,
+    ModelDir,
+    ModelPiece,
+    NeumannBoundaryCondition,
+    Snapshot,
+)
 
 ModelDir.set_base(__file__)
 
+
 class DistributedWinding(BaseModel):
     """docstring for Team35"""
-    def __init__(self, X:list, **kwargs):
+
+    def __init__(self, X: list, **kwargs):
         assert len(X) == 10
         self.X = X.copy()
 
-        super(DistributedWinding, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._init_directories()
 
     def setup_solver(self):
@@ -79,7 +88,7 @@ class DistributedWinding(BaseModel):
         p1 = ((self.X[0] + 5) / 2, 0.0)
         p2 = (self.X[0] + 0.5, 0.0)
         p3 = ((self.X[0] + 1.0 + 140) / 2, 0.0)
-        
+
         self.assign_boundary(p0[0], p0[1], "n0")
         self.assign_boundary(p1[0], p1[1], "n0")
         self.assign_boundary(p2[0], p2[1], "n0")
@@ -127,14 +136,12 @@ class DistributedWinding(BaseModel):
         self.geom.generate_intersections()
         self.snapshot.add_geometry(self.geom)
 
-
-
         self.assign_material(3, 1, "control")
         self.assign_material(30, 30, "air")
 
 
 if __name__ == "__main__":
 
-    X = [10] *10
+    X = [10] * 10
     m = DistributedWinding(X, exportname="dev")
     print(m(cleanup=False))

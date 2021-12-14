@@ -18,13 +18,25 @@ class Material:
         self.vx = 0.0
         self.vy = 0.0
 
-        # Femm realted
+        # Femm related
         self.thickness = 0
         self.lamination_type = 0
         self.fill_factor = 0
         self.diameter = 1.0
         self.phi_hmax = 0.0
+
+        # FEMM HEAT
+        self.kx = 1.0
+        self.ky = 1.0
         self.qv = 0.0
+        self.kt = 0.0
+
+        # AGROS2D related
+        # HEAT
+        self.material_density = 0.0
+        self.heat_conductivity = 385.0
+        self.volume_heat = 0.0
+        self.specific_heat = 0.0
 
         self.assigned = []  # a set of (x, y) tuples
         self.meshsize = 0

@@ -1,5 +1,5 @@
 # supported file formats
-CONLLU = ".conllup" # annotated text format for named entity recognition tasks
+CONLLU = ".conllup"  # annotated text format for named entity recognition tasks
 JSON = ".json"
 PDF = ".pdf"
 TXT = ".txt"

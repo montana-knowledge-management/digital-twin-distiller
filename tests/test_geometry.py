@@ -245,7 +245,7 @@ class TestGeometry(TestCase):
         # TODO: GK: Should be 3 or 4? The line (1,0)-(0,1) is duplicated
         # self.assertEqual(len(geo.lines), 4)
 
-        # GK: changed to 3 because of add_line function now checks if the line 
+        # GK: changed to 3 because of add_line function now checks if the line
         # is already present in the geometry
         self.assertEqual(len(geo.lines), 3)
 
