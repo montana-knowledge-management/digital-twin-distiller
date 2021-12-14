@@ -3,23 +3,22 @@ import os
 import socket
 from abc import abstractmethod
 
-import digital_twin_distiller.text_readers as rdr
 import pkg_resources
 import requests
-from digital_twin_distiller.keywords import JSON
-from digital_twin_distiller.keywords import PDF
-from digital_twin_distiller.keywords import TXT
-from digital_twin_distiller.text_writers import JsonWriter
 from importlib_resources import files
+
+import digital_twin_distiller.text_readers as rdr
+from digital_twin_distiller.keywords import JSON, PDF, TXT
+from digital_twin_distiller.text_writers import JsonWriter
 
 supported_extensions = [JSON, TXT, PDF]
 
 
-class AbstractProject:
+class MachineLearningProject:
     log = logging.getLogger(__name__)
     # This folder contains the index page for the api endpoint
-    #template_folder = files("digital_twin_distiller") / "resources" / "templates"
-    #static_folder = files("digital_twin_distiller") / "resources" / "static"
+    # template_folder = files("digital_twin_distiller") / "resources" / "templates"
+    # static_folder = files("digital_twin_distiller") / "resources" / "static"
 
     port = 9099
     debug = False
@@ -68,48 +67,51 @@ class AbstractProject:
     def cache(self):
         pass
 
-    def http_input(self, http_input, file_format, reader=None, output_directory="/tmp/"):
-        """
-        TODO: this function should be finished and discussed!
-        """
-
-        response = requests.get(http_input)
-        filename = response.url.split("/")[-1]
-
-        if file_format == PDF:
-            path = os.path.join(output_directory, filename)
-
-            with open(path, "wb") as file:
-                file.write(response.content)
-            if reader:
-                data = reader().read(path)
-                JsonWriter().write(data, "tmp.json")
+    # TODO: this part is going to be replaced by the S3 bucket solution.
+    # def http_input(self, http_input, file_format, reader=None, output_directory="/tmp/"):
+    #     """
+    #     This function should be finished and discussed! Not finished yet!
+    #     """
+    #
+    #     response = requests.get(http_input)
+    #     filename = response.url.split("/")[-1]
+    #
+    #     if file_format == PDF:
+    #         path = os.path.join(output_directory, filename)
+    #
+    #         with open(path, "wb") as file:
+    #             file.write(response.content)
+    #         if reader:
+    #             data = reader().read(path)
+    #             JsonWriter().write(data, "tmp.json")
 
     def bulk_input_directory(self, directory_name, extension=JSON, key=None):
-        """Reads the data into a dictionary, where the key is the filename than the"""
+        """
+        Reads the data into a dictionary, where the key is the filename than the
+        """
 
         if extension not in supported_extensions:
-            print(f"{extension} - extension is not supported.")
-            return
+            raise ValueError(f"{extension} - extension is not supported.")
 
         for file in os.listdir(directory_name):
             inp_dict = None
             if file.endswith(extension):
-                temp = os.path.join(directory_name, file)
+                file_path = os.path.join(directory_name, file)
                 if extension == JSON:
-                    inp_dict = self.open_data_file(rdr.JsonReader(), temp)
+                    inp_dict = self.open_data_file(rdr.JsonReader(), file_path, key)
 
                 if extension == PDF:
-                    inp_dict = self.open_data_file(rdr.PdfReader(), temp, key)
+                    inp_dict = self.open_data_file(rdr.PdfReader(), file_path, key)
 
                 if extension == TXT:
-                    inp_dict = self.open_data_file(rdr.TextReader(), temp, key)
+                    inp_dict = self.open_data_file(rdr.TextReader(), file_path, key)
 
                 if inp_dict:
                     self._input_data.append(inp_dict)
 
     def open_data_file(self, reader, file_name, key=None):
-        """Stores the input data in  a dictionary, or the content under a dictionary key.
+        """
+        Stores the input data in  a dictionary, or the content under a dictionary key.
 
         Possible usage of the function in different example cases:
 
@@ -195,17 +197,6 @@ class Classifier(AbstractSubTask):
 
 
 class ExtractorAbstract(AbstractSubTask):
-    def __init__(self):
-        super().__init__()
-        self.define_options()
-
-    @abstractmethod
-    def define_options(self):
-        ...
-
-
-class NormalizerAbstract(AbstractSubTask):
-    # a kind of post-processor, which works on a key and gives back the normalized value of this key
     def __init__(self):
         super().__init__()
         self.define_options()

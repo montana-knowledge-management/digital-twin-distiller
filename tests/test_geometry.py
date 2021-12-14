@@ -243,7 +243,11 @@ class TestGeometry(TestCase):
         geo.merge_geometry(geo2)
 
         # TODO: GK: Should be 3 or 4? The line (1,0)-(0,1) is duplicated
-        self.assertEqual(len(geo.lines), 4)
+        # self.assertEqual(len(geo.lines), 4)
+
+        # GK: changed to 3 because of add_line function now checks if the line
+        # is already present in the geometry
+        self.assertEqual(len(geo.lines), 3)
 
         # GK: Changed from 7 to 5, because of the (0, 1), (1, 0) nodes
         self.assertEqual(len(geo.nodes), 5)
@@ -258,3 +262,28 @@ class TestGeometry(TestCase):
         self.assertEqual(len(geo.nodes), 4)
         self.assertEqual(geo.nodes[0].x, 0)
         self.assertEqual(geo.nodes[0].y, 0)
+
+    def test_delete_lines(self):
+        g = Geometry()
+
+        n0 = Node(0, 0)
+        n1 = Node(1, 0)
+        n2 = Node(1, 1)
+        n3 = Node(0, 1)
+
+        l0 = Line(n0, n1)
+        l1 = Line(n1, n2)
+        l2 = Line(n2, n3)
+        l3 = Line(n3, n0)
+
+        g.add_line(l0)
+        g.add_line(l1)
+        g.add_line(l2)
+        g.add_line(l3)
+
+        self.assertEqual(len(g.lines), 4)
+
+        # delete l0
+        g.delete_line(0.5, 0)
+        self.assertEqual(len(g.lines), 3)
+        self.assertFalse(l0 in g.lines)

@@ -13,16 +13,29 @@ from fastapi.templating import Jinja2Templates
 from importlib_resources import files
 from pydantic import BaseModel, Extra
 
+from digital_twin_distiller.ml_project import MachineLearningProject
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.simulationproject import SimulationProject
 
 
-class InputJson(BaseModel):
+class InputJsonML(BaseModel):
     """
-    Class for validating the input sent to the /process endpoint.
+    Class for validating the input sent to the /process endpoint for MachineLearningProject.
     """
 
-    simulation: dict = {"type": "default"}
+    text: str
+
+    # Setting for keeping the additional keys in the input json intact
+    class Config:
+        extra = Extra.allow
+
+
+class InputJsonSim(BaseModel):
+    """
+    Class for validating the input sent to the /process endpoint for SimulationProject.
+    """
+
+    simulation: Optional[dict] = {"type": "default"}
     model: Optional[dict] = {}
     tolerances: Optional[dict] = {
         "type": "ff",
@@ -30,8 +43,8 @@ class InputJson(BaseModel):
         "variables": [],
     }
     misc: Optional[dict] = {"processes": 4, "cleanup": True, "exportname": None}
-
-    version: Optional[str] = "0.7"
+    # TODO: get this version number from poetry, what do we want from this version
+    version: Optional[str] = "2021.12"
 
     # Setting for keeping the additional keys in the input json intact
     class Config:
@@ -41,31 +54,18 @@ class InputJson(BaseModel):
 # Defining the API
 app = FastAPI(title="{} API", docs_url="/apidocs", redoc_url=None)
 
-
-def mounts():
-    # Mounting folders of the default mkdocs documentation to the application.
-    app.mount(
-        "/assets",
-        StaticFiles(directory=files("docs") / "site" / "assets"),
-        name="assets",
-    )
-    app.mount(
-        "/search",
-        StaticFiles(directory=files("docs") / "site" / "search"),
-        name="search",
-    )
-
-    app.mount(
-        "/images",
-        StaticFiles(directory=files("docs") / "site" / "images"),
-        name="images",
-    )
-
-
 tags_metadata = [
     {
-        "name": "process",
+        "name": "process_ml",
         "description": "Run project on a single document sent for the API.",
+        "externalDocs": {
+            "description": "Find out more",
+            "url": "http://montana.ai",
+        },
+    },
+    {
+        "name": "process_sim",
+        "description": "Run simulations for the API.",
         "externalDocs": {
             "description": "Find out more",
             "url": "http://montana.ai",
@@ -88,8 +88,8 @@ tags_metadata = [
 ]
 
 
-@app.post("/process", include_in_schema=True, tags=["process"])
-async def process(item: InputJson):
+@app.post("/process_sim", include_in_schema=True, tags=["process_sim"])
+async def process_sim(item: InputJsonSim):
     """
     Endpoint for performing the project.run() method on data sent for the API in JSON format.
     The endpoint performs automatic input validation via the Item class.
@@ -109,10 +109,18 @@ async def process(item: InputJson):
     finally:
         return app.project._output
 
-    # app.project._input = data
-    # app.project.update_input()
-    # app.project.run()
-    # return app.project._output
+
+@app.post("/process_ml", include_in_schema=True, tags=["process_ml"])
+async def process_ml(item: InputJsonML):
+    """
+    Endpoint for performing the project.run() method on data sent for the API in JSON format.
+    The endpoint performs automatic input validation via the Item class.
+    """
+    data = json.loads(item.json())
+    if data:
+        app.project.add_single_input(data)
+        app.project.run()
+    return app.project.get_single_output()
 
 
 @app.get("/ping", include_in_schema=True, tags=["ping"])
@@ -134,12 +142,15 @@ def project_documentation(request: Request):
     return app.doc_templates.TemplateResponse("index.html", {"request": request, "project_name": app.project.app_name})
 
 
-class Server:
+class Encapsulator:
     """
     Server for running a custom project as an API.
     """
 
-    def __init__(self, project: SimulationProject):
+    def __init__(self, project):
+        """
+        :param project: either MachineLearningProject or SimulationProject instance
+        """
         self.app = app
         self.app.doc_templates = Jinja2Templates(
             directory=files("digital_twin_distiller") / "resources" / "doc_template" / "site"
