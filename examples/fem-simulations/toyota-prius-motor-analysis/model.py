@@ -36,23 +36,24 @@ class PriusMotor(BaseModel):
         self._init_directories()
 
         # Geometric parameters
-        self.S1 = inch2mm(10.600) / 2
-        self.S2 = inch2mm(6.375) / 2
+        """ source: http://phdengineeringem.blogspot.com/2018/05/toyota-prius-motor-geometry.html"""
+        self.S1 = inch2mm(10.600) / 2  # Stator outer diameter [inch]
+        self.S2 = inch2mm(6.375) / 2  # Stator inner diameter [inch]
         self.S4 = inch2mm(0.076)
-        self.R1 = inch2mm(6.315) / 2
+        self.R1 = inch2mm(6.314) / 2  # Rotor outer diameter [inch]
         self.R3 = 145
         self.R4 = 6.5
         self.R5 = 18.9
         self.R6 = 70.0
-        self.R7 = inch2mm(4.356) / 2
-        self.airgap = self.S2 - self.R1
+        self.R7 = inch2mm(4.356) / 2  # Rotor inner diameter [inch]
+        self.airgap = self.S2 - self.R1  # Airgap [mm]
 
         # Mechanical and Electrical angles
         self.rotorangle = -rotorangle
         self.alpha = -alpha
 
         # Excitation setup
-        coil_area = 0.000142795  # m2
+        coil_area = 0.0003057210983  # m2  # Old: 0.000142795
         Nturns = 9
         J0 = Nturns * I0 / coil_area
         self.JU = J0 * math.cos(math.radians(self.alpha))
@@ -61,13 +62,13 @@ class PriusMotor(BaseModel):
 
         # Mesh sizes
         self.msh_size_stator_steel = 1.2
-        self.msh_size_rotor_steel = 0.5
+        self.msh_size_rotor_steel = 0.3
         self.msh_size_coils = 1.0
         self.msh_size_air = 1.0
         self.msh_size_airgap = 0.3
         self.msh_size_magnets = 1.0
 
-        self.offset=0.25
+        self.offset = 0.0
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -77,7 +78,7 @@ class PriusMotor(BaseModel):
         femm_metadata.file_metrics_name = self.file_solution
         femm_metadata.unit = "millimeters"
         femm_metadata.smartmesh = False
-        femm_metadata.depth = 83.6
+        femm_metadata.depth = inch2mm(3.3)
 
         self.platform = Femm(femm_metadata)
         self.snapshot = Snapshot(self.platform)
@@ -96,9 +97,9 @@ class PriusMotor(BaseModel):
         air = Material("air")
         air.meshsize = self.msh_size_air
 
-        wire = Material("20 AWG")
+        wire = Material("19 AWG")
         wire.lamination_type = "magnetwire"
-        wire.diameter = 0.812049969500513
+        wire.diameter = 0.912  # Old: 812049969500513
         wire.conductivity = 58e6
         wire.meshsize = self.msh_size_coils
 
@@ -115,10 +116,10 @@ class PriusMotor(BaseModel):
                    15915.000000, 31830.000000, 111407.000000, 190984.000000, 350135.000000, 509252.000000,
                    560177.200000, 1527756.000000]
 
-        magnet = Material("N36Z_50")
+        magnet = Material("N36Z_20")  # Old: N36Z_50
         magnet.meshsize = self.msh_size_magnets
         magnet.mu_r = 1.03
-        magnet.coercivity = 782000
+        magnet.coercivity = 920000  # Old: 782000
         magnet.conductivity = 0.667e6
 
         ### create concrete materials
@@ -163,12 +164,12 @@ class PriusMotor(BaseModel):
         # Rotor steel
         steel_rotor = copy(steel)
         steel_rotor.name = 'steel_rotor'
-        steel_rotor.meshsize = self.msh_size_stator_steel
+        steel_rotor.meshsize = self.msh_size_rotor_steel
 
         # Magnet right
         magnet_right = copy(magnet)
         magnet_right.name = 'magnet_right'
-        magnet_right.remanence_angle = 90 + 90 - self.R3 / 2
+        magnet_right.remanence_angle = -90 + 90 - self.R3 / 2
 
         # Magnet left
         magnet_left = copy(magnet)
@@ -234,13 +235,13 @@ class PriusMotor(BaseModel):
         self.assign_boundary(*label_boudnary_left, "PB1")
         self.assign_boundary(*label_boudnary_right, "PB1")
 
-        # stator  - airgap / 2 slice
-        r_outer = self.S2+self.offset
-        r_inner = self.S2 - self.airgap / 2+self.offset
+        # Stator  - airgap / 2 slice
+        r_outer = self.S2 + self.offset
+        r_inner = self.S2 - self.airgap / 3 + self.offset
         ul, ur = self._add_slice(r_outer, r_inner, segment_deg=1)
         label_boudnary_left = ul * (r_outer + r_inner) / 2
         label_boudnary_right = ur * (r_outer + r_inner) / 2
-        self.assign_material(0, self.S2 - self.airgap / 4+self.offset, "airgap")
+        self.assign_material(0, self.S2 - self.airgap / 6+self.offset, "airgap")
         self.assign_boundary(*label_boudnary_left, "PB2")
         self.assign_boundary(*label_boudnary_right, "PB2")
         self.assign_boundary_arc(0, r_inner, "APairgap")
@@ -256,12 +257,12 @@ class PriusMotor(BaseModel):
         self.assign_boundary(*label_boudnary_right, "PB4")
 
         # rotor + airgap / 2 slice
-        r_outer = self.R1 + self.airgap / 2
+        r_outer = self.R1 + self.airgap / 3
         r_inner = self.R1
         ul, ur = self._add_slice(r_outer, r_inner, segment_deg=1)
         label_boudnary_left = ul * (r_outer + r_inner) / 2
         label_boudnary_right = ur * (r_outer + r_inner) / 2
-        self.assign_material(0, self.R1 + self.airgap / 4, "airgap")
+        self.assign_material(0, self.R1 + self.airgap / 6, "airgap")
         self.assign_boundary(*label_boudnary_left, "PB3")
         self.assign_boundary(*label_boudnary_right, "PB3")
         self.assign_boundary_arc(0, r_outer, "APairgap")
@@ -294,6 +295,8 @@ class PriusMotor(BaseModel):
         self.assign_material(-20, 75, "air")
         self.assign_material(20, 75, "air")
 
+
+
     def _add_slits(self):
         slit = ModelPiece("slit")
         slit.load_piece_from_dxf(self.dir_resources / "slit.dxf")
@@ -312,7 +315,7 @@ class PriusMotor(BaseModel):
         self.assign_material(*label1, "U+")
         self.assign_material(*label2, "air")
 
-        labels = ["U+", "V-", "V-", "W+", "W+", "U-"]
+        labels = ["U+", "U+", "V-", "V-", "W+", "W+"]
         for i in range(1, 6):
             slit_i = slit.spawn()
             slit_i.rotate(alpha=-i * 7.5)
@@ -336,7 +339,6 @@ class PriusMotor(BaseModel):
 
     def __repr__(self):
         return f"{self.rotorangle:.2f} ° - {self.alpha:.2f}°"
-
 
 class ParametricPriusMotor(PriusMotor):
 
@@ -368,5 +370,5 @@ if __name__ == "__main__":
     from numpy import linspace
     import multiprocessing
 
-    m = PriusMotor(rotorangle=360/48*3/4, exportname="dev")
+    m = PriusMotor(exportname="dev")
     execute_model(m)
