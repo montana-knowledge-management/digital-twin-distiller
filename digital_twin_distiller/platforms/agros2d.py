@@ -117,10 +117,10 @@ class Agros2D(Platform):
             boundaryvalues = {
                 "heat_radiation_ambient_temperature": 293.15,
                 "heat_convection_external_temperature": 293.15,
-                "heat_convection_heat_transfer_coefficient": 5.0,
-                "heat_heat_flux": 0.0,
-                "heat_radiation_emissivity": 0.0,
-                "heat_temperature": 0.0,
+                "heat_convection_heat_transfer_coefficient": 5,
+                "heat_heat_flux": 0,
+                "heat_radiation_emissivity": 0,
+                "heat_temperature": 0,
             }
             if isinstance(boundary, DirichletBoundaryCondition):
                 typename = "heat_temperature"
@@ -181,11 +181,14 @@ class Agros2D(Platform):
             "Bz": "Brz",
             "Hx": "Hrx",
             "Hy": "Hry",
+            "T": "T",
+            "V": "V"
         }
+        field = self.metadata.problem_type
         if action == "point_value":
             x = self.metadata.unit * entity[0]
             y = self.metadata.unit * entity[1]
-            self.write(f'point = {self.metadata.problem_type}.local_values({x}, {y})["{mappings[variable]}"]')
+            self.write(f'point = {field}.local_values({x}, {y})["{mappings[variable]}"]')
             self.write(
                 f'f.write("{{}}, {x}, {y}, {{}}\\n".format("{variable}", point))',
                 nb_newline=2,
@@ -198,9 +201,14 @@ class Agros2D(Platform):
             self.write(f'f.write("{{}}, {{}}\\n".format("elements", info["elements"]))')
 
         if action == "integration":
-            if self.metadata.problem_type == "magnetic":
+            if field == "heat":
+                mapping = {"T":"T"}
+                self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
+                self.write(f'f.write("{variable}, {{}}\\n".format(val))')
+
+            if field == "magnetic":
                 mapping = {"Energy": "Wm"}
-                self.write(f"val={self.metadata.problem_type}.volume_integrals({entity})[{mapping[variable]!r}]")
+                self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
                 self.write(f'f.write("{variable}, {{}}\\n".format(val))')
 
     def export_closing_steps(self):

@@ -301,23 +301,36 @@ class Femm(Platform):
             "Hy": "H2",
             "Hr": "H1",
             "Hz": "H2",
+            "T": "V",
+            "V": "V"
         }
+        field = self.metadata.problem_type
         fieldmapping = {
             "electrostatic": "eo",
             "magnetic": "mo",
             "heat": "ho",
             "current": "co",
         }
-        prefix = fieldmapping[self.metadata.problem_type]
+        prefix = fieldmapping[field]
         if action == "point_value":
             x = entity[0]
             y = entity[1]
-            self.write(
-                "A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph = ",
-                nb_newline=0,
-            )
-            self.write(self.writer.get_point_values(x, y))
-            self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+
+            if field == "electrostatic":
+                self.write(f"V, Dx, Dy, Ex, Ey, ex, ey, nrg = eo_getpointvalues({x}, {y})")
+                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+
+            if field == "magnetic":
+                self.write(
+                    "A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph = ",
+                    nb_newline=0,
+                )
+                self.write(self.writer.get_point_values(x, y))
+                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+
+            if field == "heat":
+                self.write(f"V, Fx, Fy, Gx, Gy, kx, ky = ho_getpointvalues({x}, {y})")
+                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
         if action == "mesh_info":
 

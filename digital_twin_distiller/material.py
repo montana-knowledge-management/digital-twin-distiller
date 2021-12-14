@@ -34,7 +34,7 @@ class Material:
         # AGROS2D related
         # HEAT
         self.material_density = 0.0
-        self.heat_conductivity = 385
+        self.heat_conductivity = 385.0
         self.volume_heat = 0.0
         self.specific_heat = 0.0
 
