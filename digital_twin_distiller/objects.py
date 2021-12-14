@@ -21,6 +21,16 @@ class Node:
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
         self.hanging = True  # if its contained by another object it will be set to False
 
+    @classmethod
+    def from_polar(cls, r:float, phi:float):
+        """
+        Create a Node from its polar coordinates.
+
+        :param float r: the length of the vector
+        :param float phi: the angle of the vector in degrees
+        """
+        return cls(r*math.cos(math.radians(phi)), r*math.sin(math.radians(phi))) 
+
     def __getitem__(self, item):
         if item == 0:
             return self.x
