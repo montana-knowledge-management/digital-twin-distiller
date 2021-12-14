@@ -71,6 +71,7 @@ class ThermalShock(BaseModel):
     def define_materials(self):
         air = Material("air")
         air.meshsize = 0.005
+        air.epsioln_r = 1/(8.8541878128*1e-12)
 
         self.snapshot.add_material(air)
 
@@ -98,7 +99,7 @@ class ThermalShock(BaseModel):
     def add_postprocessing(self):
         self.snapshot.add_postprocessing("mesh_info", None, None)
 
-    def build_geometry_old(self):
+    def build_geometry(self):
         # ...
         a = Node(0, 0)
         b = Node(1, 0)
@@ -111,7 +112,7 @@ class ThermalShock(BaseModel):
         l4 = Line(a, d)
         self.assign_material(0.5, 0.5, "air")
 
-        u = lambda x, y: arctan(self.alpha * (hypot(x - 1.25, y + 0.25) - 1))
+        u = lambda x, y: arctan(60 * (hypot(x - 1.25, y + 0.25) - 1))
 
         # GAMMA 1
         t1 = linspace(0, 1, self.n_gamma1 + 1)
@@ -187,7 +188,7 @@ class ThermalShock(BaseModel):
 
         self.snapshot.add_geometry(self.geom)
 
-    def build_geometry(self):
+    def build_geometry____(self):
 
         N = self.nsteps
         G = nx.grid_2d_graph(N+1, N+1)
