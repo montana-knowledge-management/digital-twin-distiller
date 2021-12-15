@@ -2,7 +2,6 @@ from copy import copy
 from math import cos, pi, radians
 
 from digital_twin_distiller import inch2mm
-from digital_twin_distiller import Line
 from digital_twin_distiller.boundaries import DirichletBoundaryCondition
 from digital_twin_distiller.boundaries import AntiPeriodicBoundaryCondition
 from digital_twin_distiller.boundaries import AntiPeriodicAirGap
@@ -24,26 +23,27 @@ class PriusMotor(BaseModel):
         self._init_directories()
 
         # Geometric parameters
-        self.S1 = inch2mm(10.600) / 2
-        self.S2 = inch2mm(6.375) / 2
-        self.S4 = inch2mm(0.076)
-        self.R1 = inch2mm(6.315) / 2
-        self.R3 = 145
-        self.R4 = 6.5
-        self.R5 = 18.9
-        self.R6 = 70.0
-        self.R7 = inch2mm(4.356) / 2
-        self.airgap = self.S2 - self.R1
+        """ source: http://phdengineeringem.blogspot.com/2018/05/toyota-prius-motor-geometry.html"""
+        """ source: https://github.com/Eomys/pyleecan/blob/master/Tests/Data/prius_test.dxf"""
+        self.S1 = inch2mm(10.600) / 2  # Stator outer diameter [mm]
+        self.S2 = inch2mm(6.375) / 2  # Stator inner diameter [mm]
+        self.S4 = inch2mm(0.076)  # Tooth slit [mm]
+        self.R1 = inch2mm(6.315) / 2  # Rotor outer diameter [mm]
+        self.R3 = 145  # dxf positioning
+        self.R4 = 6.5  # dxf positioning
+        self.R5 = 18.9  # dxf positioning
+        self.R6 = 70.0  # dxf positioning
+        self.R7 = inch2mm(4.356) / 2  # Rotor inner diameter [mm]
+        self.airgap = self.S2 - self.R1  # Airgap [mm]
 
-
-        self.rotorangle = kwargs.get('rotorangle', 0.0)
+        self.rotorangle = kwargs.get('rotorangle', 0.0)  # The angle of the sliding band [°]
 
         # Excitation setup
-        I0 = kwargs.get("I0", 0.0)
-        alpha = kwargs.get("alpha", 0.0)
+        I0 = kwargs.get("I0", 0.0)  # Stator current of one phase [A]
+        alpha = kwargs.get("alpha", 0.0)  # Offset of the current [°]
 
-        coil_area = 0.000142795  # m2
-        Nturns = 9
+        coil_area = 0.000142795  # area of the slot [m^2]
+        Nturns = 9  # turns of the coil in one slot [u.]
         J0 = Nturns * I0 / coil_area
         self.JU = J0 * cos(radians(alpha))
         self.JV = J0 * cos(radians(alpha + 120))
@@ -57,7 +57,7 @@ class PriusMotor(BaseModel):
         femm_metadata.file_metrics_name = self.file_solution
         femm_metadata.unit = "millimeters"
         femm_metadata.smartmesh = False
-        femm_metadata.depth = 83.6
+        femm_metadata.depth = inch2mm(3.3)
 
         self.platform = Femm(femm_metadata)
         self.snapshot = Snapshot(self.platform)
@@ -68,9 +68,9 @@ class PriusMotor(BaseModel):
         air = Material("air")
         air.meshsize = 1.0
 
-        wire = Material("20 AWG")
+        wire = Material("19 AWG")
         wire.lamination_type = "magnetwire"
-        wire.diameter = 0.812049969500513
+        wire.diameter = 0.912
         wire.conductivity = 58e6
         wire.meshsize = 1.0
 
@@ -84,12 +84,11 @@ class PriusMotor(BaseModel):
                 1.788400, 1.888400, 1.988400, 2.188400, 2.388397, 2.452391,
                 3.668287]
 
-        steel.h = [0.0, 22.28, 25.46, 31.83, 47.74,
-                63.66, 79.57, 159.15, 318.3, 477.46,
-                636.61, 795.77, 1591.5, 3183.0, 4774.6,
-                6366.1, 7957.7, 15915.0, 31830.0,
-                111407.000000, 190984.000000, 350135.0, 509252.0,
-                560177.2, 1527756.0]
+        steel.h = [0.000000, 22.28000, 25.46000, 31.83000, 47.74000, 63.66000,
+                79.57000, 159.1500, 318.3000, 477.4600, 636.6100, 795.7700,
+                1591.500, 3183.000, 4774.600, 6366.100, 7957.700, 15915.00,
+                31830.00, 111407.0, 190984.0, 350135.0, 509252.0, 560177.2,
+                1527756.0]
 
         magnet = Material("N36Z_50")
         magnet.meshsize = 1.0
@@ -139,17 +138,17 @@ class PriusMotor(BaseModel):
         # Rotor steel
         steel_rotor = copy(steel)
         steel_rotor.name = 'steel_rotor'
-        steel_rotor.meshsize = 0.5
+        steel_rotor.meshsize = 0.4
 
         # Magnet right
         magnet_right = copy(magnet)
         magnet_right.name = 'magnet_right'
-        magnet_right.remanence_angle = 107.46
+        magnet_right.remanence_angle = -90 + 90 - self.R3 / 2
 
         # Magnet left
         magnet_left = copy(magnet)
         magnet_left.name = 'magnet_left'
-        magnet_left.remanence_angle = 72.54
+        magnet_left.remanence_angle = -magnet_right.remanence_angle + 180
 
         # Adding the used materials to the snapshot
         self.snapshot.add_material(air)
@@ -229,7 +228,7 @@ class PriusMotor(BaseModel):
         self.assign_material(0, 120, "steel_stator")
 
 
-        labels = ["U+", "V-", "V-", "W+", "W+", "U-"]
+        labels = ["U+", "U+", "V-", "V-", "W+", "W+"]
         label = Node.from_polar(100.0, 71.0)
         for i in range(6):
             self.assign_material(label.x, label.y, labels[i])
@@ -256,4 +255,4 @@ class PriusMotor(BaseModel):
 
 if __name__ == "__main__":
     m = PriusMotor(exportname="dev")
-    print(m(cleanup=False, devmode=False))
+    print(m(cleanup=True, devmode=True))
