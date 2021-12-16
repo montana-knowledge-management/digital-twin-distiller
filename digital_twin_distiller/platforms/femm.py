@@ -302,7 +302,9 @@ class Femm(Platform):
             "Hr": "H1",
             "Hz": "H2",
             "T": "V",
-            "V": "V"
+            "V": "V",
+            "Ex": "Ex",
+            "Ey": "Ey"
         }
         field = self.metadata.problem_type
         fieldmapping = {
