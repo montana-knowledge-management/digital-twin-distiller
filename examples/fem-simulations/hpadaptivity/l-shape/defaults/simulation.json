@@ -1,7 +1,8 @@
 {
   "default": {
-    "t0": 0.0,
-    "t1": 5.3,
-    "nstep": 101
+      "solver": "femm",
+      "nb_segments": 200,
+      "meshsize": 1.0,
+      "adaptivity_tol":1
   }
 }
