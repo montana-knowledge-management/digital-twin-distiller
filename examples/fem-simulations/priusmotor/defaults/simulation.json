@@ -2,7 +2,7 @@
   "default": {
     "t0": 0.0,
     "t1": 5.3,
-    "nstep": 101
+    "nstep": 11
   },
   "cogging": {
       "alpha0": 0,
@@ -10,7 +10,7 @@
       "nsteps":11
   },
   "locked_rotor": {
-      "I0": 250,
+      "I0": 50,
       "alpha0": 0,
       "alpha1": 180,
       "nsteps": 21

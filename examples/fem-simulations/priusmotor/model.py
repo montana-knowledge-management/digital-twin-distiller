@@ -39,15 +39,16 @@ class PriusMotor(BaseModel):
         self.rotorangle = kwargs.get('rotorangle', 0.0)  # The angle of the sliding band [°]
 
         # Excitation setup
-        I0 = kwargs.get("I0", 0.0)  # Stator current of one phase [A]
+        I0 = kwargs.get("I0", 250.0)  # Stator current of one phase [A]
         alpha = kwargs.get("alpha", 0.0)  # Offset of the current [°]
+        ina = kwargs.get("ina", 90.0)  # Initial alpha to get T=0Nm position [°]
 
         coil_area = 0.000142795  # area of the slot [m^2]
         Nturns = 9  # turns of the coil in one slot [u.]
         J0 = Nturns * I0 / coil_area
-        self.JU = J0 * cos(radians(alpha))
-        self.JV = J0 * cos(radians(alpha + 120))
-        self.JW = J0 * cos(radians(alpha + 240))
+        self.JU = J0 * cos(radians(ina + alpha))
+        self.JV = J0 * cos(radians(ina + alpha + 120))
+        self.JW = J0 * cos(radians(ina + alpha + 240))
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -228,7 +229,7 @@ class PriusMotor(BaseModel):
         self.assign_material(0, 120, "steel_stator")
 
 
-        labels = ["U+", "U+", "V-", "V-", "W+", "W+"]
+        labels = ["V-", "V-","U+", "U+", "W-", "W-"]
         label = Node.from_polar(100.0, 71.0)
         for i in range(6):
             self.assign_material(label.x, label.y, labels[i])
