@@ -6,6 +6,7 @@ from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
 from digital_twin_distiller import ModelPiece
+import numpy as np
 
 ModelDir.set_base(__file__)
 
@@ -30,8 +31,10 @@ class FrozenPermeability(BaseModel):
 
     def define_materials(self):
         air = Material('air')
+        m19 = Material('M-19')
 
         self.snapshot.add_material(air)
+        self.snapshot.add_material(m19)
 
     def define_boundary_conditions(self):
         a0 = DirichletBoundaryCondition("a0", field_type="magnetic", magnetic_potential=0.0)
@@ -40,8 +43,11 @@ class FrozenPermeability(BaseModel):
         self.snapshot.add_boundary_condition(a0)
 
     def add_postprocessing(self):
-        points = [(0, 0)]
-        self.snapshot.add_postprocessing("integration", points, "Energy")
+        r = 4 # amend
+        phi = np.linspace(0, 2*np.pi, 101)
+        for phi_i in phi:
+            self.snapshot.add_postprocessing("point_value", (r*np.cos(phi_i), r*np.sin(phi_i)), "Bx")
+            self.snapshot.add_postprocessing("point_value", (r*np.cos(phi_i), r*np.sin(phi_i)), "By")
 
     def build_geometry(self):
         stator = ModelPiece('stator')
