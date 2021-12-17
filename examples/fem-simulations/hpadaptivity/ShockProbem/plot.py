@@ -1,11 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from math import atan, hypot, sqrt
+from digital_twin_distiller import ModelDir
+from scipy import interpolate
 
 
-
-x = np.linspace(0.5, 1, 1001)
-y = np.linspace(0.5, 1, 1001)
+ModelDir.set_base(__file__)
 
 x0 = 0.5
 y0 = 0.5
@@ -16,29 +15,70 @@ def u(x, y):
     return np.arctan(alpha*(np.hypot(x-x0, y-y0)-r0))
 
 
-def u1(x, y):
-    return atan(alpha*(hypot(x-x0, y-y0)-r0))
+def get_core_points(filename, nb_x=250, nb_y=250):
+    x, y, V = np.genfromtxt(filename, unpack=True, delimiter=',')
+    xi = np.linspace(x.min(), x.max(), nb_x)
+    yi = np.linspace(y.min(), y.max(), nb_y)
+    zi = interpolate.griddata((x, y), V, (xi[None, :], yi[:, None]), method='cubic')
 
-def u3(x,y):
-    return atan(alpha*(sqrt((x-x0)**2+(y-y0)**2)-r0))
+    xx, yy = np.meshgrid(xi, yi)
 
-# xx, yy = np.meshgrid(x, y)
+    return xx, yy, zi
 
-# u = np.arctan(alpha*(np.hypot(xx-x0, yy-y0)-r0))
+xx, yy, zz_agros = get_core_points(ModelDir.DATA/'r_agros.csv')
+xx, yy, zz_femm = get_core_points(ModelDir.DATA/'r_femm.csv')
 
-# plt.figure()
-# plt.contourf(xx, yy, u, cmap='jet')
-# plt.colorbar()
-# plt.tight_layout()
-# plt.show()
-u4 = lambda x,y: atan(alpha*(sqrt((y-y0)**2)-r0))
+plt.figure(figsize=(10, 5))
 
-u_ = [u(xi, 0.5) for xi in x ]
-u_3 = [u3(xi, 0.5) for xi in x]
+plt.subplot(231)
+plt.contourf(xx, yy, zz_agros, cmap='inferno')
+plt.colorbar()
+plt.axis('off')
+plt.title("Agros2D")
 
-plt.figure()
-plt.plot(y, u_3)
+plt.subplot(232)
+plt.contourf(xx, yy, zz_femm, cmap='inferno')
+plt.colorbar()
+plt.axis('off')
+plt.title("FEMM")
+
+plt.subplot(233)
+plt.contourf(xx, yy, u(xx, yy), cmap='inferno')
+plt.colorbar()
+plt.axis('off')
+plt.title("Exact")
+
+plt.subplot(234)
+plt.contourf(xx, yy, u(xx, yy)-zz_agros, cmap='inferno')
+plt.colorbar()
+plt.axis('off')
+plt.title("Difference: uexact-agros")
+
+plt.subplot(235)
+plt.contourf(xx, yy, u(xx, yy)-zz_femm, cmap='inferno')
+plt.colorbar()
+plt.axis('off')
+plt.title("Difference: uexact-femm")
+
+plt.subplot(236)
+plt.contourf(xx, yy, zz_agros-zz_femm, cmap='inferno')
+plt.colorbar()
+plt.axis('off')
+plt.title("Difference: agros-femm")
+
+plt.tight_layout()
+plt.savefig(ModelDir.MEDIA / "diff.png", dpi=450, bbox_inches="tight")
 plt.show()
+
+
+"""
+exact,
+femm,
+agros,
+exact-agros,
+exact-femm,
+agros-femm
+"""
 
 
 """

@@ -13,6 +13,7 @@ from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
 from digital_twin_distiller import Agros2DMetadata, Agros2D
 from digital_twin_distiller.utils import pairwise
+from numpy import linspace, meshgrid
 
 ModelDir.set_base(__file__)
 
@@ -65,7 +66,7 @@ class ShockProbem(BaseModel):
         agros_metadata.adaptivity_steps = 5
 
         self.platform = Agros2D(agros_metadata)
-        # self.platform = Femm(femm_metadata)
+        self.platform = Femm(femm_metadata)
 
 
         self.snapshot = Snapshot(self.platform)
@@ -84,8 +85,16 @@ class ShockProbem(BaseModel):
         self.snapshot.add_boundary_condition(a0)
 
     def add_postprocessing(self):
-        points = [(0.95, 0.95)]
-        self.snapshot.add_postprocessing("integration", points, "Energy")
+        N = 100
+
+        x = linspace(0.5, 1, N)
+        y = linspace(0.5, 1, N)
+        xx, yy = meshgrid(x, y)
+
+        for i in range(N):
+            for j in range(N):
+                eval_point = (xx[j, i], yy[j, i])
+                self.snapshot.add_postprocessing("point_value", eval_point, "V")
 
     def build_geometry(self):
         N = 500
@@ -140,5 +149,11 @@ class ShockProbem(BaseModel):
 
 
 if __name__ == "__main__":
+    import csv
     m = ShockProbem(exportname="dev")
-    print(m(cleanup=False, devmode=False))
+    r_ = m(cleanup=False, devmode=False)
+
+    with open(ModelDir.DATA / 'r_femm.csv', 'w') as f:
+        w = csv.writer(f)
+        for ri in r_['V']:
+            w.writerow(ri)
