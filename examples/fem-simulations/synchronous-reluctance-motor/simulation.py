@@ -9,7 +9,7 @@ from digital_twin_distiller.simulationproject import sim
 from model import SRM
 
 def execute_model(model: SRM):
-    return model(timeout=2000, cleanup=True).get("Torque", 0.0) * 8
+    return model(timeout=2000, cleanup=True).get("Torque", 0.0) * 2
 
 @sim.register('default')
 def default_simulation(model, modelparams, simparams, miscparams):
@@ -34,28 +34,6 @@ def cogging_calculation(model, modelparams, simparams, miscparams):
         json.dump(result, f, indent=2, ensure_ascii=True)
 
     return result
-
-@sim.register('locked_rotor')
-def locked_rotor(model, modelparams, simparams, miscparams):
-    alpha0 = simparams["alpha0"]
-    alpha1 = simparams["alpha1"]
-    nsteps = simparams["nsteps"]
-    I0 = simparams["I0"]
-
-    alpha = linspace(alpha0, alpha1, nsteps)
-    models = [model(I0=I0, alpha=ai) for ai in alpha]
-    with Pool() as pool:
-        T = pool.map(execute_model, models)
-
-    result = {"I0": I0,
-              "alpha": list(alpha),
-              "T": list(T)
-              }
-
-    with open(ModelDir.DATA / f'locked_rotor.json', 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2, ensure_ascii=True)
-    return result
-  
 
 if __name__ == "__main__":
 

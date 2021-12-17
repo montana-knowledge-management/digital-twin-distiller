@@ -1,3 +1,13 @@
 {
-  "default": {}
+  "default": {
+    "t0": 0.0,
+    "t1": 0.0,
+    "nstep": 0.0
+  },
+  "cogging": {
+      "alpha0": 0,
+      "alpha1": 45,
+      "nsteps": 46
+  }
+
 }

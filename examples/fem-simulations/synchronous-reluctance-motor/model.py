@@ -7,7 +7,7 @@ from digital_twin_distiller.metadata import FemmMetadata
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
 from digital_twin_distiller.material import Material
-from digital_twin_distiller.boundaries import DirichletBoundaryCondition, PeriodicBoundaryCondition, AntiPeriodicAirGap
+from digital_twin_distiller.boundaries import DirichletBoundaryCondition, AntiPeriodicBoundaryCondition, AntiPeriodicAirGap
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.modelpiece import ModelPiece
 from digital_twin_distiller.objects import CircleArc, Line, Node
@@ -67,7 +67,7 @@ class SRM(BaseModel):
         self._init_directories()
 
         ## SIMULATION
-        self.rotorangle = kwargs.get('rotorangle',0.0)
+        self.rotorangle = kwargs.get('rotorangle', 0.0)
         self.alpha = -kwargs.get('alpha', 0.0)
         self.origin = Node(0, 0)
 
@@ -82,7 +82,6 @@ class SRM(BaseModel):
         self.D2 = kwargs.get('D2', 60.0)  # Stator inner diameter [mm]
         self.beta_s = kwargs.get('beta_s', 30.0)  # Stator pole angle [°]
         self.alpha_s = kwargs.get('alpha_s', 90.0)  # Stator tooth angle [°]
-        #self.R_bs = kwargs.get('R_bs', 0.0)  # Stator bifurcation radius [mm]
         self.T2 = kwargs.get('T2', 16.5)  # Sloth depth [mm]
         self.gamma_s = kwargs.get('gamma_s', 15.0)  # Coil angle [°]
         self.W1 = kwargs.get('W1', 8.5)  # Coil bottom width [mm]
@@ -93,16 +92,16 @@ class SRM(BaseModel):
         ## ROTOR
         self.D3 = kwargs.get('D3', 59.5)  # Rotor bore diameter [mm]
         self.D4 = kwargs.get('D4', 10.0)  # Rotor inner diameter [mm]
-        self.T1 = kwargs.get('T1', 6.4)  # Core thickness [mm]
-        self.beta_r = kwargs.get('beta_r', 30.0)  # Rotor pole angle [°]
-        self.alpha_r = kwargs.get('alpha_r', 0.0)  # Rotor tooth angle [°]
-        #self.R_br = kwargs.get('R_br', 0.0)  # Rotor bifurcation radius [mm]
-        self.gamma_r = kwargs.get('gamma_r', 15.0)  # Rotor pole angle [°]
+        self.T1 = kwargs.get('T1', 6.0)  # Core thickness [mm]
+        self.beta_r = kwargs.get('beta_r', 30.25)  # Rotor tooth angle [°]
+        self.gamma_r = kwargs.get('gamma_r', 0.0)  # Rotor pole angle [°]
 
         ## EXCITATION (Calculated automatically under build_coil)
         self.half_coil_area = kwargs.get('half_coil_area', None)
         self.Nturns = kwargs.get('Nturns', 257.0)
-        self.I0 = kwargs.get('I0', 1000.0)
+        self.I0 = kwargs.get('I0', 2.0)
+        self.ina = kwargs.get('ina', 0.0)
+        self.exc = kwargs.get('exc', 'V')
 
         self.rect1 = kwargs.get('rect1', None)
         self.rect2 = kwargs.get('rect2', None)
@@ -110,13 +109,13 @@ class SRM(BaseModel):
         self.rect4 = kwargs.get('rect4', None)
 
         ## MESH SIZES
-        self.msh_smartmesh = kwargs.get('smartmesh', True)
-        self.msh_size_stator_steel = kwargs.get('msh_size_stator_steel', 1)
-        self.msh_size_rotor_steel = kwargs.get('msh_size_rotor_steel', 1)
+        self.msh_smartmesh = kwargs.get('smartmesh', False)
+        self.msh_size_stator_steel = kwargs.get('msh_size_stator_steel', 1.0)
+        self.msh_size_rotor_steel = kwargs.get('msh_size_rotor_steel', 0.5)
         self.msh_size_coils = kwargs.get('msh_size_coils', 1.0)
         self.msh_size_air = kwargs.get('msh_size_air', 1.0)
-        self.msh_size_airgap = kwargs.get('msh_size_airgap', 1)
-        self.msh_size_magnets = kwargs.get('msh_size_magnets', 1)
+        self.msh_size_airgap = kwargs.get('msh_size_airgap', 1.0)
+        self.msh_size_magnets = kwargs.get('msh_size_magnets', 1.0)
 
         ## GEOMETRY
         self.depth = kwargs.get('depth', 0.0)
@@ -216,13 +215,12 @@ class SRM(BaseModel):
 
     def define_boundary_conditions(self):
         a0 = DirichletBoundaryCondition("A0", field_type="magnetic", magnetic_potential=0.0)
-        pb1 = PeriodicBoundaryCondition("PB1", field_type="magnetic")
-        pb2 = PeriodicBoundaryCondition("PB2", field_type="magnetic")
-        pb3 = PeriodicBoundaryCondition("PB3", field_type="magnetic")
-        pb4 = PeriodicBoundaryCondition("PB4", field_type="magnetic")
-        pb5 = PeriodicBoundaryCondition("PB5", field_type="magnetic")
-        pb6 = PeriodicBoundaryCondition("PB6", field_type="magnetic")
-        pb7 = PeriodicBoundaryCondition("PB7", field_type="magnetic")
+        pb1 = AntiPeriodicBoundaryCondition("PB1", field_type="magnetic")
+        pb2 = AntiPeriodicBoundaryCondition("PB2", field_type="magnetic")
+        pb3 = AntiPeriodicBoundaryCondition("PB3", field_type="magnetic")
+        pb4 = AntiPeriodicBoundaryCondition("PB4", field_type="magnetic")
+        pb5 = AntiPeriodicBoundaryCondition("PB5", field_type="magnetic")
+        pb6 = AntiPeriodicBoundaryCondition("PB6", field_type="magnetic")
         slidingband = AntiPeriodicAirGap("slidingband", field_type="magnetic", angle=self.rotorangle)
 
         # Adding boundary conditions to the snapshot
@@ -233,7 +231,6 @@ class SRM(BaseModel):
         self.snapshot.add_boundary_condition(pb4)
         self.snapshot.add_boundary_condition(pb5)
         self.snapshot.add_boundary_condition(pb6)
-        self.snapshot.add_boundary_condition(pb7)
 
         self.snapshot.add_boundary_condition(slidingband)
 
@@ -320,26 +317,20 @@ class SRM(BaseModel):
         nrp1l = Node(*pol2cart(self.D4 / 2 + self.T1, 90 + omega))
         nrp1r = Node(*pol2cart(self.D4 / 2 + self.T1, 90 - omega))
 
-        sl = ModelPiece("coil_left")
-        sl.geom.add_line(Line(nrp1l, nrp2l))
-        sr = ModelPiece("coil_right")
-        sr.geom.add_line(Line(nrp1r, nrp2r))
+        s.geom.add_line(Line(nrp1l, nrp2l))
+        s.geom.add_line(Line(nrp1r, nrp2r))
 
+        s.rotate(alpha=-45)
         for i in range(2):
-            sri = copy(sr)
-            sri.rotate(alpha=i * self.unitangle_p)
-            self.geom.merge_geometry(sri.geom)
+            sr = copy(s)
+            sr.rotate(alpha=i * self.unitangle_p)
+            self.geom.merge_geometry(sr.geom)
 
-        for i in range(2):
-            sli = copy(sl)
-            sli.rotate(alpha=-i * self.unitangle_p)
-            self.geom.merge_geometry(sli.geom)
-
-        self.assign_material(*pol2cart(self.half_rotor, 90), 'rotor_steel')
-        self.assign_material(*pol2cart(self.half_rotor, 1), 'rotor_steel')
-        self.assign_material(*pol2cart(self.half_rotor, 179), 'rotor_steel')
-        self.assign_material(*pol2cart(self.half_rotor, 90 + (360 / (2 * self.p)) / 2), 'air')  # rotor air left
-        self.assign_material(*pol2cart(self.half_rotor, 90 - (360 / (2 * self.p)) / 2), 'air')  # rotor air right
+        self.assign_material(*pol2cart(self.half_rotor, 90), 'air')
+        self.assign_material(*pol2cart(self.half_rotor, 1), 'air')
+        self.assign_material(*pol2cart(self.half_rotor, 179), 'air')
+        self.assign_material(*pol2cart(self.half_rotor, 90 + (360 / (2 * self.p)) / 2), 'rotor_steel')
+        self.assign_material(*pol2cart(self.half_rotor, 90 - (360 / (2 * self.p)) / 2), 'rotor_steel')
 
     def build_stator(self):
         s = ModelPiece("stator")
@@ -367,10 +358,10 @@ class SRM(BaseModel):
         self.geom.merge_geometry(si.geom)
 
         self.assign_boundary_arc(*Node(0, self.D1 / 2), "A0")
-        self.assign_boundary(*((ns1l + ns2l) / 2), "PB6")
-        self.assign_boundary(*((ns1r + ns2r) / 2), "PB6")
-        self.assign_boundary(*((ns2l + ns3l) / 2), "PB7")
-        self.assign_boundary(*((ns2r + ns3r) / 2), "PB7")
+        self.assign_boundary(*((ns1l + ns2l) / 2), "PB5")
+        self.assign_boundary(*((ns1r + ns2r) / 2), "PB5")
+        self.assign_boundary(*((ns2l + ns3l) / 2), "PB6")
+        self.assign_boundary(*((ns2r + ns3r) / 2), "PB6")
 
         self.assign_material(0, (self.D1 / 2 - self.D2 / 2 - self.T2) / 2 + self.D2 / 2 + self.T2, 'stator_steel')
 
@@ -506,9 +497,18 @@ class SRM(BaseModel):
 
         self.half_coil_area = (e * f * math.sin(ksi)) / 2 / 1000**2
         J0 = self.Nturns * self.I0 / self.half_coil_area
-        self.JU = J0 * math.cos(math.radians(self.alpha))
-        self.JV = J0 * math.cos(math.radians(self.alpha + 120))
-        self.JW = J0 * math.cos(math.radians(self.alpha + 240))
+        if self.exc == 'U':
+            self.JU = J0
+            self.JV = 0
+            self.JW = 0
+        elif self.exc == 'V':
+            self.JU = 0
+            self.JV = J0
+            self.JW = 0
+        elif self.exc == 'W':
+            self.JU = 0
+            self.JV = 0
+            self.JW = J0
 
         # Coils
         # PHASE U
@@ -555,8 +555,6 @@ class SRM(BaseModel):
 
         s.geom.add_line((Line(self.ag1l, self.nslbl1)))
         s.geom.add_line((Line(self.ag1r, self.nslbr1)))
-        s.geom.add_line((Line(self.nslbl1, self.nslbl2)))
-        s.geom.add_line((Line(self.nslbr1, self.nslbr2)))
         s.geom.add_line((Line(self.nslbl2, self.ag2l)))
         s.geom.add_line((Line(self.nslbr2, self.ag2r)))
 
@@ -570,10 +568,8 @@ class SRM(BaseModel):
 
         self.assign_boundary(*((self.ag2l - self.ag1l) / 3 / 2 + self.ag1l), "PB3")
         self.assign_boundary(*((self.ag2r - self.ag1r) / 3 / 2 + self.ag1r), "PB3")
-        self.assign_boundary(*((self.nslbl1 + self.nslbl2) / 2), "PB4")
-        self.assign_boundary(*((self.nslbr1 + self.nslbr2) / 2), "PB4")
-        self.assign_boundary(*((self.ag2l - self.ag1l) / -3 / 2 + self.ag2l), "PB5")
-        self.assign_boundary(*((self.ag2r - self.ag1r) / -3 / 2 + self.ag2r), "PB5")
+        self.assign_boundary(*((self.ag2l - self.ag1l) / -3 / 2 + self.ag2l), "PB4")
+        self.assign_boundary(*((self.ag2r - self.ag1r) / -3 / 2 + self.ag2r), "PB4")
 
         self.assign_boundary_arc(0, self.slb_rotor.apex_pt.y, "slidingband")
         self.assign_boundary_arc(0, self.slb_stator.apex_pt.y, "slidingband")
@@ -624,7 +620,7 @@ def execute_model(model: SRM):
     res = model(timeout=2000, cleanup=False)
     t1 = perf_counter()
     try:
-        torque = res["Torque"] * 6
+        torque = res["Torque"] * 2
         print(torque)
     except Exception as e:
         return None
@@ -632,4 +628,4 @@ def execute_model(model: SRM):
 
 if __name__ == "__main__":
     m = SRM(exportname="dev")
-    print(m(devmode=False, cleanup=False))
+    print(m(devmode=True, cleanup=False))
