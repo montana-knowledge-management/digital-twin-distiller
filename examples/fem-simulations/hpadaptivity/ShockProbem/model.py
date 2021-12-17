@@ -16,11 +16,16 @@ from digital_twin_distiller.utils import pairwise
 
 ModelDir.set_base(__file__)
 
+alpha = 50
+x0 = 0.5
+y0 = 0.5
+r0 = 0.25
+
 def u(x, y):
-    return atan(60*(hypot(x-1.25, y+0.25)-1))
+    return atan(alpha*(hypot(x-x0, y-y0)-r0))
 
 def gradu(x, y):
-    w = hypot(x-1.25, y+0.25)
+    w = hypot(x-x0, y-y0)
     denominator = w * (1+3600*(w-1)**2)
     dudx = 60 * (x - 1.25) / denominator
     dudy = 60 * (y + 0.25) / denominator
@@ -56,11 +61,11 @@ class ShockProbem(BaseModel):
         agros_metadata.nb_refinements = 0
         agros_metadata.adaptivity = "hp-adaptivity"
         agros_metadata.polyorder = 4
-        agros_metadata.adaptivity_tol = 10
-        agros_metadata.adaptivity_steps = 50
+        agros_metadata.adaptivity_tol = 1
+        agros_metadata.adaptivity_steps = 5
 
         self.platform = Agros2D(agros_metadata)
-        self.platform = Femm(femm_metadata)
+        # self.platform = Femm(femm_metadata)
 
 
         self.snapshot = Snapshot(self.platform)
@@ -79,20 +84,21 @@ class ShockProbem(BaseModel):
         self.snapshot.add_boundary_condition(a0)
 
     def add_postprocessing(self):
-        points = [(0, 0)]
+        points = [(0.95, 0.95)]
         self.snapshot.add_postprocessing("integration", points, "Energy")
 
     def build_geometry(self):
-        N = 200
-        r0 = Node(0, 0)
-        r1 = Node(1, 0)
+        N = 500
+        r0 = Node(0.5, 0.5)
+        r1 = Node(1, 0.5)
         r2 = Node(1, 1)
-        r3 = Node(0, 1)
+        r3 = Node(0.5, 1)
 
-        g1 = lambda x, y: gamma(x, y, 0, 1)
-        g2 = lambda x, y: gamma(x, y, 1, 0)
-        g3 = lambda x, y: gamma(x, y, 0, 1)
-        g4 = lambda x, y: gamma(x, y, -1, 0)
+        # g1 = lambda x, y: gamma(x, y, 0, 1)
+        # g2 = lambda x, y: gamma(x, y, 1, 0)
+        # g3 = lambda x, y: gamma(x, y, 0, 1)
+        # g4 = lambda x, y: gamma(x, y, -1, 0)
+
 
         n0 = NeumannBoundaryCondition("gamma_1", field_type="electrostatic")
         n1 = NeumannBoundaryCondition("gamma_2", field_type="electrostatic")
@@ -104,15 +110,13 @@ class ShockProbem(BaseModel):
         a2 = DirichletBoundaryCondition("gamma_D_3", field_type="electrostatic")
         a3 = DirichletBoundaryCondition("gamma_D_4", field_type="electrostatic")
 
-        self._approximate_boundary(n0, "surface_charge_density", r0, r1, N, g1)
-        self._approximate_boundary(n1, "surface_charge_density", r1, r2, N, g2)
-        # self._approximate_boundary(n2, "surface_charge_density", r2, r3, N, g3)
-        # self._approximate_boundary(n3, "surface_charge_density", r3, r0, N, g4)
+        self._approximate_boundary(a0, "fixed_voltage", r0, r1, N, u)
+        self._approximate_boundary(a1, "fixed_voltage", r1, r2, N, u)
         self._approximate_boundary(a2, "fixed_voltage", r2, r3, N, u)
         self._approximate_boundary(a3, "fixed_voltage", r3, r0, N, u)
 
 
-        self.assign_material(0.5, 0.5, "air")
+        self.assign_material(0.95, 0.95, "air")
 
         self.snapshot.add_geometry(self.geom)
 
