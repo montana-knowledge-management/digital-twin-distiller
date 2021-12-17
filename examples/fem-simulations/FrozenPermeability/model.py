@@ -5,6 +5,7 @@ from digital_twin_distiller.model import BaseModel
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
+from digital_twin_distiller import ModelPiece
 
 ModelDir.set_base(__file__)
 
@@ -43,10 +44,19 @@ class FrozenPermeability(BaseModel):
         self.snapshot.add_postprocessing("integration", points, "Energy")
 
     def build_geometry(self):
-        # ...
+        stator = ModelPiece('stator')
+        stator.load_piece_from_dxf(ModelDir.RESOURCES / 'stator.dxf')
+
+        rotor = ModelPiece('rotor')
+        rotor.load_piece_from_dxf(ModelDir.RESOURCES / 'rotor.dxf')
+        rotor.rotate(alpha=0.0)
+
+        self.geom.merge_geometry(stator.geom)
+        self.geom.merge_geometry(rotor.geom)
+
         self.snapshot.add_geometry(self.geom)
 
 
 if __name__ == "__main__":
     m = FrozenPermeability(exportname="dev")
-    print(m(cleanup=False))
+    print(m(cleanup=False, devmode=True))
