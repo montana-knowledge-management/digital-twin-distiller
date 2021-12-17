@@ -24,7 +24,7 @@ class FrozenPermeability(BaseModel):
         femm_metadata.file_metrics_name = self.file_solution
         femm_metadata.unit = "millimeters"
         femm_metadata.smartmesh = True
-        femm_metadata.depth = 1000
+        femm_metadata.depth = 1000 # TODO: Correct this value
 
         self.platform = Femm(femm_metadata)
         self.snapshot = Snapshot(self.platform)
@@ -79,6 +79,11 @@ class FrozenPermeability(BaseModel):
 
         # Adding boundary conditions to the snapshot
         self.snapshot.add_boundary_condition(a0)
+
+        self.assign_boundary_arc(0,     53, "a0")
+        self.assign_boundary_arc(0,    -53, "a0")
+        self.assign_boundary_arc(0,  12.35, "a0")
+        self.assign_boundary_arc(0, -12.35, "a0")
 
     def add_postprocessing(self):
         r = 4 # amend
