@@ -50,25 +50,53 @@ class Agros2D(Platform):
             )
 
     def export_material_definition(self, mat: Material):
-        mdict = {
-            "magnetic_remanence_angle": mat.remanence_angle,
-            "magnetic_velocity_y": mat.vy,
-            "magnetic_current_density_external_real": mat.Je.real,
-            "magnetic_current_density_external_imag": mat.Je.imag,
-            "magnetic_permeability": mat.mu_r,
-            "magnetic_conductivity": mat.conductivity,
-            "magnetic_remanence": mat.remanence,
-            "magnetic_velocity_angular": mat.angluar_velocity,
-            "magnetic_velocity_x": mat.vx,
-        }
-        if self.metadata.analysis_type != "harmonic":
-            mdict.pop("magnetic_current_density_external_imag")
+        field = self.metadata.problem_type
 
-        self.write(f'magnetic.add_material("{mat.name}", {str(mdict)})')
+        if field == "electrostatic":
+            mdict = {"electrostatic_charge_density": mat.Rho, "electrostatic_permittivity": mat.epsioln_r}
+
+        if field == "magnetic":
+            mdict = {
+                "magnetic_remanence_angle": mat.remanence_angle,
+                "magnetic_velocity_y": mat.vy,
+                "magnetic_current_density_external_real": mat.Je.real,
+                "magnetic_current_density_external_imag": mat.Je.imag,
+                "magnetic_permeability": mat.mu_r,
+                "magnetic_conductivity": mat.conductivity,
+                "magnetic_remanence": mat.remanence,
+                "magnetic_velocity_angular": mat.angluar_velocity,
+                "magnetic_velocity_x": mat.vx,
+            }
+            if self.metadata.analysis_type != "harmonic":
+                mdict.pop("magnetic_current_density_external_imag")
+
+        if field == "heat":
+            mdict = {
+                "heat_density": mat.material_density,
+                "heat_conductivity": mat.heat_conductivity,
+                "heat_volume_heat": mat.volume_heat,
+                "heat_specific_heat": mat.specific_heat,
+                "heat_velocity_angular": mat.angluar_velocity,
+                "heat_velocity_x": mat.vx,
+                "heat_velocity_y": mat.vy,
+            }
+
+        self.write(f'{field}.add_material("{mat.name}", {str(mdict)})')
 
     def export_boundary_definition(self, boundary: BoundaryCondition):
         typename = None
-        if self.metadata.problem_type == "magnetic":
+        field = self.metadata.problem_type
+
+        if field == "electrostatic":
+            if isinstance(boundary, DirichletBoundaryCondition):
+                typename = "electrostatic_potential"
+                boundaryvalues = {"electrostatic_potential": boundary.valuedict["fixed_voltage"]}
+
+            if isinstance(boundary, NeumannBoundaryCondition):
+                typename = "electrostatic_surface_charge_density"
+                boundaryvalues = {"electrostatic_surface_charge_density": boundary.valuedict["surface_charge_density"]}
+
+        if field == "magnetic":
             if isinstance(boundary, DirichletBoundaryCondition):
                 typename = "magnetic_potential"
                 A = boundary.valuedict.pop("magnetic_potential")
@@ -83,9 +111,29 @@ class Agros2D(Platform):
                 if self.metadata.problem_type == "harmonic":
                     boundary.valuedict["magnetic_surface_current_imag"] = A.imag
 
-        self.write(
-            f'{self.metadata.problem_type}.add_boundary("{boundary.name}", "{typename}", {str(boundary.valuedict)})'
-        )
+            boundaryvalues = boundary.valuedict.copy()
+
+        if field == "heat":
+            boundaryvalues = {
+                "heat_radiation_ambient_temperature": 293.15,
+                "heat_convection_external_temperature": 293.15,
+                "heat_convection_heat_transfer_coefficient": 5,
+                "heat_heat_flux": 0,
+                "heat_radiation_emissivity": 0,
+                "heat_temperature": 0,
+            }
+            if isinstance(boundary, DirichletBoundaryCondition):
+                typename = "heat_temperature"
+                boundaryvalues.clear()
+                boundaryvalues["heat_temperature"] = boundary.valuedict["temperature"]
+
+            if isinstance(boundary, NeumannBoundaryCondition):
+                typename = "heat_heat_flux"  # yes, 2 x heat
+                boundaryvalues.pop("heat_temperature")
+                # GK: TODO: untangle the other mapping
+                boundaryvalues["heat_heat_flux"] = boundary.valuedict["heat_flux"]
+
+        self.write(f'{field}.add_boundary("{boundary.name}", "{typename}", {str(boundaryvalues)})')
 
     def export_geometry_element(self, e, boundary=None):
         if isinstance(e, Node):
@@ -133,11 +181,16 @@ class Agros2D(Platform):
             "Bz": "Brz",
             "Hx": "Hrx",
             "Hy": "Hry",
+            "T":  "T",
+            "V":  "V",
+            "Ex": "Ex",
+            "Ey": "Ey"
         }
+        field = self.metadata.problem_type
         if action == "point_value":
             x = self.metadata.unit * entity[0]
             y = self.metadata.unit * entity[1]
-            self.write(f'point = {self.metadata.problem_type}.local_values({x}, {y})["{mappings[variable]}"]')
+            self.write(f'point = {field}.local_values({x}, {y})["{mappings[variable]}"]')
             self.write(
                 f'f.write("{{}}, {x}, {y}, {{}}\\n".format("{variable}", point))',
                 nb_newline=2,
@@ -150,9 +203,19 @@ class Agros2D(Platform):
             self.write(f'f.write("{{}}, {{}}\\n".format("elements", info["elements"]))')
 
         if action == "integration":
-            if self.metadata.problem_type == "magnetic":
+            if field == "electrostatic":
+                mapping = {"Energy": "We"}
+                self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
+                self.write(f'f.write("{variable}, {{}}\\n".format(val))')
+
+            if field == "heat":
+                mapping = {"T":"T"}
+                self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
+                self.write(f'f.write("{variable}, {{}}\\n".format(val))')
+
+            if field == "magnetic":
                 mapping = {"Energy": "Wm"}
-                self.write(f"val={self.metadata.problem_type}.volume_integrals({entity})[{mapping[variable]!r}]")
+                self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
                 self.write(f'f.write("{variable}, {{}}\\n".format(val))')
 
     def export_closing_steps(self):

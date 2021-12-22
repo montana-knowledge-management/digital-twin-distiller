@@ -1,10 +1,11 @@
 import socket
 import unittest
 
+from importlib_resources import files
+
 import digital_twin_distiller.ml_project as mlp
 import digital_twin_distiller.text_readers as r
-from importlib_resources import files
-from digital_twin_distiller.keywords import TXT, PDF, JSON
+from digital_twin_distiller.keywords import JSON, PDF, TXT
 
 
 class DummySubTask(mlp.AbstractSubTask):
@@ -96,7 +97,7 @@ class TestMLProject(unittest.TestCase):
         project.bulk_input_directory(directory_name=test_doc_path, extension=".txt", key="TXT")
         self.assertIsNotNone(project._input_data[0].get("TXT"))
         self.assertEqual(len(project._input_data), 1)
-        #testing json
+        # testing json
         project._input_data = []
         project.bulk_input_directory(directory_name=test_doc_path, extension=".json", key="JSON")
         self.assertIsNotNone(project._input_data[0].get("JSON"))

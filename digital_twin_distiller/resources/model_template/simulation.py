@@ -2,8 +2,8 @@ from multiprocessing import Pool
 
 from model import ${name}
 
+from digital_twin_distiller.encapsulator import Encapsulator, mounts
 from digital_twin_distiller.modelpaths import ModelDir
-from digital_twin_distiller.server import Server
 from digital_twin_distiller.simulationproject import sim
 
 
@@ -23,6 +23,7 @@ if __name__ == "__main__":
     # set the model for the simulation
     sim.set_model(${name})
 
-    model = Server(sim)
-    # model.build_docs()
+    model = Encapsulator(sim)
+    model.build_docs()
+    mounts()
     model.run()

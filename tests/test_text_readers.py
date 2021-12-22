@@ -1,7 +1,8 @@
 import unittest
 
-from digital_twin_distiller import text_readers
 from importlib_resources import files
+
+from digital_twin_distiller import text_readers
 
 
 class TestReaders(unittest.TestCase):
