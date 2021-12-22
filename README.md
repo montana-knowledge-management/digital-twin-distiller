@@ -13,7 +13,7 @@ Python project for creating a long-lasting, encapsulated version of your numeric
 
 ## INSTALL
 
-> pip3 install digital-twin-designer
+> pip3 install digital-twin-distiller
 
 ### For Developers
 Digital-Twin-Distiller project uses poetry for dependency management
