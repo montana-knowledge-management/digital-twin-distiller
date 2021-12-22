@@ -256,4 +256,4 @@ class PriusMotor(BaseModel):
 
 if __name__ == "__main__":
     m = PriusMotor(exportname="dev")
-    print(m(cleanup=False, devmode=False))
+    print(m(cleanup=False, devmode=True))

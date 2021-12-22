@@ -1,4 +1,5 @@
 from itertools import count
+from copy import deepcopy
 from typing import Callable
 from numpy import linspace
 from digital_twin_distiller.boundaries import DirichletBoundaryCondition
@@ -11,14 +12,11 @@ from digital_twin_distiller.objects import Line, Node
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller import Agros2D, Agros2DMetadata
 from digital_twin_distiller.snapshot import Snapshot
-from math import atan, cos, hypot, atan2, sin, pi, sqrt
+from math import atan, cos, hypot, atan2, prod, sin, pi, sqrt
 
 from digital_twin_distiller.utils import pairwise
 
 ModelDir.set_base(__file__)
-
-X, Y = 0.7, 0.0
-
 
 def u(x, y):
     r = hypot(x, y)
@@ -28,8 +26,8 @@ def u(x, y):
 
 def gradu(x, y):
     alpha = 2 * atan2(y, x) / 3 + pi / 3
-    dudx = (2 * sin(alpha) * x - 2 * cos(alpha) * y) / (3 * hypot(x, y) ** (2 / 3))
-    dudy = (2 * sin(alpha) * y + 2 * cos(alpha) * x) / (3 * hypot(x, y) ** (2 / 3))
+    dudx = (2 * sin(alpha) * x - 2 * cos(alpha) * y) / (3 * (x**2 + y**2) ** (2 / 3))
+    dudy = (2 * sin(alpha) * y + 2 * cos(alpha) * x) / (3 * (x**2 + y**2) ** (2 / 3))
     return (dudx, dudy)
 
 
@@ -37,161 +35,62 @@ def gamma(x, y, xu, yu):
     dudx, dudy = gradu(x, y)
     return dudx * xu + dudy * yu
 
+
 class LShape(BaseModel):
     def __init__(self, **kwargs):
         super(LShape, self).__init__(**kwargs)
         self._init_directories()
 
+        self.solver = kwargs.get("solver", "femm")
+        self.nb_segments = kwargs.get("nb_segments", 100)
+
+        self.meshsize = kwargs.get("meshsize", 1.345)
+        self.adaptivity_tol = kwargs.get("adaptivity_tol", 1)
+
+    def setup_solver(self):
+        if self.solver == "femm":
+            femm_metadata = FemmMetadata()
+            femm_metadata.problem_type = "electrostatic"
+            femm_metadata.coordinate_type = "planar"
+            femm_metadata.file_script_name = self.file_solver_script
+            femm_metadata.file_metrics_name = self.file_solution
+            femm_metadata.unit = "meters"
+            femm_metadata.smartmesh = False
+            femm_metadata.depth = 1
+
+            self.platform = Femm(femm_metadata)
+        elif self.solver == "agros2d":
+            agros_metadata = Agros2DMetadata()
+            agros_metadata.file_script_name = self.file_solver_script
+            agros_metadata.file_metrics_name = self.file_solution
+            agros_metadata.problem_type = "electrostatic"
+            agros_metadata.coordinate_type = "planar"
+            agros_metadata.analysis_type = "steadystate"
+            agros_metadata.unit = 1
+            agros_metadata.nb_refinements = 0
+            agros_metadata.adaptivity = "hp-adaptivity"
+            agros_metadata.polyorder = 1
+            agros_metadata.adaptivity_tol = self.adaptivity_tol
+            agros_metadata.adaptivity_steps = 99
+
+            self.platform = Agros2D(agros_metadata)
+
+        self.snapshot = Snapshot(self.platform)
+
     def define_materials(self):
         air = Material("air")
-        air.heat_conductivity = 1.0
-        air.meshsize = 0.01
+        air.meshsize = self.meshsize
+        air.epsioln_r = 1 / 8.8541878128e-12
 
         self.snapshot.add_material(air)
 
     def define_boundary_conditions(self):
-        a0 = DirichletBoundaryCondition("a0", field_type="heat", temperature=0.0)
+        a0 = DirichletBoundaryCondition("a0", field_type="electrostatic", fixed_voltage=0.0)
 
         # Adding boundary conditions to the snapshot
         self.snapshot.add_boundary_condition(a0)
 
-    def add_postprocessing(self):
-        # self.snapshot.add_postprocessing("point_value", (0, 0), "T")
-        self.snapshot.add_postprocessing("point_value", (X, Y), "T")
-        self.snapshot.add_postprocessing("mesh_info", None, None)
-
-
-class AgrosLShape(LShape):
-    def __init__(self, **kwargs):
-        super(AgrosLShape, self).__init__(**kwargs)
-
-    def setup_solver(self):
-        agros_metadata = Agros2DMetadata()
-        agros_metadata.file_script_name = self.file_solver_script
-        agros_metadata.file_metrics_name = self.file_solution
-        agros_metadata.problem_type = "heat"
-        agros_metadata.coordinate_type = "planar"
-        agros_metadata.analysis_type = "steadystate"
-        agros_metadata.unit = 1
-        agros_metadata.nb_refinements = 0
-        agros_metadata.adaptivity = "hp-adaptivity"
-        agros_metadata.polyorder = 4
-        agros_metadata.adaptivity_tol = 0.001
-        agros_metadata.adaptivity_steps = 50
-
-        self.platform = Agros2D(agros_metadata)
-
-        self.snapshot = Snapshot(self.platform)
-
-    def define_boundary_conditions(self):
-        super(AgrosLShape, self).define_boundary_conditions()
-        n0 = NeumannBoundaryCondition("n0",
-                                      field_type="heat",
-                                      heat_flux="sqrt(x**2+y**2)*(2/3)*sin(2/3*atan2(x, y)+pi/2)")
-        self.snapshot.add_boundary_condition(n0)
-
-        n1 = NeumannBoundaryCondition(
-            "gamma_1",
-            field_type="heat",
-            heat_flux="-1*((2 * sin(2*atan2(y, x)/3+pi/3) * y + 2 * cos(2*atan2(y, x)/3+pi/3) * x) / (3 * ((x**2+y**2)**(1/2)) ** (2 / 3)))",
-        )
-
-        n2 = NeumannBoundaryCondition(
-            "gamma_2",
-            field_type="heat",
-            heat_flux="-1*((2 * sin(2*atan2(y, x)/3+pi/3))",
-        )
-
-        n3 = NeumannBoundaryCondition(
-            "gamma_3",
-            field_type="heat",
-            heat_flux="((2 * sin(2*atan2(y, x)/3+pi/3) * y + 2 * cos(2*atan2(y, x)/3+pi/3) * x) / (3 * ((x**2 + y**2)**(1/2)) ** (2 / 3)))*1.0",
-        )
-
-        n6 = NeumannBoundaryCondition(
-            "gamma_6",
-            field_type="heat",
-            heat_flux="((2 * sin(2*atan2(y, x)/3+pi/3) * x - 2 * cos(2*atan2(y, x)/3+pi/3) * y) / (3 * ((x**2 + y**2)**(1/2)) ** (2 / 3)))*1.0",
-        )
-
-        self.snapshot.add_boundary_condition(n1)
-        self.snapshot.add_boundary_condition(n2)
-        self.snapshot.add_boundary_condition(n3)
-        self.snapshot.add_boundary_condition(n6)
-
     def build_geometry(self):
-        r1 = Node(-1, 1)
-        r2 = Node(1, 1)
-        r3 = Node(1, -1)
-        r4 = Node(0, -1)
-        r5 = Node(0, 0)
-        r6 = Node(-1, 0)
-
-        l1 = Line(r1, r2)
-        l2 = Line(r2, r3)
-        l3 = Line(r3, r4)
-        l4 = Line(r4, r5)
-        l5 = Line(r5, r6)
-        l6 = Line(r6, r1)
-
-        self.geom.add_line(l1)
-        self.geom.add_line(l2)
-        self.geom.add_line(l3)
-        self.geom.add_line(l4)
-        self.geom.add_line(l5)
-        self.geom.add_line(l6)
-
-        self.snapshot.add_geometry(self.geom)
-
-        self.assign_boundary(*l1(0.5), "gamma_1")
-        self.assign_boundary(*l2(0.5), "gamma_2")
-        self.assign_boundary(*l3(0.5), "gamma_3")
-        self.assign_boundary(*l4(0.5), "a0")
-        self.assign_boundary(*l5(0.5), "a0")
-        self.assign_boundary(*l6(0.5), "gamma_6")
-
-        self.assign_material(0.2, 0.2, "air")
-
-
-class FemmLShape(LShape):
-    def __init__(self, **kwargs):
-        super(FemmLShape, self).__init__(**kwargs)
-
-    def setup_solver(self):
-        femm_metadata = FemmMetadata()
-        femm_metadata.problem_type = "heat"
-        femm_metadata.coordinate_type = "planar"
-        femm_metadata.file_script_name = self.file_solver_script
-        femm_metadata.file_metrics_name = self.file_solution
-        femm_metadata.unit = "meters"
-        femm_metadata.smartmesh = False
-        femm_metadata.depth = 1
-
-        self.platform = Femm(femm_metadata)
-
-        # self.snapshot = Snapshot(self.platform)
-        # agros_metadata = Agros2DMetadata()
-        # agros_metadata.file_script_name = self.file_solver_script
-        # agros_metadata.file_metrics_name = self.file_solution
-        # agros_metadata.problem_type = "heat"
-        # agros_metadata.coordinate_type = "planar"
-        # agros_metadata.analysis_type = "steadystate"
-        # agros_metadata.unit = 1
-        # agros_metadata.nb_refinements = 0
-        # agros_metadata.adaptivity = "hp-adaptivity"
-        # agros_metadata.polyorder = 4
-        # agros_metadata.adaptivity_tol = 0.001
-        # agros_metadata.adaptivity_steps = 50
-
-        # self.platform = Agros2D(agros_metadata)
-
-        self.snapshot = Snapshot(self.platform)
-
-    def define_boundary_conditions(self):
-        super(FemmLShape, self).define_boundary_conditions()
-
-    def build_geometry(self):
-        N = 50
 
         r1 = Node(-1, 1)
         r2 = Node(1, 1)
@@ -208,36 +107,60 @@ class FemmLShape(LShape):
         self.snapshot.boundaries.get("a0").assigned.add(l4.id)
         self.snapshot.boundaries.get("a0").assigned.add(l5.id)
 
-        self._approximate_boundary("gamma_1", "heat_flux", r1, r2, 2 * N, lambda x, y: gamma(x, y, 0, -1))
-        self._approximate_boundary("gamma_2", "heat_flux", r2, r3, 2 * N, lambda x, y: gamma(x, y, -1, 0))
-        self._approximate_boundary("gamma_3", "heat_flux", r3, r4, N, lambda x, y: gamma(x, y, 0, 1))
-        self._approximate_boundary("gamma_6", "heat_flux", r6, r1, N, lambda x, y: gamma(x, y, 1, 0))
+        n1 = NeumannBoundaryCondition("gamma_1", field_type="electrostatic")
+        n2 = NeumannBoundaryCondition("gamma_2", field_type="electrostatic")
+        n3 = NeumannBoundaryCondition("gamma_3", field_type="electrostatic")
+        n6 = NeumannBoundaryCondition("gamma_6", field_type="electrostatic")
+
+        g1 = lambda x, y: gamma(x, y, 0, 1)
+        g2 = lambda x, y: gamma(x, y, 1, 0)
+        g3 = lambda x, y: gamma(x, y, 0, -1)
+        g6 = lambda x, y: gamma(x, y, -1, 0)
+
+        self._approximate_boundary(n1, "surface_charge_density", r1, r2, self.nb_segments, g1)
+        self._approximate_boundary(n2, "surface_charge_density", r2, r3, self.nb_segments, g2)
+        self._approximate_boundary(n3, "surface_charge_density", r3, r4, self.nb_segments // 2, g3)
+        self._approximate_boundary(n6, "surface_charge_density", r6, r1, self.nb_segments // 2, g6)
+
 
         self.assign_material(0.3, 0.3, "air")
 
         self.snapshot.add_geometry(self.geom)
 
-    def _approximate_boundary(
-        self,
-        boundary_prefix: str,
-        boundary_variable: str,
-        p1: Node,
-        p2: Node,
-        N: int,
-        fun_: Callable[[float, float], float],
-    ):
-        l = Line(p1, p2)
+    def add_postprocessing(self):
+        dx = 1e-9
+        dy = 1e-9
+
+        self.snapshot.add_postprocessing("point_value", (0.0, 0.0), "V")
+        self.snapshot.add_postprocessing("point_value", (dx, dy), "V")
+        self.snapshot.add_postprocessing("point_value", (0.95, 0.95), "V")
+
+        self.snapshot.add_postprocessing("point_value", (0, 0), "Ex")
+        self.snapshot.add_postprocessing("point_value", (0, 0), "Ey")
+
+        self.snapshot.add_postprocessing("point_value", (dx, dy), "Ex")
+        self.snapshot.add_postprocessing("point_value", (dx, dy), "Ey")
+
+        self.snapshot.add_postprocessing("mesh_info", None, None)
+
+        if self.solver=="agros2d":
+            self.snapshot.add_postprocessing("integration", [0], "Energy")
+        else:
+            self.snapshot.add_postprocessing("integration", [(0.1, 0.1)], "Energy")
+
+    def _approximate_boundary(self, b0, variable, p0, p1, N, fun_):
+        l = Line(p0, p1)
         t = linspace(0, 1, N + 1)
         index = count(start=1)
         for ti, tj in pairwise(t):
-            boundary_id = f"{boundary_prefix}_{next(index)}"
+            bi = deepcopy(b0)
+            bi.name = f"{bi.name}_{next(index)}"
             segment = Line(l(ti), l(tj))
             center_point = segment(0.5)
             boundary_value = fun_(center_point.x, center_point.y)
-
-            ni = NeumannBoundaryCondition(boundary_id, field_type="heat", heat_flux=boundary_value)
-            ni.assigned.add(segment.id)
-            self.snapshot.add_boundary_condition(ni)
+            bi.set_value(variable, boundary_value)
+            bi.assigned.add(segment.id)
+            self.snapshot.add_boundary_condition(bi)
 
             self.geom.nodes.append(segment.start_pt)
             self.geom.nodes.append(segment.end_pt)
@@ -245,12 +168,9 @@ class FemmLShape(LShape):
 
 
 if __name__ == "__main__":
-    # m = AgrosLShape(exportname="dev")
-    # agres = m(cleanup=False, devmode=False)
-    # print(agres["T"])
 
-    m = FemmLShape(exportname="dev")
-    femres = m(cleanup=False, devmode=False)
-    print(femres["T"])
-
-    print(u(X, Y))
+    m = LShape(exportname="dev", meshsize=0.01, solver="femm")
+    res = m(cleanup=False, devmode=False)
+    import pprint
+    pprint.pprint(res)
+    print(u(0.95, 0.95))

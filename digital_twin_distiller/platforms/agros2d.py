@@ -181,8 +181,10 @@ class Agros2D(Platform):
             "Bz": "Brz",
             "Hx": "Hrx",
             "Hy": "Hry",
-            "T": "T",
-            "V": "V"
+            "T":  "T",
+            "V":  "V",
+            "Ex": "Ex",
+            "Ey": "Ey"
         }
         field = self.metadata.problem_type
         if action == "point_value":
@@ -201,6 +203,11 @@ class Agros2D(Platform):
             self.write(f'f.write("{{}}, {{}}\\n".format("elements", info["elements"]))')
 
         if action == "integration":
+            if field == "electrostatic":
+                mapping = {"Energy": "We"}
+                self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
+                self.write(f'f.write("{variable}, {{}}\\n".format(val))')
+
             if field == "heat":
                 mapping = {"T":"T"}
                 self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
