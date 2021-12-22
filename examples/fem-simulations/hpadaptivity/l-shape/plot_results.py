@@ -18,6 +18,8 @@ db = client.lshape.results
 
 COLOR_FEMM = "mediumblue"
 COLOR_AGROS = "firebrick"
+COLOR_COMSOL = "gold"
+COLOR_NETGEN = "purple"
 
 # V
 def plot_v():
@@ -33,8 +35,19 @@ def plot_v():
     v = tuple(map(op.itemgetter("V"), r))
     plt.plot(elements, v, 'o-', color=COLOR_AGROS, markerfacecolor='white', markersize=3, label="Agros2D")
 
+
+    r = tuple(db.aggregate([{"$match": {"solver": "comsol35"}}, {"$project": {"_id": 0, "V": "$V2.V", "elements": 1}}]))
+    elements = tuple(map(op.itemgetter("elements"), r))
+    v = tuple(map(op.itemgetter("V"), r))
+    plt.plot(elements, v, 'o-', color=COLOR_COMSOL, markerfacecolor='white', markersize=3, label="Comsol 3.5")
+
+    r = tuple(db.aggregate([{"$match": {"solver": "netgen"}}, {"$project": {"_id": 0, "V": "$V2.V", "elements": 1}}]))
+    elements = tuple(map(op.itemgetter("elements"), r))
+    v = tuple(map(op.itemgetter("V"), r))
+    plt.plot(elements, v, 'o-', color=COLOR_NETGEN, markerfacecolor='white', markersize=3, label="Ngsolve")
+
     ue = u(0.95, 0.95)
-    plt.plot([1240, 310000], [ue, ue], "k", label="exact")
+    plt.plot([10, 310000], [ue, ue], "k", label="exact")
 
     plt.xscale("log")
     plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
@@ -125,7 +138,7 @@ def plot_e1():
 
 if __name__ == "__main__":
     # print(gradu(0, 0))
-    # plot_v()
+    plot_v()
     # plot_energy()
     # plot_e0()
     # plot_e1()
