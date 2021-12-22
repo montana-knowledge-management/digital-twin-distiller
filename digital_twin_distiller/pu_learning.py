@@ -2,6 +2,7 @@
 Positive and unlabeled learning based on Elkan and Noto: Learning Classifiers from Only Positive and Unlabeled Data
 (https://cseweb.ucsd.edu/~elkan/posonly.pdf) paper.
 The dataset is available from http://cseweb.ucsd.edu/~elkan/posonly/.
+However, the examples were modified to use the twenty newsgroups dataset.
 """
 from digital_twin_distiller.ml_project import AbstractTask
 from sklearn.linear_model import LogisticRegression
@@ -13,6 +14,7 @@ import scipy
 from sklearn.model_selection import StratifiedKFold
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.datasets import fetch_20newsgroups
 
 
 class PuLearning(AbstractTask):
@@ -58,18 +60,29 @@ class PuLearning(AbstractTask):
                              "'fit' and 'predict_proba' functions are implemented!")
         return custom_model
 
+    # def load_example_dataset(self):
+    #     """
+    #     Loads example dataset from the paper of Elkan and Noto paper cited in the headline.
+    #     :return:
+    #     """
+    #     pu_path = files("distiller") / "resources" / "pu_learning"
+    #     q_path = os.path.join(pu_path, "Q.zip")
+    #     p_path = os.path.join(pu_path, "P.zip")
+    #     n_path = os.path.join(pu_path, "N.zip")
+    #     self.Q = DataSnapshot.load_stack(q_path)
+    #     self.P = DataSnapshot.load_stack(p_path)
+    #     self.N = DataSnapshot.load_stack(n_path)
+    #     self.U = self.Q + self.N
+    #     self.real_c = len(self.P) / (len(self.P) + len(self.Q))
+
     def load_example_dataset(self):
         """
-        Loads example dataset from the paper of Elkan and Noto paper cited in the headline.
+        Loads example dataset from sklearn 20 newsgroups dataset.
         :return:
         """
-        pu_path = files("distiller") / "resources" / "pu_learning"
-        q_path = os.path.join(pu_path, "Q.zip")
-        p_path = os.path.join(pu_path, "P.zip")
-        n_path = os.path.join(pu_path, "N.zip")
-        self.Q = DataSnapshot.load_stack(q_path)
-        self.P = DataSnapshot.load_stack(p_path)
-        self.N = DataSnapshot.load_stack(n_path)
+        self.P = fetch_20newsgroups(subset='train', categories=["rec.autos"]).data
+        self.Q = fetch_20newsgroups(subset='test', categories=["rec.autos"]).data
+        self.N = fetch_20newsgroups(subset="all", categories=["rec.motorcycles"]).data
         self.U = self.Q + self.N
         self.real_c = len(self.P) / (len(self.P) + len(self.Q))
 
@@ -162,6 +175,7 @@ class PuLearning(AbstractTask):
         # Plotting two histograms
         if plot:
             plt.hist(predicted_probs_p, bins=50, range=(0, 1), color="red", alpha=0.5, label="Members of P dataset")
+            plt.hist(predicted_probs_u, bins=50, range=(0, 1), color="blue", alpha=0.5, label="Members of U dataset")
             plt.hist(predicted_probs_u, bins=50, range=(0, 1), color="blue", alpha=0.5, label="Members of U dataset")
             plt.axvline(x=threshold, color="green", label="Threshold")
             plt.legend(loc='upper right')

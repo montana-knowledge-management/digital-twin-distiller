@@ -12,18 +12,18 @@ from sklearn.svm import SVC, LinearSVC
 
 
 class PuLearningTestCase(unittest.TestCase):
-    # def test_c_estimation(self):
-    #     difference = 0.15
-    #     pu_learner = PuLearning()
-    #     # loading P U dataset from Elkan and Noto
-    #     pu_learner.load_example_dataset()
-    #     vectorizer = TfidfVectorizer()
-    #     vectorizer.fit(pu_learner.P + pu_learner.U)
-    #     p_vectors = vectorizer.transform(pu_learner.P)
-    #     u_vectors = vectorizer.transform(pu_learner.U)
-    #     pu_learner.estimate_c(P=p_vectors, U=u_vectors, model="lr", n_splits=10, random_state=1)
-    #     print(pu_learner.real_c, pu_learner.c)
-    #     self.assertLess(pu_learner.real_c - pu_learner.c, difference)
+    def test_c_estimation(self):
+        difference = 0.15
+        pu_learner = PuLearning()
+        # loading P U dataset from 20 newsgroups
+        pu_learner.load_example_dataset()
+        vectorizer = TfidfVectorizer()
+        vectorizer.fit(pu_learner.P + pu_learner.U)
+        p_vectors = vectorizer.transform(pu_learner.P)
+        u_vectors = vectorizer.transform(pu_learner.U)
+        pu_learner.estimate_c(P=p_vectors, U=u_vectors, model="lr", n_splits=10, random_state=1)
+        print(pu_learner.real_c, pu_learner.c)
+        self.assertLess(pu_learner.real_c - pu_learner.c, difference)
 
     def test_estimate_positive_count(self):
         c = 0.75
@@ -60,7 +60,7 @@ class PuLearningTestCase(unittest.TestCase):
             "Please use a model where both 'fit' and 'predict_proba' functions are implemented!" in str(
                 context.exception))
 
-    # def test_load_example_dataset(self):
+    # def test_load_example_dataset_elkan_noto(self):
     #     pu_learner = PuLearning()
     #     pu_learner.load_example_dataset()
     #     self.assertEqual(len(pu_learner.P), 2453)
@@ -69,6 +69,16 @@ class PuLearningTestCase(unittest.TestCase):
     #     self.assertEqual(len(pu_learner.U), 4906)
     #     self.assertAlmostEqual(pu_learner.real_c, 0.8758, delta=10e-04)
     #     self.assertEqual(pu_learner.c, 0.0)
+
+    def test_load_example_dataset_twenty_news(self):
+        pu_learner = PuLearning()
+        pu_learner.load_example_dataset()
+        self.assertEqual(len(pu_learner.P), 594)
+        self.assertEqual(len(pu_learner.Q), 396)
+        self.assertEqual(len(pu_learner.N), 996)
+        self.assertEqual(len(pu_learner.U), 1392)
+        self.assertAlmostEqual(pu_learner.real_c, 0.6, delta=10e-04)
+        self.assertEqual(pu_learner.c, 0.0)
 
     def test_create_training_data_list(self):
         pu_learner = PuLearning()
@@ -88,18 +98,18 @@ class PuLearningTestCase(unittest.TestCase):
             pu_learner.create_training_data(P, U)
         self.assertTrue('P and U are not the following types: list, numpy.ndarray' in str(context.exception))
 
-    # def test_create_training_data_sparse(self):
-    #     pu_learner = PuLearning()
-    #     pu_learner.load_example_dataset()
-    #     vectorizer = TfidfVectorizer()
-    #     vectorizer.fit(pu_learner.P + pu_learner.U)
-    #     p_vectors = vectorizer.transform(pu_learner.P)
-    #     u_vectors = vectorizer.transform(pu_learner.U)
-    #     X, y = pu_learner.create_training_data(p_vectors, u_vectors)
-    #     self.assertTrue(isinstance(p_vectors, scipy.sparse.csr.csr_matrix))
-    #     self.assertEqual(X.shape, (7359, 44575))
-    #     self.assertTrue(isinstance(y, np.ndarray))
-    #     self.assertEqual(np.sum(y), p_vectors.shape[0])
+    def test_create_training_data_sparse(self):
+        pu_learner = PuLearning()
+        pu_learner.load_example_dataset()
+        vectorizer = TfidfVectorizer()
+        vectorizer.fit(pu_learner.P + pu_learner.U)
+        p_vectors = vectorizer.transform(pu_learner.P)
+        u_vectors = vectorizer.transform(pu_learner.U)
+        X, y = pu_learner.create_training_data(p_vectors, u_vectors)
+        self.assertTrue(isinstance(p_vectors, scipy.sparse.csr.csr_matrix))
+        self.assertEqual(X.shape, (1986, 24135))  # (7359, 44575)
+        self.assertTrue(isinstance(y, np.ndarray))
+        self.assertEqual(np.sum(y), p_vectors.shape[0])
 
     def test_create_training_data_numpy(self):
         pu_learner = PuLearning()
@@ -119,19 +129,19 @@ class PuLearningTestCase(unittest.TestCase):
         self.assertDictEqual(pu_learner.svc_model_settings, {"kernel": "linear", "probability": True, "C": 1})
         self.assertDictEqual(pu_learner.lr_model_settings, {'class_weight': 'balanced'})
 
-    # def test_train_test_split(self):
-    #     pu_learner = PuLearning()
-    #     pu_learner.load_example_dataset()
-    #     vectorizer = TfidfVectorizer()
-    #     vectorizer.fit(pu_learner.P + pu_learner.U)
-    #     p_vectors = vectorizer.transform(pu_learner.P)
-    #     u_vectors = vectorizer.transform(pu_learner.U)
-    #     X, y = pu_learner.create_training_data(p_vectors, u_vectors)
-    #     X_train, X_test, y_train, y_test = train_test_split(X, y, shuffle=True, stratify=y, random_state=1,
-    #                                                         test_size=0.2)
-    #     model = LogisticRegression(random_state=1)
-    #     c_estimate = pu_learner._train_classifier_to_estimate_c(X_train, y_train, X_test, y_test, model)
-    #     self.assertAlmostEqual(c_estimate, 0.7406, delta=5e-02)
+    def test_train_test_split(self):
+        pu_learner = PuLearning()
+        pu_learner.load_example_dataset()
+        vectorizer = TfidfVectorizer()
+        vectorizer.fit(pu_learner.P + pu_learner.U)
+        p_vectors = vectorizer.transform(pu_learner.P)
+        u_vectors = vectorizer.transform(pu_learner.U)
+        X, y = pu_learner.create_training_data(p_vectors, u_vectors)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, shuffle=True, stratify=y, random_state=1,
+                                                            test_size=0.2)
+        model = LogisticRegression(random_state=1)
+        c_estimate = pu_learner._train_classifier_to_estimate_c(X_train, y_train, X_test, y_test, model)
+        self.assertAlmostEqual(c_estimate, 0.4929, delta=5e-02)  # 0.7406
 
     def test_train_estimator(self):
         pu_learner = PuLearning()
