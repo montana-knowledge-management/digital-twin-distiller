@@ -36,6 +36,7 @@ Shapely = "^1.8.0"
 tika = "^1.24"
 scikit-learn = "^1.0.1"
 sklearn = "^0.0"
+python-markdown-math = "^0.8"
 # list all devtools here
 [tool.poetry.dev-dependencies]
 black = "*"
