@@ -35,8 +35,8 @@ class TestPowerTransformerExample(TestCase):
     """
 
     def init_transformer_model(self):
-        design_parameters = {'ff_in': 60,  # filling factor in the inner winding [%]
-                             'ff_ou': 60,  # filling factor in the outer winding [%]
+        design_parameters = {'ff_in': 55,  # filling factor in the inner winding [%]
+                             'ff_ou': 55,  # filling factor in the outer winding [%]
                              'alpha': 1.0,  # ratio
                              'end_ins': 80,  # the sum of the end insulation under and on the windings [mm]
                              'core_ins': 20}  # core insulation distance between the core and the windings [mm]
@@ -109,7 +109,7 @@ class TestPowerTransformerExample(TestCase):
         sb = 10.0  # nominal power  --- MVA
         zb = ub ** 2. / sb  # impedance
         f = 50
-        ib = sb * 1e3 / ub / 3. ** 0.5 / 1
+        ib = sb * 1e3 / ub / 3. ** 0.5 / 3. ** 0.5
 
         # -- calculating the impedance from the volume integrals --
         L = 2 * Wm / ib ** 2.

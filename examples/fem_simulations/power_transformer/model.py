@@ -110,7 +110,7 @@ class PowerTransformer(BaseModel):
 
         HV = copy(coil)
         HV.name = 'HV'
-        HV.Je = self.jp
+        HV.Je = -self.jp  # the current direction shuold be different and the amperturns should be balanced
 
         self.snapshot.add_material(air)
         self.snapshot.add_material(LV)
