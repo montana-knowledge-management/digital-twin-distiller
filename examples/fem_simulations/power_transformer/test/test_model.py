@@ -32,13 +32,15 @@ class TestPowerTransformerExample(TestCase):
     Winding AC kV 50
     Copper filling factor % 60
     Material and manufacturing price e/kg 8.5
+    Turns in LV winding 85
+    area of one conductor=22.684×10^-6 m2
     """
 
     def init_transformer_model(self):
-        design_parameters = {'ff_in': 55,  # filling factor in the inner winding [%]
-                             'ff_ou': 55,  # filling factor in the outer winding [%]
+        design_parameters = {'ff_in': 60,  # filling factor in the inner winding [%]
+                             'ff_ou': 60,  # filling factor in the outer winding [%]
                              'alpha': 1.0,  # ratio
-                             'end_ins': 80,  # the sum of the end insulation under and on the windings [mm]
+                             'end_ins': 180,  # the sum of the end insulation under and on the windings [mm]
                              'core_ins': 20}  # core insulation distance between the core and the windings [mm]
 
         design_variables = {'core_diam': 420,  # core diameter in mm
@@ -47,7 +49,7 @@ class TestPowerTransformerExample(TestCase):
                             'tin': 35,  # thickness of the inner winding
                             'tou': 44,  # thickness of the outer winding
                             'jin': 2.6,  # the current density in the inner winding
-                            'jou': 2.5}  # the current density in the outer winding
+                            'jou': 2.26}  # the current density in the outer winding
 
         self.pt = PowerTransformer(params=design_parameters, vars=design_variables, exportname="dev")
 
@@ -63,7 +65,7 @@ class TestPowerTransformerExample(TestCase):
         self.assertEqual(self.pt.design_variables['core_diam'], 420)
         self.assertEqual(self.pt.design_variables['gap'], 50)
         self.assertEqual(self.pt.design_variables['jin'], 2.6)
-        self.assertEqual(self.pt.design_variables['jou'], 2.5)
+        self.assertEqual(self.pt.design_variables['jou'], 2.6)
 
     def test_calculate_window_parameters(self):
         self.init_transformer_model()
