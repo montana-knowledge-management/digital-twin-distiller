@@ -1,6 +1,6 @@
 from unittest import TestCase
 from examples.fem_simulations.power_transformer.model import PowerTransformer
-
+from math import pi
 
 class TestPowerTransformerExample(TestCase):
     """
@@ -49,7 +49,7 @@ class TestPowerTransformerExample(TestCase):
                             'jin': 2.6,  # the current density in the inner winding
                             'jou': 2.5}  # the current density in the outer winding
 
-        self.pt = PowerTransformer(params=design_parameters, vars=design_variables)
+        self.pt = PowerTransformer(params=design_parameters, vars=design_variables, exportname="dev")
 
     def test_init_transformer_model(self):
         self.init_transformer_model()
@@ -74,7 +74,7 @@ class TestPowerTransformerExample(TestCase):
 
         #
         self.assertEqual(self.pt.r1, 210)
-        self.assertEqual(self.pt.z1, 40)
+        self.assertEqual(self.pt.z1, 0)
 
     def test_windings(self):
         self.init_transformer_model()
@@ -86,8 +86,35 @@ class TestPowerTransformerExample(TestCase):
         self.assertEqual(self.pt.h2, 1100)
         self.assertEqual(self.pt.r2, 230)
         self.assertEqual(self.pt.z2, 40)
+        self.assertEqual(self.pt.js, 1560000.0)
 
         self.assertEqual(self.pt.w3, 44)
         self.assertEqual(self.pt.h3, 1100)
         self.assertEqual(self.pt.r3, 315)
         self.assertEqual(self.pt.z3, 40)
+
+    def test_total_model(self):
+        self.init_transformer_model()
+        self.pt.set_window_parameters()
+        self.pt.set_inner_winding_parameters()
+        self.pt.set_outer_winding_parameters()
+
+        # calculating the magnetic energy
+        Wm = self.pt(cleanup=False, devmode=False)['Energy']
+        Ilv = self.pt.w2 * self.pt.h2 * self.pt.js * 1e-6
+        #Xlv = 4 * pi * 50 * Wm / Ilv ** 2
+
+        # base impedance for the short circuit impedance calculation
+        ub = 6.9   # voltage --- kV base voltage
+        sb = 10.0  # nominal power  --- MVA
+        zb = ub ** 2. / sb  # impedance
+        f = 50
+        ib = sb * 1e3 / ub / 3. ** 0.5 / 1
+
+        # -- calculating the impedance from the volume integrals --
+        L = 2 * Wm / ib ** 2.
+        sci =  2.*pi * f * L / zb * 100.
+
+        #Xpu= 4 * pi * f * Wm / (2*S) * 2
+
+        print('Short circuit impedance', sci, ib, Wm, L, zb)

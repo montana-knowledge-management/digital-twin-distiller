@@ -38,6 +38,7 @@ class PowerTransformer(BaseModel):
     design_parameters = {'ff_in': 0,  # filling factor in the inner winding [%]
                          'ff_ou': 0,  # filling factor in the outer winding [%]
                          'alpha': 0,  # the ratio between the inner and the outer winding [-]
+                         'freq': 0,    # network frequency
                          'end_ins': 0,  # the sum of the end insulation under and on the windings [mm]
                          'core_ins': 0}  # core insulation distance between the core and the windings [mm]
 
@@ -66,7 +67,7 @@ class PowerTransformer(BaseModel):
                   self.design_variables['tou']
         self.h1 = self.design_parameters['end_ins'] + self.design_variables['hin']
         self.r1 = self.design_variables['core_diam'] / 2.
-        self.z1 = self.design_parameters['end_ins'] / 2.
+        self.z1 = 0
 
     def set_inner_winding_parameters(self):
         self.w2 = self.design_variables['tin']
@@ -74,7 +75,7 @@ class PowerTransformer(BaseModel):
         self.r2 = self.r1 + self.design_parameters['core_ins']
         self.z2 = self.design_parameters['end_ins'] / 2
 
-        self.jp = self.design_variables['jin'] * 1_000_000  # A/m2
+        self.js = self.design_variables['jin'] * 1_000_000 * self.design_parameters['ff_in']/100.  # A/m2
 
     def set_outer_winding_parameters(self):
         # HV rectangle
@@ -84,7 +85,7 @@ class PowerTransformer(BaseModel):
         self.z3 = self.design_parameters['end_ins'] / 2
 
         # Excitation
-        self.js = self.design_variables['jou'] * 1_000_000
+        self.jp = self.design_variables['jou'] * 1_000_000 * self.design_parameters['ff_ou']/100.
 
     def setup_solver(self):
         # a 2-dimensional, axisymmetric FEMM model is used for the basic simulations
