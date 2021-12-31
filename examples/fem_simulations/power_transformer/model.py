@@ -25,6 +25,7 @@ Input data:
          Rc, Jin, Jou, Gap
 """
 
+
 ModelDir.set_base(__file__)
 
 
@@ -34,11 +35,10 @@ class PowerTransformer(BaseModel):
     for all of the calculated individuals during the optimization of the transformers. The vars  are the design variables,
     which used together with the design parameters to calculate the transformer data.
     """
-
     design_parameters = {'ff_in': 0,  # filling factor in the inner winding [%]
                          'ff_ou': 0,  # filling factor in the outer winding [%]
                          'alpha': 0,  # the ratio between the inner and the outer winding [-]
-                         'freq': 0,    # network frequency
+                         'freq': 0,  # network frequency
                          'end_ins': 0,  # the sum of the end insulation under and on the windings [mm]
                          'core_ins': 0}  # core insulation distance between the core and the windings [mm]
 
@@ -56,8 +56,28 @@ class PowerTransformer(BaseModel):
         # self._init_directories()
 
         # The default values of the example script are coming from the validation example
-        self.design_parameters = kwargs.get('params')
-        self.design_variables = kwargs.get('vars')
+
+        # design parameters
+        self.design_parameters['ff_in'] = kwargs.get('ff_in', 0)
+        self.design_parameters['ff_ou'] = kwargs.get('ff_ou', 0)
+        self.design_parameters['alpha'] = kwargs.get('alpha', 0)
+        self.design_parameters['freq'] = kwargs.get('freq', 0)
+        self.design_parameters['end_ins'] = kwargs.get('end_ins', 0)
+        self.design_parameters['core_ins'] = kwargs.get('core_ins', 0)
+
+        # design variables
+        self.design_variables['core_diam'] = kwargs.get('core_diam', 0)
+        self.design_variables['gap'] = kwargs.get('gap', 0)
+        self.design_variables['hin'] = kwargs.get('hin', 0)
+        self.design_variables['tin'] = kwargs.get('tin', 0)
+        self.design_variables['tou'] = kwargs.get('tou', 0)
+        self.design_variables['jin'] = kwargs.get('jin', 0)
+        self.design_variables['jou'] = kwargs.get('jou', 0)
+
+        # calculating the geometrical parameters from the given data
+        self.set_window_parameters()
+        self.set_inner_winding_parameters()
+        self.set_outer_winding_parameters()
 
     def set_window_parameters(self):
         # inner window of the simulated power transformer
@@ -75,7 +95,7 @@ class PowerTransformer(BaseModel):
         self.r2 = self.r1 + self.design_parameters['core_ins']
         self.z2 = self.design_parameters['end_ins'] / 2
 
-        self.js = self.design_variables['jin'] * 1_000_000 * self.design_parameters['ff_in']/100.  # A/m2
+        self.js = self.design_variables['jin'] * 1_000_000 * self.design_parameters['ff_in'] / 100.  # A/m2
 
     def set_outer_winding_parameters(self):
         # HV rectangle
@@ -85,7 +105,7 @@ class PowerTransformer(BaseModel):
         self.z3 = self.design_parameters['end_ins'] / 2
 
         # Excitation
-        self.jp = self.design_variables['jou'] * 1_000_000 * self.design_parameters['ff_ou']/100.
+        self.jp = self.design_variables['jou'] * 1_000_000 * self.design_parameters['ff_ou'] / 100.
 
     def setup_solver(self):
         # a 2-dimensional, axisymmetric FEMM model is used for the basic simulations
@@ -156,5 +176,5 @@ class PowerTransformer(BaseModel):
 
 
 if __name__ == "__main__":
-    m = PowerTransformer(exportname="dev", jp=3.0, js=3.02)
+    m = PowerTransformer(exportname="dev", jin=3.0, jou=3.02)
     print(m(cleanup=False, devmode=False))
