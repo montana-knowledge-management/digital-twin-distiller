@@ -1,5 +1,6 @@
 from unittest import TestCase
 from examples.fem_simulations.power_transformer.model import PowerTransformer
+from examples.fem_simulations.power_transformer.simulation import calculate_base_impedance
 from math import pi
 
 
@@ -54,26 +55,16 @@ class TestPowerTransformerExample(TestCase):
 
     def test_total_model(self):
         self.init_transformer_model()
-        self.pt.set_window_parameters()
-        self.pt.set_inner_winding_parameters()
-        self.pt.set_outer_winding_parameters()
 
         # calculating the magnetic energy
         Wm = self.pt(cleanup=False, devmode=False)['Energy']
-        Ilv = self.pt.w2 * self.pt.h2 * self.pt.js * 1e-6
-        # Xlv = 4 * pi * 50 * Wm / Ilv ** 2
 
         # base impedance for the short circuit impedance calculation
         ub = 6.9  # voltage --- kV base voltage
         sb = 10.0  # nominal power  --- MVA
-        zb = ub ** 2. / sb  # impedance
         f = 50
-        ib = sb * 1e3 / ub / 3. ** 0.5 / 3. ** 0.5
 
-        # -- calculating the impedance from the volume integrals --
-        L = 2 * Wm / ib ** 2.
-        sci = 2. * pi * f * L / zb * 100.
+        sci = calculate_base_impedance(ub, sb, f, 3 ** 0.5, Wm)
 
-        # Xpu= 4 * pi * f * Wm / (2*S) * 2
-
-        print('Short circuit impedance', sci, ib, Wm, L, zb)
+        print('Short circuit impedance', sci)
+        self.assertEqual(7.4, round(sci, 1))
