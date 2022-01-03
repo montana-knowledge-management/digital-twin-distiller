@@ -62,8 +62,8 @@ class DocumentVectorizerTestCase(unittest.TestCase):
         document_vector = vectorizer.run(example, mode="average")
         print(document_vector)
 
-        self.assertAlmostEqual(-0.2622325725, document_vector[0])
-        self.assertAlmostEqual(-0.13360977, document_vector[1])
+        self.assertAlmostEqual(-0.2622325725, document_vector[0][0])
+        self.assertAlmostEqual(-0.13360977, document_vector[0][1])
 
     def test_idf_weighted(self):
         vectorizer = DocumentVectorizer()
@@ -75,8 +75,8 @@ class DocumentVectorizerTestCase(unittest.TestCase):
         example = [txt.replace(".", "") for txt in example_text[0].split() if txt]
         document_vector = vectorizer.run(example, mode="idf_weighted")
         print(document_vector)
-        self.assertNotEqual(-0.2622325725, document_vector[0])
-        self.assertNotEqual(-0.13360977, document_vector[1])
+        self.assertNotEqual(-0.2622325725, document_vector[0][0])
+        self.assertNotEqual(-0.13360977, document_vector[0][1])
 
     def test_build_vectors_dict(self):
         vectorizer = DocumentVectorizer()
@@ -110,8 +110,8 @@ class DocumentVectorizerTestCase(unittest.TestCase):
     def test_docvec(self):
         model_path_to_save = "/tmp/test.bin"
         vectorizer = DocumentVectorizer()
-        trained_model = vectorizer.train_doc2vec_model(corpus=example_text, vector_dim=50, epochs=100, min_count=1,
-                                                       model_path_to_save=model_path_to_save)
+        trained_model = vectorizer.train_doc2vec_model(corpus=example_text, model_path_to_save=model_path_to_save,
+                                                       vector_size=50, epochs=100, min_count=1)
         self.assertTrue(exists(model_path_to_save))
 
         vectorizer = DocumentVectorizer()
@@ -128,7 +128,7 @@ class DocumentVectorizerTestCase(unittest.TestCase):
         # getting vector form via vectorizer object
         document_vector = vectorizer.run(example_test, mode="doc2vec")
         # checking whether run method gives the same result for the same input
-        self.assertListEqual(doc2vec_vector.tolist(), document_vector.tolist())
+        self.assertListEqual(doc2vec_vector.tolist(), document_vector[0].tolist())
 
     def test_keep_n_most_similar_to_average(self):
         vectorizer = DocumentVectorizer()
@@ -225,6 +225,51 @@ class DocumentVectorizerTestCase(unittest.TestCase):
         captured = self.capsys.readouterr()
         self.assertEqual(captured.out.replace("\n", ""),
                          "The word pentakosziomedimnosz was missing from the gensim model, not putting into vectors dict.")
+
+    def test_average_idf_multidoc(self):
+        vectorizer = DocumentVectorizer()
+        # loading dummy fasttext model
+        vectorizer.fasttext_model = DummyFasttextModel()
+        # creating vocabulary
+        vectorizer.build_vocab(example_text)
+        # vectorizer.build_vectors_dict(mode="fasttext")
+        # creating tokenized text
+        example = [txt.replace(".", "") for txt in example_text[0].split() if txt]
+        example = [example, [txt.replace(".", "") for txt in example_text[1].split() if txt]]
+        # getting document vector
+        document_vector = vectorizer.run(example, mode="average")
+        self.assertEqual(len(document_vector), 2)
+        self.assertEqual(len(document_vector[0]), 5)
+
+        document_vector = vectorizer.run(example, mode="idf_weighted")
+        self.assertEqual(len(document_vector), 2)
+        self.assertEqual(len(document_vector[0]), 5)
+
+    def test_docvec_multidoc(self):
+        model_path_to_save = "/tmp/test.bin"
+        vectorizer = DocumentVectorizer()
+        trained_model = vectorizer.train_doc2vec_model(corpus=example_text, model_path_to_save=model_path_to_save,
+                                                       vector_size=50, epochs=100, min_count=1)
+        self.assertTrue(exists(model_path_to_save))
+
+        vectorizer = DocumentVectorizer()
+        vectorizer.load_doc2vec_model(model_path_to_save)
+
+        doc2vec_vector = trained_model.infer_vector(example_test)
+        loaded_doc2vec_vector = vectorizer.doc2vec_model.infer_vector(example_test)
+        # removing trained model
+        remove(model_path_to_save)
+        self.assertEqual(50, len(doc2vec_vector))
+        self.assertEqual(50, len(loaded_doc2vec_vector))
+        # checking whether loaded and original models are the same
+        self.assertListEqual(doc2vec_vector.tolist(), loaded_doc2vec_vector.tolist())
+
+        example = [txt.replace(".", "") for txt in example_text[0].split() if txt]
+        example = [example, [txt.replace(".", "") for txt in example_text[1].split() if txt]]
+        # getting vector form via vectorizer object
+        document_vector = vectorizer.run(example, mode="doc2vec")
+        # checking whether run method gives the same result for the same input
+        self.assertEqual(len(document_vector), 2)
 
 
 if __name__ == '__main__':

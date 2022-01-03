@@ -24,8 +24,8 @@ class DocumentVectorizer(AbstractTask):
 
     def load_gensim_model(self, model_path):
         """
-        Loads gensim FastText models. Only bin format is supported!
-        :param fasttext_model_path: path for pretrained model in bin format is supported.
+        Loads gensim FastText or Word2Vec models.
+        :param fasttext_model_path: path for pretrained model
         :return:
         """
         try:
@@ -121,7 +121,12 @@ class DocumentVectorizer(AbstractTask):
 
     def keep_n_most_similar_to_average(self, tokenized_document: list, nr_of_words_to_keep=10, mode="average"):
         """
-        Keeps the words that are most similar to the dcument vector. Available modes
+        Keeps the words that are most similar to the document vector calculated by word vector average or idf weighted
+        average.
+        :param mode: average: document vetor = average of vectors in text
+                     idf_weighted: document vetor = idf weighted average of vectors in text
+        :param tokenized_document: list of tokens
+        :param nr_of_words_to_keep: int: number of words to keep that are the closest to the average document vector
         """
         if mode == "average":
             avg_vector, vectors = self.calculate_average(tokenized_document)
@@ -136,11 +141,22 @@ class DocumentVectorizer(AbstractTask):
         return np.mean(similarities, axis=0)
 
     def calculate_average(self, tokenized_document: list):
+        """
+        Gets the vectors from the model and calculates the average of vectors for each document.
+        :param tokenized_document: list of tokens of one document
+        :returns: average of vectors, and the vectors themselves
+        """
         vectors = [self.fasttext_model.get_word_vector(token) for token in tokenized_document if token]
         vectors = np.array(vectors)
         return np.mean(vectors, axis=0), vectors
 
     def calculate_idf_weighted_average(self, tokenized_document: list):
+        """
+        Gets the vectors from the model and calculates the idf weighted average of vectors for each document.
+        If the token cannot be found in the vocabulary, the factor remains 1.0.
+        :param tokenized_document: list of tokens of one document
+        :returns: idf weighted average of vectors, and the vectors themselves
+        """
         vectors = []
         for token in tokenized_document:
             vector = self.fasttext_model.get_word_vector(token)
@@ -157,16 +173,32 @@ class DocumentVectorizer(AbstractTask):
         return np.mean(vectors, axis=0), vectors
 
     def calculate_doc2vec(self, tokenized_document: list):
+        """
+        Gets the vectors from the doc2vec model.
+        :param tokenized_document: list of tokens of one document
+        :returns: doc2vec vector
+        """
         # checking whether trained model is available
         if not self.doc2vec_model:
             raise ValueError("Missing Doc2Vec model!")
         return self.doc2vec_model.infer_vector(tokenized_document)
 
-    def train_doc2vec_model(self, corpus, vector_dim, epochs, min_count, model_path_to_save=None, **kwargs):
+    def train_doc2vec_model(self, corpus, model_path_to_save=None, **kwargs):
+        """
+        Trains doc2vec model on a given corpus and saves it as long as the path to save is specified.
+        :param corpus: list of documents in  list of strings format
+        :param model_path_to_save: default: None, if given, the trained model will be saved automatically to this path
+        :param kwargs: arguments that are the same as it would be for a doc2vec model for full set of parameters please
+                       visit: https://radimrehurek.com/gensim/models/doc2vec.html
+            examples for parameters:
+            :param vector_dim: required dimension of the doc2vec model
+            :param epochs: epochs to be used during training
+            :param min_count: mininum required count of tokens
+        """
         train_corpus = []
         for idx, document in enumerate(corpus):
             train_corpus.append(TaggedDocument(document.split(), [idx]))
-        model = Doc2Vec(vector_size=vector_dim, min_count=min_count, epochs=epochs, **kwargs)
+        model = Doc2Vec(**kwargs)
         model.build_vocab(train_corpus)
         model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
         self.doc2vec_model = model
@@ -175,13 +207,30 @@ class DocumentVectorizer(AbstractTask):
         return model
 
     def load_doc2vec_model(self, path_to_doc2vec_model):
+        """
+        Loads pretrained Doc2Vec model.
+        """
         self.doc2vec_model = Doc2Vec.load(path_to_doc2vec_model)
         return self.doc2vec_model
 
     def run(self, tokenized_document: list, mode="average"):
-        if mode == "average":
-            return self.calculate_average(tokenized_document)[0]
-        elif mode == "idf_weighted":
-            return self.calculate_idf_weighted_average(tokenized_document)[0]
-        elif mode == "doc2vec":
-            return self.calculate_doc2vec(tokenized_document)
+        """
+        Performs the required vectorization on the given documents.
+        :param tokenized_document: list of list of tokens of a document
+        :param mode: available modes:
+                                "average": returns average vector for the documents
+                                "idf_weighted": returns idf weighted average vector for the documents
+                                "doc2vec": returns the doc2vec vector for the documents
+        :returns: list of vectors for the documents
+        """
+        if isinstance(tokenized_document, list) and isinstance(tokenized_document[0], str):
+            tokenized_document = [tokenized_document]
+        return_vectors = []
+        for document in tokenized_document:
+            if mode == "average":
+                return_vectors.append(self.calculate_average(document)[0])
+            elif mode == "idf_weighted":
+                return_vectors.append(self.calculate_idf_weighted_average(document)[0])
+            elif mode == "doc2vec":
+                return_vectors.append(self.calculate_doc2vec(document))
+        return return_vectors
