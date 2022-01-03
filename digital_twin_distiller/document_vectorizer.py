@@ -2,7 +2,7 @@ import numpy
 import numpy as np
 from digital_twin_distiller.ml_project import AbstractTask
 import fasttext
-from gensim.models import FastText
+from gensim.models import FastText, Word2Vec
 from importlib_resources import files
 from digital_twin_distiller.text_readers import JsonReader
 from digital_twin_distiller.text_writers import JsonWriter
@@ -16,20 +16,11 @@ class DocumentVectorizer(AbstractTask):
         self.vocabulary = None
         self.gensim_model = None
         self.fasttext_model = None
+        self.doc2vec_model = None
         self.vectors_dict = {}
         self.original_text = None
         self.augmented_text = []
         self.idf = []
-
-    # def define_subtasks(self, cache=None):
-    #     """
-    #     Loads pretrained gensim language model (e.g. FastText, Word2Vec, etc.)
-    #     :param cache: enables that loading is performed only once
-    #     :return:
-    #     """
-    #     self.fasttext_model = fasttext.load_model(
-    #         str(files("distiller") / "resources" / "augmentation" / "cc.hu.2.bin")
-    #     )
 
     def load_gensim_model(self, model_path):
         """
@@ -37,7 +28,10 @@ class DocumentVectorizer(AbstractTask):
         :param fasttext_model_path: path for pretrained model in bin format is supported.
         :return:
         """
-        self.gensim_model = FastText.load(model_path)
+        try:
+            self.gensim_model = Word2Vec.load(model_path)
+        except Exception:
+            self.gensim_model = FastText.load(model_path)
 
     def load_fasttext_model(self, fasttext_model_path):
         """
@@ -47,24 +41,33 @@ class DocumentVectorizer(AbstractTask):
         """
         self.fasttext_model = fasttext.load_model(fasttext_model_path)
 
-    def load_most_similar_dictionary(self, path_to_dict):
+    def load_vectors_dictionary(self, path_to_dict):
         """
-        Load previously created dictionary containing most similar tokens from json file.
+        Load previously created vectors dictionary containing vectors for words from json file.
         :param path_to_dict:
         :return:
         """
         reader = JsonReader()
         loaded_json = reader.read(path_to_dict)
-        self.vectors_dict = loaded_json
+        casted_vectors = {}
+        # casting from list to numpy array
+        for word, vector in loaded_json.items():
+            casted_vectors[word] = np.array(vector)
 
-    def save_most_similar_dictionary(self, path_to_dict):
+        self.vectors_dict = casted_vectors
+
+    def save_vectors_dictionary(self, path_to_dict):
         """
-        Write most similar dictionary to json file.
+        Writes the content of self.vectors_dict to json file.
         :param path_to_dict: path to save
-        :return:
+        :return: None
         """
         writer = JsonWriter()
-        writer.write(self.vectors_dict, path_to_dict)
+        casted_vocabulary = {}
+        # casting from numpy array to list
+        for key, value in self.vectors_dict.items():
+            casted_vocabulary[key] = value.tolist()
+        writer.write(casted_vocabulary, path_to_dict)
 
     def build_vocab(self, text, **kwargs):
         """
@@ -86,26 +89,27 @@ class DocumentVectorizer(AbstractTask):
         Must be called when the vocabulary has been built.
         :return: A dictionary containing most similar finds. Keys are the members of the vocabulary,
         """
-        # if mode == "gensim":
-        #     if not self.gensim_model:
-        #         raise ValueError("Missing loaded gensim model. Please load gensim model!")
-        #     for word in self.vocabulary:
-        #         if word in self.gensim_model.wv.key_to_index:
-        #             if word not in self.most_similar_dict:
-        #                 self.most_similar_dict[word] = self.gensim_model.wv.most_similar(
-        #                     word, topn=self.topn_most_similar
-        #                 )
-        #         else:
-        #             self.most_similar_dict[word] = word
-        if mode == "fasttext":
+        if mode == "gensim":
+            if not self.gensim_model:
+                raise ValueError("Missing loaded gensim model. Please load gensim model!")
+            known_words = set(self.vectors_dict.keys())
+            for word in tqdm(self.vocabulary):
+                if not {word}.intersection(known_words):
+                    try:
+                        word_vector = self.gensim_model.wv[word]
+                        self.vectors_dict[word] = word_vector
+                    except KeyError:
+                        print("The word {} was missing from the gensim model, not putting into vectors dict.".format(
+                            word))
+
+        elif mode == "fasttext":
             if not self.fasttext_model:
                 raise ValueError("Missing loaded fasttext model. Please load fasttext model!")
+            known_words = set(self.vectors_dict.keys())
             for word in tqdm(self.vocabulary):
                 # using sets improves execution speed
-                if not {word}.intersection(set(self.vectors_dict.keys())):
-                    # if word not in self.most_similar_dict:
+                if not {word}.intersection(known_words):
                     word_vector = self.fasttext_model.get_word_vector(word)
-
                     self.vectors_dict[word] = word_vector
         else:
             raise ValueError("Wrong mode given! Please choose from 'gensim' or 'fasttext'!")
@@ -116,10 +120,15 @@ class DocumentVectorizer(AbstractTask):
         return cos_sim
 
     def keep_n_most_similar_to_average(self, tokenized_document: list, nr_of_words_to_keep=10, mode="average"):
+        """
+        Keeps the words that are most similar to the dcument vector. Available modes
+        """
         if mode == "average":
             avg_vector, vectors = self.calculate_average(tokenized_document)
         elif mode == "idf_weighted":
             avg_vector, vectors = self.calculate_idf_weighted_average(tokenized_document)
+        else:
+            raise ValueError('The mode is currently not implemented, please choose from "average" and "idf_weighted"!')
         similarities = [(self.cosine_similarity(avg_vector, vector), vector) for vector in vectors]
         similarities = sorted(similarities, key=lambda x: x[0])[:nr_of_words_to_keep]
         similarities = [vec[1] for vec in similarities]
@@ -127,11 +136,6 @@ class DocumentVectorizer(AbstractTask):
         return np.mean(similarities, axis=0)
 
     def calculate_average(self, tokenized_document: list):
-        # vectors = []
-        # for token in tokenized_document:
-        #     if token:
-        #         print(token, self.vectors_dict.get(token))
-        #         vectors.append()
         vectors = [self.fasttext_model.get_word_vector(token) for token in tokenized_document if token]
         vectors = np.array(vectors)
         return np.mean(vectors, axis=0), vectors
@@ -172,6 +176,7 @@ class DocumentVectorizer(AbstractTask):
 
     def load_doc2vec_model(self, path_to_doc2vec_model):
         self.doc2vec_model = Doc2Vec.load(path_to_doc2vec_model)
+        return self.doc2vec_model
 
     def run(self, tokenized_document: list, mode="average"):
         if mode == "average":
