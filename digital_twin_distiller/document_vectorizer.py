@@ -140,7 +140,7 @@ class DocumentVectorizer(AbstractTask):
         vectors = []
         for token in tokenized_document:
             vector = self.fasttext_model.get_word_vector(token)
-            if self.vocabulary.get(token):
+            if self.vocabulary.get(token) is not None:
                 factor = self.idf[self.vocabulary.get(token)]
             else:
                 factor = 1.0
@@ -169,6 +169,9 @@ class DocumentVectorizer(AbstractTask):
         if model_path_to_save:
             model.save(model_path_to_save)
         return model
+
+    def load_doc2vec_model(self, path_to_doc2vec_model):
+        self.doc2vec_model = Doc2Vec.load(path_to_doc2vec_model)
 
     def run(self, tokenized_document: list, mode="average"):
         if mode == "average":
