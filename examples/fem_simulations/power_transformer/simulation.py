@@ -42,6 +42,39 @@ def calculate_base_impedance(ub, sb, f, con_fact, Wm):
     return 2. * pi * f * L / zb * 100.
 
 
+def get_main_parameters(simparams):
+    # base line voltage and the nominal power of the examined terminal
+    ub = simparams["ub"]
+    sb = simparams["sb"]
+    f = simparams["f"]
+    connection = simparams["con_fact"]
+
+    cf = 1.  # in case of delta connection
+    if str(connection).lower() is 'star':
+        cf = 3. ** 0.5
+
+    return ub, sb, f, cf
+
+
+def get_design_values(simparams):
+    """
+    Reads the design parameters and variables from the given json.
+    """
+
+    ff_in = simparams["ff_in"]
+    ff_ou = simparams["ff_ou"]
+    end_ins = simparams["end_ins"]
+    alpha = simparams["alpha"]
+    core_ins = simparams["core_ins"]
+    core_diam = simparams["core_diam"]
+    gap = simparams["gap"]
+    h_in = simparams["hin"]
+    t_in = simparams["tin"]
+    t_ou = simparams["tou"]
+    j_in = simparams["j_in"]
+    j_ou = simparams["j_ou"]
+
+
 @sim.register("short_circuit_impedance")
 def short_circuit_impedance(model, modelparams, simparams, miscparams):
     """
@@ -50,11 +83,6 @@ def short_circuit_impedance(model, modelparams, simparams, miscparams):
     The sci was normed on the impedance base, which calculated from the parameters of the LV terminal.
     """
 
-    # S = 6.3e6 / 3
-    # f = 50
-    # Nlv = 708
-    # Nhv = 650
-    # ff = 0.85
     js = simparams["js"]
     jp = simparams["jp"]
 
