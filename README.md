@@ -52,7 +52,7 @@ sudo apt-get install -y python-is-python3
 
 *Once the installation is done, python command will use Python 3.x binary.*
 
-*Verification: `python --version`.*
+*Verification:* `python --version`.
 
 2. Install venv package
 
@@ -126,6 +126,7 @@ poetry run pre-commit install
 
 ```shell
 pre-commit install --hook-type commit-msg --overwrite
-
+```
+```shell
 pre-commit install --hook-type=pre-commit --overwrite
 ```
