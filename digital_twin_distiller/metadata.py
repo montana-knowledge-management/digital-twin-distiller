@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from pathlib import Path
 
 
 class Metadata(metaclass=ABCMeta):
@@ -18,16 +19,16 @@ class Metadata(metaclass=ABCMeta):
 
     def validate_file_name(self):
         if self.file_script_name is not None:
-            self.file_script_name = str(self.file_script_name)
+            self.file_script_name = self.format_file_script_name() + self.file_suffix
             self.file_metrics_name = str(self.file_metrics_name)
-            dotindex = self.file_script_name.find(".")
-            if dotindex != -1:
-                self.file_script_name = self.file_script_name[:dotindex]
-
-            self.file_script_name = self.file_script_name + self.file_suffix
         else:
             print("script_name is empty!")
             exit(10)
+
+    # cut the extension of 'file_script_name' file
+    def format_file_script_name(self):
+        path = Path(self.file_script_name)
+        return Path.joinpath(path.parent, path.stem).as_posix()
 
     @abstractmethod
     def validate_metadata(self):
