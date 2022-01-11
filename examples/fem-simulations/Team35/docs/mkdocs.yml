@@ -1,7 +1,26 @@
-site_name: Team35
+site_name: TEAM35 - Multi-objective Pareto optimization of a solenoid
 use_directory_urls: true
 theme:
   name: material
+  language: en
+  features:
+    - navigation.sections
+  plugins:
+    - search
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
 
 nav:
-  - Home: index.md
+  - Home:
+    - index.md
+    - usage.md
+    - 02-problem.md
+    - 03-model.md
+    - 04-symmetric-case.md
+    - 6-simulation.md
+  - Other:
+    - 07-references.md
