@@ -93,7 +93,7 @@ class SRM(BaseModel):
         self.D3 = kwargs.get('D3', 59.5)  # Rotor bore diameter [mm]
         self.D4 = kwargs.get('D4', 10.0)  # Rotor inner diameter [mm]
         self.T1 = kwargs.get('T1', 6.0)  # Core thickness [mm]
-        self.beta_r = kwargs.get('beta_r', 30.25)  # Rotor tooth angle [°]
+        self.beta_r = kwargs.get('beta_r', 20.0)  # Rotor tooth angle [°]
         self.gamma_r = kwargs.get('gamma_r', 0.0)  # Rotor pole angle [°]
 
         ## EXCITATION (Calculated automatically under build_coil)
