@@ -1,4 +1,4 @@
-# Model creation
+# 3. Model creation
 
 There are more than one way to create a model for a problem, but the simplest one is to just use the built in `BaseModel` class. This class implements most of the boilerplate code that is needed for the calculations. It sets up the proper paths and automatically builds, executes and retrieves the results.
 

@@ -1,4 +1,4 @@
-# References
+# 4. References
 
 > Di Barba, P.; Mognaschi, M.E.; Lowther, D.A.; Sykulski, J.K. A benchmark TEAM
 > problem for multi-objective Pareto optimization of electromagnetic

@@ -1,35 +1,18 @@
-# 1. Distributed winding coil
+# Previous distributed winding coil
 
-Documentation of Digital-twin-distiller application...
-
-> What the documentation for?
-
-## 1.1 Overview
-
-> TODO: from: https://www.mdpi.com/2227-9717/9/11/2077/htm (2.1. Modeling with Digital-Twin-Distiller)
-
-The documentation shows the Digital-twin-distiller app's functionality over the [Team35 Benchmark problem](#link-to-problem-description).
-
-Az app végpontjai az alábbi URL-en érhetőek el: **http://127.0.0.1:5000/apidocs**
-
-> Tolerancia analízis a digital-twin-distiller segítségével hajtható végre
->
-> a novel robust design optimization platform, which has many features supporting high-performance tolerance analysis with different FEM-solvers
->
-> Robust design optimalizációs platform számos funkciója támogatja a magas szintű
-> tolerancia analízist különboző FEM megoldókkal.
-
-## 1.2 What is Digital-twin-distiller do...
-
-![Artap segment](assets/artap_segment.png)
-
+> Di Barba, P.; Mognaschi, M.E.; Lowther, D.A.; Sykulski, J.K.  A benchmark TEAM
+> problem for multi-objective Pareto optimization of electromagnetic
+> devices. IEEE Transactions on Magnetics, 2018, 54, 1–4.
 
 ## Problem description
-The coil has 20 turns, each with 1 mm x 1.5mm dimension and 3A excitation. The region [0 mm, 5 mm] x [-5 mm , 5 mm] is
-called the control region and we measure the radial and tangential components of the magnetic flux density within this
-area. Each turn in the winding has a particular distance from the z axis. These distances are the input of the model.
+In this example we compute the uniformity of the magnetic field produced by a
+distributed winding. The problem can be solved both in symmetrical and
+asymmetrical manner.  The coil has 20 turns, each with 1 mm x 1.5mm dimension
+and 3A excitation. The region [0 mm, 5 mm] x [-5 mm , 5 mm] is called the
+control region and we measure the radial and tangential components of the
+magnetic flux density within this area. Each turn in the winding has a
+particular distance from the z axis. These distances are the input of the model.
 After the computation we plot the results in a 2D contour plot.
-
 
 ## Model creation
 We create 2 distinct models for the problem: a symmetric and an asymmetric. We
@@ -40,6 +23,49 @@ calculations. It sets up the proper paths and automatically builds, executes and
 retrives the results. The users only required to fill the provided abstract
 methods to get a fully functional model.
 
+
+## Asymmetric case
+
+Let's begin the model creation with subclassing the `BaseModel` class. To use
+this class we have to fill the highlighted methods. The class will have 1 input,
+which is the `X` list that holds the distance from the z axis for the different
+turns. Since we simulate the full geometry, a 20 element list is
+needed.
+
+``` python hl_lines="18 21 24 27 30"
+
+class SymmetircModel(BaseModel):
+    def __init__(self, X:list, exportname=None):
+        # check for proper length
+        assert len(X) == 20
+
+        # Be aware of mutable arguments !
+        # Use the copy of the argument to prevent bugs.
+        self.X = X.copy()
+
+        # call the base class constructor to set up paths
+        super(SymmetircModel, self).__init__(exportname=exportname)
+
+        # if you want to use different paths then your changes go here
+
+        # create the directories
+        self._init_directories()
+
+    def setup_solver(self):
+        ...
+
+    def define_boundary_conditions(self):
+        ...
+
+    def define_materials(self):
+        ...
+
+    def add_postprocessing(self):
+        ...
+
+    def build_geometry(self):
+        ...
+```
 
 ### Solver setup
 
@@ -455,21 +481,3 @@ plt.show()
 The same results but with an asymmetric model:
 ![](images/Bz_asym.png)
 ![](images/Br_asym.png)
-
-
-
-**Parameters summary:**
-
-* Control region: [0 mm, 5 mm] x [-5 mm , 5 mm]
-* Number of turns: 10
-* Turn params
-    * Dimension: 1mm x 1.5mm (*w* = 1mm, *h* = 1.5mm)
-    * Excitation: 3A
-* Radii (*turns distance from z axis*) R1,..., Ri,...,R10 of the ten turns: variation range is 5≤Ri≤50 mm
-
-
-> Backup
->
-> The height and the width parameters of the modeled conductors are 1.5 mm and 1.0 mm during the calculations. The inner
-radius of the turns  (radii)  can be varied from 5 mm to 50 mm in the r-direction.
->

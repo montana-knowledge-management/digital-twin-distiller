@@ -16,9 +16,11 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - admonition
   - pymdownx.critic
-  #- markdown_katex
   - pymdownx.arithmatex:
       generic: true
+  - pymdownx.emoji:
+      #emoji_index: !!python/name:materialx.emoji.twemoji
+      #emoji_generator: !!python/name:materialx.emoji.to_svg
 extra_javascript:
   - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
@@ -26,9 +28,8 @@ extra_javascript:
 nav:
   - Home:
     - index.md
-    - usage.md
+    - 02-usage.md
     - 03-model.md
-    - 04-symmetric-case.md
-    - backup.md
+    - 04-references.md
   - Other:
-    - 07-references.md
+    - previous-index.md

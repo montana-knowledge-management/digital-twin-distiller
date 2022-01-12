@@ -1,6 +1,7 @@
 # 1. Distributed winding coil
 
-Documentation of TEAM35 Benchmark problem's and solution's presentation over simulations.
+This documentation describes the Team35 Benchmark Problem and represents solutions over simulations.
+> TODO: model creation explained too
 
 ## 1.1 Problem description
 
@@ -54,7 +55,7 @@ $n_{\rm p}$ is the number of points.
 
 Endpoint: `/apidocs/process_sim`
 
-In this example we use the default simulation without any additional [JSON section parameters](#-link-to-input-json-explanation).
+In this example we use the default simulation without any additional [JSON section parameters](usage.md#211-input-json-file-format).
 We specify only the `simulation` block.
 
 The `x` vector input variable is represents a simple `radii` (turn distance from z axis), and it's size has to be 10.
