@@ -19,24 +19,29 @@ Each turn in the winding has a particular distance from the z axis. This is the 
 can be varied from 5 mm to 50 mm in the r-direction. These distances are the [input of the model](#x-input variable), so ten unknown radii (design variables)
 are to be identified.
 
-**Parameters summary:**
-
-* Control region: [0 mm, 5 mm] x [-5 mm , 5 mm]
-* Number of turns: 10
-* Turn params
-    * Dimension: 1mm x 1.5mm (*w* = 1mm, *h* = 1.5mm)
-    * Excitation: 3A
-* Radii (*turns distance from z axis*) R1,..., Ri,...,R10 of the ten turns: variation range is 5≤Ri≤50 mm
-
-
-
-
-
-
 After the computation we plot the results in a 2D contour plot.
 
+**Parameters summary**
 
-> Backup
->
-> The height and the width parameters of the modeled conductors are 1.5 mm and 1.0 mm during the calculations. The inner
-radius of the turns  (radii)  can be varied from 5 mm to 50 mm in the r-direction.
+| Parameter                                                              | Value                         |
+|------------------------------------------------------------------------|-------------------------------|
+| Control region                                                         | [0 mm, 5 mm] x [-5 mm , 5 mm] |
+| Number of turns                                                        | 10                            |
+| Turn's dimension height (h)                                            | 1.5 mm                        |
+| Turn's dimension width (w)                                             | 1mm                           |
+| Turn's excitation                                                      | 3A                            |
+| Radii (turns distance from z axis) R1,..., Ri,...,R10 of the ten turns | variation range is 5≤Ri≤50 mm |
+
+
+**The $`F_1`$ function**
+
+The goal function for single-objective problem is to design the geometry of coils that minimize discrepancy between the prescribed valued
+$`\vec{B}_0`$ and actual distribution of $`\vec{B}`$
+in the region of interest.
+
+```math
+F_1(r) = \sup_{q=1,n_{\rm p}} |\vec{B}(r_q,z_q)-\vec{B}_0(r_q,z_q)|,
+```
+
+where $`B_0(r_q,z_q) = (0, 2\,{\rm mT})`$ is the prescribed value of magnetic flux density and
+$`n_{\rm p}`$ is the number of points.

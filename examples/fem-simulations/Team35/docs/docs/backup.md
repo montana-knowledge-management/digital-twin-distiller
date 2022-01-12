@@ -455,3 +455,21 @@ plt.show()
 The same results but with an asymmetric model:
 ![](images/Bz_asym.png)
 ![](images/Br_asym.png)
+
+
+
+**Parameters summary:**
+
+* Control region: [0 mm, 5 mm] x [-5 mm , 5 mm]
+* Number of turns: 10
+* Turn params
+    * Dimension: 1mm x 1.5mm (*w* = 1mm, *h* = 1.5mm)
+    * Excitation: 3A
+* Radii (*turns distance from z axis*) R1,..., Ri,...,R10 of the ten turns: variation range is 5≤Ri≤50 mm
+
+
+> Backup
+>
+> The height and the width parameters of the modeled conductors are 1.5 mm and 1.0 mm during the calculations. The inner
+radius of the turns  (radii)  can be varied from 5 mm to 50 mm in the r-direction.
+>
