@@ -48,3 +48,34 @@ class TestMetadata(unittest.TestCase):
 
         for attr_i in metadata2.__dict__:
             self.assertEqual(getattr(femm_metadata, attr_i), getattr(metadata2, attr_i))
+
+    def test_agros_should_pass_file(self):
+        self.should_pass_file(Agros2DMetadata())
+
+    def test_femm_should_pass_file(self):
+        self.should_pass_file(FemmMetadata())
+
+    def should_pass_file(self, m):
+
+        path_prefix = "t/t2.t3/t4/t5@t6/t7"
+
+        self.file_script_name_assertion(m, path_prefix, "name.txt")
+        self.file_script_name_assertion(m, path_prefix, "name")
+        self.file_script_name_assertion(m, path_prefix, "name.test.txt")
+
+        path_prefix = "t/t2/t3/t4"
+
+        self.file_script_name_assertion(m, path_prefix, "name.txt")
+        self.file_script_name_assertion(m, path_prefix, "name")
+        self.file_script_name_assertion(m, path_prefix, "name.test.txt")
+
+    def file_script_name_assertion(self, m, path_prefix, file):
+
+        m.file_script_name = path_prefix + "/" + file
+
+        m.validate_file_name()
+        self.assertNotEqual(file, m.file_script_name)
+
+        file_name = path_prefix + "/" + (file if file.rfind(".") == -1 else file[: file.rfind(".")])
+
+        self.assertEqual(file_name + m.file_suffix, m.file_script_name)

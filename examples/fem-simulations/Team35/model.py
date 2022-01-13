@@ -1,5 +1,3 @@
-import operator as op
-
 import numpy as np
 
 from digital_twin_distiller import (
@@ -54,7 +52,8 @@ class DistributedWinding(BaseModel):
         platform_femm = Femm(femm_metadata)
         platform_agros = Agros2D(agros_metadata)
 
-        platform = platform_agros
+        platform = platform_femm
+        # platform = platform_agros
         self.snapshot = Snapshot(platform)
 
     def define_materials(self):
@@ -141,7 +140,6 @@ class DistributedWinding(BaseModel):
 
 
 if __name__ == "__main__":
-
     X = [10] * 10
     m = DistributedWinding(X, exportname="dev")
-    print(m(cleanup=False))
+    print(m(cleanup=False, devmode=True))
