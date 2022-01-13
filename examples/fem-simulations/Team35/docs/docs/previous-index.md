@@ -1,8 +1,11 @@
-# Previous distributed winding coil
+# Advanced Example
 
-> Di Barba, P.; Mognaschi, M.E.; Lowther, D.A.; Sykulski, J.K.  A benchmark TEAM
-> problem for multi-objective Pareto optimization of electromagnetic
-> devices. IEEE Transactions on Magnetics, 2018, 54, 1–4.
+This example describes the model creation for the same TEAM problem,
+The proposed solution was used for model creation to the following paper:
+
+> Krisztián Gadó, Tamás Orosz
+> Robust and Multi-Objective Pareto Design of a Solenoid
+> https://doi.org/10.3390/electronics10172139
 
 ## Problem description
 In this example we compute the uniformity of the magnetic field produced by a
@@ -422,7 +425,7 @@ assigned in the postprocessing steps. In this case:
 ```
 (x, y, B(x, y))
 ```
-Let's extract the coordinates firtst:
+Let's extract the coordinates first:
 
 ``` python
 x = [pointvalue[0] * 1000 for pointvalue in res["Br"]]  # [x, y, Br(x, y)]

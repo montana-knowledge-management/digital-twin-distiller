@@ -7,8 +7,6 @@ There are more than one way to create a model for a problem, but the simplest on
 ## Create a model using `BaseModel` class
 
 Let's begin the model creation with subclassing the BaseModel class. To use this class we have to fill the {==highlighted==} methods. The class will have 1 input, which is the X list that holds the distance from the z axis for the different turns. In our geometry simulation a 10 element list is needed.
-
-> !!! TODO: this came from SymmetircModel example, but we don't specify the symmetric and asymmetric cases
 >
 > Idea: refactor needed
 

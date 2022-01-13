@@ -11,8 +11,8 @@ from digital_twin_distiller.snapshot import Snapshot
 
 class BaseModel(metaclass=ABCMeta):
     """
-    This abstract class servers as a baseline to describe an digital-twin-distiller-model. It also provides automatic
-    path creation, model uilding, execution, results extraction and cleanup.
+    This abstract class servers as a baseline to describe a digital-twin-distiller-model. It also provides automatic
+    path creation, model building, execution, results extraction and cleanup.
 
 
     """

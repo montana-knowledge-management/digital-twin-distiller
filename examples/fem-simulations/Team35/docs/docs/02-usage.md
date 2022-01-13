@@ -1,4 +1,4 @@
-# 2. Usage
+# 2. Usage of the Simulation
 
 You can interact with the API and the digital twin behind it via simple make calls through code or via the `/apidocs`
 endpoint.
@@ -7,32 +7,11 @@ endpoint.
 
 Calling the `/process_sim` endpoints, the interaction happens in a JSON file that is passed along with the call.
 
-> TODO
-> In the *fem-simulations* example we examine the Team35 benchmark problem where you can try simulations.
-> There are more simulation types, but we use the **Basic** one to presenting the problem.
-
 ### 2.1.1 Input JSON File format
 
 The input JSON file has several sections, these are the **simulation, model, tolerances, misc**. The only necessary
 section is the simulation, precisely the `type` field in the simulation section. All the other sections are optional.
 
-```json
-{
-  "simulation": {
-    "type": "default"
-  },
-  "model": {},
-  "tolerances": {
-    "type": "ff",
-    "parameters": {},
-    "variables": []
-  },
-  "misc": {
-    "processes": 4,
-    "cleanup": true
-  }
-}
-```
 
 #### 2.1.1.1 Simulation section
 
@@ -60,25 +39,7 @@ the `Team35/defaults/model.json` file.
 }
 ```
 
-> TODO: what is $x_0$ and 'mw'
 
-#### 2.1.1.3 Tolerance section
-
-On this section you can make a tolerance analysis.
-> TODO
-
-#### 2.1.1.4 Misc section
-
-In this section other variables are listed that are not tightly coupled with the digital twin. For example if a
-simulation is running in parallel you can specify the number of processes here. The default mics values can be found
-into the `Team35\defaults\mics.json` file.
-
-```json title="mics.json"
-{
-  "processes": 4,
-  "cleanup": true
-}
-```
 
 ### 2.1.2 Use Default simulation
 
@@ -89,11 +50,12 @@ The simulations and them default values defined in the `simulation.json` file.
 
 Parameters of the simulation:
 
-| Parameter            | Value                               |
-|:---------------------|:------------------------------------|
-| type                 | simulation type                     |
-| [B0](index.md#b0)    | magnetic flux density in the pole   |
-| [x](index.md#radii)  | vector, consist of 10 radii params  |
+| Parameter            | Value                                       |
+|:---------------------|:--------------------------------------------|
+| type                 | simulation type                             |
+| [B0](index.md#b0)    | the aimed magnetic flux density in the pole |
+| [x](index.md#radii)  | vector, consist of 10 radii params          |
+
 
 #### 2.1.2.1 Api call with specifying parameters
 
@@ -173,7 +135,7 @@ class DistributedWinding(BaseModel):
     ...
 ```
 
-### 2.2.2 Run mode
+### 2.2.2 Debug mode - Perform the simulation by hand
 
 ```python
 if __name__ == "__main__":
@@ -196,13 +158,15 @@ if __name__ == "__main__":
     print(m(cleanup=False, devmode=True))
 ```
 
+If the `devmode` parameter is `#!python True` then the solver will open the script but won't execute it, and the
+`cleanup` parameter is automatically set to `False`.
+
 #### 2.2.3.1 Example in developer mode
 
-During the example we use the **Femm** platform!
+During the example we use the ![**Femm**][https://www.femm.info/wiki/HomePage]
 
-> TODO: something about FEMM?
 
-1. After the :octicons-triangle-right-24: run you are going to see the model opened into FEMM platform
+1. After the run you are going to see the model opened in FEMM.
 
 !!! Note ""
     Make some modification to see the whole model (zoom and scroll in Zoom tab)
@@ -226,7 +190,3 @@ from the $z$ axis.
 5. View results *(third icon)*
 
 ![Result](assets/fem/fem-model-result.png)
-
-6. 'Color' result *(optional)*
-
-> TODO: check parameters and create 'color' result

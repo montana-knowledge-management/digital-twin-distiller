@@ -1,9 +1,44 @@
 # 1. Distributed winding coil
 
-This documentation describes the Team35 Benchmark Problem and represents solutions over simulations.
-> TODO: model creation explained too
+Summary
+-------
 
-## 1.1 Problem description
+The proposed model can calculate one layout for the TEAM35 Test problem. You can select from the two integrated FEM
+solvers to compute the results of the problem, a 10 turned solenoid, where the position of the different turns can be optimized to
+generate a homogenous magnetic field distribution in the coil.
+
+## 1.1 Basic usage example over api call
+
+Endpoint: `/apidocs/process_sim`
+
+In this example we use the default simulation without any additional [JSON section parameters](02-usage.md#211-input-json-file-format).
+We specify only the `simulation` block.
+
+The `x` vector input variable is represents a simple `radii` (turn distance from z axis), and it's size has to be 10.
+
+### 1.1.1 Example input
+
+```json
+{
+  "simulation": {
+    "type": "default",
+    "x": [7, 8, 9, 10, 11, 12, 13, 14, 15, 20],
+    "B0": 3e-2
+  }
+}
+```
+
+### 1.1.2 Example output
+
+```json
+{
+  "res": {
+    "f1": 0.02798768033743801
+  }
+}
+```
+
+## 1.2 Problem description
 
 In this example we compute the uniformity of the magnetic field produced by a distributed winding.
 
@@ -26,7 +61,7 @@ are to be identified.
 
 After the computation we plot the results in a 2D contour plot.
 
-### 1.1.1 Parameters summary
+### 1.2.1 Parameters summary
 
 | Parameter                                                                                      | Value                         |
 |------------------------------------------------------------------------------------------------|-------------------------------|
@@ -38,7 +73,7 @@ After the computation we plot the results in a 2D contour plot.
 | <span id="radii">Radii (turns distance from z axis) R1,..., Ri,...,R10 of the ten turns</span> | variation range is 5≤Ri≤50 mm |
 
 
-## 1.2 The $F_1$ function
+## 1.3 The $F_1$ function
 
 The goal function for single-objective problem is to design the geometry of coils that minimize discrepancy between the prescribed valued
 $\vec{B}_0$ and actual distribution of $\vec{B}$
@@ -51,33 +86,4 @@ $$
 where <span id="b0">$B_0(r_q,z_q) = (0, 2\,{\rm mT})$ is the prescribed value of magnetic flux density</span> and
 $n_{\rm p}$ is the number of points.
 
-## 1.3 Basic usage example over api call
-
-Endpoint: `/apidocs/process_sim`
-
-In this example we use the default simulation without any additional [JSON section parameters](usage.md#211-input-json-file-format).
-We specify only the `simulation` block.
-
-The `x` vector input variable is represents a simple `radii` (turn distance from z axis), and it's size has to be 10.
-
-### 1.3.1 Example input
-
-```json
-{
-  "simulation": {
-    "type": "default",
-    "x": [7, 8, 9, 10, 11, 12, 13, 14, 15, 20],
-    "B0": 3e-2
-  }
-}
-```
-
-### 1.3.2 Example output
-
-```json
-{
-  "res": {
-    "f1": 0.02798768033743801
-  }
-}
-```
+The value of $B$ is calculated in $n_p$ different points of the region of interest.
