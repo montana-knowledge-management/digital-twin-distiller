@@ -1,10 +1,11 @@
 from unittest import TestCase
-from digital_twin_distiller.geo_parser import geo_parser
+
 from importlib_resources import files
+
+from digital_twin_distiller.geo_parser import geo_parser
 
 
 class SimpleGEOparser(TestCase):
-
     def test_base_objects(self):
         path = files("tests.test_geo_geometry").joinpath("base_objects.geo")
         test_geo = geo_parser(path.as_posix())
@@ -21,8 +22,14 @@ class SimpleGEOparser(TestCase):
 
         # import a circle object circle data 60 [1.0, 2.0, 1336.0]
         self.assertEqual(test_geo.circle_arcs[0].id, 60)
-        self.assertEqual(test_geo.circle_arcs[0].start_pt.id, 1)
-        self.assertEqual(test_geo.circle_arcs[0].end_pt.id, 1336)
+        self.assertEqual(test_geo.circle_arcs[0].start_pt.id, 1336)
+        self.assertEqual(test_geo.circle_arcs[0].end_pt.id, 1)
+
+        # import second circle 160 [101, 102, 103]
+        self.assertEqual(test_geo.circle_arcs[1].id, 160)
+        self.assertEqual(test_geo.circle_arcs[1].start_pt.id, 103)
+        self.assertEqual(test_geo.circle_arcs[1].center_pt.id, 102)
+        self.assertEqual(test_geo.circle_arcs[1].end_pt.id, 101)
 
         # point 3 should be imported from the geo file
         self.assertEqual(test_geo.nodes[3].id, 3)

@@ -3,7 +3,7 @@ from operator import itemgetter
 
 from model import DistributedWinding
 
-from digital_twin_distiller.encapsulator import Encapsulator, mounts
+from digital_twin_distiller.encapsulator import Encapsulator  # , mounts
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.simulationproject import sim
 
@@ -31,7 +31,6 @@ def default_simulation(model, modelparams, simparams, miscparams):
 
 
 if __name__ == "__main__":
-
     ModelDir.set_base(__file__)
 
     # set the model for the simulation
@@ -39,5 +38,5 @@ if __name__ == "__main__":
 
     model = Encapsulator(sim)
     model.build_docs()
-    mounts()
+    # mounts()
     model.run()

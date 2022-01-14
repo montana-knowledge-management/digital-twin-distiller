@@ -32,10 +32,7 @@ class Platform(metaclass=ABCMeta):
         return self.file_script_handle
 
     def get_script_name(self):
-        filename = str(self.metadata.file_script_name)
-        dotindex = filename.find(".")
-        filename = filename[:dotindex]
-        return filename
+        return Metadata.format_file_script_name(self.metadata)
 
     @abstractmethod
     def __copy__(self):

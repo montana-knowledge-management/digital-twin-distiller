@@ -36,6 +36,9 @@ Shapely = "^1.8.0"
 tika = "^1.24"
 scikit-learn = "^1.0.1"
 sklearn = "^0.0"
+gensim = "^4.1.2"
+tqdm = "^4.62.3"
+fasttext = "^0.9.2"
 python-markdown-math = "^0.8"
 # list all devtools here
 [tool.poetry.dev-dependencies]
