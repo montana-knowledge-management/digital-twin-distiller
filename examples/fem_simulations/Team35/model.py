@@ -142,4 +142,4 @@ class DistributedWinding(BaseModel):
 if __name__ == "__main__":
     X = [10] * 10
     m = DistributedWinding(X, exportname="dev")
-    print(m(cleanup=False, devmode=True))
+    print(m(cleanup=False))
