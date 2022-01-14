@@ -80,7 +80,8 @@ def new(name, location):
     chdir(cwd)
 
 
-if __name__ == "__main__":
+# TODO
+def task_new():
     parser = argparse.ArgumentParser(prog="digital-twin-distiller", description="Create a new Model")
     parser.add_argument("task", help="Select a task: [new, ]")
     parser.add_argument("name", help="The name of the model", default="MODEL")
@@ -89,3 +90,8 @@ if __name__ == "__main__":
 
     if args.task == "new":
         new(args.name, args.location)
+    return parser
+
+
+if __name__ == "__main__":
+    task_new()
