@@ -1,0 +1,18 @@
+{
+  "ub": 6.9,
+  "sb": 10.0,
+  "f": 50,
+  "con_fact": "star",
+  "ff_in": 60,
+  "ff_ou": 60,
+  "end_ins": 180,
+  "alpha": 1.0,
+  "core_ins": 20,
+  "core_diam": 420,
+  "gap": 50,
+  "hin": 1100,
+  "tin": 35,
+  "tou": 44,
+  "jin": 2.6,
+  "jou": 2.26
+}

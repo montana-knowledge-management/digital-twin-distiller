@@ -17,3 +17,7 @@ from digital_twin_distiller.modelpiece import ModelPiece
 from digital_twin_distiller.platforms import *
 from digital_twin_distiller.snapshot import Snapshot
 from digital_twin_distiller.model import BaseModel
+
+from .__main__ import new
+
+__all__ = ['new']

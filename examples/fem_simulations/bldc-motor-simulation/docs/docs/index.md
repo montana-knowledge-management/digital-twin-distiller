@@ -1,4 +1,4 @@
-# Simple Api for Adze Projects
+# Simple Api for Digital-Twin-Distiller based Projects
 
 The goal of this API is to provide a simple and easy to use interface, which
 can help to automatically deploy ADZE-models as a  digital twin. The server
@@ -24,12 +24,6 @@ computation results.
 
 * `/ping` endpoint, to test the functionality and the accessibility of the
   realized server from the client side.
-
-### ADZE-Server stands on the shoulders of giants:
-
-    FastAPI for the web parts.
-    Pydantic for the data parts and the JsonSchma validation.
-    OpenAPI for the API documentation and testing the basic functionality.
 
 #### Documentation
 
