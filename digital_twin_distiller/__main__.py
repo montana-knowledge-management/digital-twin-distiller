@@ -1,4 +1,3 @@
-import argparse
 import json
 import string
 import subprocess
@@ -80,18 +79,5 @@ def new(name, location):
     chdir(cwd)
 
 
-# TODO
-def task_new():
-    parser = argparse.ArgumentParser(prog="digital-twin-distiller", description="Create a new Model")
-    parser.add_argument("task", help="Select a task: [new, ]")
-    parser.add_argument("name", help="The name of the model", default="MODEL")
-    parser.add_argument("location", help="The location of the model", default="APPLICATIONS")
-    args = parser.parse_args()
-
-    if args.task == "new":
-        new(args.name, args.location)
-    return parser
-
-
-if __name__ == "__main__":
-    task_new()
+# if __name__ == "__main__":
+#     ...  # TODO

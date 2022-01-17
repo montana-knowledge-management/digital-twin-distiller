@@ -3,45 +3,66 @@ from importlib import metadata
 from importlib.metadata import PackageNotFoundError
 from sys import version_info
 
-# from digital_twin_distiller import new
-# from digital_twin_distiller.__main__ import task_new
-
-DTD = "Digital-Twin-Distiller"
+NAME_OF_THE_PROGRAM = "digital-twin-distiller"
+COMMAND_NEW = "new"
 
 
 def optimize_cli():
     """
     Create Command line interface and define argument
     """
+
     parser = argparse.ArgumentParser(
+        prog=NAME_OF_THE_PROGRAM,
         formatter_class=argparse.RawTextHelpFormatter,
         prefix_chars="-",
         description=_get_all_metadata(),
+        epilog=f"Run {NAME_OF_THE_PROGRAM} COMMAND --help for more information on a command",
     )
+
+    # optional arguments
     parser.add_argument(
-        "-v", "--version", action="version", version=_get_version_text(), help="display version information"
+        "-v", "--version", action="version", version=_get_version_text(), help="Display version information"
     )
 
-    # TODO: add [new] as subcommand ?
-    # subparsers = parser.add_subparsers(dest=task_new().prog)
-    # subparsers.add_parser(parser.prog)
+    subparser = parser.add_subparsers(dest="command")
 
-    parser.parse_args()
+    register_subparser_new(subparser)
+    parser.add_argument(COMMAND_NEW, help="Create a new Model")
+
+    args = parser.parse_args()
+
+    if args.command == COMMAND_NEW:
+        new(args.name, args.location)
+
+
+def register_subparser_new(subparser):
+    parser = subparser.add_parser(COMMAND_NEW)
+    parser.description = "Create a new Model"
+    parser.prog = NAME_OF_THE_PROGRAM
+
+    parser.add_argument("task", help=f"Select a task: [{COMMAND_NEW}, ]")
+    parser.add_argument("name", help="The name of the model", default="MODEL")
+    parser.add_argument("location", help="The location of the model", default="APPLICATIONS")
+    return parser
 
 
 def _get_version_text():
     try:
-        __version__ = metadata.version(DTD)
+        __version__ = metadata.version(NAME_OF_THE_PROGRAM)
     except PackageNotFoundError:
         __version__ = "unknown"
     return "\n".join(
-        [f"{DTD} {__version__} \n" f"Python {version_info.major}.{version_info.minor}.{version_info.micro}"]
+        [
+            f"{NAME_OF_THE_PROGRAM} {__version__} \n"
+            f"Python {version_info.major}.{version_info.minor}.{version_info.micro}"
+        ]
     )
 
 
 def _get_metadata(param: str):
     try:
-        __mt__ = metadata.metadata(DTD).get(param)
+        __mt__ = metadata.metadata(NAME_OF_THE_PROGRAM).get(param)
     except PackageNotFoundError:
         __mt__ = "unknown"
     return __mt__
@@ -58,7 +79,7 @@ def _get_all_metadata():
             f"Welcome to Digital Twin Distiller!\n",
             f"Description: {__description__} \n ",
             f"Licence: {__license__} \n ",
-            f"Authors: {__author__} <{__author_email__}>\n " f"--------------------------------------------------",
+            f"Authors: {__author__} <{__author_email__}>\n ",
         ]
     )
 
