@@ -3,8 +3,12 @@ from importlib import metadata
 from importlib.metadata import PackageNotFoundError
 from sys import version_info
 
+from digital_twin_distiller.__main__ import new
+
 NAME_OF_THE_PROGRAM = "digital-twin-distiller"
+
 COMMAND_NEW = "new"
+COMMAND_NEW_DESC = "Create a new Model"
 
 
 def optimize_cli():
@@ -22,13 +26,22 @@ def optimize_cli():
 
     # optional arguments
     parser.add_argument(
-        "-v", "--version", action="version", version=_get_version_text(), help="Display version information"
+        "-v", "--version", action="version", version=_get_version_text(), help="display version information"
+    )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        dest="verbose",
+        action="store_false",
+        default=True,
+        help="suppress output",
     )
 
     subparser = parser.add_subparsers(dest="command")
 
-    register_subparser_new(subparser)
-    parser.add_argument(COMMAND_NEW, help="Create a new Model")
+    # positional arguments
+    _register_subparser_new(subparser)
+    parser.add_argument(COMMAND_NEW, help=COMMAND_NEW_DESC)
 
     args = parser.parse_args()
 
@@ -36,9 +49,9 @@ def optimize_cli():
         new(args.name, args.location)
 
 
-def register_subparser_new(subparser):
+def _register_subparser_new(subparser):
     parser = subparser.add_parser(COMMAND_NEW)
-    parser.description = "Create a new Model"
+    parser.description = COMMAND_NEW_DESC
     parser.prog = NAME_OF_THE_PROGRAM
 
     parser.add_argument("task", help=f"Select a task: [{COMMAND_NEW}, ]")
@@ -82,7 +95,3 @@ def _get_all_metadata():
             f"Authors: {__author__} <{__author_email__}>\n ",
         ]
     )
-
-
-if __name__ == "__main__":
-    optimize_cli()

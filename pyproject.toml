@@ -137,3 +137,6 @@ disable = [
 #   "protected-access",
 #   "too-few-public-methods",
 # ]
+
+[tool.poetry.scripts]
+digital-twin-distiller = "digital_twin_distiller.cli:optimize_cli"

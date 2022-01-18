@@ -77,7 +77,3 @@ def new(name, location):
     chdir(DST / "docs")
     subprocess.run(["mkdocs", "build", "-q"])
     chdir(cwd)
-
-
-# if __name__ == "__main__":
-#     ...  # TODO
