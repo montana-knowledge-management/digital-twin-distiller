@@ -1,4 +1,5 @@
 import argparse
+import sys
 from importlib import metadata
 from importlib.metadata import PackageNotFoundError
 from sys import version_info
@@ -11,7 +12,7 @@ COMMAND_NEW = "new"
 COMMAND_NEW_DESC = "Create a new Model"
 
 
-def optimize_cli():
+def optimize_cli(argv=None):
     """
     Create Command line interface and define argument
     """
@@ -21,7 +22,7 @@ def optimize_cli():
         formatter_class=argparse.RawTextHelpFormatter,
         prefix_chars="-",
         description=_get_all_metadata(),
-        epilog=f"Run {NAME_OF_THE_PROGRAM} COMMAND --help for more information on a command",
+        epilog=f"Run {NAME_OF_THE_PROGRAM} COMMAND --help for more information on a command"
     )
 
     # optional arguments
@@ -39,25 +40,20 @@ def optimize_cli():
 
     subparser = parser.add_subparsers(dest="command")
 
-    # positional arguments
+    #  register new command
     _register_subparser_new(subparser)
-    parser.add_argument(COMMAND_NEW, help=COMMAND_NEW_DESC)
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.command == COMMAND_NEW:
+        print("new called")
         new(args.name, args.location)
 
 
 def _register_subparser_new(subparser):
-    parser = subparser.add_parser(COMMAND_NEW)
-    parser.description = COMMAND_NEW_DESC
-    parser.prog = NAME_OF_THE_PROGRAM
-
-    parser.add_argument("task", help=f"Select a task: [{COMMAND_NEW}, ]")
-    parser.add_argument("name", help="The name of the model", default="MODEL")
-    parser.add_argument("location", help="The location of the model", default="APPLICATIONS")
-    return parser
+    parser_new = subparser.add_parser(COMMAND_NEW, help=COMMAND_NEW_DESC, description=COMMAND_NEW_DESC)
+    parser_new.add_argument("name", help="The name of the model", default="MODEL")
+    parser_new.add_argument("location", help="The location of the model", default="APPLICATIONS")
 
 
 def _get_version_text():

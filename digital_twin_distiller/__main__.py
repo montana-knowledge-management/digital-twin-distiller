@@ -16,6 +16,9 @@ DEFAULT_SIMULATION = {
 }
 DEFAULT_MISC = {"processes": 4, "cleanup": True}
 
+COMMAND_NEW = "new"
+COMMAND_NEW_DESC = "Create a new Model"
+
 
 def new(name, location):
     """
