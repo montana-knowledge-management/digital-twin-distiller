@@ -32,7 +32,7 @@ class Platform(metaclass=ABCMeta):
         return self.file_script_handle
 
     def get_script_name(self):
-        return Metadata.format_file_script_name(self.metadata)
+        return self.metadata.format_file_script_name()
 
     @abstractmethod
     def __copy__(self):
