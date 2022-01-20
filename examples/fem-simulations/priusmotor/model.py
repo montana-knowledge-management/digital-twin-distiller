@@ -10,7 +10,7 @@ from digital_twin_distiller.metadata import FemmMetadata
 from digital_twin_distiller.model import BaseModel
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.modelpiece import ModelPiece
-from digital_twin_distiller.objects import Node
+from digital_twin_distiller.objects import CircleArc, Node
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
 
@@ -200,10 +200,20 @@ class PriusMotor(BaseModel):
         self.geom.merge_geometry(rotor.geom)
 
         stator = ModelPiece('stator')
-        stator.load_piece_from_dxf(ModelDir.RESOURCES / "prius_shell_pyleecan.dxf")
+        stator.load_piece_from_dxf(ModelDir.RESOURCES / "prius_stator_pyleecan.dxf")
         self.geom.merge_geometry(stator.geom)
 
+        a = Node.from_polar(80.4494, 67.5)
+        b = Node.from_polar(80.4494, 112.5)
+        self.geom.add_arc(CircleArc(a,
+                                    Node(0,0),
+                                    b))
+        self.add_line(-30.691, 74.095, -30.7867, 74.3256)
+        self.add_line( 30.691, 74.095, 30.7867, 74.3256)
+
         self.snapshot.add_geometry(self.geom)
+        for i in range(len(self.geom.circle_arcs)):
+            self.geom.circle_arcs[i].max_seg_deg = 1
 
         self.assign_material(10, self.R6, "magnet_right")
         self.assign_material(-10, self.R6, "magnet_left")
@@ -215,6 +225,7 @@ class PriusMotor(BaseModel):
         self.assign_material(0, 79, "steel_rotor")
         self.assign_material(0, 80.28, "air")
         self.assign_material(0, 120, "steel_stator")
+
 
         labels = ["V-", "V-","U+", "U+", "W-", "W-"]
         label = Node.from_polar(100.0, 71.0)
