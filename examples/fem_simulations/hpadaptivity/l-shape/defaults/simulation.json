@@ -1,0 +1,8 @@
+{
+  "default": {
+      "solver": "femm",
+      "nb_segments": 200,
+      "meshsize": 1.0,
+      "adaptivity_tol":1
+  }
+}

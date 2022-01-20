@@ -5,6 +5,7 @@ from glob import glob
 from math import asin, pi
 from pathlib import Path
 
+from digital_twin_distiller import ModelDir
 from digital_twin_distiller.boundaries import (
     AntiPeriodicAirGap,
     AntiPeriodicBoundaryCondition,
@@ -20,6 +21,9 @@ from digital_twin_distiller.femm_wrapper import (
     ElectrostaticSurfaceCharge,
     FemmExecutor,
     FemmWriter,
+    HeatFlowFixedTemperature,
+    HeatFlowHeatFlux,
+    HeatFlowMaterial,
     MagneticAnti,
     MagneticAntiPeriodicAirgap,
     MagneticDirichlet,
@@ -76,7 +80,19 @@ class Femm(Platform):
             self.write(cmd_i)
 
         type_ = "axi" if self.metadata.coordinate_type == "axisymmetric" else "planar"
-        prefix = {"magnetic": "mi", "electrostatic": "mi"}
+        prefix = {"magnetic": "mi", "electrostatic": "ei", "heat": "hi"}
+
+        if self.metadata.problem_type == "electrostatic":
+            self.write(
+                self.writer.electrostatic_problem(
+                    units=self.metadata.unit,
+                    type=type_,
+                    precision=self.metadata.precision,
+                    depth=self.metadata.depth,
+                    minangle=self.metadata.minangle,
+                )
+            )
+
         if self.metadata.problem_type == "magnetic":
             self.write(
                 self.writer.magnetic_problem(
@@ -87,6 +103,19 @@ class Femm(Platform):
                     depth=self.metadata.depth,
                     minangle=self.metadata.minangle,
                     acsolver=self.metadata.acsolver,
+                )
+            )
+
+        if self.metadata.problem_type == "heat":
+            self.write(
+                self.writer.heat_problem(
+                    units=self.metadata.unit,
+                    type=type_,
+                    precision=self.metadata.precision,
+                    depth=self.metadata.depth,
+                    minangle=self.metadata.minangle,
+                    prevsoln=None,
+                    timestep=1e-3,
                 )
             )
 
@@ -123,6 +152,16 @@ class Femm(Platform):
             femm_material = ElectrostaticMaterial(material_name=mat.name, ex=mat.epsioln_r, ey=mat.epsioln_r, qv=mat.qv)
             self.write(self.writer.add_material(femm_material))
 
+        if self.metadata.problem_type == "heat":
+            femm_material = HeatFlowMaterial(
+                material_name=mat.name,
+                kx=mat.kx,
+                ky=mat.ky,
+                qv=mat.qv,
+                kt=mat.kt,
+            )
+            self.write(self.writer.add_material(femm_material))
+
     def export_block_label(self, x, y, mat: Material):
         x = float(x)
         y = float(y)
@@ -152,6 +191,9 @@ class Femm(Platform):
             if self.metadata.problem_type == "electrostatic":
                 femm_boundary = ElectrostaticFixedVoltage(name=b.name, Vs=b.valuedict["fixed_voltage"])
 
+            if self.metadata.problem_type == "heat":
+                femm_boundary = HeatFlowFixedTemperature(name=b.name, Tset=b.valuedict["temperature"])
+
         if isinstance(b, NeumannBoundaryCondition):
             if self.metadata.problem_type == "magnetic":
                 femm_boundary = MagneticMixed(
@@ -159,6 +201,9 @@ class Femm(Platform):
                     c0=0,
                     c1=0,
                 )
+
+            if self.metadata.problem_type == "heat":
+                femm_boundary = HeatFlowHeatFlux(name=b.name, qs=b.valuedict["heat_flux"])
 
             if self.metadata.problem_type == "electrostatic":
                 femm_boundary = ElectrostaticSurfaceCharge(name=b.name, qs=b.valuedict["surface_charge_density"])
@@ -256,23 +301,38 @@ class Femm(Platform):
             "Hy": "H2",
             "Hr": "H1",
             "Hz": "H2",
+            "T": "V",
+            "V": "V",
+            "Ex": "Ex",
+            "Ey": "Ey"
         }
+        field = self.metadata.problem_type
         fieldmapping = {
             "electrostatic": "eo",
             "magnetic": "mo",
             "heat": "ho",
             "current": "co",
         }
-        prefix = fieldmapping[self.metadata.problem_type]
+        prefix = fieldmapping[field]
         if action == "point_value":
             x = entity[0]
             y = entity[1]
-            self.write(
-                "A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph = ",
-                nb_newline=0,
-            )
-            self.write(self.writer.get_point_values(x, y))
-            self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+
+            if field == "electrostatic":
+                self.write(f"V, Dx, Dy, Ex, Ey, ex, ey, nrg = eo_getpointvalues({x}, {y})")
+                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+
+            if field == "magnetic":
+                self.write(
+                    "A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph = ",
+                    nb_newline=0,
+                )
+                self.write(self.writer.get_point_values(x, y))
+                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+
+            if field == "heat":
+                self.write(f"V, Fx, Fy, Gx, Gy, kx, ky = ho_getpointvalues({x}, {y})")
+                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
         if action == "mesh_info":
 
@@ -316,7 +376,7 @@ class Femm(Platform):
             self.write(f"{prefix}_showcontourplot(-1)")
             self.write(f"{prefix}_resize(600, 600)")
             self.write(f"{prefix}_refreshview()")
-            path = str(Path(str(entity) + ".bmp").resolve().as_posix())
+            path = str((ModelDir.MEDIA / f"{entity}.bmp").resolve().as_posix())
             self.write(f'{prefix}_save_bitmap("{path}");')
 
     def export_closing_steps(self):
