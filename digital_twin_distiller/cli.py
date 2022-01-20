@@ -1,5 +1,4 @@
 import argparse
-import sys
 from importlib import metadata
 from importlib.metadata import PackageNotFoundError
 from sys import version_info
@@ -46,7 +45,6 @@ def optimize_cli(argv=None):
     args = parser.parse_args(argv)
 
     if args.command == COMMAND_NEW:
-        print("new called")
         new(args.name, args.location)
 
 
@@ -57,24 +55,13 @@ def _register_subparser_new(subparser):
 
 
 def _get_version_text():
-    try:
-        __version__ = metadata.version(NAME_OF_THE_PROGRAM)
-    except PackageNotFoundError:
-        __version__ = "unknown"
+    __version__ = _get_metadata("Version")
     return "\n".join(
         [
             f"{NAME_OF_THE_PROGRAM} {__version__} \n"
             f"Python {version_info.major}.{version_info.minor}.{version_info.micro}"
         ]
     )
-
-
-def _get_metadata(param: str):
-    try:
-        __mt__ = metadata.metadata(NAME_OF_THE_PROGRAM).get(param)
-    except PackageNotFoundError:
-        __mt__ = "unknown"
-    return __mt__
 
 
 def _get_all_metadata():
@@ -91,3 +78,13 @@ def _get_all_metadata():
             f"Authors: {__author__} <{__author_email__}>\n ",
         ]
     )
+
+
+def _get_metadata(param: str):
+    try:
+        __mt__ = metadata.metadata(NAME_OF_THE_PROGRAM).get(param)
+    except PackageNotFoundError:
+        print(f"[tool.poetry] name attribute ({NAME_OF_THE_PROGRAM}) not found in pyproject.toml. It may be changed.")
+        __mt__ = "unknown"
+        exit(1)
+    return __mt__
