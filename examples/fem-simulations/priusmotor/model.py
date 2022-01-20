@@ -10,7 +10,7 @@ from digital_twin_distiller.metadata import FemmMetadata
 from digital_twin_distiller.model import BaseModel
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.modelpiece import ModelPiece
-from digital_twin_distiller.objects import CircleArc, Node
+from digital_twin_distiller.objects import Node
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
 
@@ -39,7 +39,7 @@ class PriusMotor(BaseModel):
         self.rotorangle = kwargs.get('rotorangle', 0.0)  # The angle of the sliding band [°]
 
         # Excitation setup
-        I0 = kwargs.get("I0", 250.0)  # Stator current of one phase [A]
+        I0 = kwargs.get("I0", 0.0)  # Stator current of one phase [A]
         alpha = kwargs.get("alpha", 0.0)  # Offset of the current [°]
         ina = kwargs.get("ina", 90.0)  # Initial alpha to get T=0Nm position [°]
 
@@ -101,7 +101,7 @@ class PriusMotor(BaseModel):
         # Airgap material
         airgap = copy(air)
         airgap.name = 'airgap'
-        airgap.meshsize = 0.3
+        airgap.meshsize = 0.1
 
         # Coils
         # PHASE U
@@ -134,12 +134,12 @@ class PriusMotor(BaseModel):
         # Stator steel
         steel_stator = copy(steel)
         steel_stator.name = 'steel_stator'
-        steel_stator.meshsize = 1.2
+        steel_stator.meshsize = 1
 
         # Rotor steel
         steel_rotor = copy(steel)
         steel_rotor.name = 'steel_rotor'
-        steel_rotor.meshsize = 0.4
+        steel_rotor.meshsize = 0.3
 
         # Magnet right
         magnet_right = copy(magnet)
@@ -196,26 +196,14 @@ class PriusMotor(BaseModel):
     def build_geometry(self):
         # ...
         rotor = ModelPiece('rotor')
-        rotor.load_piece_from_dxf(ModelDir.RESOURCES / "prius_test.dxf")
-        rotor.rotate(alpha=67.5)
-        rotor.scale(1000, 1000)
+        rotor.load_piece_from_dxf(ModelDir.RESOURCES / "prius_rotor_simple.dxf")
         self.geom.merge_geometry(rotor.geom)
 
         stator = ModelPiece('stator')
-        stator.load_piece_from_dxf(ModelDir.RESOURCES / "Prius2004_Stator_SB.dxf")
+        stator.load_piece_from_dxf(ModelDir.RESOURCES / "prius_shell_pyleecan.dxf")
         self.geom.merge_geometry(stator.geom)
 
-        a = Node.from_polar(80.4494, 67.5)
-        b = Node.from_polar(80.4494, 112.5)
-        self.geom.add_arc(CircleArc(a,
-                                    Node(0,0),
-                                    b))
-        self.add_line(-30.691, 74.095, -30.7867, 74.3256)
-        self.add_line( 30.691, 74.095, 30.7867, 74.3256)
-
         self.snapshot.add_geometry(self.geom)
-        for i in range(len(self.geom.circle_arcs)):
-            self.geom.circle_arcs[i].max_seg_deg = 1
 
         self.assign_material(10, self.R6, "magnet_right")
         self.assign_material(-10, self.R6, "magnet_left")
@@ -227,7 +215,6 @@ class PriusMotor(BaseModel):
         self.assign_material(0, 79, "steel_rotor")
         self.assign_material(0, 80.28, "air")
         self.assign_material(0, 120, "steel_stator")
-
 
         labels = ["V-", "V-","U+", "U+", "W-", "W-"]
         label = Node.from_polar(100.0, 71.0)
