@@ -8,10 +8,12 @@ from digital_twin_distiller.snapshot import Snapshot
 
 ModelDir.set_base(__file__)
 
-class ${name}(BaseModel):
-    """docstring for ${name}"""
+
+class SimulationModel(BaseModel):
+    """this SimulationModel created when calling 'new'"""
+
     def __init__(self, **kwargs):
-        super(${name}, self).__init__(**kwargs)
+        super(SimulationModel, self).__init__(**kwargs)
         self._init_directories()
 
     def setup_solver(self):
@@ -48,5 +50,5 @@ class ${name}(BaseModel):
 
 
 if __name__ == "__main__":
-    m = ${name}(exportname="dev")
+    m = SimulationModel(exportname="dev")
     print(m(cleanup=False))
