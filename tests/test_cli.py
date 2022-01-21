@@ -36,18 +36,19 @@ class TestCli(unittest.TestCase):
         self.assertTrue(MODEL_DIR.exists())
         purge_dir(MODEL_DIR, force=True)
 
-    def test_invalid_param_list_when_new_called(self):
+    def test_invalid_when_called_new(self):
         stderr = io.StringIO()
         sys.stderr = stderr
+        self.tst_invalid_param_list_when_new_called(stderr)
+        self.tst_when_required_param_is_unknown(stderr)
+
+    def tst_invalid_param_list_when_new_called(self, stderr):
         with self.assertRaises(SystemExit):
             optimize_cli(["new"])
         self.assertRegexpMatches(stderr.getvalue(), r"the following arguments are required")
 
-    @unittest.skip("output not working after 'test_invalid_param_list_when_new_called' has been called")
-    def test_when_required_param_is_unknown(self):
+    def tst_when_required_param_is_unknown(self, stderr):
         """ Try to perform when param isn't an option. """
-        stderr = io.StringIO()
-        sys.stderr = stderr
         with self.assertRaises(SystemExit):
             optimize_cli(["unknown"])
         self.assertRegexpMatches(stderr.getvalue(), r"invalid choice")
