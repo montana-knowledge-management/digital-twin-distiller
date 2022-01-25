@@ -260,15 +260,13 @@ class Geometry:
         # reads the main objects from an svg file
         paths = svg.svg2paths(str(svg_img))
 
-        # reads the attributes to the main obejcts
-        #_, attributes, _ = svg.svg2paths2(str(svg_img))
         # the last record of the path string contains the list of attributes dicts
         attributes = paths[-1]
         # id start from the given number
         id = 0
 
-        for nr, path in enumerate(paths):
-            for seg in path:
+        for path in paths:
+            for nr, seg in enumerate(path):
                 if isinstance(seg, svg.Path):
                     for element in seg:
                         if isinstance(element, svg.Line):
@@ -291,7 +289,8 @@ class Geometry:
                             control1 = obj.Node(c1.real, c1.imag, id + 1)
                             control2 = obj.Node(c2.real, c2.imag, id + 2)
                             end = obj.Node(s2.real, s2.imag, id + 3)
-                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4))
+                            xcolor = self.get_color_value_from_svg(attributes[nr])
+                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4, color=xcolor))
                             id += 5
 
                         if isinstance(element, svg.Arc):
@@ -302,7 +301,7 @@ class Geometry:
                             start = obj.Node(p1.real, p1.imag)
                             center = obj.Node(p2.real, p2.imag)
                             end = obj.Node(p3.real, p3.imag)
-                            self.add_arc(obj.CircleArc(start, center, end))
+                            self.add_arc(obj.CircleArc(start, center, end, color=xcolor))
 
     def get_line_intersetions(self, line_1, line_2):
         """

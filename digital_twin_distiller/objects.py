@@ -329,13 +329,14 @@ class Line:
 class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, center_pt, end_pt, id=None, label=None, max_seg_deg=20):
+    def __init__(self, start_pt, center_pt, end_pt, id=None, label=None, max_seg_deg=20, color=None):
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt
         self.id = id or getID()
         self.label = label
         self.max_seg_deg = max_seg_deg
+        self.color = color
 
         self.radius = self.start_pt.distance_to(self.center_pt)
         clamp = self.start_pt.distance_to(self.end_pt) / 2.0
@@ -401,30 +402,33 @@ class CircleArc:
             copy(self.center_pt),
             copy(self.end_pt),
             max_seg_deg=self.max_seg_deg,
+            color=self.color
         )
 
     def __repr__(self):
-        return "{}({!r}, {!r}, {!r}, id={!r},label={!r})".format(
+        return "{}({!r}, {!r}, {!r}, id={!r},label={!r}, color={!r})".format(
             self.__class__.__name__,
             self.start_pt,
             self.center_pt,
             self.end_pt,
             self.id,
             self.label,
+            self.color
         )
 
 
 class CubicBezier:
-    def __init__(self, start_pt, control1, control2, end_pt, id=None, label=None):
+    def __init__(self, start_pt, control1, control2, end_pt, id=None, label=None, color=None):
         self.start_pt = start_pt
         self.control1 = control1
         self.control2 = control2
         self.end_pt = end_pt
         self.id = id or getID()
         self.label = label
+        self.color = color
 
     def __repr__(self):
-        return "{}({!r}, {!r}, {!r}, {!r}, id={!r},label={!r})".format(
+        return "{}({!r}, {!r}, {!r}, {!r}, id={!r},label={!r}, color={!r})".format(
             self.__class__.__name__,
             self.start_pt,
             self.control1,
@@ -432,6 +436,7 @@ class CubicBezier:
             self.end_pt,
             self.id,
             self.label,
+            self.color
         )
 
 
