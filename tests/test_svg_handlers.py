@@ -31,4 +31,5 @@ class TestSvgImport(TestCase):
         geo = Geometry()
         geo.import_svg(eml.as_posix())
 
-        print(geo.lines)
+        # the line should be red
+        self.assertEqual(geo.lines[0].color, '#ff0000')

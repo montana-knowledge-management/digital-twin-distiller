@@ -261,8 +261,9 @@ class Geometry:
         paths = svg.svg2paths(str(svg_img))
 
         # reads the attributes to the main obejcts
-        _, attributes, _ = svg.svg2paths2(str(svg_img))
-
+        #_, attributes, _ = svg.svg2paths2(str(svg_img))
+        # the last record of the path string contains the list of attributes dicts
+        attributes = paths[-1]
         # id start from the given number
         id = 0
 
@@ -276,7 +277,8 @@ class Geometry:
                             start = obj.Node(p1.real, p1.imag)
                             end = obj.Node(p2.real, p2.imag)
 
-                            self.add_line(obj.Line(start, end, attributes=attributes[nr]))
+                            xcolor = self.get_color_value_from_svg(attributes[nr])
+                            self.add_line(obj.Line(start, end, color= xcolor))
                             id += 3
 
                         if isinstance(element, svg.CubicBezier):

@@ -220,7 +220,7 @@ class Node:
 class Line:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, end_pt, id=None, label=None, attributes=None):
+    def __init__(self, start_pt, end_pt, id=None, label=None, color=None):
         # sorting the incoming points by coordinate
         # sorted_points = sorted((start_pt, end_pt), key=lambda pi: pi.x)  # sorting by x coordinate
         # sorted_points = sorted(sorted_points, key=lambda pi: pi.y)  # sorting by y coordinate
@@ -230,10 +230,10 @@ class Line:
         self.end_pt = end_pt
         self.id = id or getID()
         self.label = label
-        self.color = attributes  # the color of the given edge can be used to render the appropriate boundary conditions to the given edges
+        self.color = color  # the color of the given edge can be used to render the appropriate boundary conditions to the given edges
 
     def __copy__(self):
-        return Line(copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label, attributes=self.color)
+        return Line(copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label, color=self.color)
 
     def distance_to_point(self, px, py):
         """
@@ -322,7 +322,7 @@ class Line:
         return self.start_pt + (self.end_pt - self.start_pt) * t
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
+        return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r}, color={self.color})"
         # return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt}, id={hex(self.id)[-5:]})"
 
 
