@@ -6,6 +6,7 @@ A general geometrical shape can defined by the following objects:
 """
 import os
 import sys
+import re
 from copy import copy, deepcopy
 
 import ezdxf
@@ -111,7 +112,6 @@ class Geometry:
         idx = self.lines.index(closest_line)
         self.lines.pop(idx)
 
-
     def find_node(self, id: int):
         """Finds and gives back a node with the given id"""
         return next((x for x in self.nodes if x.id == id), None)
@@ -135,7 +135,6 @@ class Geometry:
             msg += str(cubicbezier) + "\n"
 
         return msg
-
 
     def import_dxf(self, dxf_file):
         try:
@@ -261,10 +260,13 @@ class Geometry:
         # reads the main objects from an svg file
         paths = svg.svg2paths(str(svg_img))
 
+        # reads the attributes to the main obejcts
+        _, attributes, _ = svg.svg2paths2(str(svg_img))
+
         # id start from the given number
         id = 0
 
-        for path in paths:
+        for nr, path in enumerate(paths):
             for seg in path:
                 if isinstance(seg, svg.Path):
                     for element in seg:
@@ -273,7 +275,8 @@ class Geometry:
                             p2 = element.end.conjugate()
                             start = obj.Node(p1.real, p1.imag)
                             end = obj.Node(p2.real, p2.imag)
-                            self.add_line(obj.Line(start, end))
+
+                            self.add_line(obj.Line(start, end, attributes=attributes[nr]))
                             id += 3
 
                         if isinstance(element, svg.CubicBezier):
@@ -417,6 +420,19 @@ class Geometry:
                 self.add_line(li)
 
         self.merge_lines()
+
+    @staticmethod
+    def get_color_value_from_svg(attributes: dict):
+        """Reads the color code from the svg file"""
+        stroke_pattern = re.compile(r'stroke:(#[a-f0-9]{6});', re.IGNORECASE)
+        style = attributes.get('style')
+
+        color = '#ffffff'
+        if style:
+            if stroke_pattern.search(style):
+                color = stroke_pattern.search(style).group(1)
+
+        return color
 
     def merge_geometry(self, other):
 

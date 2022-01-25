@@ -22,14 +22,14 @@ class Node:
         self.hanging = True  # if its contained by another object it will be set to False
 
     @classmethod
-    def from_polar(cls, r:float, phi:float):
+    def from_polar(cls, r: float, phi: float):
         """
         Create a Node from its polar coordinates.
 
         :param float r: the length of the vector
         :param float phi: the angle of the vector in degrees
         """
-        return cls(r*math.cos(math.radians(phi)), r*math.sin(math.radians(phi))) 
+        return cls(r * math.cos(math.radians(phi)), r * math.sin(math.radians(phi)))
 
     def __getitem__(self, item):
         if item == 0:
@@ -220,7 +220,7 @@ class Node:
 class Line:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, end_pt, id=None, label=None):
+    def __init__(self, start_pt, end_pt, id=None, label=None, attributes=None):
         # sorting the incoming points by coordinate
         # sorted_points = sorted((start_pt, end_pt), key=lambda pi: pi.x)  # sorting by x coordinate
         # sorted_points = sorted(sorted_points, key=lambda pi: pi.y)  # sorting by y coordinate
@@ -230,9 +230,10 @@ class Line:
         self.end_pt = end_pt
         self.id = id or getID()
         self.label = label
+        self.color = attributes  # the color of the given edge can be used to render the appropriate boundary conditions to the given edges
 
     def __copy__(self):
-        return Line(copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label)
+        return Line(copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label, attributes=self.color)
 
     def distance_to_point(self, px, py):
         """
@@ -502,17 +503,17 @@ class ParametricBezier:
     def __call__(self, t: float):
         assert (0 <= t) and (t <= 1), f"t [0, 1] not {t}"
         X = (
-            (1 - t) ** 3 * self.p0[0]
-            + 3 * (1 - t) ** 2 * t * self.p1[0]
-            + 3 * (1 - t) * t ** 2 * self.p2[0]
-            + t ** 3 * self.p3[0]
+                (1 - t) ** 3 * self.p0[0]
+                + 3 * (1 - t) ** 2 * t * self.p1[0]
+                + 3 * (1 - t) * t ** 2 * self.p2[0]
+                + t ** 3 * self.p3[0]
         )
 
         Y = (
-            (1 - t) ** 3 * self.p0[1]
-            + 3 * (1 - t) ** 2 * t * self.p1[1]
-            + 3 * (1 - t) * t ** 2 * self.p2[1]
-            + t ** 3 * self.p3[1]
+                (1 - t) ** 3 * self.p0[1]
+                + 3 * (1 - t) ** 2 * t * self.p1[1]
+                + 3 * (1 - t) * t ** 2 * self.p2[1]
+                + t ** 3 * self.p3[1]
         )
 
         return X, Y
