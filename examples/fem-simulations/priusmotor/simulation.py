@@ -9,7 +9,7 @@ from digital_twin_distiller.simulationproject import sim
 from model import PriusMotor
 
 def execute_model(model: PriusMotor):
-    return model(timeout=2000, cleanup=True).get("Torque", 0.0) * 8
+    return model(timeout=2000, cleanup=True).get("Torque", 0.0) * -8
 
 @sim.register('default')
 def default_simulation(model, modelparams, simparams, miscparams):

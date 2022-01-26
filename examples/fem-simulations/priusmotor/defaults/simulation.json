@@ -10,9 +10,9 @@
       "nsteps":16
   },
   "locked_rotor": {
-      "I0": 50,
+      "I0": 75,
       "alpha0": 0,
-      "alpha1": 180,
-      "nsteps": 21
+      "alpha1": 176,
+      "nsteps": 23
   }
 }
