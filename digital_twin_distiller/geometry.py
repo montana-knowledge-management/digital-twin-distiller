@@ -6,6 +6,7 @@ A general geometrical shape can defined by the following objects:
 """
 import os
 import sys
+import re
 from copy import copy, deepcopy
 
 import ezdxf
@@ -111,7 +112,6 @@ class Geometry:
         idx = self.lines.index(closest_line)
         self.lines.pop(idx)
 
-
     def find_node(self, id: int):
         """Finds and gives back a node with the given id"""
         return next((x for x in self.nodes if x.id == id), None)
@@ -135,7 +135,6 @@ class Geometry:
             msg += str(cubicbezier) + "\n"
 
         return msg
-
 
     def import_dxf(self, dxf_file):
         try:
@@ -261,11 +260,13 @@ class Geometry:
         # reads the main objects from an svg file
         paths = svg.svg2paths(str(svg_img))
 
+        # the last record of the path string contains the list of attributes dicts
+        attributes = paths[-1]
         # id start from the given number
         id = 0
 
         for path in paths:
-            for seg in path:
+            for nr, seg in enumerate(path):
                 if isinstance(seg, svg.Path):
                     for element in seg:
                         if isinstance(element, svg.Line):
@@ -273,7 +274,9 @@ class Geometry:
                             p2 = element.end.conjugate()
                             start = obj.Node(p1.real, p1.imag)
                             end = obj.Node(p2.real, p2.imag)
-                            self.add_line(obj.Line(start, end))
+
+                            xcolor = self.get_color_value_from_svg(attributes[nr])
+                            self.add_line(obj.Line(start, end, color= xcolor))
                             id += 3
 
                         if isinstance(element, svg.CubicBezier):
@@ -286,7 +289,8 @@ class Geometry:
                             control1 = obj.Node(c1.real, c1.imag, id + 1)
                             control2 = obj.Node(c2.real, c2.imag, id + 2)
                             end = obj.Node(s2.real, s2.imag, id + 3)
-                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4))
+                            xcolor = self.get_color_value_from_svg(attributes[nr])
+                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4, color=xcolor))
                             id += 5
 
                         if isinstance(element, svg.Arc):
@@ -297,7 +301,7 @@ class Geometry:
                             start = obj.Node(p1.real, p1.imag)
                             center = obj.Node(p2.real, p2.imag)
                             end = obj.Node(p3.real, p3.imag)
-                            self.add_arc(obj.CircleArc(start, center, end))
+                            self.add_arc(obj.CircleArc(start, center, end, color=xcolor))
 
     def get_line_intersetions(self, line_1, line_2):
         """
@@ -417,6 +421,19 @@ class Geometry:
                 self.add_line(li)
 
         self.merge_lines()
+
+    @staticmethod
+    def get_color_value_from_svg(attributes: dict):
+        """Reads the color code from the svg file"""
+        stroke_pattern = re.compile(r'stroke:(#[a-f0-9]{6});', re.IGNORECASE)
+        style = attributes.get('style')
+
+        color = '#ffffff'
+        if style:
+            if stroke_pattern.search(style):
+                color = stroke_pattern.search(style).group(1)
+
+        return color
 
     def merge_geometry(self, other):
 
