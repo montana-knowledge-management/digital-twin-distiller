@@ -15,5 +15,5 @@ class TestColor(TestCase):
 
     def test_no_color(self):
         color = Geometry.get_color_value_from_svg({})
-        self.assertEqual(color, '#ffffff')
+        self.assertEqual(color, '#000000')
 
