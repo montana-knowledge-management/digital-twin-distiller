@@ -426,7 +426,7 @@ class Geometry:
     @staticmethod
     def get_color_value_from_svg(attributes: dict):
         """Reads the color code from the svg file"""
-        stroke_pattern = re.compile(r'stroke:(#[a-f0-9]{6});', re.IGNORECASE)
+        stroke_pattern = re.compile(r'stroke:(#[a-f0-9]{6})', re.IGNORECASE)
         style = attributes.get('style')
 
         color = '#000000'
