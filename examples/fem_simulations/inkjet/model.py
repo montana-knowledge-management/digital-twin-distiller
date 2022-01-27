@@ -13,7 +13,7 @@ ModelDir.set_base(__file__)
 
 
 class NodeModel:
-    def __init__(self, u1, u2, u3, l1, l2, l3):
+    def __init__(self, u1: Node, u2: Node, u3: Node, l1: Node, l2: Node, l3: Node):
         self.u1 = u1
         self.u2 = u2
         self.u3 = u3
@@ -24,11 +24,33 @@ class NodeModel:
 
 
 class ParamModel:
-    def __init__(self, H, L, lambda1, lambda2):
+    node: NodeModel = None
+
+    def __init__(self, H: float, L: float, lambda1: float, lambda2: float):
         self.H = H
         self.L = L
         self.lambda1 = lambda1
         self.lambda2 = lambda2
+        self.init_nodes()
+
+    def init_nodes(self):
+        return self.generate_nodes_with_specific_values(H=self.H, L=self.L,
+                                                        lambda1=self.lambda1,
+                                                        lambda2=self.lambda2)
+
+    def generate_nodes_with_specific_values(self, H: float, L: float, lambda1: float, lambda2: float):
+        """
+        lambda1 and lambda2 are equal, it should be enough to use only one lambda's value
+        """
+        l1 = Node(0, 0)
+        l2 = Node(2 * H, 0)
+        l3 = Node(2 * H, 2 * L + lambda1)
+
+        u1 = Node(0, lambda2)
+        u2 = Node(0, lambda2 + 2 * L + lambda1)
+        u3 = Node(2 * H, lambda2 + 2 * L + lambda1)
+
+        self.node = NodeModel(u1=u1, u2=u2, u3=u3, l1=l1, l2=l2, l3=l3)
 
 
 def create_model(H: float, L: float, lambda1: float, lambda2: float):
@@ -58,16 +80,16 @@ class SimulationModel(BaseModel):
         upper = 2500
         ground = 0
 
-    initial_ratio_model: ParamModel = None
-    ratio_model: NodeModel = None
+    model: ParamModel = None
+    ratio: float = None
 
     def __init__(self, model_params=None, **kwargs):
         super(SimulationModel, self).__init__(**kwargs)
         if model_params is None:
-            self.initial_ratio_model = large_model()
+            self.model = large_model()
         else:
-            self.initial_ratio_model = model_params
-        self.generate_nodes_with_predefined_values()  # init ratio_model
+            self.model = model_params
+        self.calculate_ratio()
         self._init_directories()
 
     def setup_solver(self):  # TODO: example with FEM solver
@@ -108,37 +130,16 @@ class SimulationModel(BaseModel):
         self.snapshot.add_postprocessing("integration", points, "Energy")
 
     def build_geometry(self):
-        # created_model = self.generate_nodes_with_specific_values(H=0.07112, L=0.10668, lambda1=0.2032, lambda2=0.2032)
-        # model = self.generate_nodes_with_predefined_values()
 
-        self.build_lines_and_boundaries(self.ratio_model.u1,
-                                        self.ratio_model.u2,
-                                        self.ratio_model.u3,
-                                        self.ratio_model.l1,
-                                        self.ratio_model.l2,
-                                        self.ratio_model.l3)
+        self.build_lines_and_boundaries(self.model.node.u1,
+                                        self.model.node.u2,
+                                        self.model.node.u3,
+                                        self.model.node.l1,
+                                        self.model.node.l2,
+                                        self.model.node.l3)
 
         self.snapshot.add_geometry(self.geom)
         self.assign_material(0.1, 0.1, "air")
-
-    def generate_nodes_with_specific_values(self, H: float, L: float, lambda1: float, lambda2: float):
-        """
-        lambda1 and lambda2 are equal, it should be enough to use only one lambda's value
-        """
-        l1 = Node(0, 0)
-        l2 = Node(2 * H, 0)
-        l3 = Node(2 * H, 2 * L + lambda1)
-
-        u1 = Node(0, lambda2)
-        u2 = Node(0, lambda2 + 2 * L + lambda1)
-        u3 = Node(2 * H, lambda2 + 2 * L + lambda1)
-
-        self.ratio_model = NodeModel(u1=u1, u2=u2, u3=u3, l1=l1, l2=l2, l3=l3)
-
-    def generate_nodes_with_predefined_values(self):
-        return self.generate_nodes_with_specific_values(H=self.initial_ratio_model.H, L=self.initial_ratio_model.L,
-                                                        lambda1=self.initial_ratio_model.lambda1,
-                                                        lambda2=self.initial_ratio_model.lambda2)
 
     def add_geom_lines(self, lines):
         for line in lines:
@@ -167,9 +168,21 @@ class SimulationModel(BaseModel):
         self.snapshot.boundaries.get(upper).assigned.add(line_u1.id)
         self.snapshot.boundaries.get(upper).assigned.add(line_u2.id)
 
+    # TODO: validate inner params
+    def calculate_ratio(self):
+        if self.model.H != 0:
+            self.ratio = self.model.L / self.model.H
+            print("Ratio(L/H): ", self.ratio)
+        else:
+            print("H cannot be 0")
+            exit(1)
 
+
+# TODO: create tests
 if __name__ == "__main__":
-    model = create_model(H=0.37112, L=0.3556, lambda1=0.2032, lambda2=0.2032)
+    model = create_model(H=0.07112, L=0.3556, lambda1=0.2032, lambda2=0.2032)
+    # model = small_model()
+    # model = large_model()  # default if model param is not given
 
     m = SimulationModel(model, exportname="dev")
     print(m(cleanup=False, devmode=True))
