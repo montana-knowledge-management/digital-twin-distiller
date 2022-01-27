@@ -276,7 +276,7 @@ class Geometry:
                             end = obj.Node(p2.real, p2.imag)
 
                             xcolor = self.get_color_value_from_svg(attributes[nr])
-                            self.add_line(obj.Line(start, end, color= xcolor))
+                            self.add_line(obj.Line(start, end, color=xcolor))
                             id += 3
 
                         if isinstance(element, svg.CubicBezier):
@@ -429,7 +429,7 @@ class Geometry:
         stroke_pattern = re.compile(r'stroke:(#[a-f0-9]{6});', re.IGNORECASE)
         style = attributes.get('style')
 
-        color = '#ffffff'
+        color = '#000000'
         if style:
             if stroke_pattern.search(style):
                 color = stroke_pattern.search(style).group(1)
