@@ -1,8 +1,9 @@
 from enum import Enum
 
+from digital_twin_distiller import Agros2D, Platform
 from digital_twin_distiller.boundaries import DirichletBoundaryCondition
 from digital_twin_distiller.material import Material
-from digital_twin_distiller.metadata import FemmMetadata
+from digital_twin_distiller.metadata import FemmMetadata, Agros2DMetadata
 from digital_twin_distiller.model import BaseModel
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.objects import Line, Node
@@ -73,6 +74,11 @@ def small_model():
     return create_model(H=H, L=L, lambda1=lambda1, lambda2=lambda2)
 
 
+class PlatformVariable:
+    AGROS2D = "agros2d"
+    FEMM = "femm"
+
+
 class SimulationModel(BaseModel):
     """this SimulationModel created when calling 'new'"""
 
@@ -81,19 +87,28 @@ class SimulationModel(BaseModel):
         ground = 0
 
     model: ParamModel = None
+    # solver: Platform = None
     ratio: float = None
 
-    def __init__(self, model_params=None, **kwargs):
+    def __init__(self, model_params=None, solver=None, **kwargs):
         super(SimulationModel, self).__init__(**kwargs)
+
         if model_params is None:
             self.model = large_model()
         else:
             self.model = model_params
+        if solver == PlatformVariable.AGROS2D:
+            self.platform = Agros2D(self.define_agros2d_metadata())
+        elif solver == PlatformVariable.FEMM or solver is None:
+            self.platform = Femm(self.define_femm_metadat())
         self.calculate_ratio()
+        print("Ratio(L/H): ", self.ratio)
         self._init_directories()
 
-    def setup_solver(self):  # TODO: example with FEM solver
-        self.platform = Femm(self.define_femm_metadat())
+    def setup_solver(self):
+        # platform_agros = Agros2D(self.define_agros2d_metadata())
+        # platform_femm = Femm(self.define_femm_metadat())
+        # self.platform = self.solver
         self.snapshot = Snapshot(self.platform)
 
     def define_femm_metadat(self):
@@ -108,8 +123,18 @@ class SimulationModel(BaseModel):
         return femm_metadata
 
     def define_agros2d_metadata(self):
-        # TODO: create
-        ...
+        agros_metadata = Agros2DMetadata()
+        agros_metadata.file_script_name = self.file_solver_script
+        agros_metadata.file_metrics_name = self.file_solution
+        agros_metadata.problem_type = "electrostatic"
+        agros_metadata.coordinate_type = "planar"
+        agros_metadata.analysis_type = "steadystate"
+        agros_metadata.unit = 1e-3
+        agros_metadata.nb_refinements = 2  # 4
+        agros_metadata.adaptivity = "hp-adaptivity"
+        agros_metadata.polyorder = 5
+        agros_metadata.adaptivity_tol = 1
+        return agros_metadata
 
     def define_materials(self):
         air = Material('air')
@@ -168,11 +193,9 @@ class SimulationModel(BaseModel):
         self.snapshot.boundaries.get(upper).assigned.add(line_u1.id)
         self.snapshot.boundaries.get(upper).assigned.add(line_u2.id)
 
-    # TODO: validate inner params
     def calculate_ratio(self):
         if self.model.H != 0:
             self.ratio = self.model.L / self.model.H
-            print("Ratio(L/H): ", self.ratio)
         else:
             print("H cannot be 0")
             exit(1)
@@ -180,9 +203,10 @@ class SimulationModel(BaseModel):
 
 # TODO: create tests
 if __name__ == "__main__":
-    model = create_model(H=0.07112, L=0.3556, lambda1=0.2032, lambda2=0.2032)
-    # model = small_model()
+    platform = PlatformVariable.AGROS2D
+    # model = create_model(H=0.07112, L=0, lambda1=0.2032, lambda2=0.2032)
+    model = small_model()
     # model = large_model()  # default if model param is not given
 
-    m = SimulationModel(model, exportname="dev")
-    print(m(cleanup=False, devmode=True))
+    m = SimulationModel(model, platform, exportname="dev")
+    print(m(cleanup=False, devmode=False))
