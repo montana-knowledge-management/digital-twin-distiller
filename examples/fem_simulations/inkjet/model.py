@@ -12,7 +12,7 @@ from digital_twin_distiller.snapshot import Snapshot
 ModelDir.set_base(__file__)
 
 
-class RatioModel:
+class NodeModel:
     def __init__(self, u1, u2, u3, l1, l2, l3):
         self.u1 = u1
         self.u2 = u2
@@ -23,7 +23,7 @@ class RatioModel:
         self.l3 = l3
 
 
-class InitialRatioModel:
+class ParamModel:
     def __init__(self, H, L, lambda1, lambda2):
         self.H = H
         self.L = L
@@ -31,56 +31,43 @@ class InitialRatioModel:
         self.lambda2 = lambda2
 
 
-class Boundary(Enum):
-    upper = 2500
-    grounded = 0
+def create_model(H: float, L: float, lambda1: float, lambda2: float):
+    return ParamModel(H=H, L=L, lambda1=lambda1, lambda2=lambda2)
 
 
-# class SmallRatioModel(Enum):
-#     u1 = Node(0, 0.2032)
-#     u2 = Node(0, 0.61976)
-#     u3 = Node(0.14224, 0.61976)
-#
-#     l1 = Node(0, 0)
-#     l2 = Node(0.14224, 0)
-#     l3 = Node(0.14224, 0.41656)
-#
-#
-# class LargeRatioModel(Enum):
-#     u1 = Node(0, 0.2032)
-#     u2 = Node(0, 1.1176)
-#     u3 = Node(0.14224, 1.1176)
-#
-#     l1 = Node(0, 0)
-#     l2 = Node(0.14224, 0)
-#     l3 = Node(0.14224, 0.9144)
+def large_model():
+    H = 0.07112
+    L = 0.3556
+    lambda1 = 0.2032
+    lambda2 = 0.2032
+    return create_model(H=H, L=L, lambda1=lambda1, lambda2=lambda2)
 
 
-class SmallModel(InitialRatioModel):
-
-    def __init__(self):
-        self.H = 0.07112
-        self.L = 0.10668
-        self.lambda1 = 0.2032
-        self.lambda2 = 0.2032
-        super().__init__(self.H, self.L, self.lambda1, self.lambda2)
-
-
-class LargeModel(InitialRatioModel):
-
-    def __init__(self):
-        self.H = 0.07112
-        self.L = 0.3556
-        self.lambda1 = 0.2032
-        self.lambda2 = 0.2032
-        super().__init__(self.H, self.L, self.lambda1, self.lambda2)
+def small_model():
+    H = 0.07112
+    L = 0.10668
+    lambda1 = 0.2032
+    lambda2 = 0.2032
+    return create_model(H=H, L=L, lambda1=lambda1, lambda2=lambda2)
 
 
 class SimulationModel(BaseModel):
     """this SimulationModel created when calling 'new'"""
 
-    def __init__(self, **kwargs):
+    class Boundary(Enum):
+        upper = 2500
+        ground = 0
+
+    initial_ratio_model: ParamModel = None
+    ratio_model: NodeModel = None
+
+    def __init__(self, model_params=None, **kwargs):
         super(SimulationModel, self).__init__(**kwargs)
+        if model_params is None:
+            self.initial_ratio_model = large_model()
+        else:
+            self.initial_ratio_model = model_params
+        self.generate_nodes_with_predefined_values()  # init ratio_model
         self._init_directories()
 
     def setup_solver(self):  # TODO: example with FEM solver
@@ -107,60 +94,51 @@ class SimulationModel(BaseModel):
         self.snapshot.add_material(air)
 
     def define_boundary_conditions(self):
-        upper = DirichletBoundaryCondition(Boundary.upper.name, field_type="electrostatic",
-                                           fixed_voltage=Boundary.upper.value)
-        grounded = DirichletBoundaryCondition(Boundary.grounded.name, field_type="electrostatic",
-                                              fixed_voltage=Boundary.grounded.value)
+        upper = DirichletBoundaryCondition(self.Boundary.upper.name, field_type="electrostatic",
+                                           fixed_voltage=self.Boundary.upper.value)
+        ground = DirichletBoundaryCondition(self.Boundary.ground.name, field_type="electrostatic",
+                                            fixed_voltage=self.Boundary.ground.value)
 
         # Adding boundary conditions to the snapshot
         self.snapshot.add_boundary_condition(upper)
-        self.snapshot.add_boundary_condition(grounded)
+        self.snapshot.add_boundary_condition(ground)
 
     def add_postprocessing(self):  # TODO
         points = [(0, 0)]
         self.snapshot.add_postprocessing("integration", points, "Energy")
 
     def build_geometry(self):
-        # u1 = Node(0, 0.2032)
-        # u2 = Node(0, 0.61976)
-        # u3 = Node(0.14224, 0.61976)
-        #
-        # l1 = Node(0, 0)
-        # l2 = Node(0.14224, 0)
-        # l3 = Node(0.14224, 0.41656)
+        # created_model = self.generate_nodes_with_specific_values(H=0.07112, L=0.10668, lambda1=0.2032, lambda2=0.2032)
+        # model = self.generate_nodes_with_predefined_values()
 
-        model = self.generate_nodes_with_specific_values(H=0.07112, L=0.10668, lambda1=0.2032, lambda2=0.2032)
-        #model = self.generate_nodes_with_predefined_values(model=LargeModel())
-
-
-        self.build_lines_and_boundaries(model.u1,
-                                        model.u2,
-                                        model.u3,
-                                        model.l1,
-                                        model.l2,
-                                        model.l3)
+        self.build_lines_and_boundaries(self.ratio_model.u1,
+                                        self.ratio_model.u2,
+                                        self.ratio_model.u3,
+                                        self.ratio_model.l1,
+                                        self.ratio_model.l2,
+                                        self.ratio_model.l3)
 
         self.snapshot.add_geometry(self.geom)
         self.assign_material(0.1, 0.1, "air")
 
-    # TODO: some coordinates are wrong!
     def generate_nodes_with_specific_values(self, H: float, L: float, lambda1: float, lambda2: float):
         """
         lambda1 and lambda2 are equal, it should be enough to use only one lambda's value
         """
         l1 = Node(0, 0)
-        l2 = Node(0, 2 * H)
-        l3 = Node(2 * L + lambda1, 2 * H)
+        l2 = Node(2 * H, 0)
+        l3 = Node(2 * H, 2 * L + lambda1)
 
-        u1 = Node(lambda2, 0)
-        u2 = Node(lambda2 + 2 * L + lambda1, 0)
+        u1 = Node(0, lambda2)
+        u2 = Node(0, lambda2 + 2 * L + lambda1)
         u3 = Node(2 * H, lambda2 + 2 * L + lambda1)
 
-        return RatioModel(u1=u1, u2=u2, u3=u3, l1=l1, l2=l2, l3=l3)
+        self.ratio_model = NodeModel(u1=u1, u2=u2, u3=u3, l1=l1, l2=l2, l3=l3)
 
-    def generate_nodes_with_predefined_values(self, model: InitialRatioModel):
-        return self.generate_nodes_with_specific_values(H=model.H, L=model.L, lambda1=model.lambda1,
-                                                        lambda2=model.lambda2)
+    def generate_nodes_with_predefined_values(self):
+        return self.generate_nodes_with_specific_values(H=self.initial_ratio_model.H, L=self.initial_ratio_model.L,
+                                                        lambda1=self.initial_ratio_model.lambda1,
+                                                        lambda2=self.initial_ratio_model.lambda2)
 
     def add_geom_lines(self, lines):
         for line in lines:
@@ -180,16 +158,18 @@ class SimulationModel(BaseModel):
         self.add_geom_lines(lines)
 
         # connect boundary conditions to lines
-        grounded = Boundary.grounded.name
-        upper = Boundary.upper.name
-        self.snapshot.boundaries.get(grounded).assigned.add(line_alpha2.id)
-        self.snapshot.boundaries.get(grounded).assigned.add(line_alpha1.id)
-        self.snapshot.boundaries.get(grounded).assigned.add(line_l1.id)
-        self.snapshot.boundaries.get(grounded).assigned.add(line_l2.id)
+        ground = self.Boundary.ground.name
+        upper = self.Boundary.upper.name
+        self.snapshot.boundaries.get(ground).assigned.add(line_alpha2.id)
+        self.snapshot.boundaries.get(ground).assigned.add(line_alpha1.id)
+        self.snapshot.boundaries.get(ground).assigned.add(line_l1.id)
+        self.snapshot.boundaries.get(ground).assigned.add(line_l2.id)
         self.snapshot.boundaries.get(upper).assigned.add(line_u1.id)
         self.snapshot.boundaries.get(upper).assigned.add(line_u2.id)
 
 
 if __name__ == "__main__":
-    m = SimulationModel(exportname="dev")
+    model = create_model(H=0.37112, L=0.3556, lambda1=0.2032, lambda2=0.2032)
+
+    m = SimulationModel(model, exportname="dev")
     print(m(cleanup=False, devmode=True))
