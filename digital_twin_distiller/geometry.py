@@ -301,6 +301,7 @@ class Geometry:
                             start = obj.Node(p1.real, p1.imag)
                             center = obj.Node(p2.real, p2.imag)
                             end = obj.Node(p3.real, p3.imag)
+                            xcolor = self.get_color_value_from_svg(attributes[nr])
                             self.add_arc(obj.CircleArc(start, center, end, color=xcolor))
 
     def get_line_intersetions(self, line_1, line_2):
