@@ -1,6 +1,6 @@
 import json
 from multiprocessing import Pool
-
+from itertools import product
 from numpy import linspace
 
 from digital_twin_distiller.encapsulator import Encapsulator
@@ -15,23 +15,41 @@ def execute_model(model: PriusMotor):
 def default_simulation(model, modelparams, simparams, miscparams):
     return "Hello World!"
 
+
 @sim.register('cogging')
 def cogging_calculation(model, modelparams, simparams, miscparams):
-    alpha0 = simparams['alpha0']
-    alpha1 = simparams['alpha1']
-    nsteps = simparams['nsteps']
+    range_a0 = simparams['range_a0']
+    range_a1 = simparams['range_a1']
+    nsteps_a = simparams['nsteps_a']
 
-    alpha = linspace(alpha0, alpha1, nsteps)
-    models = [model(rotorangle=ai) for ai in alpha]
+    range_b0 = simparams['range_b0']
+    range_b1 = simparams['range_b1']
+    nsteps_b = simparams['nsteps_b']
 
-    with Pool() as pool:
-        res = pool.map(execute_model, models)
-    
-    result = {'alpha': list(alpha),
-              'T': list(res)}
+    range_c0 = simparams['range_c0']
+    range_c1 = simparams['range_c1']
+    nsteps_c = simparams['nsteps_c']
 
-    with open(ModelDir.DATA / f'cogging_torque.json', 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2, ensure_ascii=True)
+    range_a = linspace(range_a0, range_a1, nsteps_a)
+    range_b = linspace(range_b0, range_b1, nsteps_a)
+    range_c = linspace(range_c0, range_c1, nsteps_c)
+
+    prod = list(product(range_a, range_b, range_c))
+
+    for i in range(len(prod)):
+        ai = (prod[i])[0]
+        bi = (prod[i])[1]
+        ci = (prod[i])[2]
+
+        models = model(earheight=ai, aslheight=bi, alpha=ci)
+
+        with Pool() as pool:
+            res = pool.map(execute_model, models)
+
+        result = {'Torque': list(res)}
+
+        with open(ModelDir.DATA / f'cogging_torque.json', 'a+', encoding='utf-8') as f:
+            json.dump(result, f, indent=2, ensure_ascii=True)
 
     return result
 
@@ -56,8 +74,8 @@ def locked_rotor(model, modelparams, simparams, miscparams):
         json.dump(result, f, indent=2, ensure_ascii=True)
     return result
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     ModelDir.set_base(__file__)
 
     # set the model for the simulation
