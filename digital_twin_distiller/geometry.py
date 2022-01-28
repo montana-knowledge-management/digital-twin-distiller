@@ -17,7 +17,6 @@ import svgpathtools as svg
 import digital_twin_distiller.objects as obj
 from digital_twin_distiller.utils import getID
 
-
 class Geometry:
     def __init__(self):
         self.nodes = []
@@ -169,6 +168,7 @@ class Geometry:
 
             if e.dxftype() == "POLYLINE":
                 print(e.__dict__)
+
 
     @staticmethod
     def casteljau(bezier: obj.CubicBezier):
