@@ -17,7 +17,6 @@ import svgpathtools as svg
 import digital_twin_distiller.objects as obj
 from digital_twin_distiller.utils import getID
 
-
 class Geometry:
     def __init__(self):
         self.nodes = []
@@ -169,6 +168,7 @@ class Geometry:
 
             if e.dxftype() == "POLYLINE":
                 print(e.__dict__)
+
 
     @staticmethod
     def casteljau(bezier: obj.CubicBezier):
@@ -426,7 +426,7 @@ class Geometry:
     @staticmethod
     def get_color_value_from_svg(attributes: dict):
         """Reads the color code from the svg file"""
-        stroke_pattern = re.compile(r'stroke:(#[a-f0-9]{6});', re.IGNORECASE)
+        stroke_pattern = re.compile(r'stroke:(#[a-f0-9]{6})', re.IGNORECASE)
         style = attributes.get('style')
 
         color = '#000000'
