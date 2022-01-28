@@ -8,10 +8,8 @@ from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.simulationproject import sim
 from model import PriusMotor
 
-
 def execute_model(model: PriusMotor):
-    return model(timeout=2000, cleanup=True).get("Torque", 0.0) * 8
-
+    return model(timeout=2000, cleanup=True).get("Torque", 0.0) * -8
 
 @sim.register('default')
 def default_simulation(model, modelparams, simparams, miscparams):
@@ -57,7 +55,6 @@ def locked_rotor(model, modelparams, simparams, miscparams):
     with open(ModelDir.DATA / f'locked_rotor.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, indent=2, ensure_ascii=True)
     return result
-  
 
 if __name__ == "__main__":
 

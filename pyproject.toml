@@ -1,7 +1,7 @@
 # Main package description
 [tool.poetry]
 name = "Digital-Twin-Distiller"
-version = "2021.13"
+version = "2022.1"
 description = "Python project for creating a long-lasting, encapsulated version of your numerical simulation or your machine-learning-based project."
 authors = [
     "MONTANA Knowledge Management ltd. <info@distiller.dev>"
@@ -36,6 +36,10 @@ Shapely = "^1.8.0"
 tika = "^1.24"
 scikit-learn = "^1.0.1"
 sklearn = "^0.0"
+gensim = "^4.1.2"
+tqdm = "^4.62.3"
+fasttext = "^0.9.2"
+python-markdown-math = "^0.8"
 # list all devtools here
 [tool.poetry.dev-dependencies]
 black = "*"
@@ -133,3 +137,6 @@ disable = [
 #   "protected-access",
 #   "too-few-public-methods",
 # ]
+
+[tool.poetry.scripts]
+digital-twin-distiller = "digital_twin_distiller.cli:optimize_cli"

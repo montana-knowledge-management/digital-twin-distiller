@@ -172,7 +172,7 @@ class TestCubicBezier(TestCase):
 
         self.assertIn(
             f"CubicBezier(Node(1.0, 0.0, id={a.id},label=None), Node(0.6, 0.1, id={c1.id},label=None), Node("
-            + f"0.7, 0.2, id={c2.id},label=None), Node(0.5, 0.0, id={b.id},label=None), id=1,label='test')",
+            + f"0.7, 0.2, id={c2.id},label=None), Node(0.5, 0.0, id={b.id},label=None), id=1,label='test', color=None)",
             str(cb),
         )
         # print(cb)

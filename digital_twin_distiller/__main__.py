@@ -1,4 +1,3 @@
-import argparse
 import json
 import string
 import subprocess
@@ -16,6 +15,9 @@ DEFAULT_SIMULATION = {
     "default": {"t0": 0.0, "t1": 5.3, "nstep": 101},
 }
 DEFAULT_MISC = {"processes": 4, "cleanup": True}
+
+COMMAND_NEW = "new"
+COMMAND_NEW_DESC = "Create a new Model"
 
 
 def new(name, location):
@@ -78,14 +80,3 @@ def new(name, location):
     chdir(DST / "docs")
     subprocess.run(["mkdocs", "build", "-q"])
     chdir(cwd)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog="digital-twin-distiller", description="Create a new Model")
-    parser.add_argument("task", help="Select a task: [new, ]")
-    parser.add_argument("name", help="The name of the model", default="MODEL")
-    parser.add_argument("location", help="The location of the model", default="APPLICATIONS")
-    args = parser.parse_args()
-
-    if args.task == "new":
-        new(args.name, args.location)
