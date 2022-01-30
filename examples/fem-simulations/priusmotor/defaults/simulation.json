@@ -5,17 +5,17 @@
     "nstep": 11
   },
   "cogging": {
-      "range_a0": 0,
-      "range_a1": 1,
-      "nsteps_a":1,
+      "range_a0": 0.5,
+      "range_a1": 3.5,
+      "nsteps_a":31,
 
       "range_b0": 0,
-      "range_b1": 2,
-      "nsteps_b":1,
+      "range_b1": 3,
+      "nsteps_b":31,
 
       "range_c0": 0,
-      "range_c1": 1,
-      "nsteps_c":1
+      "range_c1": 7.5,
+      "nsteps_c":16
   },
   "locked_rotor": {
       "I0": 75,

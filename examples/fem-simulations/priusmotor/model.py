@@ -39,16 +39,8 @@ class PriusMotor(BaseModel):
         # Geometric parameters
         """ source: http://phdengineeringem.blogspot.com/2018/05/toyota-prius-motor-geometry.html"""
         """ source: https://github.com/Eomys/pyleecan/blob/master/Tests/Data/prius_test.dxf"""
-        self.S1 = inch2mm(10.600) / 2  # Stator outer diameter [mm]
-        self.S2 = inch2mm(6.375) / 2  # Stator inner diameter [mm]
-        self.S4 = inch2mm(0.076)  # Tooth slit [mm]
-        self.R1 = inch2mm(6.315) / 2  # Rotor outer diameter [mm]
-        self.R3 = 145  # dxf positioning
-        self.R4 = 6.5  # dxf positioning
-        self.R5 = 18.9  # dxf positioning
-        self.R6 = 70.0  # dxf positioning
-        self.R7 = inch2mm(4.356) / 2  # Rotor inner diameter [mm]
-        self.airgap = self.S2 - self.R1  # Airgap [mm]
+        self.Dso = kwargs.get("Dsi", 269)  # Stator outer diameter [mm]
+        self.Dsi = kwargs.get("Dso", 161.93)  # Stator inner diameter [mm]
 
         self.rotorangle = kwargs.get('rotorangle', 0.0)  # The angle of the sliding band [°]
 
@@ -58,13 +50,18 @@ class PriusMotor(BaseModel):
         self.mangle = kwargs.get("mangle", 145)  # Magnet angle [°]
         self.mheight = kwargs.get("mheight", 6.5)  # Magnet height [mm]
         self.mwidth = kwargs.get("mwidth", 18.9)  # Magnet width [mm]
-        self.aslheight = kwargs.get("aslheight", 1.0)  # Represented on geometry plan.
-        self.earheight = kwargs.get("earheight", 2.0)  # Represented on geometry plan.
+        self.aslheight = kwargs.get("aslheight", 3.0)  # Represented on geometry plan.
+        self.earheight = kwargs.get("earheight", 0.5)  # Represented on geometry plan.
         self.earlenght1x = kwargs.get("earlenght1x", 2.1) # Represented on geometry plan.
         self.earlenght2x = kwargs.get("earlenght2x", 1.90)  # Represented on geometry plan.
         self.earlenght2y = kwargs.get("earlenght2y", 2.35)  # Represented on geometry plan.
         self.earlenght3y = kwargs.get("earlenght3y", 1.5)  # Represented on geometry plan.
         self.earlenght4 = kwargs.get("earlenght4", 2.2)  # Represented on geometry plan.
+
+        self.R3 = kwargs.get("R3", 145)  # Magnet material point.
+        self.R6 = kwargs.get("R6", 70)  # Magnet material point.
+
+        self.airgap = (self.Dsi - self.Dro) / 2  # Airgap [mm]
 
         # Excitation setup
         I0 = kwargs.get("I0", 0.0)  # Stator current of one phase [A]
@@ -221,12 +218,38 @@ class PriusMotor(BaseModel):
                 ]
         self.snapshot.add_postprocessing("integration", entities, "Torque")
 
+    def build_stator_shell(self):
 
-    def build_stator(self):
+        stator_shell = ModelPiece('stator_shell')
 
-        stator = ModelPiece('stator')
-        stator.load_piece_from_dxf(ModelDir.RESOURCES / "prius_stator_pyleecan.dxf")
-        self.geom.merge_geometry(stator.geom)
+        dsil = Node(*pol2cart(self.Dso / 2, 112.5))
+        dsir = Node(*pol2cart(self.Dso / 2, 67.5))
+
+        stator_shell.geom.add_arc(CircleArc(dsir, ORIGIN, dsil, max_seg_deg=10))
+
+        dsol = Node(*pol2cart(self.Dsi / 2, 112.5))
+        dsor = Node(*pol2cart(self.Dsi / 2, 67.5))
+
+        stator_shell.geom.add_arc(CircleArc(dsor, ORIGIN, dsol, max_seg_deg=1))
+
+        stator_shell.geom.add_line(Line(dsil, dsol))
+        stator_shell.geom.add_line(Line(dsir, dsor))
+
+        agsl = Node(*pol2cart(self.Dsi / 2 - self.airgap / 3, 112.5))
+        agsr = Node(*pol2cart(self.Dsi / 2 - self.airgap / 3, 67.5))
+
+        stator_shell.geom.add_arc(CircleArc(agsr, ORIGIN, agsl, max_seg_deg=1))
+
+        stator_shell.geom.add_line(Line(dsol, agsl))
+        stator_shell.geom.add_line(Line(dsor, agsr))
+
+        self.geom.merge_geometry(stator_shell.geom)
+
+    def build_slot(self):
+
+        slot= ModelPiece('slot')
+        slot.load_piece_from_dxf(ModelDir.RESOURCES / "prius_slot_pyleecan.dxf")
+        self.geom.merge_geometry(slot.geom)
 
     def build_rotor_shell(self):
 
@@ -306,6 +329,65 @@ class PriusMotor(BaseModel):
         self.geom.merge_geometry(s.geom)
         self.geom.merge_geometry(rotor_slot.geom)
 
+    def build_material(self):
+        self.assign_material(10, self.R6, "magnet_right")
+        self.assign_material(-10, self.R6, "magnet_left")
+        self.assign_material(0, 69, "air")
+        self.assign_material(-20, 75, "air")
+        self.assign_material(20, 75, "air")
+
+        temp1 = Node(*pol2cart(81.5, 108.75))
+        self.assign_material(temp1.x, temp1.y, "air")
+        temp2 = Node(*pol2cart(81.5, 101.25))
+        self.assign_material(temp2.x, temp2.y, "air")
+        temp3 = Node(*pol2cart(81.5, 93.75))
+        self.assign_material(temp3.x, temp3.y, "air")
+        temp4 = Node(*pol2cart(81.5, 86.25))
+        self.assign_material(temp4.x, temp4.y, "air")
+        temp5 = Node(*pol2cart(81.5, 78.75))
+        self.assign_material(temp5.x, temp5.y, "air")
+        temp6 = Node(*pol2cart(81.5, 71.25))
+        self.assign_material(temp6.x, temp6.y, "air")
+
+        self.assign_material(0, 79, "steel_rotor")
+        self.assign_material(0, 80.35, "air")
+        self.assign_material(0, 80.85, "air")
+        self.assign_material(0, 120, "steel_stator")
+
+        self.snapshot.add_geometry(self.geom)
+
+    def build_coil(self):
+
+        labels = ["V-", "V-", "U+", "U+", "W-", "W-"]
+        label = Node.from_polar(100.0, 71.0)
+        for i in range(6):
+            self.assign_material(label.x, label.y, labels[i])
+            label = label.rotate(pi / 4 / 6)
+
+        self.snapshot.add_geometry(self.geom)
+
+    def build_boundary(self):
+
+        self.assign_boundary(*Node.from_polar(70, 67.5), "PB1")
+        self.assign_boundary(*Node.from_polar(70, 112.5), "PB1")
+
+        self.assign_boundary(*Node.from_polar(80.25, 67.5), "PB2")
+        self.assign_boundary(*Node.from_polar(80.25, 112.5), "PB2")
+
+        self.assign_boundary(*Node.from_polar(80.8, 67.5), "PB3")
+        self.assign_boundary(*Node.from_polar(80.8, 112.5), "PB3")
+
+        self.assign_boundary(*Node.from_polar(110, 67.5), "PB4")
+        self.assign_boundary(*Node.from_polar(110, 112.5), "PB4")
+
+        self.assign_boundary_arc(0, 80.4494, "APairgap")
+        self.assign_boundary_arc(0, 80.7, "APairgap")
+
+        self.assign_boundary_arc(0, 134.62, "a0")
+        self.assign_boundary_arc(0, 55.3199, "a0")
+
+        self.snapshot.add_geometry(self.geom)
+
     def build_geometry(self):
 
         param = 1
@@ -341,13 +423,11 @@ class PriusMotor(BaseModel):
             self.assign_material(0, 80.28, "air")
             self.assign_material(0, 120, "steel_stator")
 
-
             labels = ["V-", "V-","U+", "U+", "W-", "W-"]
             label = Node.from_polar(100.0, 71.0)
             for i in range(6):
                 self.assign_material(label.x, label.y, labels[i])
                 label = label.rotate(pi/4/6)
-
 
             self.assign_boundary(*Node.from_polar(70, 67.5), "PB1")
             self.assign_boundary(*Node.from_polar(70, 112.5), "PB1")
@@ -371,9 +451,13 @@ class PriusMotor(BaseModel):
 
         else:
 
-            self.build_stator()
+            self.build_stator_shell()
+            self.build_slot()
             self.build_rotor_shell()
             self.build_rotor_slot()
+            self.build_material()
+            self.build_coil()
+            self.build_boundary()
             self.snapshot.add_geometry(self.geom)
 
 if __name__ == "__main__":
