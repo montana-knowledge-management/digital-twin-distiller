@@ -35,6 +35,8 @@ vedo = "^2021"
 Shapely = "^1.8.0"
 tika = "^1.24"
 h5py = "^3.6.0"
+kwargs = "^1.0.1"
+data = "^0.4"
 # list all devtools here
 [tool.poetry.dev-dependencies]
 black = "*"
