@@ -9,6 +9,8 @@ from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.objects import Line, Node
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
+import operator as op
+from math import hypot
 
 ModelDir.set_base(__file__)
 
@@ -118,7 +120,7 @@ class SimulationModel(BaseModel):
         femm_metadata.file_script_name = self.file_solver_script
         femm_metadata.file_metrics_name = self.file_solution
         femm_metadata.unit = "centimeters"
-        femm_metadata.smartmesh = True
+        femm_metadata.smartmesh = False
         femm_metadata.depth = 1000
         return femm_metadata
 
@@ -138,6 +140,7 @@ class SimulationModel(BaseModel):
 
     def define_materials(self):
         air = Material('air')
+        air.meshsize = 0.001  # TODO: create simulation loop
         self.snapshot.add_material(air)
 
     def define_boundary_conditions(self):
@@ -150,9 +153,10 @@ class SimulationModel(BaseModel):
         self.snapshot.add_boundary_condition(upper)
         self.snapshot.add_boundary_condition(ground)
 
-    def add_postprocessing(self):  # TODO
-        points = [(0, 0)]
-        self.snapshot.add_postprocessing("integration", points, "Energy")
+    def add_postprocessing(self):  # TODO: calculate point by geometry
+        self.snapshot.add_postprocessing("mesh_info", None, None)
+        self.snapshot.add_postprocessing("point_value", (0.14215, 0.61966), 'Ex')
+        self.snapshot.add_postprocessing("point_value", (0.14215, 0.61966), 'Ey')
 
     def build_geometry(self):
 
@@ -202,11 +206,21 @@ class SimulationModel(BaseModel):
 
 
 # TODO: create tests
+# TODO: calculate 'chosen' point (near the critical areas (E1, E2))
+#   In one point calculate results with different mesh sizes and create diagram (x: elements number, y: exact (E) value)
 if __name__ == "__main__":
-    platform = PlatformVariable.AGROS2D
+    platform = PlatformVariable.FEMM
     # model = create_model(H=0.07112, L=0, lambda1=0.2032, lambda2=0.2032)
     model = small_model()
     # model = large_model()  # default if model param is not given
 
     m = SimulationModel(model, platform, exportname="dev")
-    print(m(cleanup=False, devmode=False))
+    r_ = m(cleanup=False, devmode=False)
+    nb_elements = int(r_['elements'])
+    Ex = tuple(map(op.itemgetter(2), r_['Ex']))
+    Ey = tuple(map(op.itemgetter(2), r_['Ey']))
+    E = hypot(Ex[0], Ey[0])
+    print(nb_elements)
+    print(Ex)
+    print(Ey)
+    print(E)
