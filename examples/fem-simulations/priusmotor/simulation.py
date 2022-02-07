@@ -34,7 +34,6 @@ def cogging_calculation(model, modelparams, simparams, miscparams):
     range_c = linspace(range_c0, range_c1, nsteps_c)
 
     prod = list(product(range_a, range_b, range_c))
-    iterat = list(range(len(prod)))
 
     models = [model(earheight=ai, aslheight=bi, rotorangle=ci) for ai in range_a for bi in range_b for ci in range_c]
     with Pool() as pool:
