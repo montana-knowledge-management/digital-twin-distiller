@@ -52,22 +52,7 @@ case["aslheight"] = [(prod1[i])[1] for i in range(len(prod1))]
 case["torque"] = t
 case = pd.DataFrame(case)
 
-null = []
-comp = [-0.0 for i in range(931)]
-null = [((case["torque"])[i])[0] for i in range(931)]
-y = []
-for l1,l2 in zip(comp,null):
-    if l1 == l2:
-        x = 1
-    else:
-        x = 0
-    y.append(x)
-y = pd.DataFrame(y)
-
-z = y.loc[y[0] == 1]
-print(z)
-
-print(case.loc[24])
+max = []
 
 #for i in range(931):
     #plt.plot(range_c, (case["torque"])[i], lw=2)

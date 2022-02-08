@@ -39,7 +39,7 @@ def cogging_calculation(model, modelparams, simparams, miscparams):
     with Pool() as pool:
         res = pool.map(execute_model, models)
 
-    result = {'Case': prod, 'Torque': list(res)}
+    result = {'Torque': list(res)}
 
     with open(ModelDir.DATA / f'cogging_torque.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, indent=2, ensure_ascii=True)
