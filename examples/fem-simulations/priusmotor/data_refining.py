@@ -56,10 +56,62 @@ max = []
 
 #for i in range(931):
     #plt.plot(range_c, (case["torque"])[i], lw=2)
-#plt.plot(range_c, (case["torque"])[1], lw=2)
 #plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
 #plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
 #plt.minorticks_on()
 #plt.xlabel("rotorangle [deg]")
 #plt.ylabel("Cogging Torque [Nm]")
+#plt.show()
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+range_a0 = 0.5
+range_a1 = 3.5
+nsteps_a = 31
+
+range_b0 = 0.0
+range_b1 = 3.0
+nsteps_b = 31
+
+range_c0 = 0.0
+range_c1 = 45
+nsteps_c = 24
+
+range_a = linspace(range_a0, range_a1, nsteps_a)
+range_b = linspace(range_b0, range_b1, nsteps_b)
+range_c = linspace(range_c0, range_c1, nsteps_c)
+
+prod = list(product(range_a, range_b, range_c))
+range_prod = linspace (0, len(prod), len(prod)+1)
+prod1 = list(product(range_a, range_b))
+
+f = open(ModelDir.DATA / f'locked_rotor.json')
+locked = json.load(f)
+
+resl = {"earheight": [(prod[i])[0] for i in range(len(prod))],
+        "aslheight": [(prod[i])[1] for i in range(len(prod))],
+        "rotorangle": [(prod[i])[2] for i in range(len(prod))],
+        "torque": [(locked["Torque"])[i] for i in range(len(prod))]}
+resl = pd.DataFrame(resl)
+
+tl = [[] for i in range(961)]
+al = 0
+bl = 0
+while al <= 960:
+    tl[al] = [(locked["Torque"])[i] for i in range(bl+0, bl+24)]
+    al = al + 1
+    bl = bl + 24
+
+casel = {"earheight": [(prod1[i])[0] for i in range(len(prod1))],
+         "aslheight": [(prod1[i])[1] for i in range(len(prod1))],
+         "torque": tl}
+casel = pd.DataFrame(casel)
+
+#for i in range(930):
+    #plt.plot(range_c, (casel["torque"])[i], lw=2)
+#plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+#plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+#plt.minorticks_on()
+#plt.xlabel("rotorangle [deg]")
+#plt.ylabel("Torque [Nm]")
 #plt.show()
