@@ -31,5 +31,24 @@
       "range_c0": 0,
       "range_c1": 45,
       "nsteps_c": 25
+  },
+  "rotate": {
+      "I0": 250,
+
+      "range_a0": 0.5,
+      "range_a1": 3.5,
+      "nsteps_a": 31,
+
+      "range_b0": 0,
+      "range_b1": 3,
+      "nsteps_b": 31,
+
+      "range_c0": 37.5,
+      "range_c1": 82.5,
+      "nsteps_c": 25,
+
+      "range_d0": 0,
+      "range_d1": -180,
+      "nsteps_d": 25
   }
 }
