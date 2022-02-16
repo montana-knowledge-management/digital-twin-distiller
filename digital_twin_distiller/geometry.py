@@ -5,17 +5,21 @@ A general geometrical shape can defined by the following objects:
     Nodes (Points), Lines, Circle Arcs, Cubic Bezeirs
 """
 import os
-import sys
 import re
+import sys
 from copy import copy, deepcopy
+from math import degrees
+from pathlib import Path
 
 import ezdxf
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import svgpathtools as svg
+
 import digital_twin_distiller.objects as obj
 from digital_twin_distiller.utils import getID
+
 
 class Geometry:
     def __init__(self):
@@ -169,7 +173,6 @@ class Geometry:
             if e.dxftype() == "POLYLINE":
                 print(e.__dict__)
 
-
     @staticmethod
     def casteljau(bezier: obj.CubicBezier):
         """
@@ -201,15 +204,14 @@ class Geometry:
 
         return r, l
 
-    def export_svg(self, file_name="output.svg"):
+    def export_svg(self, file_name):
         """
         Creates an svg image from the geometry objects.
         """
-        file_name = str(file_name)
+        file_name = Path(file_name)
 
         # every object handled as a separate path
 
-        obj.Line
         paths = []
         colors = []
         # exports the lines
@@ -224,16 +226,16 @@ class Geometry:
             paths.append(path)
             colors.append("blue")
 
-        # export the circle arcs
-        # TODO: be kellene fejezni
+        # export circle arcs
         for arc in self.circle_arcs:
             path = svg.Path()
-            path.append(
-                svg.Line(
-                    complex(arc.start_pt.x, arc.start_pt.y).conjugate(),
-                    complex(arc.end_pt.x, arc.end_pt.y).conjugate(),
-                )
-            )
+            start = complex(arc.start_pt.x, arc.start_pt.y).conjugate()
+            radius = complex(arc.radius, arc.radius)
+            rotation = degrees(arc.start_pt.angle_to(arc.end_pt))
+            large_arc = False
+            sweep = False
+            end = complex(arc.end_pt.x, arc.end_pt.y).conjugate()
+            path.append(svg.Arc(start, radius, rotation, large_arc, sweep, end))
             paths.append(path)
             colors.append("blue")
 
@@ -247,8 +249,7 @@ class Geometry:
             paths.append(path)
             colors.append("blue")
 
-        work_dir = os.getcwd()
-        svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename=work_dir + "/" + file_name)
+        svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename=file_name.as_posix())
 
     def import_svg(self, svg_img, *args):
         """Imports the svg file into a new geo object. The function gives an automatic id to the function
@@ -369,10 +370,10 @@ class Geometry:
 
         else:
             up = (-x1 * y2 + x1 * y3 + x2 * y1 - x2 * y3 - x3 * y1 + x3 * y2) / (
-                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             tp = (x1 * y3 - x1 * y4 - x3 * y1 + x3 * y4 + x4 * y1 - x4 * y3) / (
-                    x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
+                x1 * y3 - x1 * y4 - x2 * y3 + x2 * y4 - x3 * y1 + x3 * y2 + x4 * y1 - x4 * y2
             )
             if inrange(tp) and inrange(up):
                 p1 = tuple(p + tp * r)
@@ -426,10 +427,10 @@ class Geometry:
     @staticmethod
     def get_color_value_from_svg(attributes: dict):
         """Reads the color code from the svg file"""
-        stroke_pattern = re.compile(r'stroke:(#[a-f0-9]{6})', re.IGNORECASE)
-        style = attributes.get('style')
+        stroke_pattern = re.compile(r"stroke:(#[a-f0-9]{6})", re.IGNORECASE)
+        style = attributes.get("style")
 
-        color = '#000000'
+        color = "#000000"
         if style:
             if stroke_pattern.search(style):
                 color = stroke_pattern.search(style).group(1)
