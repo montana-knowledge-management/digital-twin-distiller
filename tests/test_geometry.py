@@ -183,7 +183,7 @@ class TestGeometry(TestCase):
         self.assertEqual(1, len(surf))
 
         # test that the svg export function is
-        geo.export_svg()
+        geo.export_svg("output.svg")
 
         # deleting the resulting file
         path = Path("output.svg")
