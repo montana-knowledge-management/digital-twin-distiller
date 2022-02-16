@@ -249,7 +249,6 @@ class Geometry:
             paths.append(path)
             colors.append("blue")
 
-        work_dir = os.getcwd()
         svg.wsvg(paths, colors=colors, svgwrite_debug=True, filename=file_name.as_posix())
 
     def import_svg(self, svg_img, *args):
