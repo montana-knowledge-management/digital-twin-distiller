@@ -263,8 +263,12 @@ class Geometry:
 
         # id start from the given number
         id_ = 0
+        ignored_attributes = {"d", "fill", "stroke", "stroke-width"}
 
         for path, attr in zip(paths, attributes):
+            for ai in ignored_attributes & attr.keys():
+                attr.pop(ai)
+
             for element in path:
                 if isinstance(element, svg.Line):
                     p1 = element.start.conjugate()
@@ -273,7 +277,7 @@ class Geometry:
                     end = obj.Node(p2.real, p2.imag)
 
                     xcolor = self.get_color_value_from_svg(attr)
-                    self.add_line(obj.Line(start, end, color=xcolor))
+                    self.add_line(obj.Line(start, end, color=xcolor, attributes=attr))
                     id_ += 3
 
                 if isinstance(element, svg.CubicBezier):
@@ -287,7 +291,8 @@ class Geometry:
                     control2 = obj.Node(c2.real, c2.imag, id_ + 2)
                     end = obj.Node(s2.real, s2.imag, id_ + 3)
                     xcolor = self.get_color_value_from_svg(attr)
-                    self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id_ + 4, color=xcolor))
+                    self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id_ + 4, color=xcolor,
+                                                          attributes=attr))
                     id_ += 5
 
                 if isinstance(element, svg.Arc):
@@ -299,7 +304,7 @@ class Geometry:
                     center = obj.Node(p2.real, p2.imag)
                     end = obj.Node(p3.real, p3.imag)
                     xcolor = self.get_color_value_from_svg(attr)
-                    self.add_arc(obj.CircleArc(start, center, end, color=xcolor))
+                    self.add_arc(obj.CircleArc(start, center, end, color=xcolor, attributes=attr))
 
     def get_line_intersetions(self, line_1, line_2):
         """
