@@ -235,7 +235,9 @@ class Line:
         self.attributes = attributes.copy()
 
     def __copy__(self):
-        return Line(copy(self.start_pt), copy(self.end_pt), id_=getID(), label=self.label, color=self.color)
+        return Line(copy(self.start_pt), copy(self.end_pt), id_=getID(),
+                    label=self.label, color=self.color,
+                    attributes=self.attributes)
 
     def distance_to_point(self, px, py):
         """
@@ -406,7 +408,8 @@ class CircleArc:
             copy(self.center_pt),
             copy(self.end_pt),
             max_seg_deg=self.max_seg_deg,
-            color=self.color
+            color=self.color,
+            attributes=self.attributes
         )
 
     def __repr__(self):
