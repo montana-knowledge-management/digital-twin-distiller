@@ -787,15 +787,15 @@ class FemmTester(TestCase):
         geo = Geometry()
 
         # test nodes
-        a = obj.Node(0.0, 0.0, id=1)
-        b = obj.Node(0.0, 1.0, id=2)
-        c = obj.Node(1.0, 0.0, id=3)
+        a = obj.Node(0.0, 0.0, id_=1)
+        b = obj.Node(0.0, 1.0, id_=2)
+        c = obj.Node(1.0, 0.0, id_=3)
 
         geo.nodes = [a, b, c]
 
         geo.lines = [
-            obj.Line(start_pt=a, end_pt=b, id=4),
-            obj.Line(start_pt=a, end_pt=c, id=5),
+            obj.Line(start_pt=a, end_pt=b, id_=4),
+            obj.Line(start_pt=a, end_pt=c, id_=5),
         ]
         geo.circle_arcs = [obj.CircleArc(start_pt=c, center_pt=a, end_pt=b)]
 

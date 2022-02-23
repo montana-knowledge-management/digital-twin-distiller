@@ -13,10 +13,10 @@ class Node:
     the label can be important to rotate and copy and rotate the selected part of the geometry.
     """
 
-    def __init__(self, x=0.0, y=0.0, id=None, label=None, precision=6):
+    def __init__(self, x=0.0, y=0.0, id_=None, label=None, precision=6):
         self.x = x
         self.y = y
-        self.id = id or getID()  # a node has to got a unique id to be translated or moved
+        self.id = id_ or getID()  # a node has to got a unique id to be translated or moved
         self.label = label  # can be used to denote a group of the elements and make some operation with them
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
         self.hanging = True  # if its contained by another object it will be set to False
@@ -105,7 +105,7 @@ class Node:
         return Node(
             self.x,
             self.y,
-            id=getID(),
+            id_=getID(),
             label=self.label,
             precision=self.precision,
         )
@@ -220,7 +220,7 @@ class Node:
 class Line:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, end_pt, id=None, label=None, color=None):
+    def __init__(self, start_pt, end_pt, id_=None, label=None, color=None):
         # sorting the incoming points by coordinate
         # sorted_points = sorted((start_pt, end_pt), key=lambda pi: pi.x)  # sorting by x coordinate
         # sorted_points = sorted(sorted_points, key=lambda pi: pi.y)  # sorting by y coordinate
@@ -228,13 +228,13 @@ class Line:
         # self.end_pt = sorted_points[-1]
         self.start_pt = start_pt
         self.end_pt = end_pt
-        self.id = id or getID()
+        self.id = id_ or getID()
         self.label = label
         self.color = color  # the color of the given edge can be used to render the appropriate boundary conditions to the given edges
         self.attributes = dict()
 
     def __copy__(self):
-        return Line(copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label, color=self.color)
+        return Line(copy(self.start_pt), copy(self.end_pt), id_=getID(), label=self.label, color=self.color)
 
     def distance_to_point(self, px, py):
         """
@@ -330,11 +330,11 @@ class Line:
 class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, center_pt, end_pt, id=None, label=None, max_seg_deg=20, color=None):
+    def __init__(self, start_pt, center_pt, end_pt, id_=None, label=None, max_seg_deg=20, color=None):
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt
-        self.id = id or getID()
+        self.id = id_ or getID()
         self.label = label
         self.max_seg_deg = max_seg_deg
         self.color = color
@@ -420,12 +420,12 @@ class CircleArc:
 
 
 class CubicBezier:
-    def __init__(self, start_pt, control1, control2, end_pt, id=None, label=None, color=None):
+    def __init__(self, start_pt, control1, control2, end_pt, id_=None, label=None, color=None):
         self.start_pt = start_pt
         self.control1 = control1
         self.control2 = control2
         self.end_pt = end_pt
-        self.id = id or getID()
+        self.id = id_ or getID()
         self.label = label
         self.color = color
         self.attributes = dict()

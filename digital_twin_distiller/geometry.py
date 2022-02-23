@@ -407,13 +407,13 @@ class Geometry:
 
             intersections.sort(key=lambda ii: ii[0])
             for k in range(len(intersections) - 1):
-                start_node = obj.Node(x=intersections[k][1], y=intersections[k][2], id=getID())
+                start_node = obj.Node(x=intersections[k][1], y=intersections[k][2], id_=getID())
                 end_node = obj.Node(
                     x=intersections[k + 1][1],
                     y=intersections[k + 1][2],
-                    id=getID(),
+                    id_=getID(),
                 )
-                newlines.append(obj.Line(start_pt=start_node, end_pt=end_node, id=getID()))
+                newlines.append(obj.Line(start_pt=start_node, end_pt=end_node, id_=getID()))
 
         self.nodes.clear()
         self.lines.clear()

@@ -21,7 +21,7 @@ class TestGeometry(TestCase):
         a = Node(1.0, 0.0)
         b = Node(0.5, 0.0)
 
-        l = Line(a, b, id=1, label="test")
+        l = Line(a, b, id_=1, label="test")
 
         geo.add_node(a)
         geo.add_node(b)
@@ -41,7 +41,7 @@ class TestGeometry(TestCase):
         c1 = Node(0.6, 0.1)
         c2 = Node(0.7, 0.2)
 
-        cb = CubicBezier(a, c1, c2, b, id=1, label="test")
+        cb = CubicBezier(a, c1, c2, b, id_=1, label="test")
 
         geo.add_node(a)
         geo.add_node(b)
@@ -74,9 +74,9 @@ class TestGeometry(TestCase):
     def test_append_node(self):
 
         geo = Geometry()
-        a = Node(1.0, 0.0, id=1)
-        b = Node(0.5, 0.0, id=2)
-        c = Node(0.5000000000001, 0.0, id=3)
+        a = Node(1.0, 0.0, id_=1)
+        b = Node(0.5, 0.0, id_=2)
+        c = Node(0.5000000000001, 0.0, id_=3)
 
         geo.add_node(a)
         geo.add_node(b)
@@ -91,14 +91,14 @@ class TestGeometry(TestCase):
 
         geo = Geometry()
 
-        a = Node(1.0, 0.0, id=1)
-        b = Node(0.5, 0.0, id=2)
-        c = Node(0.50000001, 0.0, id=3)
-        d = Node(0.75, 0.75, id=6)
+        a = Node(1.0, 0.0, id_=1)
+        b = Node(0.5, 0.0, id_=2)
+        c = Node(0.50000001, 0.0, id_=3)
+        d = Node(0.75, 0.75, id_=6)
 
-        l1 = Line(a, b, id=4, label="test1")
-        l2 = Line(a, c, id=5, label="test2")
-        l3 = Line(c, d, id=9, label="test3")
+        l1 = Line(a, b, id_=4, label="test1")
+        l2 = Line(a, c, id_=5, label="test2")
+        l3 = Line(c, d, id_=9, label="test3")
 
         geo.add_node(a)
         geo.add_node(b)
