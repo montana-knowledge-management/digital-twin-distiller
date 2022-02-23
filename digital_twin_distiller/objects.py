@@ -231,6 +231,7 @@ class Line:
         self.id = id or getID()
         self.label = label
         self.color = color  # the color of the given edge can be used to render the appropriate boundary conditions to the given edges
+        self.attributes = dict()
 
     def __copy__(self):
         return Line(copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label, color=self.color)
@@ -337,6 +338,7 @@ class CircleArc:
         self.label = label
         self.max_seg_deg = max_seg_deg
         self.color = color
+        self.attributes = dict()
 
         self.radius = self.start_pt.distance_to(self.center_pt)
         clamp = self.start_pt.distance_to(self.end_pt) / 2.0
@@ -426,6 +428,7 @@ class CubicBezier:
         self.id = id or getID()
         self.label = label
         self.color = color
+        self.attributes = dict()
 
     def __repr__(self):
         return "{}({!r}, {!r}, {!r}, {!r}, id={!r},label={!r}, color={!r})".format(
