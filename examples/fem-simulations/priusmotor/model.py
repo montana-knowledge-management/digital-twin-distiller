@@ -51,7 +51,7 @@ class PriusMotor(BaseModel):
         self.mheight = kwargs.get("mheight", 6.5)  # Magnet height [mm]
         self.mwidth = kwargs.get("mwidth", 18.9)  # Magnet width [mm]
         self.aslheight = kwargs.get("aslheight", 0.5)  # Represented on geometry plan.
-        self.earheight = kwargs.get("earheight", 2.4)  # Represented on geometry plan.
+        self.earheight = kwargs.get("earheight", 3.5)  # Represented on geometry plan.
         self.earlenght1x = kwargs.get("earlenght1x", 2.1)  # Represented on geometry plan.
         self.earlenght2x = kwargs.get("earlenght2x", 1.90)  # Represented on geometry plan.
         self.earlenght2y = kwargs.get("earlenght2y", 2.35)  # Represented on geometry plan.

@@ -7,8 +7,8 @@ from digital_twin_distiller import ModelDir
 ModelDir.set_base(__file__)
 
 range_a0 = 0.5
-range_a1 = 3.5
-nsteps_a = 31
+range_a1 = 3.0
+nsteps_a = 26
 
 range_b0 = 0.0
 range_b1 = 3.0
@@ -16,7 +16,7 @@ nsteps_b = 31
 
 range_c0 = 0.0
 range_c1 = 7.5
-nsteps_c = 16
+nsteps_c = 76
 
 range_a = linspace(range_a0, range_a1, nsteps_a)
 range_b = linspace(range_b0, range_b1, nsteps_b)
@@ -36,15 +36,15 @@ res["rotorangle"] = [(prod[i])[2] for i in range(len(prod))]
 res["torque"] = [(torque["Torque"])[i] for i in range(len(prod))]
 res = pd.DataFrame(res)
 
-switch = 0
+switch = 1
 if switch == 0:
     t = [[] for i in range(len(prod1))]
     a = 0
     b = 0
     while a < len(prod1):
-        t[a] = [(torque["Torque"])[i] for i in range(b+0, b+16)]
+        t[a] = [(torque["Torque"])[i] for i in range(b+0, b+76)]
         a = a + 1
-        b = b + 16
+        b = b + 76
 
     tmax = [[] for i in range(len(prod1))]
     tmid = [[] for i in range(len(prod1))]
@@ -70,7 +70,7 @@ if switch == 0:
             if (tpeak[a])[b] == 0:
                 pass
             else:
-                (inpeak[a])[b] = b
+                (inpeak[a])[b] = round(b / 75 * 7.5, 1)
         inpeak[a] = [i for i in inpeak[a] if i != 0]
         tpeak[a] = [i for i in tpeak[a] if i != 0]
 
@@ -88,9 +88,9 @@ else:
     a = 0
     b = 0
     while a < nsteps_a:
-        t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 16)]
+        t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 76)]
         a = a + 1
-        b = b + 496
+        b = b + 2356
     print(t)
 
     tmax = [[] for i in range(nsteps_a)]
@@ -117,7 +117,7 @@ else:
             if (tpeak[a])[b] == 0:
                 pass
             else:
-                (inpeak[a])[b] = b / 2
+                (inpeak[a])[b] = round(b / 75 * 7.5, 1)
         inpeak[a] = [i for i in inpeak[a] if i != 0]
         tpeak[a] = [i for i in tpeak[a] if i != 0]
 

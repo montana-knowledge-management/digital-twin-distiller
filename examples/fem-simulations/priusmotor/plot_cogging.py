@@ -9,8 +9,8 @@ from ast import literal_eval
 ModelDir.set_base(__file__)
 
 range_a0 = 0.5
-range_a1 = 3.5
-nsteps_a = 31
+range_a1 = 3.0
+nsteps_a = 26
 
 range_b0 = 0.0
 range_b1 = 3.0
@@ -18,7 +18,7 @@ nsteps_b = 31
 
 range_c0 = 0.0
 range_c1 = 7.5
-nsteps_c = 16
+nsteps_c = 76
 
 range_a = linspace(range_a0, range_a1, nsteps_a)
 range_b = linspace(range_b0, range_b1, nsteps_b)
@@ -45,15 +45,15 @@ case = pd.read_pickle(ModelDir.DATA / "df_cogging.pkl")
 #plt.show()
 
 
-#for xe, ye in zip(range(len(prod1)), case["torquepeak"]):
-    #plt.scatter([xe]*len(ye), ye)
-#plt.show()
-#for xe, ye in zip(range(len(prod1)), case["peakindex"]):
-    #plt.scatter([xe]*len(ye), ye)
-#plt.show()
+for xe, ye in zip(range(len(prod1)), case["torquepeak"]):
+    plt.scatter([xe]*len(ye), ye)
+plt.show()
+for xe, ye in zip(range(len(prod1)), case["peakindex"]):
+    plt.scatter([xe]*len(ye), ye)
+plt.show()
 
 a = 0
-b = 960
+b = 26
 for i in range(a, b):
     plt.plot(range_c, (case["coggingtorque"])[i], lw=2)
 plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
