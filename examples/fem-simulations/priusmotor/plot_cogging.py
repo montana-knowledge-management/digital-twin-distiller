@@ -35,32 +35,34 @@ case = pd.read_pickle(ModelDir.DATA / "df_cogging.pkl")
 #fig, ax1 = plt.subplots()
 #plt.title("Peak of the cogging torque and the rotor angle")
 #ax2 = ax1.twinx()
-#for xe, ye in zip(range_a, case["torquepeak"]):
-    #ax1.scatter([xe]*len(ye), ye,)
-#for xe, ye in zip(range_a, case["peakindex"]):
-    #ax2.scatter([xe]*len(ye), ye)
-#ax1.set_xlabel('Variable parameter [mm]', color='r')
-#ax1.set_ylabel('Peak cogging torque [Nm]', color='g')
-#ax2.set_ylabel('Rotor angle [°]', color='b')
+#for xe, ye in zip(case["earheight"], case["tmaxpeak"]):
+    #ax1.scatter(xe, ye, c="blue")
+#for xe, ye in zip(case["earheight"], case["tminpeak"]):
+    #ax1.scatter(xe, ye, c="blue")
+#for xe, ye in zip(case["earheight"], case["inmaxpeak"]):
+    #ax2.scatter(xe, ye, c="red")
+#for xe, ye in zip(case["earheight"], case["inminpeak"]):
+    #ax2.scatter(xe, ye, c="red")
+#ax1.set_xlabel('Variable parameter [mm]')
+#ax1.set_ylabel('Peak cogging torque [Nm]', c="b")
+#ax2.set_ylabel('Rotor angle [°]', c="r")
 #plt.show()
 
+#a = 0
+#b = 1
+#for i in range(a, b):
+    #plt.plot(range_c, (case["coggingtorque"])[i], lw=2)
+#plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+#plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+#plt.minorticks_on()
+#plt.xlabel("rotorangle [deg]")
+#plt.ylabel("Torque [Nm]")
+#plt.show()
 
-for xe, ye in zip(range(len(prod1)), case["torquepeak"]):
-    plt.scatter([xe]*len(ye), ye)
-plt.show()
-for xe, ye in zip(range(len(prod1)), case["peakindex"]):
-    plt.scatter([xe]*len(ye), ye)
-plt.show()
-
-a = 0
-b = 26
+a = 1
+b = 20
 for i in range(a, b):
-    plt.plot(range_c, (case["coggingtorque"])[i], lw=2)
-plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
-plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
-plt.minorticks_on()
-plt.xlabel("rotorangle [deg]")
-plt.ylabel("Torque [Nm]")
+    plt.plot(range_c, (case["coggingtorque"])[i])
+    plt.plot((case["inmaxpeak"])[i], (case["tmaxpeak"])[i], "x")
+    plt.plot((case["inminpeak"])[i], (case["tminpeak"])[i], "x")
 plt.show()
-
-

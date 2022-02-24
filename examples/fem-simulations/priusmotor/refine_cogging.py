@@ -1,8 +1,11 @@
+import numpy as np
+import scipy.signal
 from numpy import linspace
 from itertools import product
 import json
 import pandas as pd
 from digital_twin_distiller import ModelDir
+import matplotlib.pyplot as plt
 
 ModelDir.set_base(__file__)
 
@@ -14,7 +17,7 @@ range_b0 = 0.0
 range_b1 = 3.0
 nsteps_b = 31
 
-range_c0 = 0.0
+range_c0 = 0.1
 range_c1 = 7.5
 nsteps_c = 76
 
@@ -36,7 +39,7 @@ res["rotorangle"] = [(prod[i])[2] for i in range(len(prod))]
 res["torque"] = [(torque["Torque"])[i] for i in range(len(prod))]
 res = pd.DataFrame(res)
 
-switch = 1
+switch = 2
 if switch == 0:
     t = [[] for i in range(len(prod1))]
     a = 0
@@ -83,7 +86,8 @@ if switch == 0:
     print(case)
 
     case.to_pickle(ModelDir.DATA / "df_cogging.pkl")
-else:
+
+elif switch == 1:
     t = [[] for i in range(nsteps_a)]
     a = 0
     b = 0
@@ -129,3 +133,40 @@ else:
     print(case)
 
     case.to_pickle(ModelDir.DATA / "df_cogging.pkl")
+
+else:
+    t = [[] for i in range(nsteps_a)]
+    a = 0
+    b = 0
+    while a < nsteps_a:
+        t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 76)]
+        a = a + 1
+        b = b + 2356
+
+    tmax = [[] for i in range(nsteps_a)]
+    tmin = [[] for i in range(nsteps_a)]
+    inmax = [[] for i in range(nsteps_a)]
+    inmin = [[] for i in range(nsteps_a)]
+
+    for i in range(nsteps_a):
+        tmax[i] = max(t[i])
+        tmin[i] = min(t[i])
+        inmax[i] = np.multiply(t[i].index(tmax[i]), 0.1)
+        inmin[i] = np.multiply(t[i].index(tmin[i]), 0.1)
+        if inmin[i] == 7.5:
+            inmin[i] = None
+            tmin[i] = None
+        else:
+            inmin[i] = inmin[i]
+            tmin[i] = tmin[i]
+    case = {"earheight": range_a,
+            "coggingtorque": t,
+            "inmaxpeak": inmax,
+            "inminpeak": inmin,
+            "tmaxpeak": tmax,
+            "tminpeak": tmin}
+    case = pd.DataFrame(case)
+
+    case.to_pickle(ModelDir.DATA / "df_cogging.pkl")
+
+
