@@ -39,7 +39,7 @@ res["rotorangle"] = [(prod[i])[2] for i in range(len(prod))]
 res["torque"] = [(torque["Torque"])[i] for i in range(len(prod))]
 res = pd.DataFrame(res)
 
-switch = 2
+switch = 4
 if switch == 0:
     t = [[] for i in range(len(prod1))]
     a = 0
@@ -83,7 +83,7 @@ if switch == 0:
             "torquepeak": tpeak,
             "peakindex": inpeak}
     case = pd.DataFrame(case)
-    print(case)
+    print(case["torquepeak"])
 
     case.to_pickle(ModelDir.DATA / "df_cogging.pkl")
 
@@ -134,12 +134,13 @@ elif switch == 1:
 
     case.to_pickle(ModelDir.DATA / "df_cogging.pkl")
 
-else:
+elif switch == 3:
     t = [[] for i in range(nsteps_a)]
     a = 0
     b = 0
     while a < nsteps_a:
         t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 76)]
+        t[a] = [round((t[a])[i], 3) for i in range(len(range_c))]
         a = a + 1
         b = b + 2356
 
@@ -169,4 +170,47 @@ else:
 
     case.to_pickle(ModelDir.DATA / "df_cogging.pkl")
 
+elif switch == 4:
+    t = [[] for i in range(len(prod1))]
+    a = 0
+    b = 0
+    while a < len(prod1):
+        t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 76)]
+        t[a] = [round((t[a])[i], 3) for i in range(len(range_c))]
+        a = a + 1
+        b = b + 76
 
+    tmax = [[] for i in range(len(prod1))]
+    tmin = [[] for i in range(len(prod1))]
+    inmax = [[] for i in range(len(prod1))]
+    inmin = [[] for i in range(len(prod1))]
+    tdelta1 = [[] for i in range(len(prod1))]
+    tdelta2 = [[] for i in range(len(prod1))]
+
+    for i in range(len(prod1)):
+        tmax[i] = max(t[i])
+        tmin[i] = min(t[i])
+        inmax[i] = np.multiply(t[i].index(tmax[i]), 0.1)
+        inmin[i] = np.multiply(t[i].index(tmin[i]), 0.1)
+        tdelta1[i] = abs(tmax[i] - tmin[i])
+        tdelta2[i] = tmax[i] - abs(tmin[i])
+
+    case = {"earheight": [(prod1[i])[0] for i in range(len(prod1))],
+            "aslheight": [(prod1[i])[1] for i in range(len(prod1))],
+            "coggingtorque": t,
+            "inmaxpeak": inmax,
+            "inminpeak": inmin,
+            "tmaxpeak": tmax,
+            "tminpeak": tmin,
+            "tdelta1": tdelta1,
+            "tdelta2": tdelta2
+            }
+    case = pd.DataFrame(case)
+
+    x = case[case["tdelta2"] == min(case["tdelta2"], key=abs)]
+    print(x)
+
+    case.to_pickle(ModelDir.DATA / "df_cogging.pkl")
+
+else:
+    pass
