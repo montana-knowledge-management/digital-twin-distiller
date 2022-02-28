@@ -259,51 +259,52 @@ class Geometry:
         """
 
         # reads the main objects from an svg file
-        paths = svg.svg2paths(str(svg_img))
+        paths, attributes = svg.svg2paths(str(svg_img))
 
-        # the last record of the path string contains the list of attributes dicts
-        attributes = paths[-1]
         # id start from the given number
-        id = 0
+        id_ = 0
+        ignored_attributes = {"d", "fill", "stroke", "stroke-width"}
 
-        for path in paths:
-            for nr, seg in enumerate(path):
-                if isinstance(seg, svg.Path):
-                    for element in seg:
-                        if isinstance(element, svg.Line):
-                            p1 = element.start.conjugate()
-                            p2 = element.end.conjugate()
-                            start = obj.Node(p1.real, p1.imag)
-                            end = obj.Node(p2.real, p2.imag)
+        for path, attr in zip(paths, attributes):
+            for ai in ignored_attributes & attr.keys():
+                attr.pop(ai)
 
-                            xcolor = self.get_color_value_from_svg(attributes[nr])
-                            self.add_line(obj.Line(start, end, color=xcolor))
-                            id += 3
+            for element in path:
+                if isinstance(element, svg.Line):
+                    p1 = element.start.conjugate()
+                    p2 = element.end.conjugate()
+                    start = obj.Node(p1.real, p1.imag)
+                    end = obj.Node(p2.real, p2.imag)
 
-                        if isinstance(element, svg.CubicBezier):
-                            s1 = element.start.conjugate()
-                            s2 = element.end.conjugate()
-                            c1 = element.control1.conjugate()
-                            c2 = element.control2.conjugate()
+                    xcolor = self.get_color_value_from_svg(attr)
+                    self.add_line(obj.Line(start, end, color=xcolor, attributes=attr))
+                    id_ += 3
 
-                            start = obj.Node(s1.real, s1.imag, id)
-                            control1 = obj.Node(c1.real, c1.imag, id + 1)
-                            control2 = obj.Node(c2.real, c2.imag, id + 2)
-                            end = obj.Node(s2.real, s2.imag, id + 3)
-                            xcolor = self.get_color_value_from_svg(attributes[nr])
-                            self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id + 4, color=xcolor))
-                            id += 5
+                if isinstance(element, svg.CubicBezier):
+                    s1 = element.start.conjugate()
+                    s2 = element.end.conjugate()
+                    c1 = element.control1.conjugate()
+                    c2 = element.control2.conjugate()
 
-                        if isinstance(element, svg.Arc):
-                            # pass
-                            p1 = element.start.conjugate()
-                            p2 = element.center.conjugate()
-                            p3 = element.end.conjugate()
-                            start = obj.Node(p1.real, p1.imag)
-                            center = obj.Node(p2.real, p2.imag)
-                            end = obj.Node(p3.real, p3.imag)
-                            xcolor = self.get_color_value_from_svg(attributes[nr])
-                            self.add_arc(obj.CircleArc(start, center, end, color=xcolor))
+                    start = obj.Node(s1.real, s1.imag, id_)
+                    control1 = obj.Node(c1.real, c1.imag, id_ + 1)
+                    control2 = obj.Node(c2.real, c2.imag, id_ + 2)
+                    end = obj.Node(s2.real, s2.imag, id_ + 3)
+                    xcolor = self.get_color_value_from_svg(attr)
+                    self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id_ + 4, color=xcolor,
+                                                          attributes=attr))
+                    id_ += 5
+
+                if isinstance(element, svg.Arc):
+                    # pass
+                    p1 = element.start.conjugate()
+                    p2 = element.center.conjugate()
+                    p3 = element.end.conjugate()
+                    start = obj.Node(p1.real, p1.imag)
+                    center = obj.Node(p2.real, p2.imag)
+                    end = obj.Node(p3.real, p3.imag)
+                    xcolor = self.get_color_value_from_svg(attr)
+                    self.add_arc(obj.CircleArc(start, center, end, color=xcolor, attributes=attr))
 
     def get_line_intersetions(self, line_1, line_2):
         """
@@ -407,13 +408,13 @@ class Geometry:
 
             intersections.sort(key=lambda ii: ii[0])
             for k in range(len(intersections) - 1):
-                start_node = obj.Node(x=intersections[k][1], y=intersections[k][2], id=getID())
+                start_node = obj.Node(x=intersections[k][1], y=intersections[k][2], id_=getID())
                 end_node = obj.Node(
                     x=intersections[k + 1][1],
                     y=intersections[k + 1][2],
-                    id=getID(),
+                    id_=getID(),
                 )
-                newlines.append(obj.Line(start_pt=start_node, end_pt=end_node, id=getID()))
+                newlines.append(obj.Line(start_pt=start_node, end_pt=end_node, id_=getID()))
 
         self.nodes.clear()
         self.lines.clear()

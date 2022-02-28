@@ -87,7 +87,7 @@ class TestLine(TestCase):
         a = Node(1.0, 0.0)
         b = Node(0.5, 0.0)
 
-        l = Line(a, b, id=1, label="test")
+        l = Line(a, b, id_=1, label="test")
 
         self.assertEqual("test", l.label)
         self.assertEqual(a, l.start_pt)
@@ -164,7 +164,7 @@ class TestCubicBezier(TestCase):
         c1 = Node(0.6, 0.1)
         c2 = Node(0.7, 0.2)
 
-        cb = CubicBezier(a, c1, c2, b, id=1, label="test")
+        cb = CubicBezier(a, c1, c2, b, id_=1, label="test")
 
         self.assertEqual("test", cb.label)
         self.assertEqual(a, cb.start_pt)
