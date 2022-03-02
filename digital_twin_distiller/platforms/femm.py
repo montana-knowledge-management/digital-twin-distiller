@@ -124,7 +124,7 @@ class Femm(Platform):
 
     def export_material_definition(self, mat: Material):
         if self.metadata.problem_type == "magnetic":
-            lamtypes = {"inplane": 1, "magnetwire": 3}
+            lamtypes = {"inplane": 0, "magnetwire": 3}
             femm_material = MagneticMaterial(
                 material_name=mat.name,
                 mu_x=mat.mu_r,

@@ -2,55 +2,44 @@ from copy import deepcopy
 
 
 class Material:
-    def __init__(self, name):
+    def __init__(self, name, **kwargs):
         self.name = name
-        self.mu_r = 1.0
-        self.epsioln_r = 1.0
-        self.conductivity = 0.0
-        self.b = []
-        self.h = []
-        self.Je = 0.0  # External current density, can be complex
-        self.Rho = 0.0  # Volume charge density
-        self.remanence_angle = 0.0
-        self.remanence = 0.0
-        self.coercivity = 0.0
-        self.angluar_velocity = 0.0
-        self.vx = 0.0
-        self.vy = 0.0
+        self.mu_r = kwargs.get("mu_r", 1.0)
+        self.epsioln_r = kwargs.get("epsioln_r", 1.0)
+        self.conductivity = kwargs.get("conductivity", 0.0)
+        self.b = kwargs.get("b", []).copy()
+        self.h = kwargs.get("h", []).copy()
+        self.Je = kwargs.get("Je", 0.0)  # External current density, can be complex
+        self.Rho = kwargs.get("Rho", 0.0) # Volume charge density
+        self.remanence_angle = kwargs.get("remanence_angle", 0.0)
+        self.remanence = kwargs.get("remanence", 0.0)
+        self.coercivity = kwargs.get("coercivity", 0.0)
+        self.angluar_velocity = kwargs.get("angluar_velocity", 0.0)
+        self.vx = kwargs.get("vx", 0.0)
+        self.vy = kwargs.get("vy", 0.0)
 
         # Femm related
-        self.thickness = 0
-        self.lamination_type = 0
-        self.fill_factor = 0
-        self.diameter = 1.0
-        self.phi_hmax = 0.0
+        self.thickness = kwargs.get("thickness", 0)
+        self.lamination_type = kwargs.get("lamination_type", 0)
+        self.fill_factor = kwargs.get("fill_factor", 0)
+        self.diameter = kwargs.get("diameter", 1.0)
+        self.phi_hmax = kwargs.get("phi_hmax", 0.0)
 
         # FEMM HEAT
-        self.kx = 1.0
-        self.ky = 1.0
-        self.qv = 0.0
-        self.kt = 0.0
+        self.kx = kwargs.get("kx", 1.0)
+        self.ky = kwargs.get("ky", 1.0)
+        self.qv = kwargs.get("qv", 0.0)
+        self.kt = kwargs.get("kt", 0.0)
 
         # AGROS2D related
         # HEAT
-        self.material_density = 0.0
-        self.heat_conductivity = 385.0
-        self.volume_heat = 0.0
-        self.specific_heat = 0.0
+        self.material_density = kwargs.get("material_density", 0.0)
+        self.heat_conductivity = kwargs.get("heat_conductivity", 385.0)
+        self.volume_heat = kwargs.get("volume_heat", 0.0)
+        self.specific_heat = kwargs.get("specific_heat", 0.0)
 
         self.assigned = []  # a set of (x, y) tuples
-        self.meshsize = 0
+        self.meshsize = kwargs.get("meshsize", 0)
 
     def __copy__(self):
-        # newmaterial = Material(self.name)
-        # newmaterial.name = self.name
-        # newmaterial.mu_r = self.mu_r
-        # newmaterial.epsioln_r = self.epsioln_r
-        # newmaterial.conductivity = self.conductivity
-        # newmaterial.b = self.b.copy() or []
-        # newmaterial.h = self.h.copy() or []
-        # newmaterial.Je = self.Je
-        # newmaterial.Rho = self.Rho
-        # return newmaterial
-
         return deepcopy(self)
