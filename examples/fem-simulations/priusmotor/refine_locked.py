@@ -37,7 +37,7 @@ res = {"earheight": [(prod[i])[0] for i in range(len(prod))],
        "torque": [(torque["Torque"])[i] for i in range(len(prod))]}
 res = pd.DataFrame(res)
 
-switch = 3
+switch = 1
 if switch == 0:
     t = [[] for i in range(len(prod1))]
     a = 0
@@ -90,7 +90,7 @@ elif switch == 1:
     a = 0
     b = 0
     while a < nsteps_a:
-        t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 76)]
+        t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 91)]
         a = a + 1
         b = b + 2821
     print(t)

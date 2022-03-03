@@ -89,9 +89,7 @@ elif switch == 1:
 
 elif switch == 2:
     a = 0
-    b = 1
+    b = 5
     for i in range(a, b):
         plt.plot(list(range(nsteps_c)), (case["torque"])[i])
-        plt.plot((case["maxpeak"])[i], [((case["torque"])[i])[a] for a in (case["maxpeak"])[i]], "x")
-        plt.plot((case["minpeak"])[i], [((case["torque"])[i])[a] for a in (case["minpeak"])[i]], "x")
     plt.show()

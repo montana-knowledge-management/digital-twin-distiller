@@ -186,7 +186,7 @@ elif switch == 4:
     inmin = [[] for i in range(len(prod1))]
     tdelta1 = [[] for i in range(len(prod1))]
     tdelta2 = [[] for i in range(len(prod1))]
-
+    tdelta3 = [[] for i in range(len(prod1))]
     for i in range(len(prod1)):
         tmax[i] = max(t[i])
         tmin[i] = min(t[i])
@@ -206,9 +206,6 @@ elif switch == 4:
             "tdelta2": tdelta2
             }
     case = pd.DataFrame(case)
-
-    x = case[case["tdelta2"] == min(case["tdelta2"], key=abs)]
-    print(x)
 
     case.to_pickle(ModelDir.DATA / "df_cogging.pkl")
 
