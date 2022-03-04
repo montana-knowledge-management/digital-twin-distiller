@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from digital_twin_distiller import ModelDir
 from numpy import linspace
 import pandas as pd
+from matplotlib.lines import Line2D
 
 ModelDir.set_base(__file__)
 
@@ -33,20 +34,32 @@ case = pd.read_pickle(ModelDir.DATA / "df_cogging.pkl")
 
 switch = 0
 if switch == 0:
-    fig, ax1 = plt.subplots()
-    plt.title("Peak of the cogging torque and the rotor angle")
+    c = 19
+    a = 31 * c
+    b = 31 * (c + 1)
+    fig, ax1 = plt.subplots(figsize=(6, 4))
     ax2 = ax1.twinx()
-    for xe, ye in zip(case["earheight"], case["tdelta1"]):
-        ax1.scatter(xe, ye, c="blue")
-    #for xe, ye in zip(case["earheight"], case["tminpeak"]):
-        #ax1.scatter(xe, ye, c="blue")
-    for xe, ye in zip(case["earheight"], case["tdelta2"]):
-        ax2.scatter(xe, ye, c="g")
-    #for xe, ye in zip(case["earheight"], case["inminpeak"]):
+    for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tmaxpeak"].loc[range(a, b)]):
+        ax1.scatter(xe, ye, c="b")
+    #for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tminpeak"].loc[range(a, b)]):
+        #ax1.scatter(xe, ye, c="red")
+    for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tminpeak"].loc[range(a, b)]):
+        ax2.scatter(xe, ye, c="r")
+    #for xe, ye in zip(case["earheight"].loc[range(a, b)], case["inminpeak"].loc[range(a, b)]):
        #ax2.scatter(xe, ye, c="red")
-    ax1.set_xlabel('Variable parameter [mm]')
-    ax1.set_ylabel('Peak cogging torque [Nm]', c="b")
-    ax2.set_ylabel('Rotor angle [°]', c="r")
+    ax1.set_xlabel('Parameter C [mm]', fontsize=10)
+    ax1.set_ylabel('Torque [Nm]', fontsize=10, c='b')
+    ax2.set_ylabel('Torque [Nm]', fontsize=10, c='r')
+    ax1.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    ax1.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    ax1.minorticks_on()
+    ax2.minorticks_on()
+    legend = [Line2D([0], [0], marker="o", color='b', label="maximum"),
+              Line2D([0], [0], marker="o", color='r', label="minimum")]
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10)
+    plt.legend(handles=legend)
+    plt.savefig(ModelDir.MEDIA / "c.png", bbox_inches="tight", dpi=650)
     plt.show()
 
     a = 589
@@ -58,7 +71,7 @@ if switch == 0:
     plt.minorticks_on()
     plt.xlabel("rotorangle [deg]")
     plt.ylabel("Torque [Nm]")
-    plt.show()
+    #plt.show()
 
     a = 0
     b = 31
@@ -70,8 +83,8 @@ if switch == 0:
 
 elif switch == 1:
     c = 19
-    a = 0
-    b = 805
+    a = 31 * c
+    b = 31 * (c+1)
     fig, ax1 = plt.subplots()
     plt.title("Peak of the cogging torque and the rotor angle")
     ax2 = ax1.twinx()
@@ -86,7 +99,7 @@ elif switch == 1:
     ax1.set_xlabel('Torque difference 2 [Nm]')
     ax1.set_ylabel('Torque difference 1 [Nm]', c="b")
     #ax2.set_ylabel('Torque difference 2 [Nm]', c="r")
-    #plt.show()
+    plt.show()
 
     a = c * 31
     b = (c + 1) * 31
@@ -106,7 +119,7 @@ elif switch == 2:
     for i in range(a, b):
         zdata = (case["tmaxpeak"].loc[range(a, b)]).tolist()
         xdata = (case["earheight"].loc[range(a, b)]).tolist()
-        ydata = (case["aslheight"].loc[range(a, b)]).tolist()
+        ydata = (case["inmaxpeak"].loc[range(a, b)]).tolist()
         ax.scatter3D(xdata, ydata, zdata)
         ax.set_xlabel('Parameter A [mm]', fontsize=10)
         ax.set_ylabel('Parameter C [mm]', fontsize=10)

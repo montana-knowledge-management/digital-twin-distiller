@@ -16,7 +16,7 @@ range_b0 = 0.0
 range_b1 = 3.0
 nsteps_b = 31
 
-range_c0 = 0.1
+range_c0 = 0.0
 range_c1 = 45
 nsteps_c = 91
 
@@ -37,7 +37,7 @@ res = {"earheight": [(prod[i])[0] for i in range(len(prod))],
        "torque": [(torque["Torque"])[i] for i in range(len(prod))]}
 res = pd.DataFrame(res)
 
-switch = 1
+switch = 4
 if switch == 0:
     t = [[] for i in range(len(prod1))]
     a = 0
@@ -180,7 +180,7 @@ elif switch == 4:
         t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 91)]
         t[a] = [round((t[a])[i], 3) for i in range(len(range_c))]
         a = a + 1
-        b = b + 2821
+        b = b + 91
 
     tmax = [[] for i in range(len(prod1))]
     tmin = [[] for i in range(len(prod1))]
@@ -190,8 +190,8 @@ elif switch == 4:
     for i in range(len(prod1)):
         tmax[i] = max(t[i])
         tmin[i] = min(t[i])
-        inmax[i] = np.multiply(t[i].index(tmax[i]), 0.1)
-        inmin[i] = np.multiply(t[i].index(tmin[i]), 0.1)
+        inmax[i] = np.multiply(t[i].index(tmax[i]), 0.05)
+        inmin[i] = np.multiply(t[i].index(tmin[i]), 0.05)
         if inmin[i] == 45:
             inmin[i] = None
             tmin[i] = None

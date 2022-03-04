@@ -17,7 +17,7 @@ range_b0 = 0.0
 range_b1 = 3.0
 nsteps_b = 31
 
-range_c0 = 0.1
+range_c0 = 3.75
 range_c1 = 7.5
 nsteps_c = 76
 
@@ -190,8 +190,8 @@ elif switch == 4:
     for i in range(len(prod1)):
         tmax[i] = max(t[i])
         tmin[i] = min(t[i])
-        inmax[i] = np.multiply(t[i].index(tmax[i]), 0.1)
-        inmin[i] = np.multiply(t[i].index(tmin[i]), 0.1)
+        inmax[i] = np.multiply(t[i].index(tmax[i]), 0.05)
+        inmin[i] = np.multiply(t[i].index(tmin[i]), 0.05)
         tdelta1[i] = abs(tmax[i] - tmin[i])
         tdelta2[i] = tmax[i] - abs(tmin[i])
 
@@ -206,7 +206,9 @@ elif switch == 4:
             "tdelta2": tdelta2
             }
     case = pd.DataFrame(case)
-
+    case['inminpeak'] = case["inminpeak"].replace({0: np.nan})
+    case['inminpeak'] = case["inminpeak"].replace({3.75: np.nan})
+    case["tminpeak"].values[case['tminpeak'] > -0.1] = np.nan
     case.to_pickle(ModelDir.DATA / "df_cogging.pkl")
 
 else:

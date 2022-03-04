@@ -31,65 +31,24 @@ range_c = linspace(range_c0, range_c1, nsteps_c)
 
 case = pd.read_pickle(ModelDir.DATA / "df_locked.pkl")
 
-switch = 2
-if switch == 0:
-    fig, ax1 = plt.subplots()
-    plt.title("Peak of the torque and the rotor angle")
-    ax2 = ax1.twinx()
-    for xe, ye in zip(case["earheight"], case["tmaxpeak"]):
-        ax1.scatter(xe, ye, c="blue")
-    for xe, ye in zip(case["earheight"], case["tminpeak"]):
-        ax1.scatter(xe, ye, c="blue")
-    for xe, ye in zip(case["earheight"], case["inmaxpeak"]):
-        ax2.scatter(xe, ye, c="red")
-    for xe, ye in zip(case["earheight"], case["inminpeak"]):
-        ax2.scatter(xe, ye, c="red")
-    ax1.set_xlabel('Variable parameter [mm]')
-    ax1.set_ylabel('Peak torque [Nm]', c="b")
-    ax2.set_ylabel('Rotor angle [°]', c="r")
-    plt.show()
-
+switch = 1
+if switch == 1:
+    fig = plt.figure(figsize=(6, 6))
+    ax = fig.add_subplot(projection='3d')
+    c = 0
     a = 0
-    b = 1
+    b = 806
     for i in range(a, b):
-        plt.plot(range_c, (case["torque"])[i], lw=2)
-    plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
-    plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
-    plt.minorticks_on()
-    plt.xlabel("rotorangle [deg]")
-    plt.ylabel("torque [Nm]")
-    plt.show()
-
-    a = 0
-    b = 31
-    for i in range(a, b):
-        plt.plot(range_c, (case["torque"])[i])
-        plt.plot((case["inmaxpeak"])[i], (case["tmaxpeak"])[i], "x")
-        plt.plot((case["inminpeak"])[i], (case["tminpeak"])[i], "x")
-    plt.show()
-
-elif switch == 1:
-    a = 0
-    b = 1
-    fig, ax1 = plt.subplots()
-    plt.title("Peak of the torque and the rotor angle")
-    ax2 = ax1.twinx()
-    for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["torquepeak"].loc[range(a, b)]):
-        ax1.scatter(xe, ye, c="blue")
-    #for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tminpeak"].loc[range(a, b)]):
-        #ax1.scatter(xe, ye, c="blue")
-    #for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["inmaxpeak"].loc[range(a, b)]):
-        #ax2.scatter(xe, ye, c="red")
-    #for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["inminpeak"].loc[range(a, b)]):
-        #ax2.scatter(xe, ye, c="red")
-    ax1.set_xlabel('Variable parameter [mm]')
-    ax1.set_ylabel('Peak torque [Nm]', c="b")
-    ax2.set_ylabel('Rotor angle [°]', c="r")
-    plt.show()
-
-elif switch == 2:
-    a = 0
-    b = 5
-    for i in range(a, b):
-        plt.plot(list(range(nsteps_c)), (case["torque"])[i])
+        zdata = (case["tmaxpeak"].loc[range(a, b)]).tolist()
+        xdata = (case["earheight"].loc[range(a, b)]).tolist()
+        ydata = (case["aslheight"].loc[range(a, b)]).tolist()
+        ax.scatter3D(xdata, ydata, zdata)
+        ax.set_xlabel('Parameter A [mm]', fontsize=10)
+        ax.set_ylabel('Parameter C [mm]', fontsize=10)
+        ax.set_zlabel('Torque [Nm]', fontsize=10)
+        ax.minorticks_on()
+        ax.tick_params(labelsize=10)
+        plt.gca().invert_yaxis()
+        ax.view_init(elev=20., azim=140)
+    #plt.savefig(ModelDir.MEDIA / "cogging3d.png", bbox_inches="tight", dpi=650)
     plt.show()
