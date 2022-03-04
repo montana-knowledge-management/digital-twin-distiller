@@ -1,6 +1,8 @@
 from itertools import product
 
 import matplotlib.pyplot as plt
+import numpy as np
+
 from digital_twin_distiller import ModelDir
 from numpy import linspace
 import pandas as pd
@@ -35,43 +37,62 @@ case = pd.read_pickle(ModelDir.DATA / "df_cogging.pkl")
 switch = 0
 if switch == 0:
     c = 19
-    a = 31 * c
-    b = 31 * (c + 1)
+    a = 0 #31 * c
+    b = 806 #31 * (c + 1)
     fig, ax1 = plt.subplots(figsize=(6, 4))
-    ax2 = ax1.twinx()
-    for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tmaxpeak"].loc[range(a, b)]):
+    #ax2 = ax1.twinx()
+    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["tmaxpeak"].loc[range(a, b)]):
         ax1.scatter(xe, ye, c="b")
+    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["tminpeak"].loc[range(a, b)]):
+        ax1.scatter(xe, ye, c="red")
     #for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tminpeak"].loc[range(a, b)]):
-        #ax1.scatter(xe, ye, c="red")
-    for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tminpeak"].loc[range(a, b)]):
-        ax2.scatter(xe, ye, c="r")
+        #ax2.scatter(xe, ye, c="r")
     #for xe, ye in zip(case["earheight"].loc[range(a, b)], case["inminpeak"].loc[range(a, b)]):
        #ax2.scatter(xe, ye, c="red")
     ax1.set_xlabel('Parameter C [mm]', fontsize=10)
-    ax1.set_ylabel('Torque [Nm]', fontsize=10, c='b')
-    ax2.set_ylabel('Torque [Nm]', fontsize=10, c='r')
+    ax1.set_ylabel('Torque [Nm]', fontsize=10)
+    #ax2.set_ylabel('Torque [Nm]', fontsize=10, c='r')
     ax1.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     ax1.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     ax1.minorticks_on()
-    ax2.minorticks_on()
-    legend = [Line2D([0], [0], marker="o", color='b', label="maximum"),
-              Line2D([0], [0], marker="o", color='r', label="minimum")]
+    #ax2.minorticks_on()
+    #legend = [Line2D([0], [0], marker="o", color='b', label="maximum"),
+              #Line2D([0], [0], marker="o", color='r', label="minimum")]
     plt.xticks(fontsize=10)
     plt.yticks(fontsize=10)
-    plt.legend(handles=legend)
-    plt.savefig(ModelDir.MEDIA / "c.png", bbox_inches="tight", dpi=650)
+    #plt.legend(handles=legend)
+    plt.savefig(ModelDir.MEDIA / "torque.png", bbox_inches="tight", dpi=650)
     plt.show()
 
-    a = 589
-    b = 620
+    x = [[] for i in range(805)]
+    rev = case.copy()
+    rev = rev.loc[::-1].reset_index(drop=True)
+    rev["coggingtorque"] = list(reversed(rev["coggingtorque"]))
+    for i in range(805):
+        x[i] = [a * -1 for a in (rev["coggingtorque"])[i]]
+    rev = {'x': x}
+    rev2 = case.copy()
+    for i in range(805):
+        x[i] = [a * -1 for a in (rev2["coggingtorque"])[i]]
+    rev2 = {'x': x}
+    c = 0
+    a = c*31
+    b = c*31+1
+    fig = plt.figure(figsize=(6, 4))
     for i in range(a, b):
-        plt.plot(range_c, (case["coggingtorque"])[i], lw=2)
+        plt.plot(range_c, (case["coggingtorque"])[i], c='b')
+        plt.plot(7.44-range_c, (rev["x"])[i], c='b')
+        plt.plot(15.05-range_c, (rev2["x"])[i], c='b')
+        plt.plot(7.6+range_c, (case["coggingtorque"])[i], c='b')
     plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     plt.minorticks_on()
-    plt.xlabel("rotorangle [deg]")
-    plt.ylabel("Torque [Nm]")
-    #plt.show()
+    plt.xlabel("Electrical angle [deg]", fontsize=10)
+    plt.ylabel("Torque [Nm]", fontsize=10)
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10)
+    plt.savefig(ModelDir.MEDIA / "cogging2.png", bbox_inches="tight", dpi=650)
+    plt.show()
 
     a = 0
     b = 31

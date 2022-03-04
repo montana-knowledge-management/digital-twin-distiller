@@ -316,7 +316,7 @@ elif switch == 3:
     plt.xticks(fontsize=10)
     plt.yticks(fontsize=10)
     plt.legend(bbox_to_anchor=(0.64, 1.225), fontsize=8.5)
-    #plt.savefig(ModelDir.MEDIA / "cogging.png", bbox_inches="tight", dpi=650)
+    plt.savefig(ModelDir.MEDIA / "cogging.png", bbox_inches="tight", dpi=650)
     plt.show()
 
 
