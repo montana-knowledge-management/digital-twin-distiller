@@ -36,32 +36,32 @@ case = pd.read_pickle(ModelDir.DATA / "df_cogging.pkl")
 
 switch = 0
 if switch == 0:
-    c = 19
-    a = 0 #31 * c
-    b = 806 #31 * (c + 1)
+    c = 16
+    a = 31 * c
+    b = 31* (c + 1)
     fig, ax1 = plt.subplots(figsize=(6, 4))
-    #ax2 = ax1.twinx()
-    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["tmaxpeak"].loc[range(a, b)]):
-        ax1.scatter(xe, ye, c="b")
-    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["tminpeak"].loc[range(a, b)]):
-        ax1.scatter(xe, ye, c="red")
-    #for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tminpeak"].loc[range(a, b)]):
-        #ax2.scatter(xe, ye, c="r")
-    #for xe, ye in zip(case["earheight"].loc[range(a, b)], case["inminpeak"].loc[range(a, b)]):
-       #ax2.scatter(xe, ye, c="red")
+    ax2 = ax1.twinx()
+    for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tmaxpeak"].loc[range(a, b)]):
+        ax1.scatter(xe, ye, c="r")
+    #for xe, ye in zip(case["earheight"].loc[range(a, b)], case["tminpeak"].loc[range(a, b)]):
+        #ax1.scatter(xe, ye, c="b")
+    for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tdelta3"].loc[range(a, b)]):
+        ax2.scatter(xe, ye, c="b")
+    #for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tdelta3"].loc[range(a, b)]):
+       #ax2.scatter(xe, ye, c="g")
     ax1.set_xlabel('Parameter C [mm]', fontsize=10)
-    ax1.set_ylabel('Torque [Nm]', fontsize=10)
-    #ax2.set_ylabel('Torque [Nm]', fontsize=10, c='r')
+    ax1.set_ylabel('Torque [Nm]', fontsize=10, c="b")
+    ax2.set_ylabel('Torque [Nm]', fontsize=10, c='r')
     ax1.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     ax1.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     ax1.minorticks_on()
-    #ax2.minorticks_on()
-    #legend = [Line2D([0], [0], marker="o", color='b', label="maximum"),
-              #Line2D([0], [0], marker="o", color='r', label="minimum")]
+    ax2.minorticks_on()
+    legend = [Line2D([0], [0], marker="o", color='r', label= "tmax"),
+              Line2D([0], [0], marker="o", color='b', label= u"\u0394" + "t2")]
     plt.xticks(fontsize=10)
     plt.yticks(fontsize=10)
-    #plt.legend(handles=legend)
-    plt.savefig(ModelDir.MEDIA / "torque.png", bbox_inches="tight", dpi=650)
+    plt.legend(handles=legend)
+    plt.savefig(ModelDir.MEDIA / "delta.png", bbox_inches="tight", dpi=650)
     plt.show()
 
     x = [[] for i in range(805)]
@@ -75,15 +75,15 @@ if switch == 0:
     for i in range(805):
         x[i] = [a * -1 for a in (rev2["coggingtorque"])[i]]
     rev2 = {'x': x}
-    c = 0
+    c = 20
     a = c*31
     b = c*31+1
     fig = plt.figure(figsize=(6, 4))
     for i in range(a, b):
-        plt.plot(range_c, (case["coggingtorque"])[i], c='b')
-        plt.plot(7.44-range_c, (rev["x"])[i], c='b')
-        plt.plot(15.05-range_c, (rev2["x"])[i], c='b')
-        plt.plot(7.6+range_c, (case["coggingtorque"])[i], c='b')
+        plt.plot(range_c * 4, (case["coggingtorque"])[i], c='b')
+        plt.plot((7.5-range_c) * 4, (rev["x"])[i], c='b')
+        plt.plot((15.05-range_c) * 4, (rev2["x"])[i], c='b')
+        plt.plot((7.55+range_c) * 4, (case["coggingtorque"])[i], c='b')
     plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     plt.minorticks_on()
@@ -94,8 +94,8 @@ if switch == 0:
     plt.savefig(ModelDir.MEDIA / "cogging2.png", bbox_inches="tight", dpi=650)
     plt.show()
 
-    a = 0
-    b = 31
+    a = 620
+    b = 651
     for i in range(a, b):
         plt.plot(range_c, (case["coggingtorque"])[i])
         plt.plot((case["inmaxpeak"])[i], (case["tmaxpeak"])[i], "x")

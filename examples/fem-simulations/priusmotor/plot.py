@@ -19,8 +19,8 @@ range_b1 = 3.0
 nsteps_b = 31
 
 range_c0 = 0.0
-range_c1 = 45
-nsteps_c = 25
+range_c1 = 7.5
+nsteps_c = 16
 
 range_a = linspace(range_a0, range_a1, nsteps_a)
 range_b = linspace(range_b0, range_b1, nsteps_b)
@@ -30,7 +30,7 @@ prod = list(product(range_a, range_b, range_c))
 range_prod = linspace (0, len(prod), len(prod)+1)
 prod1 = list(product(range_a, range_b))
 
-f = open(ModelDir.DATA / f'locked_rotorv2.json')
+f = open(ModelDir.DATA / f'cogging_torquev2.json')
 torque = json.load(f)
 
 res = {}
@@ -40,15 +40,15 @@ res["rotorangle"] = [(prod[i])[2] for i in range(len(prod))]
 res["torque"] = [(torque["Torque"])[i] for i in range(len(prod))]
 res = pd.DataFrame(res)
 
-switch = 1
+switch = 0
 if switch == 0:
     t = [[] for i in range(len(prod1))]
     a = 0
     b = 0
     while a < len(prod1):
-        t[a] = [(torque["Torque"])[i] for i in range(b+0, b+25)]
+        t[a] = [(torque["Torque"])[i] for i in range(b+0, b+16)]
         a = a + 1
-        b = b + 25
+        b = b + 16
 
     tmax = [[] for i in range(len(prod1))]
     tmid = [[] for i in range(len(prod1))]
@@ -134,10 +134,10 @@ elif switch == 3:
     a = 0
     b = 0
     while a < nsteps_a:
-        t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 76)]
+        t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 16)]
         t[a] = [round((t[a])[i], 3) for i in range(len(range_c))]
         a = a + 1
-        b = b + 2356
+        b = b + 496
 
     tmax = [[] for i in range(nsteps_a)]
     tmin = [[] for i in range(nsteps_a)]
@@ -210,33 +210,34 @@ elif switch == 4:
 else:
     pass
 
-switch = 3
+switch = 0
 if switch == 0:
-    fig, ax1 = plt.subplots()
-    plt.title("Peak of the cogging torque and the rotor angle")
-    ax2 = ax1.twinx()
-    for xe, ye in zip(case["earheight"], case["tmaxpeak"]):
-        ax1.scatter(xe, ye, c="blue")
-    for xe, ye in zip(case["earheight"], case["tminpeak"]):
-        ax1.scatter(xe, ye, c="blue")
-    for xe, ye in zip(case["earheight"], case["inmaxpeak"]):
-        ax2.scatter(xe, ye, c="red")
-    for xe, ye in zip(case["earheight"], case["inminpeak"]):
-        ax2.scatter(xe, ye, c="red")
-    ax1.set_xlabel('Variable parameter [mm]')
-    ax1.set_ylabel('Peak cogging torque [Nm]', c="b")
-    ax2.set_ylabel('Rotor angle [°]', c="r")
-    plt.show()
-
     a = 0
-    b = 1
-    for i in range(a, b):
-        plt.plot(range_c, (case["coggingtorque"])[i], lw=2)
+    b = 31
+    fig = plt.subplots(figsize=(6, 4))
+    for i in range(a, b, 5):
+        plt.plot(range_c * 4, (case["coggingtorque"])[i], lw=2, label="A = " + str(0.5+ i*0.1) + " mm, C = 0.0 mm")
     plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     plt.minorticks_on()
-    plt.xlabel("rotorangle [deg]")
-    plt.ylabel("Torque [Nm]")
+    plt.xlabel("Electrical angle [deg]", fontsize = 10)
+    plt.ylabel("Torque [Nm]", fontsize = 10)
+    plt.legend()
+    plt.savefig(ModelDir.MEDIA / "cogging1.png", bbox_inches="tight", dpi=650)
+    plt.show()
+
+    a = 0
+    b = 31
+    fig = plt.subplots(figsize=(6, 4))
+    for i in range(a, b, 5):
+        plt.plot(range_c * 4, (case["coggingtorque"])[i], lw=2, label="C = " + str(0.0 + i * 0.1) + " mm, A = 0.5 mm")
+    plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    plt.minorticks_on()
+    plt.xlabel("Electrical angle [deg]", fontsize=10)
+    plt.ylabel("Torque [Nm]", fontsize=10)
+    plt.legend()
+    plt.savefig(ModelDir.MEDIA / "cogging2.png", bbox_inches="tight", dpi=650)
     plt.show()
 
     a = 0
@@ -245,7 +246,7 @@ if switch == 0:
         plt.plot(range_c, (case["coggingtorque"])[i])
         plt.plot((case["inmaxpeak"])[i], (case["tmaxpeak"])[i], "x")
         plt.plot((case["inminpeak"])[i], (case["tminpeak"])[i], "x")
-    plt.show()
+    #plt.show()
 
 elif switch == 1:
     c = 19

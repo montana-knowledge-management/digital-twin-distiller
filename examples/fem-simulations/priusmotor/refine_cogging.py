@@ -1,3 +1,5 @@
+from statistics import mean
+
 import numpy as np
 import scipy.signal
 from numpy import linspace
@@ -194,6 +196,7 @@ elif switch == 4:
         inmin[i] = np.multiply(t[i].index(tmin[i]), 0.05)
         tdelta1[i] = abs(tmax[i] - tmin[i])
         tdelta2[i] = tmax[i] - abs(tmin[i])
+        tdelta3[i] = mean(t[i])
 
     case = {"earheight": [(prod1[i])[0] for i in range(len(prod1))],
             "aslheight": [(prod1[i])[1] for i in range(len(prod1))],
@@ -203,7 +206,8 @@ elif switch == 4:
             "tmaxpeak": tmax,
             "tminpeak": tmin,
             "tdelta1": tdelta1,
-            "tdelta2": tdelta2
+            "tdelta2": tdelta2,
+            "tdelta3": tdelta3
             }
     case = pd.DataFrame(case)
     case['inminpeak'] = case["inminpeak"].replace({0: np.nan})
