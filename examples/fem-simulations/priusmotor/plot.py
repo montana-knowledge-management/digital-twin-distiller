@@ -210,7 +210,7 @@ elif switch == 4:
 else:
     pass
 
-switch = 0
+switch = 3
 if switch == 0:
     a = 0
     b = 31

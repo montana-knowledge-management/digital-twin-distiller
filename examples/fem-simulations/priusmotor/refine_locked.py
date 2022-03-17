@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy import linspace
 from itertools import product
@@ -25,154 +26,88 @@ range_b = linspace(range_b0, range_b1, nsteps_b)
 range_c = linspace(range_c0, range_c1, nsteps_c)
 
 prod = list(product(range_a, range_b, range_c))
-range_prod = linspace (0, len(prod), len(prod)+1)
+range_prod = linspace(0, len(prod), len(prod)+1)
 prod1 = list(product(range_a, range_b))
+prod2 = list(product(range_a, range_c))
+prod3 = list(product(range_b, range_c))
 
 f = open(ModelDir.DATA / f'locked_rotor.json')
 torque = json.load(f)
 
-res = {"earheight": [(prod[i])[0] for i in range(len(prod))],
-       "aslheight": [(prod[i])[1] for i in range(len(prod))],
-       "rotorangle": [(prod[i])[2] for i in range(len(prod))],
-       "torque": [(torque["Torque"])[i] for i in range(len(prod))]}
-res = pd.DataFrame(res)
-
 switch = 4
-if switch == 0:
-    t = [[] for i in range(len(prod1))]
+if switch == 1:
+    t = [[] for i in range(len(range_a))]
     a = 0
     b = 0
-    while a < len(prod1):
-        t[a] = [(torque["Torque"])[i] for i in range(b+0, b+91)]
-        a = a + 1
-        b = b + 91
-
-    tmax = [[] for i in range(len(prod1))]
-    tmid = [[] for i in range(len(prod1))]
-    inmid = [[] for i in range(len(prod1))]
-    tpeak = [[0 for i in range(nsteps_c)] for i in range(len(prod1))]
-    inpeak = [[0 for i in range(nsteps_c)] for i in range(len(prod1))]
-    tmin = [[] for i in range(len(prod1))]
-
-    for i in range(len(prod1)):
-        tmax[i] = max(t[i])
-        tmin[i] = min(t[i])
-    tabsmax = max(abs(x) for x in tmax)
-    tabsmin = min(abs(x) for x in tmin)
-
-    for a in range(len(prod1)):
-        for b in range(1, nsteps_c-1):
-            if (t[a])[b] > (t[a])[b-1] and (t[a])[b] > (t[a])[b+1]:
-                (tpeak[a])[b] = round((t[a])[b], 5)
-            elif (t[a])[b] < (t[a])[b-1] and (t[a])[b] < (t[a])[b+1]:
-                (tpeak[a])[b] = round((t[a])[b], 5)
-            else:
-                pass
-            if (tpeak[a])[b] == 0:
-                pass
-            else:
-                (inpeak[a])[b] = round(b / 90 * 45, 1)
-        inpeak[a] = [i for i in inpeak[a] if i != 0]
-        tpeak[a] = [i for i in tpeak[a] if i != 0]
-
-    case = {"earheight": [(prod1[i])[0] for i in range(len(prod1))],
-            "aslheight": [(prod1[i])[1] for i in range(len(prod1))],
-            "torque": t,
-            "torquepeak": tpeak,
-            "peakindex": inpeak}
-    case = pd.DataFrame(case)
-    print(case)
-
-    case.to_pickle(ModelDir.DATA / "df_locked.pkl")
-
-elif switch == 1:
-    t = [[] for i in range(nsteps_a)]
-    a = 0
-    b = 0
-    while a < nsteps_a:
-        t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 91)]
-        a = a + 1
-        b = b + 2821
-    print(t)
-
-    tmax = [[] for i in range(nsteps_a)]
-    tmid = [[] for i in range(nsteps_a)]
-    inmid = [[] for i in range(nsteps_a)]
-    tpeak = [[0 for i in range(nsteps_c)] for i in range(nsteps_a)]
-    inpeak = [[0 for i in range(nsteps_c)] for i in range(nsteps_a)]
-    tmin = [[] for i in range(nsteps_a)]
-
-    for i in range(nsteps_a):
-        tmax[i] = max(t[i])
-        tmin[i] = min(t[i])
-    tabsmax = max(abs(x) for x in tmax)
-    tabsmin = min(abs(x) for x in tmin)
-
-    for a in range(nsteps_a):
-        for b in range(1, nsteps_c - 1):
-            if (t[a])[b] > (t[a])[b - 1] and (t[a])[b] > (t[a])[b + 1]:
-                (tpeak[a])[b] = round((t[a])[b], 5)
-            elif (t[a])[b] < (t[a])[b - 1] and (t[a])[b] < (t[a])[b + 1]:
-                (tpeak[a])[b] = round((t[a])[b], 5)
-            else:
-                pass
-            if (tpeak[a])[b] == 0:
-                pass
-            else:
-                (inpeak[a])[b] = round(b / 91 * 45, 1)
-        inpeak[a] = [i for i in inpeak[a] if i != 0]
-        tpeak[a] = [i for i in tpeak[a] if i != 0]
-
-    case = {"earheight": range_a,
-            "torque": t,
-            "torquepeak": tpeak,
-            "peakindex": inpeak}
-    case = pd.DataFrame(case)
-    print(case)
-
-    case.to_pickle(ModelDir.DATA / "df_locked.pkl")
-
-elif switch == 3:
-    t = [[] for i in range(nsteps_a)]
-    a = 0
-    b = 0
-    while a < nsteps_a:
+    while a < len(range_a):
         t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 91)]
         t[a] = [round((t[a])[i], 3) for i in range(len(range_c))]
         a = a + 1
         b = b + 2821
 
-    tmax = [[] for i in range(nsteps_a)]
-    tmin = [[] for i in range(nsteps_a)]
-    inmax = [[] for i in range(nsteps_a)]
-    inmin = [[] for i in range(nsteps_a)]
-    npeaks = [[] for i in range(nsteps_a)]
-    ppeaks = [[] for i in range(nsteps_a)]
-    ntpeaks = [[] for i in range(nsteps_a)]
-    ptpeaks = [[] for i in range(nsteps_a)]
-    for i in range(nsteps_a):
+    tmax = [[] for i in range(len(range_a))]
+    tmin = [[] for i in range(len(range_a))]
+    inmax = [[] for i in range(len(range_a))]
+    inmin = [[] for i in range(len(range_a))]
+    tempmax = [[] for i in range(len(range_a))]
+    tempmin = [[] for i in range(len(range_a))]
+    tmaxpeaks = [[0] * 2 for i in range(len(range_a))]
+    inmaxpeaks = [[0] * 2 for i in range(len(range_a))]
+    tminpeaks = [[0] * 2 for i in range(len(range_a))]
+    inminpeaks = [[0] * 2 for i in range(len(range_a))]
+    t1 = [[] for i in range(len(range_a))]
+    t2 = [[] for i in range(len(range_a))]
+    t3 = [[] for i in range(len(range_a))]
+    t4 = [[] for i in range(len(range_a))]
+    i1 = [[] for i in range(len(range_a))]
+    i2 = [[] for i in range(len(range_a))]
+    i3 = [[] for i in range(len(range_a))]
+    i4 = [[] for i in range(len(range_a))]
+
+    for i in range(len(range_a)):
         tmax[i] = max(t[i])
         tmin[i] = min(t[i])
-        inmax[i] = np.multiply(t[i].index(tmax[i]), 0.1)
-        inmin[i] = np.multiply(t[i].index(tmin[i]), 0.1)
-        if inmin[i] == 45:
-            inmin[i] = None
-            tmin[i] = None
-        else:
-            inmin[i] = inmin[i]
-            tmin[i] = tmin[i]
-        ppeaks[i], _ = find_peaks(t[i])
-        npeaks[i], _ = find_peaks(np.multiply(t[i], -1))
+        inmax[i] = np.multiply(t[i].index(tmax[i]), 2)
+        inmin[i] = np.multiply(t[i].index(tmin[i]), 2)
+        tempmax[i], _ = find_peaks(t[i])
+        tempmin[i], _ = find_peaks(np.multiply(t[i], -1))
+        inmaxpeaks[i] = np.multiply(tempmax[i], 2)
+        inminpeaks[i] = np.multiply(tempmin[i], 2)
+        for j in range(len(tempmax[i])):
+            (tmaxpeaks[i])[j] = (t[i])[(tempmax[i])[j]]
+            (tminpeaks[i])[j] = (t[i])[(tempmin[i])[j]]
+    for i in range(len(range_a)):
+        t1[i] = (tminpeaks[i])[0]
+        t2[i] = (tmaxpeaks[i])[0]
+        t3[i] = (tminpeaks[i])[1]
+        t4[i] = (tmaxpeaks[i])[1]
+        i1[i] = (inminpeaks[i])[0]
+        i2[i] = (inmaxpeaks[i])[0]
+        i3[i] = (inminpeaks[i])[1]
+        i4[i] = (inmaxpeaks[i])[1]
 
     case = {"earheight": range_a,
             "torque": t,
-            "maxpeak": ppeaks,
-            "minpeak": npeaks}
+            "inmax": inmax,
+            "inmin": inmin,
+            "tmax": tmax,
+            "tmin": tmin,
+            "inmaxpeaks": inmaxpeaks,
+            "inminpeaks": inminpeaks,
+            "tmaxpeaks": tmaxpeaks,
+            "tminpeaks": tminpeaks,
+            "t1": t1,
+            "t2": t2,
+            "t3": t3,
+            "t4": t4,
+            "i1": i1,
+            "i2": i2,
+            "i3": i3,
+            "i4": i4}
     case = pd.DataFrame(case)
-
     case.to_pickle(ModelDir.DATA / "df_locked.pkl")
 
-elif switch == 4:
+elif switch == 2:
     t = [[] for i in range(len(prod1))]
     a = 0
     b = 0
@@ -186,28 +121,213 @@ elif switch == 4:
     tmin = [[] for i in range(len(prod1))]
     inmax = [[] for i in range(len(prod1))]
     inmin = [[] for i in range(len(prod1))]
+    tempmax = [[] for i in range(len(prod1))]
+    tempmin = [[] for i in range(len(prod1))]
+    tmaxpeaks = [[0] * 2 for i in range(len(prod1))]
+    inmaxpeaks = [[0] * 2 for i in range(len(prod1))]
+    tminpeaks = [[0] * 2 for i in range(len(prod1))]
+    inminpeaks = [[0] * 2 for i in range(len(prod1))]
+    t1 = [[] for i in range(len(prod1))]
+    t2 = [[] for i in range(len(prod1))]
+    t3 = [[] for i in range(len(prod1))]
+    t4 = [[] for i in range(len(prod1))]
+    i1 = [[] for i in range(len(prod1))]
+    i2 = [[] for i in range(len(prod1))]
+    i3 = [[] for i in range(len(prod1))]
+    i4 = [[] for i in range(len(prod1))]
 
     for i in range(len(prod1)):
         tmax[i] = max(t[i])
         tmin[i] = min(t[i])
-        inmax[i] = np.multiply(t[i].index(tmax[i]), 0.05)
-        inmin[i] = np.multiply(t[i].index(tmin[i]), 0.05)
-        if inmin[i] == 45:
-            inmin[i] = None
-            tmin[i] = None
-        else:
-            inmin[i] = inmin[i]
-            tmin[i] = tmin[i]
+        inmax[i] = np.multiply(t[i].index(tmax[i]), 2)
+        inmin[i] = np.multiply(t[i].index(tmin[i]), 2)
+        tempmax[i], _ = find_peaks(t[i])
+        tempmin[i], _ = find_peaks(np.multiply(t[i], -1))
+        inmaxpeaks[i] = np.multiply(tempmax[i], 2)
+        inminpeaks[i] = np.multiply(tempmin[i], 2)
+        for j in range(len(tempmax[i])):
+            (tmaxpeaks[i])[j] = (t[i])[(tempmax[i])[j]]
+            (tminpeaks[i])[j] = (t[i])[(tempmin[i])[j]]
+    for i in range(len(prod1)):
+        t1[i] = (tminpeaks[i])[0]
+        t2[i] = (tmaxpeaks[i])[0]
+        t3[i] = (tminpeaks[i])[1]
+        t4[i] = (tmaxpeaks[i])[1]
+        i1[i] = (inminpeaks[i])[0]
+        i2[i] = (inmaxpeaks[i])[0]
+        i3[i] = (inminpeaks[i])[1]
+        i4[i] = (inmaxpeaks[i])[1]
+
     case = {"earheight": [(prod1[i])[0] for i in range(len(prod1))],
             "aslheight": [(prod1[i])[1] for i in range(len(prod1))],
             "torque": t,
-            "inmaxpeak": inmax,
-            "inminpeak": inmin,
-            "tmaxpeak": tmax,
-            "tminpeak": tmin}
+            "inmax": inmax,
+            "inmin": inmin,
+            "tmax": tmax,
+            "tmin": tmin,
+            "inmaxpeaks": inmaxpeaks,
+            "inminpeaks": inminpeaks,
+            "tmaxpeaks": tmaxpeaks,
+            "tminpeaks": tminpeaks,
+            "t1": t1,
+            "t2": t2,
+            "t3": t3,
+            "t4": t4,
+            "i1": i1,
+            "i2": i2,
+            "i3": i3,
+            "i4": i4}
     case = pd.DataFrame(case)
-
     case.to_pickle(ModelDir.DATA / "df_locked.pkl")
+
+elif switch == 2:
+    t = [[] for i in range(len(prod1))]
+    a = 0
+    b = 0
+    while a < len(prod1):
+        t[a] = [(torque["Torque"])[i] for i in range(b + 0, b + 91)]
+        t[a] = [round((t[a])[i], 3) for i in range(len(range_c))]
+        a = a + 1
+        b = b + 91
+
+    tmax = [[] for i in range(len(prod1))]
+    tmin = [[] for i in range(len(prod1))]
+    inmax = [[] for i in range(len(prod1))]
+    inmin = [[] for i in range(len(prod1))]
+    tempmax = [[] for i in range(len(prod1))]
+    tempmin = [[] for i in range(len(prod1))]
+    tmaxpeaks = [[0] * 2 for i in range(len(prod1))]
+    inmaxpeaks = [[0] * 2 for i in range(len(prod1))]
+    tminpeaks = [[0] * 2 for i in range(len(prod1))]
+    inminpeaks = [[0] * 2 for i in range(len(prod1))]
+    t1 = [[] for i in range(len(prod1))]
+    t2 = [[] for i in range(len(prod1))]
+    t3 = [[] for i in range(len(prod1))]
+    t4 = [[] for i in range(len(prod1))]
+    i1 = [[] for i in range(len(prod1))]
+    i2 = [[] for i in range(len(prod1))]
+    i3 = [[] for i in range(len(prod1))]
+    i4 = [[] for i in range(len(prod1))]
+
+    for i in range(len(prod1)):
+        tmax[i] = max(t[i])
+        tmin[i] = min(t[i])
+        inmax[i] = np.multiply(t[i].index(tmax[i]), 2)
+        inmin[i] = np.multiply(t[i].index(tmin[i]), 2)
+        tempmax[i], _ = find_peaks(t[i])
+        tempmin[i], _ = find_peaks(np.multiply(t[i], -1))
+        inmaxpeaks[i] = np.multiply(tempmax[i], 2)
+        inminpeaks[i] = np.multiply(tempmin[i], 2)
+        for j in range(len(tempmax[i])):
+            (tmaxpeaks[i])[j] = (t[i])[(tempmax[i])[j]]
+            (tminpeaks[i])[j] = (t[i])[(tempmin[i])[j]]
+    for i in range(len(prod1)):
+        t1[i] = (tminpeaks[i])[0]
+        t2[i] = (tmaxpeaks[i])[0]
+        t3[i] = (tminpeaks[i])[1]
+        t4[i] = (tmaxpeaks[i])[1]
+        i1[i] = (inminpeaks[i])[0]
+        i2[i] = (inmaxpeaks[i])[0]
+        i3[i] = (inminpeaks[i])[1]
+        i4[i] = (inmaxpeaks[i])[1]
+
+    case = {"earheight": [(prod1[i])[0] for i in range(len(prod1))],
+            "aslheight": [(prod1[i])[1] for i in range(len(prod1))],
+            "torque": t,
+            "inmax": inmax,
+            "inmin": inmin,
+            "tmax": tmax,
+            "tmin": tmin,
+            "inmaxpeaks": inmaxpeaks,
+            "inminpeaks": inminpeaks,
+            "tmaxpeaks": tmaxpeaks,
+            "tminpeaks": tminpeaks,
+            "t1": t1,
+            "t2": t2,
+            "t3": t3,
+            "t4": t4,
+            "i1": i1,
+            "i2": i2,
+            "i3": i3,
+            "i4": i4}
+    case = pd.DataFrame(case)
+    case.to_pickle(ModelDir.DATA / "df_locked.pkl")
+
+elif switch == 3:
+    t = [[] for i in range(len(prod2))]
+    a = 0
+    b = 0
+    while a < len(prod2):
+        t[a] = (torque["Torque"])[b]
+        if a in list(90*(i+1) for i in range(25)):
+            b = b + 2822
+            a = a + 1
+        else:
+            b = b + 1
+            a = a + 1
+
+    case = {"earheight": [(prod2[i])[0] for i in range(len(prod2))],
+            "angle": [(prod2[i])[1] for i in range(len(prod2))],
+            "torque": t}
+
+    case = pd.DataFrame(case)
+    #case.to_pickle(ModelDir.DATA / "df_locked.pkl")
+
+    fig = plt.figure(figsize=(6, 6))
+    ax = fig.add_subplot(projection='3d')
+    a = 60
+    b = 75
+    for i in range(26):
+        zdata = case["torque"].iloc[a+(i*91): b+(i*91)]
+        xdata = case["angle"].iloc[a+(i*91): b+(i*91)]
+        ydata = case["earheight"].iloc[a+(i*91): b+(i*91)]
+        ax.scatter3D(xdata, ydata, zdata)
+    ax.set_xlabel('Angle [deg]', fontsize=10)
+    ax.set_ylabel('Parameter A [mm]', fontsize=10)
+    ax.set_zlabel('Torque [Nm]', fontsize=10)
+    ax.minorticks_on()
+    ax.set_ylim(3, 0)
+    ax.set_ylim(3, 0)
+    ax.tick_params(labelsize=10)
+    ax.view_init(elev=20, azim=250)
+    #plt.savefig(ModelDir.MEDIA / "i4_locked3d.png", bbox_inches="tight", dpi=650)
+    plt.show()
+
+elif switch == 4:
+    t = [[] for i in range(len(prod3))]
+    a = 0
+    b = 45136
+    while a < len(prod3):
+        t[a] = (torque["Torque"])[b]
+        b = b + 1
+        a = a + 1
+    print(b)
+    case = {"aslheight": [(prod3[i])[0] for i in range(len(prod3))],
+            "angle": [(prod3[i])[1] for i in range(len(prod3))],
+            "torque": t}
+
+    case = pd.DataFrame(case)
+    #case.to_pickle(ModelDir.DATA / "df_locked.pkl")
+
+    fig = plt.figure(figsize=(6, 6))
+    ax = fig.add_subplot(projection='3d')
+    a = 70
+    b = 80
+    for i in range(len(range_b)):
+        zdata = case["torque"].iloc[a+(i*91): b+(i*91)]
+        xdata = case["angle"].iloc[a+(i*91): b+(i*91)]
+        ydata = case["aslheight"].iloc[a+(i*91): b+(i*91)]
+        ax.scatter3D(xdata, ydata, zdata)
+    ax.set_xlabel('Angle [deg]', fontsize=10)
+    ax.set_ylabel('Parameter C [mm]', fontsize=10)
+    ax.set_zlabel('Torque [Nm]', fontsize=10)
+    ax.minorticks_on()
+    ax.set_ylim(3, 0)
+    ax.set_ylim(3, 0)
+    ax.tick_params(labelsize=10)
+    ax.view_init(elev=20, azim=250)
+    #plt.savefig(ModelDir.MEDIA / "i4_locked3d.png", bbox_inches="tight", dpi=650)
+    plt.show()
 
 else:
     pass

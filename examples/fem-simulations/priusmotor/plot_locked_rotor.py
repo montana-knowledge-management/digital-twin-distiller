@@ -136,15 +136,15 @@ a = 4
 z = np.polyfit(x, y1, a)
 predict = np.poly1d(z)
 y = predict(x)
-plt.plot(x*4, y, c="r", label="case A")
+plt.plot(x*4, y, c="r", label="case O")
 z = np.polyfit(x, y2, a)
 predict = np.poly1d(z)
 y = predict(x)
-plt.plot(x*4, y, c="g", linestyle='--', label="case B" )
+plt.plot(x*4, y, c="g", linestyle='--', label="case F" )
 z = np.polyfit(x, y3, a)
 predict = np.poly1d(z)
 y = predict(x)
-plt.plot(x*4, y, c="b", linestyle='dotted', label="case C")
+plt.plot(x*4, y, c="b", linestyle='dotted', label="case P")
 
 
 plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
