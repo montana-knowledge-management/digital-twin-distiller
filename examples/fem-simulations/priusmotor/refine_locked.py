@@ -275,8 +275,8 @@ elif switch == 3:
 
     fig = plt.figure(figsize=(6, 6))
     ax = fig.add_subplot(projection='3d')
-    a = 60
-    b = 75
+    a = 0
+    b = 91
     for i in range(26):
         zdata = case["torque"].iloc[a+(i*91): b+(i*91)]
         xdata = case["angle"].iloc[a+(i*91): b+(i*91)]
@@ -311,8 +311,8 @@ elif switch == 4:
 
     fig = plt.figure(figsize=(6, 6))
     ax = fig.add_subplot(projection='3d')
-    a = 70
-    b = 80
+    a = 55
+    b = 65
     for i in range(len(range_b)):
         zdata = case["torque"].iloc[a+(i*91): b+(i*91)]
         xdata = case["angle"].iloc[a+(i*91): b+(i*91)]

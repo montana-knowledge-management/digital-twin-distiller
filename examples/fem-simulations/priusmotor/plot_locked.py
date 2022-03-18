@@ -643,10 +643,11 @@ elif switch == 31:
     a = 31 * 16
     b = 31 * 17
     for i in range(a, b):
-        tt[i] = ((case["torque"])[i])[60:80]
-        plt.plot(range(60, 80), tt[i])
+        tt[i] = ((case["torque"])[i])[5:10]
+        plt.plot(range(5, 10), tt[i])
+        maxi = max(tt[i])
+        print(maxi)
     plt.show()
-
 elif switch == 99:
     a = 0
     b = 26
