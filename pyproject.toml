@@ -31,17 +31,13 @@ python-markdown-math = "^0.8"
 scipy = "^1.7.0"
 svgpathtools = "^1.4.2"
 uvicorn = ">0.15.0"
-
-[tool.poetry.group.nlp]
-optional = true
-
-[tool.poetry.group.nlp.dependencies]
-scikit-learn = "^1.0.1"
-tqdm = "^4.62.3"
-tika = "^1.24"
-sklearn = "^0.0"
+requests = ">=2.27.1"
+scikit-learn = {version="^1.0.1", optional=true}
+tqdm = {version="^4.62.3", optional=true}
+tika = {version="^1.24", optional=true}
+sklearn = {version="^0.0", optional=true}
 fasttext = {version="^0.9.2", optional=true}
-gensim = "^4.1.2"
+gensim = {version="^4.1.2", optional=true}
 
 [tool.poetry.dev-dependencies]
 black = "*"
@@ -52,10 +48,13 @@ isort = "*"
 pyupgrade = "^2.29"
 pylint = "^2.11.1"
 
+[tool.poetry.extras]
+nlp=["scikit-learn", "tqdm", "tika", "sklearn", "fasttext", "gensim"]
+
 
 # build system setup
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 
