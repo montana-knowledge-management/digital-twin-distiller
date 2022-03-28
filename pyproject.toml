@@ -40,7 +40,7 @@ scikit-learn = "^1.0.1"
 tqdm = "^4.62.3"
 tika = "^1.24"
 sklearn = "^0.0"
-fasttext = "^0.9.2"
+fasttext = {version="^0.9.2", optional=true}
 gensim = "^4.1.2"
 
 [tool.poetry.dev-dependencies]
@@ -55,7 +55,7 @@ pylint = "^2.11.1"
 
 # build system setup
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.1.12"]
 build-backend = "poetry.core.masonry.api"
 
 
