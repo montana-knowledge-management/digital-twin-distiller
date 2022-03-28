@@ -36,6 +36,7 @@ scikit-learn = {version="^1.0.1", optional=true}
 tqdm = {version="^4.62.3", optional=true}
 tika = {version="^1.24", optional=true}
 sklearn = {version="^0.0", optional=true}
+pybind11 = {version = "^2.9.1", optional = true}
 fasttext = {version="^0.9.2", optional=true}
 gensim = {version="^4.1.2", optional=true}
 
@@ -49,7 +50,7 @@ pyupgrade = "^2.29"
 pylint = "^2.11.1"
 
 [tool.poetry.extras]
-nlp=["scikit-learn", "tqdm", "tika", "sklearn", "fasttext", "gensim"]
+nlp=["scikit-learn", "tqdm", "tika", "sklearn", "pybind11", "fasttext", "gensim"]
 
 
 # build system setup
