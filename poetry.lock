@@ -1242,7 +1242,7 @@ nlp = ["scikit-learn", "tqdm", "tika", "sklearn", "pybind11", "fasttext", "gensi
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "c4b4013e6e75ea4c96258ba92471bcbff2de3c36cc54c92292c8786ee1e8b19a"
+content-hash = "b1626bd65f429524ee7d03e0a64edfd444840a59331cdcaa69f48f7ee659eb0e"
 
 [metadata.files]
 aiofiles = [

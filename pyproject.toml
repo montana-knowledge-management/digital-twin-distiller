@@ -32,6 +32,7 @@ scipy = "^1.7.0"
 svgpathtools = "^1.4.2"
 uvicorn = ">0.15.0"
 requests = ">=2.27.1"
+setuptools = "^61.2.0"
 scikit-learn = {version="^1.0.1", optional=true}
 tqdm = {version="^4.62.3", optional=true}
 tika = {version="^1.24", optional=true}
