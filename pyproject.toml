@@ -55,7 +55,7 @@ pylint = "^2.11.1"
 
 # build system setup
 [build-system]
-requires = ["poetry-core>=1.1.12"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 
