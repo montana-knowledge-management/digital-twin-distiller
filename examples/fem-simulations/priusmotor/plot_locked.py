@@ -1,5 +1,5 @@
 from itertools import product
-
+import numpy as np
 import matplotlib.pyplot as plt
 from digital_twin_distiller import ModelDir
 from numpy import linspace
@@ -32,7 +32,7 @@ range_c = linspace(range_c0, range_c1, nsteps_c)
 
 case = pd.read_pickle(ModelDir.DATA / "df_locked.pkl")
 
-switch = 31
+switch = 2
 if switch == 0:
     fig = plt.figure(figsize=(6, 6))
     ax = fig.add_subplot(projection='3d')
@@ -87,11 +87,12 @@ elif switch == 2:
     #predict = np.poly1d(z)
     #y = predict(range_c)
     #plt.plot(range_c, y, c="r", linestyle='--')
-    a = 0
-    b = 26
-    for i in range(a, b, 5):
-        sub1.plot(range(55, 80), [((case['torque'])[i])[a] for a in range(55, 80)])
-        sub2.plot(range_c, (case["torque"])[i], label=("A=" + str(0.5+0*0.1) + "mm"  + "," + " C=" + str(i*0.1) + "mm"))
+    a = 31 * 15
+    b = 31 * 16
+    range_c = np.multiply(range_c, 4)
+    for i, j in zip(range(a, b, 5), range(0, 31, 5)):
+        sub1.plot(range(110, 162, 2), [((case['torque'])[i])[a] for a in range(55, 81)])
+        sub2.plot(range_c, (case["torque"])[i], label=("A=" + str(2.1) + "mm"  + "," + " C=" + str(j*0.1) + "mm"))
     sub1.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     sub1.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     sub1.minorticks_on()
@@ -100,10 +101,11 @@ elif switch == 2:
     sub2.minorticks_on()
     plt.xlabel("Electrical angle [deg]", fontsize=10)
     plt.ylabel("Torque [Nm]", fontsize=10)
-    plt.xticks(fontsize=10)
+    #sub1.set_xticks(np.arange(110, 161, step=10), fontsize=10)
+    sub2.set_xticks(np.arange(0, 200, step=20), fontsize=10)
     plt.yticks(fontsize=10)
     plt.legend(bbox_to_anchor=(0.64, 1.225), fontsize=8.5)
-    plt.savefig(ModelDir.MEDIA / "cogging.png", bbox_inches="tight", dpi=650)
+    plt.savefig(ModelDir.MEDIA / "PEMC_locked.png", bbox_inches="tight", dpi=650)
     plt.show()
 
 elif switch == 3:

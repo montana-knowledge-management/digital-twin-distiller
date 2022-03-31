@@ -1,70 +1,180 @@
+import numpy as np
 from numpy import linspace
 from itertools import product
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
 
-from digital_twin_distiller import ModelDir, setup_matplotlib
+from digital_twin_distiller import ModelDir
 
 ModelDir.set_base(__file__)
 
-range_a0 = 0.5
-range_a1 = 3.5
-nsteps_a = 31
+switch = 0
+if switch == 0:
 
-range_b0 = 0.0
-range_b1 = 3.0
-nsteps_b = 31
+    range_a0 = 0
+    range_a1 = 250
+    nsteps_a = 251
 
-range_c0 = 37.5
-range_c1 = 82.5
-nsteps_c = 25
+    range_b0 = 0
+    range_b1 = 45
+    nsteps_b = 91
 
-range_d0 = 0.0
-range_d1 = -180
-nsteps_d = 25
+    range_a = linspace(range_a0, range_a1, nsteps_a)
+    range_b = linspace(range_b0, range_b1, nsteps_b)
+    prod = list(product(range_a, range_b))
 
-range_a = linspace(range_a0, range_a1, nsteps_a)
-range_b = linspace(range_b0, range_b1, nsteps_b)
-range_c = linspace(range_c0, range_c1, nsteps_c)
-range_d = linspace(range_d0, range_d1, nsteps_d)
+    f = open(ModelDir.DATA / f'locked_i.json')
+    rotate = json.load(f)
 
-prod = list(product(range_a, range_b, range_c))
-range_prod = linspace(0, len(prod), len(prod)+1)
-prod1 = list(product(range_a, range_b))
+    t = [[] for i in range(len(range_a))]
+    a = 0
+    b = 0
+    while a < len(range_a):
+        t[a] = [(rotate["Torque"])[i] for i in range(b + 0, b + 91)]
+        a = a + 1
+        b = b + 91
 
-f = open(ModelDir.DATA / f'rotate.json')
-rotate = json.load(f)
+    tempmax = [[] for i in range(len(range_a))]
+    tmaxpeaks = [[0] * 10 for i in range(len(range_a))]
+    inmaxpeaks = [[0] * 10 for i in range(len(range_a))]
+    tempmin = [[] for i in range(len(range_a))]
+    tminpeaks = [[0] * 10 for i in range(len(range_a))]
+    inminpeaks = [[0] * 10 for i in range(len(range_a))]
+    t1 = [[] for i in range(len(range_a))]
+    t2 = [[] for i in range(len(range_a))]
+    t3 = [[] for i in range(len(range_a))]
+    t01 = [[] for i in range(len(range_a))]
+    t02 = [[] for i in range(len(range_a))]
+    t03 = [[] for i in range(len(range_a))]
+    tav = [[] for i in range(len(range_a))]
 
-res = {"earheight": [(prod[i])[0] for i in range(len(prod))],
-        "aslheight": [(prod[i])[1] for i in range(len(prod))],
-        "rotorangle": [(prod[i])[2] for i in range(len(prod))],
-        "torque": [(rotate["Torque"])[i] for i in range(len(prod))]}
-res = pd.DataFrame(res)
+    for i in range(len(range_a)):
+        tempmax[i], _ = find_peaks(t[i])
+        tempmin[i], _ = find_peaks(np.multiply(t[i], -1))
+        inmaxpeaks[i] = np.multiply(tempmax[i], 2)
+        inminpeaks[i] = np.multiply(tempmin[i], 2)
+        for j in range(len(tempmax[i])):
+            (tmaxpeaks[i])[j] = (t[i])[(tempmax[i])[j]]
+        for j in range(len(tempmin[i])):
+            (tminpeaks[i])[j] = (t[i])[(tempmin[i])[j]]
+        t1[i] = (tmaxpeaks[i])[0]
+        t2[i] = (tminpeaks[i])[1]
+        t3[i] = (tmaxpeaks[i])[1]
+        tav[i] = np.multiply(t1[i] + t2[i] + t3[i], (1 / 3))
+        t01[i] = t1[i] - tav[i]
+        t02[i] = t2[i] - tav[i]
+        t03[i] = t3[i] - tav[i]
 
-t = [[] for i in range(len(prod1))]
-a = 0
-b = 0
-while a < len(prod1):
-    t[a] = [(rotate["Torque"])[i] for i in range(b+0, b+25)]
-    a = a + 1
-    b = b + 25
 
-tmax = [[] for i in range(len(prod1))]
-tmin = [[] for i in range(len(prod1))]
-for i in range(len(prod1)):
-    tmax[i] = max(t[i])
-    tmin[i] = min(t[i])
-tabsmax = max(abs(x) for x in tmax)
-tabsmin = min(abs(x) for x in tmin)
+    res = {"current": range_a,
+           "rotorangle": [np.multiply(range_b, 4) * (i+1)/(i+1) for i in range(len(range_a))],
+           "torque": [t[a] for a in range(len(range_a))],
+           "t1peaks": tmaxpeaks,
+           "i1peaks": inmaxpeaks,
+           "t2peaks": tminpeaks,
+           "i2peaks": inminpeaks,
+           "t1": t1,
+           "t2": t2,
+           "t3": t3,
+           "t01": t01,
+           "t02": t02,
+           "t03": t03,
+           "tav": tav}
 
-case = {"earheight": [(prod1[i])[0] for i in range(len(prod1))],
-        "aslheight": [(prod1[i])[1] for i in range(len(prod1))],
-        "torque": t,
-        "minimum": tmin,
-        "maximum": tmax}
-case = pd.DataFrame(case)
+    res = pd.DataFrame(res)
+    res.to_pickle(ModelDir.DATA / "df_rotate0.pkl")
 
-print(case.loc[case["maximum"] == tabsmax])
-print(case.loc[case["minimum"] == tabsmin])
+elif switch == 1:
 
+    range_a0 = 50
+    range_a1 = 250
+    nsteps_a = 6
+
+    range_b0 = 30.00
+    range_b1 = 45.00
+    nsteps_b = 61
+
+    range_c0 = 0
+    range_c1 = -60
+    nsteps_c = 61
+
+    range_a = linspace(range_a0, range_a1, nsteps_a)
+    range_b = linspace(range_b0, range_b1, nsteps_b)
+    range_c = linspace(range_c0, range_c1, nsteps_c)
+    prod = list(product(range_a, range_b))
+
+    f = open(ModelDir.DATA / f'rotate_t2.json')
+    rotate = json.load(f)
+
+    t = [[] for i in range(len(range_a))]
+    tav = [[] for i in range(len(range_a))]
+    tmax = [[] for i in range(len(range_a))]
+    twav = [[] for i in range(len(range_a))]
+    a = 0
+    b = 0
+    while a < len(range_a):
+        t[a] = [(rotate["Torque"])[i] for i in range(b + 0, b + 61)]
+        tav[a] = np.average(t[a])
+        tmax[a] = max(t[a])
+        twav[a] = tmax[a] - tav[a]
+        a = a + 1
+        b = b + 61
+
+    res = {"current": range_a,
+           "rotorangle": [np.multiply(range_c, -1) * (i + 1) / (i + 1) for i in range(len(range_a))],
+           "torque": [t[a] for a in range(len(range_a))],
+           "tav": [tav[a] for a in range(len(range_a))],
+           "tmax": tmax,
+           "twav": twav}
+    res = pd.DataFrame(res)
+    res.to_pickle(ModelDir.DATA / "df_rotate_t2.pkl")
+
+    plt.scatter(res["current"], res["twav"])
+    plt.show()
+
+elif switch == 2:
+
+    range_a0 = 0
+    range_a1 = 250
+    nsteps_a = 251
+
+    range_b0 = 30.00
+    range_b1 = 45.00
+    nsteps_b = 61
+
+    range_c0 = 0
+    range_c1 = -60
+    nsteps_c = 61
+
+    range_a = linspace(range_a0, range_a1, nsteps_a)
+    range_b = linspace(range_b0, range_b1, nsteps_b)
+    range_c = linspace(range_c0, range_c1, nsteps_c)
+    prod = list(product(range_a, range_b))
+
+    f = open(ModelDir.DATA / f'rotateit2.json')
+    rotate = json.load(f)
+
+    t = [[] for i in range(len(range_a))]
+    tav = [[] for i in range(len(range_a))]
+    tmax = [[] for i in range(len(range_a))]
+    twav = [[] for i in range(len(range_a))]
+    a = 0
+    b = 0
+    while a < len(range_a):
+        t[a] = [(rotate["Torque"])[i] for i in range(b + 0, b + 61)]
+        tav[a] = np.average(t[a])
+        tmax[a] = max(t[a])
+        twav[a] = tmax[a] - tav[a]
+        a = a + 1
+        b = b + 61
+
+    res = {"current": range_a,
+           "rotorangle": [np.multiply(range_c, -1) * (i + 1) / (i + 1) for i in range(len(range_a))],
+           "torque": [t[a] for a in range(len(range_a))],
+           "tav": [tav[a] for a in range(len(range_a))],
+           "tmax": tmax,
+           "twav": twav}
+    res = pd.DataFrame(res)
+    res.to_pickle(ModelDir.DATA / "df_rotateit2.pkl")
