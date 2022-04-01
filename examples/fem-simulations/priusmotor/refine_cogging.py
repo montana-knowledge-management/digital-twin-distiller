@@ -213,7 +213,7 @@ elif switch == 4:
     case['inminpeak'] = case["inminpeak"].replace({0: np.nan})
     case['inminpeak'] = case["inminpeak"].replace({3.75: np.nan})
     case["tminpeak"].values[case['tminpeak'] > -0.05] = np.nan
-    case.to_pickle(ModelDir.DATA / "df_cogging.pkl")
 
+    print(case["tdelta3"])
 else:
     pass

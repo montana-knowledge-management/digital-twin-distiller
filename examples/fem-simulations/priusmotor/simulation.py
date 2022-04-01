@@ -80,7 +80,7 @@ def locked_rotor(model, modelparams, simparams, miscparams):
     return result
 
 @sim.register('rotate')
-def locked_rotor(model, modelparams, simparams, miscparams):
+def rotate(model, modelparams, simparams, miscparams):
     range_a0 = simparams['range_a0']
     range_a1 = simparams['range_a1']
     nsteps_a = simparams['nsteps_a']
@@ -89,31 +89,21 @@ def locked_rotor(model, modelparams, simparams, miscparams):
     range_b1 = simparams['range_b1']
     nsteps_b = simparams['nsteps_b']
 
-    range_c0 = simparams['range_c0']
-    range_c1 = simparams['range_c1']
-    nsteps_c = simparams['nsteps_c']
-
-    range_d0 = simparams['range_d0']
-    range_d1 = simparams['range_d1']
-    nsteps_d = simparams['nsteps_d']
-
     range_a = linspace(range_a0, range_a1, nsteps_a)
     range_b = linspace(range_b0, range_b1, nsteps_b)
-    range_c = linspace(range_c0, range_c1, nsteps_c)
-    range_d = linspace(range_d0, range_d1, nsteps_d)
+
+    print((range_a))
+    print((range_b))
 
     I0 = simparams["I0"]
 
-    prod = list(product(range_a, range_b, range_c))
-
-    models = [model(I0=I0, earheight=ai, aslheight=bi, rotorangle=ci, alpha=di) for ai in range_a for bi in range_b for
-              ci, di in zip(range_c, range_d)]
+    models = [model(I0=I0, rotorangle=ai, alpha=bi) for ai, bi in zip(range_a, range_b)]
     with Pool() as pool:
         res = pool.map(execute_model, models)
 
-    result = {'Torque': list(res)}
+    result = list(res)
 
-    with open(ModelDir.DATA / f'rotate.json', 'w', encoding='utf-8') as f:
+    with open(ModelDir.DATA / f'testrot.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, indent=2, ensure_ascii=True)
 
     return result
@@ -126,5 +116,5 @@ if __name__ == "__main__":
 
     model = Encapsulator(sim)
     model.port = 8080
-    model.build_docs()
-    model.run()
+    #model.build_docs()
+    #model.run()

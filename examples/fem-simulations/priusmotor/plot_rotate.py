@@ -9,7 +9,7 @@ import numpy as np
 
 ModelDir.set_base(__file__)
 
-switch = 3
+switch = 1
 if switch == 0:
     res = pd.read_pickle(ModelDir.DATA / "df_rotate0.pkl")
     a = 1
@@ -73,7 +73,7 @@ elif switch == 2:
 elif switch == 3:
     fig = plt.figure(figsize=(6, 4))
     res1 = pd.read_pickle(ModelDir.DATA / "df_rotateit2.pkl")
-    res2 = pd.read_pickle(ModelDir.DATA / "df_rotateit2.pkl")
+    res2 = pd.read_pickle(ModelDir.DATA / "df_rotateit3.pkl")
     res3 = pd.read_pickle(ModelDir.DATA / "df_rotateit2.pkl")
     plt.plot(res1["current"], res1["tav"], label= r'$ \beta $' + "=" + str(120) + "deg")
     plt.plot(res2["current"], res2["tav"], label= r'$ \beta $' + "=" + str(132) + "deg")
@@ -92,7 +92,7 @@ elif switch == 3:
 elif switch == 4:
     fig = plt.figure(figsize=(6, 4))
     res1 = pd.read_pickle(ModelDir.DATA / "df_rotateit2.pkl")
-    res2 = pd.read_pickle(ModelDir.DATA / "df_rotateit2.pkl")
+    res2 = pd.read_pickle(ModelDir.DATA / "df_rotateit3.pkl")
     res3 = pd.read_pickle(ModelDir.DATA / "df_rotateit2.pkl")
     plt.plot(res1["current"], res1["twav"], label= r'$ \beta $' + "=" + str(120) + "deg")
     plt.plot(res2["current"], res2["twav"], label= r'$ \beta $' + "=" + str(132) + "deg")
@@ -106,4 +106,69 @@ elif switch == 4:
     plt.yticks(fontsize=10)
     plt.legend()
     plt.savefig(ModelDir.MEDIA / "PEMC_T5.png", bbox_inches="tight", dpi=650)
+    plt.show()
+
+elif switch == 5:
+    res = pd.read_pickle(ModelDir.DATA / "df_rotate0.pkl")
+    with open(ModelDir.DATA / 'locked250.csv', 'r', encoding='utf-8') as f:
+        res_ = pd.read_csv(f)
+        alpha250 = res_["x"]
+        T250 = res_["y"]
+    with open(ModelDir.DATA / 'locked200.csv', 'r', encoding='utf-8') as f:
+        res_ = pd.read_csv(f)
+        alpha200 = res_["x"]
+        T200 = res_["y"]
+    with open(ModelDir.DATA / 'locked150.csv', 'r', encoding='utf-8') as f:
+        res_ = pd.read_csv(f)
+        alpha150 = res_["x"]
+        T150 = res_["y"]
+    with open(ModelDir.DATA / 'locked100.csv', 'r', encoding='utf-8') as f:
+        res_ = pd.read_csv(f)
+        alpha100 = res_["x"]
+        T100 = res_["y"]
+
+    a0 = 100
+    a1 = 300
+    a2 = 50
+    b = 91
+    fig = plt.figure(figsize=(6, 4))
+    for c, g in zip(range(a0, a1, a2), range(100, 300, 50)):
+        plt.plot([((res["rotorangle"])[c])[d] for d in range(b)], [((res["torque"])[c])[d] for d in range(b)],
+                 label=str(g) + "A")
+        plt.scatter(alpha100, T100, c = "b")
+        plt.scatter(alpha150, T150, c = "orange")
+        plt.scatter(alpha200, T200, c = "g")
+        plt.scatter(alpha250, T250, c = "r")
+    plt.xlabel('Electrical angle [deg]', fontsize=10)
+    plt.ylabel('Torque [Nm]', fontsize=10)
+    plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    plt.minorticks_on()
+    plt.xticks(np.arange(0, 200, step=20))
+    plt.yticks(fontsize=10)
+    plt.legend()
+    plt.savefig(ModelDir.MEDIA / "PEMC_T6.png", bbox_inches="tight", dpi=650)
+    plt.show()
+
+if switch == 6:
+    res1 = pd.read_pickle(ModelDir.DATA / "df_rotateit2.pkl")
+    res2 = pd.read_pickle(ModelDir.DATA / "df_rotateit3.pkl")
+    a0 = 200
+    a1 = 251
+    b = 61
+    fig = plt.subplots(figsize=(6, 4))
+    for c in range(a0, a1):
+        plt.plot([((res1["rotorangle"])[c])[d] for d in range(b)], [((res1["torque"])[c])[d] for d in range(b)],
+                 label="1", c="r")
+        plt.plot([((res2["rotorangle"])[c])[d] for d in range(b)], [((res2["torque"])[c])[d] for d in range(b)],
+                 label="2", c ="b")
+    plt.xlabel('Electrical angle [deg]', fontsize=10)
+    plt.ylabel('Torque [Nm]', fontsize=10)
+    plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    plt.minorticks_on()
+    plt.xticks(np.arange(0, 80, step=20))
+    plt.yticks(fontsize=10)
+    #plt.legend()
+    plt.savefig(ModelDir.MEDIA / "PEMC_T1.png", bbox_inches="tight", dpi=650)
     plt.show()

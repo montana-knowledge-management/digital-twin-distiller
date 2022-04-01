@@ -10,7 +10,7 @@ from digital_twin_distiller import ModelDir
 
 ModelDir.set_base(__file__)
 
-switch = 0
+switch = 3
 if switch == 0:
 
     range_a0 = 0
@@ -164,7 +164,7 @@ elif switch == 2:
     b = 0
     while a < len(range_a):
         t[a] = [(rotate["Torque"])[i] for i in range(b + 0, b + 61)]
-        tav[a] = np.average(t[a])
+        tav[a] = np.mean(t[a])
         tmax[a] = max(t[a])
         twav[a] = tmax[a] - tav[a]
         a = a + 1
@@ -178,3 +178,58 @@ elif switch == 2:
            "twav": twav}
     res = pd.DataFrame(res)
     res.to_pickle(ModelDir.DATA / "df_rotateit2.pkl")
+
+    f = open(ModelDir.DATA / f'rotateit3.json')
+    rotate = json.load(f)
+
+    t = [[] for i in range(len(range_a))]
+    tav = [[] for i in range(len(range_a))]
+    tmax = [[] for i in range(len(range_a))]
+    twav = [[] for i in range(len(range_a))]
+    a = 0
+    b = 0
+    while a < len(range_a):
+        t[a] = [(rotate["Torque"])[i] for i in range(b + 0, b + 61)]
+        tav[a] = np.mean(t[a])
+        tmax[a] = max(t[a])
+        twav[a] = tmax[a] - tav[a]
+        a = a + 1
+        b = b + 61
+
+    res = {"current": range_a,
+           "rotorangle": [np.multiply(range_c, -1) * (i + 1) / (i + 1) for i in range(len(range_a))],
+           "torque": [t[a] for a in range(len(range_a))],
+           "tav": [tav[a] for a in range(len(range_a))],
+           "tmax": tmax,
+           "twav": twav}
+    res = pd.DataFrame(res)
+    res.to_pickle(ModelDir.DATA / "df_rotateit3.pkl")
+
+elif switch == 3:
+
+    f = open(ModelDir.DATA / f'testrot.json')
+    rotate = json.load(f)
+
+    t = [[] for i in range(11)]
+    tav = [[] for i in range(11)]
+    a = 0
+    b = 0
+    while a < 11:
+        t[a] = [(rotate["Torque"])[i] for i in range(b + 0, b + 16)]
+        tav[a] = np.mean(t[a])
+        a = a + 1
+        b = b + 16
+    range_c = linspace(0, 60, 16)
+    res = {"rotorangle": [np.multiply(range_c, 1) * (i + 1) / (i + 1) for i in range(11)],
+           "torque": [t[a] for a in range(11)]}
+    res = pd.DataFrame(res)
+    a0 = 0
+    a1 = 5
+    b = 16
+    fig = plt.subplots(figsize=(6, 4))
+    for c in range(a0, a1):
+        plt.plot([((res["rotorangle"])[c])[d] for d in range(b)], [((res["torque"])[c])[d] for d in range(b)],
+                 label=str(c))
+    plt.legend()
+    plt.savefig(ModelDir.MEDIA / "x.png", bbox_inches="tight", dpi=650)
+    plt.show()

@@ -4,29 +4,28 @@ from numpy import linspace
 
 from digital_twin_distiller import Node
 
-range_a0 = 1
-range_a1 = 2
-nsteps_a = 2
-
-range_b0 = 1
-range_b1 = 2
+range_b0 = 0
+range_b1 = -60
 nsteps_b = 2
 
-range_c0 = 1
-range_c1 = 2
+range_c0 = 100
+range_c1 = 250
 nsteps_c = 2
 
-range_a = linspace(range_a0, range_a1, nsteps_a)
-range_b = linspace(range_b0, range_b1, nsteps_a)
-range_c = linspace(range_c0, range_c1, nsteps_c)
+iterlist = []
+for i in range(nsteps_c):
+    for j in range(2):
+        range_a0 = 0 + j/10
+        range_a1 = 15 + j/10
+        nsteps_a = 2
 
-prod = list(pr(range_a, range_b, range_c))
-iterat = list(range(len(prod)))
+        range_a = linspace(range_a0, range_a1, nsteps_a)
+        range_b = linspace(range_b0, range_b1, nsteps_b)
+        range_c = linspace(range_c0, range_c1, nsteps_c)
 
-def pol2cart(rho: float, phi: float):
-    x = rho * math.cos(math.radians(phi))
-    y = rho * math.sin(math.radians(phi))
-    return x, y
+        for k in range(nsteps_b):
+            iterlist.append([round(range_a[k], 3), round(range_b[k], 3), range_c[i]])
 
-temp1 = pol2cart(1, 1)
-print(temp1)
+
+print(iterlist)
+

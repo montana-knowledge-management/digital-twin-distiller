@@ -32,7 +32,43 @@ range_c = linspace(range_c0, range_c1, nsteps_c)
 
 case = pd.read_pickle(ModelDir.DATA / "df_locked.pkl")
 
-switch = 2
+switch = -1
+if switch == -2:
+    fig = plt.figure(figsize=(6, 4))
+    a = 0
+    b = 31 * 26
+    range_c = np.multiply(range_c, 4)
+    for i,j in zip(range(a, b, 31*5), range(5, 31, 5)):
+        plt.plot(range(110, 158, 2), [((case['torque'])[i])[a] for a in range(55, 79)], label=("A=" + str(j*0.1) + "mm"  + "," + " C=" + str(0.0) + "mm"))
+    plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    plt.minorticks_on()
+    plt.xlabel("Electrical angle [deg]", fontsize=10)
+    plt.ylabel("Torque [Nm]", fontsize=10)
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10)
+    plt.legend(fontsize=10)
+    plt.savefig(ModelDir.MEDIA / "PEMC_locked.png", bbox_inches="tight", dpi=650)
+    plt.show()
+
+if switch == -1:
+    fig = plt.figure(figsize=(6, 4))
+    a = 31 * 15
+    b = 31 * 16
+    range_c = np.multiply(range_c, 4)
+    for i,j in zip(range(a, b, 6), range(0, 31, 6)):
+        plt.plot(range(110, 158, 2), [((case['torque'])[i])[a] for a in range(55, 79)], label=("A=" + str(2.1) + "mm" + "," + " C=" + str(round(j*0.1, 2)) + "mm"))
+    plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    plt.minorticks_on()
+    plt.xlabel("Electrical angle [deg]", fontsize=10)
+    plt.ylabel("Torque [Nm]", fontsize=10)
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10)
+    plt.legend(fontsize=10)
+    plt.savefig(ModelDir.MEDIA / "PEMC_locked.png", bbox_inches="tight", dpi=650)
+    plt.show()
+
 if switch == 0:
     fig = plt.figure(figsize=(6, 6))
     ax = fig.add_subplot(projection='3d')
