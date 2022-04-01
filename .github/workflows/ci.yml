@@ -17,13 +17,13 @@ jobs:
     steps:
       - name: Install Netgen/NgSolve
         run: |
-          sudo apt-add-repository universe
-          sudo add-apt-repository ppa:ngsolve/ngsolve
-          sudo apt-get update
-          sudo apt-get install ngsolve
+          apt-add-repository universe
+          add-apt-repository -y ppa:ngsolve/ngsolve
+          apt-get update
+          apt-get install -y ngsolve
       - name: Install GMSH
         run: |
-          sudo apt-get install gmsh
+          sudo apt-get install -y gmsh
       - uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0
@@ -35,7 +35,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install poetry
-          python -m poetry install
+          python -m poetry install -E nlp
       - uses: actions/cache@v2.1.6
         with:
           path: ~/.cache/pip
