@@ -69,9 +69,9 @@ class TestGMSHWriter(TestCase):
         # define the geometry by hand, a simple arc
         geo = Geometry()
 
-        a = Node(x=0.0, y=0.0, id=1)
-        b = Node(x=10.0, y=0.0, id=2)
-        c = Node(x=0.0, y=10.0, id=3)
+        a = Node(x=0.0, y=0.0, id_=1)
+        b = Node(x=10.0, y=0.0, id_=2)
+        c = Node(x=0.0, y=10.0, id_=3)
 
         geo.add_line(Line(a, b))
         geo.add_line(Line(a, c))

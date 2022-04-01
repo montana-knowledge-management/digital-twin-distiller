@@ -1,0 +1,14 @@
+2022.2
+
+Changed: unnecessary dependencies removed to shrink package size
+Fixed: Geometry.svg_export writes lines instead of circle arcs
+Added: SVG attribute reading into geometric entities
+Changed: Material can be instantiated with keyword arguments
+Fixed: Snapshot can be exported only once.
+
+2022.1
+
+README.md updated
+Definition for discretized boundary conditions
+New Examples were added for the FEM simulations
+Description of the Weak-formulation
