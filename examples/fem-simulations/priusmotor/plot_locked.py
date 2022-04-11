@@ -32,7 +32,7 @@ range_c = linspace(range_c0, range_c1, nsteps_c)
 
 case = pd.read_pickle(ModelDir.DATA / "df_locked.pkl")
 
-switch = -1
+switch = -2
 if switch == -2:
     fig = plt.figure(figsize=(6, 4))
     a = 0

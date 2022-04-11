@@ -10,7 +10,7 @@ from digital_twin_distiller import ModelDir
 
 ModelDir.set_base(__file__)
 
-switch = 3
+switch = 0
 if switch == 0:
 
     range_a0 = 0
@@ -67,6 +67,7 @@ if switch == 0:
         t02[i] = t2[i] - tav[i]
         t03[i] = t3[i] - tav[i]
 
+    print(t[250])
 
     res = {"current": range_a,
            "rotorangle": [np.multiply(range_b, 4) * (i+1)/(i+1) for i in range(len(range_a))],

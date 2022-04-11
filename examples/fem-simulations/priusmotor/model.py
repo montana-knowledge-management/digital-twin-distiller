@@ -64,16 +64,15 @@ class PriusMotor(BaseModel):
         self.airgap = (self.Dsi - self.Dro) / 2  # Airgap [mm]
 
         # Excitation setup
-        I0 = kwargs.get("I0", 0.0)  # Stator current of one phase [A]
+        I0 = kwargs.get("I0", 100.0)  # Stator current of one phase [A]
         alpha = kwargs.get("alpha", 0.0)  # Offset of the current [°]
-        ina = kwargs.get("ina", 90.0)  # Initial alpha to get T=0Nm position [°]
 
         coil_area = 0.000142795  # area of the slot [m^2]
         Nturns = 9  # turns of the coil in one slot [u.]
         J0 = Nturns * I0 / coil_area
-        self.JU = J0 * cos(radians(ina + alpha))
-        self.JV = J0 * cos(radians(ina + alpha + 120))
-        self.JW = J0 * cos(radians(ina + alpha + 240))
+        self.JU = J0 * cos(radians(alpha))
+        self.JV = J0 * cos(radians(alpha + 120))
+        self.JW = J0 * cos(radians(alpha + 240))
 
     def setup_solver(self):
         femm_metadata = FemmMetadata()
@@ -358,7 +357,7 @@ class PriusMotor(BaseModel):
 
     def build_coil(self):
 
-        labels = ["V-", "V-", "U+", "U+", "W-", "W-"]
+        labels = ["U+", "W-", "W-", "V+", "V+", "U-"]
         label = Node.from_polar(100.0, 71.0)
         for i in range(6):
             self.assign_material(label.x, label.y, labels[i])
