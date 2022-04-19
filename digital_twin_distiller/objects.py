@@ -426,7 +426,8 @@ class CircleArc:
 
 
 class CubicBezier:
-    def __init__(self, start_pt, control1, control2, end_pt, id_=None, label=None, color=None, attributes:dict={}):
+    def __init__(self, start_pt, control1, control2, end_pt, id_=None, label=None, color=None, attributes:dict={},
+                 n_segment=51):
         self.start_pt = start_pt
         self.control1 = control1
         self.control2 = control2
@@ -435,9 +436,10 @@ class CubicBezier:
         self.label = label
         self.color = color
         self.attributes = attributes.copy()
+        self.n_segment = n_segment
 
-    def approximate(self, n_segment):
-        X, Y = zip(*(self(ti) for ti in linspace(0, 1, n_segment + 1)))
+    def approximate(self):
+        X, Y = zip(*(self(ti) for ti in linspace(0, 1, self.n_segment + 1)))
 
         for Xi, Yi in zip(pairwise(X), pairwise(Y)):
             n0 = Node(Xi[0], Yi[0])

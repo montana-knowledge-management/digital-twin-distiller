@@ -73,6 +73,16 @@ class Snapshot:
         for arc_i in geo.circle_arcs:
             self.circle_arcs[arc_i.id] = arc_i
 
+        for bz in geo.cubic_beziers:
+            for li in bz.approximate():
+                self.nodes[li.start_pt.id] = li.start_pt
+                self.nodes[li.end_pt.id] = li.end_pt
+                self.lines[li.id] = li
+
+                boundary = bz.attributes.get("boundary", "")
+                if boundary in self.boundaries.keys():
+                    self.boundaries[boundary].assigned.add(li.id)
+
     def add_postprocessing(self, action, entity, variable):
         self.metrics.append((action, entity, variable))
 
