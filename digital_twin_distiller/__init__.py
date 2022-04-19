@@ -1,5 +1,5 @@
 from digital_twin_distiller.utils import *
-from digital_twin_distiller.objects import CircleArc, Line, Node, ParametricBezier, Rectangle
+from digital_twin_distiller.objects import CircleArc, Line, Node, Rectangle
 from digital_twin_distiller.modelpaths import ModelDir
 
 from digital_twin_distiller.boundaries import (

@@ -296,7 +296,6 @@ class Geometry:
                     id_ += 5
 
                 if isinstance(element, svg.Arc):
-                    # pass
                     p1 = element.start.conjugate()
                     p2 = element.center.conjugate()
                     p3 = element.end.conjugate()
@@ -304,7 +303,9 @@ class Geometry:
                     center = obj.Node(p2.real, p2.imag)
                     end = obj.Node(p3.real, p3.imag)
                     xcolor = self.get_color_value_from_svg(attr)
-                    self.add_arc(obj.CircleArc(start, center, end, color=xcolor, attributes=attr))
+                    self.add_arc(obj.CircleArc(start_pt=start,
+                                               center_pt=center,
+                                               end_pt=end, color=xcolor, attributes=attr))
 
     def get_line_intersetions(self, line_1, line_2):
         """
