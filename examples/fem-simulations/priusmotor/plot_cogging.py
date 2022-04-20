@@ -27,7 +27,7 @@ range_b = linspace(range_b0, range_b1, nsteps_b)
 range_c = linspace(range_c0, range_c1, nsteps_c)
 
 prod = list(product(range_a, range_b, range_c))
-range_prod = linspace (0, len(prod), len(prod)+1)
+range_prod = linspace(0, len(prod), len(prod)+1)
 prod1 = list(product(range_a, range_b))
 
 range_c = linspace(range_c0, range_c1, nsteps_c)
@@ -37,27 +37,27 @@ case = pd.read_pickle(ModelDir.DATA / "df_cogging.pkl")
 switch = 0
 if switch == 0:
     c = 16
-    a = 31 * c
-    b = 31* (c + 1)
+    a = 0
+    b = 806
     fig, ax1 = plt.subplots(figsize=(6, 4))
-    ax2 = ax1.twinx()
-    for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tmaxpeak"].loc[range(a, b)]):
+    #ax2 = ax1.twinx()
+    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["inmaxpeak"].loc[range(a, b)]):
         ax1.scatter(xe, ye, c="r")
-    #for xe, ye in zip(case["earheight"].loc[range(a, b)], case["tminpeak"].loc[range(a, b)]):
-        #ax1.scatter(xe, ye, c="b")
-    for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tdelta3"].loc[range(a, b)]):
-        ax2.scatter(xe, ye, c="b")
+    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["inminpeak"].loc[range(a, b)]):
+        ax1.scatter(xe, ye, c="b")
+    #for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tdelta3"].loc[range(a, b)]):
+        #ax2.scatter(xe, ye, c="b")
     #for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tdelta3"].loc[range(a, b)]):
        #ax2.scatter(xe, ye, c="g")
-    ax1.set_xlabel('Parameter C [mm]', fontsize=10)
-    ax1.set_ylabel('Torque [Nm]', fontsize=10, c="b")
-    ax2.set_ylabel('Torque [Nm]', fontsize=10, c='r')
+    ax1.set_xlabel('Parameter A [mm]', fontsize=10)
+    ax1.set_ylabel('Electrical angle [deg]', fontsize=10)
+    #ax2.set_ylabel('Torque [Nm]', fontsize=10, c='r')
     ax1.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     ax1.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     ax1.minorticks_on()
-    ax2.minorticks_on()
-    legend = [Line2D([0], [0], marker="o", color='r', label= "tmax"),
-              Line2D([0], [0], marker="o", color='b', label= u"\u0394" + "t2")]
+    #ax2.minorticks_on()
+    legend = [Line2D([0], [0], marker="o", color='r', label= "maximum"),
+              Line2D([0], [0], marker="o", color='b', label= "minimum")]
     plt.xticks(fontsize=10)
     plt.yticks(fontsize=10)
     plt.legend(handles=legend)

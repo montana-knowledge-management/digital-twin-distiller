@@ -192,11 +192,12 @@ elif switch == 4:
     for i in range(len(prod1)):
         tmax[i] = max(t[i])
         tmin[i] = min(t[i])
-        inmax[i] = np.multiply(t[i].index(tmax[i]), 0.05)
-        inmin[i] = np.multiply(t[i].index(tmin[i]), 0.05)
+        inmax[i] = np.multiply(t[i].index(tmax[i]), 0.2) +15
+        inmin[i] = np.multiply(t[i].index(tmin[i]), 0.2) +15
         tdelta1[i] = abs(tmax[i] - tmin[i])
         tdelta2[i] = tmax[i] - abs(tmin[i])
         tdelta3[i] = mean(t[i])
+
 
     case = {"earheight": [(prod1[i])[0] for i in range(len(prod1))],
             "aslheight": [(prod1[i])[1] for i in range(len(prod1))],
@@ -210,10 +211,12 @@ elif switch == 4:
             "tdelta3": tdelta3
             }
     case = pd.DataFrame(case)
-    case['inminpeak'] = case["inminpeak"].replace({0: np.nan})
-    case['inminpeak'] = case["inminpeak"].replace({3.75: np.nan})
+    case['inminpeak'] = case["inminpeak"].replace({15: np.nan})
+    case['inminpeak'] = case["inminpeak"].replace({30: np.nan})
     case["tminpeak"].values[case['tminpeak'] > -0.05] = np.nan
 
-    print(case["tdelta3"])
+    print(case["inminpeak"])
+
+    case.to_pickle(ModelDir.DATA / "df_cogging.pkl")
 else:
     pass
