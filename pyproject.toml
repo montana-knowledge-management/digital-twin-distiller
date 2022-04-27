@@ -1,7 +1,7 @@
 # Main package description
 [tool.poetry]
 name = "Digital-Twin-Distiller"
-version = "2022.2"
+version = "2022.3.1"
 description = "Python project for creating a long-lasting, encapsulated version of your numerical simulation or your machine-learning-based project."
 authors = [
     "MONTANA Knowledge Management ltd. <info@distiller.dev>"

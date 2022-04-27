@@ -350,7 +350,6 @@ class CircleArc:
             self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
             self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
         except ValueError:
-            __import__('pudb').set_trace()
             self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(90))
 
     @classmethod
