@@ -221,6 +221,17 @@ class ExtractorAbstract(AbstractSubTask):
         ...
 
 
+class NormalizerAbstract(AbstractSubTask):
+    # a kind of post-processor, which works on a key and gives back the normalized value of this key
+    def __init__(self):
+        super().__init__()
+        self.define_options()
+
+    @abstractmethod
+    def define_options(self):
+        ...
+
+
 class PreProcessorAbstract(AbstractSubTask):
     def __init__(self):
         super().__init__()
