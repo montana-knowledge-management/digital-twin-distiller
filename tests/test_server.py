@@ -64,10 +64,11 @@ class TestServer(unittest.TestCase):
     def test_missing_text_key_ml(self):
         wrong_json = {"test": "Without Text key."}
         response = self.client.post("/process_ml", json=wrong_json, headers={"Content-Type": "application/json"})
-        self.assertIsNot(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         self.assertDictEqual(
             response.json(),
-            {"detail": [{"loc": ["body", "text"], "msg": "field required", "type": "value_error.missing"}]},
+            {'status': 'failed', 'error': 'ValidationError',
+             'detail': [{'loc': ['text'], 'msg': 'field required', 'type': 'value_error.missing'}]},
         )
 
     def test_with_text_key_sim(self):

@@ -1,9 +1,10 @@
+import unittest
 from unittest import TestCase
 from examples.fem_simulations.power_transformer.model import PowerTransformer
 from examples.fem_simulations.power_transformer.simulation import calculate_base_impedance
 from math import pi
 
-
+@unittest.skip("tests a custom model itself, not how it works")
 class TestPowerTransformerExample(TestCase):
     """
     The tests performed with the data of an existing transformer: DOI: 10.3233/JAE-209504

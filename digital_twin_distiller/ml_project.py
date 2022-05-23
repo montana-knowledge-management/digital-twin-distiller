@@ -10,8 +10,16 @@ from importlib_resources import files
 import digital_twin_distiller.text_readers as rdr
 from digital_twin_distiller.keywords import JSON, PDF, TXT
 from digital_twin_distiller.text_writers import JsonWriter
+from pydantic import BaseModel
 
 supported_extensions = [JSON, TXT, PDF]
+
+
+class InputJson(BaseModel):
+    """
+    Class for validating the input sent to the /process endpoint for MachineLearningProject.
+    """
+    text: str
 
 
 class MachineLearningProject:
@@ -24,7 +32,7 @@ class MachineLearningProject:
     debug = False
     cached_subtasks = {}
 
-    def __init__(self, app_name="Distiller", no_cache=False):
+    def __init__(self, app_name="Distiller", no_cache=False, valid_class: BaseModel = InputJson):
         self._output_data = (
             []
         )  # every data file is represented by a dictionary, a bulk input can be imported as a list of dicts
@@ -34,9 +42,16 @@ class MachineLearningProject:
         self.pipe_document_extractors = []
         self.app_name = app_name
         self.host = self.get_ip()[0]
+        self.valid_class = valid_class
 
         if not no_cache:
             self.cache()
+
+    def validate(self, item):
+        return self.valid_class.parse_obj(item)
+
+    def set_validation_class(self, valid_class: BaseModel):
+        self.valid_class = valid_class
 
     @abstractmethod
     def custom_input(self):
@@ -197,6 +212,17 @@ class Classifier(AbstractSubTask):
 
 
 class ExtractorAbstract(AbstractSubTask):
+    def __init__(self):
+        super().__init__()
+        self.define_options()
+
+    @abstractmethod
+    def define_options(self):
+        ...
+
+
+class NormalizerAbstract(AbstractSubTask):
+    # a kind of post-processor, which works on a key and gives back the normalized value of this key
     def __init__(self):
         super().__init__()
         self.define_options()
