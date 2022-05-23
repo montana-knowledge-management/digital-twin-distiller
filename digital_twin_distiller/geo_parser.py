@@ -100,7 +100,7 @@ def geo_parser(geo_file):
                     item_data = [float(it.strip()) for it in item_data]  # [0.1, 0.0]
 
                     try:
-                        geo.add_node(Node(id=int(item_id), x=float(item_data[0]), y=float(item_data[1])))
+                        geo.add_node(Node(id_=int(item_id), x=float(item_data[0]), y=float(item_data[1])))
                     except:
                         raise ValueError("String data inserted instead of the point data")
 
@@ -115,7 +115,7 @@ def geo_parser(geo_file):
                     try:
                         geo.add_line(
                             Line(
-                                id=int(item_id),
+                                id_=int(item_id),
                                 start_pt=geo.find_node(int(item_data[0])),
                                 end_pt=geo.find_node(int(item_data[1])),
                             )
@@ -137,7 +137,7 @@ def geo_parser(geo_file):
                             geo.find_node(int(item_data[1])),
                             geo.find_node(int(item_data[2])),
                         )
-                        geo.add_arc(CircleArc(id=int(item_id), start_pt=start, center_pt=center, end_pt=end))
+                        geo.add_arc(CircleArc(id_=int(item_id), start_pt=start, center_pt=center, end_pt=end))
                     except:
                         raise ValueError("Invalid point objects in the geometry")
 

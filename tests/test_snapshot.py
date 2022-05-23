@@ -353,7 +353,7 @@ class TestSnapshotFemm(unittest.TestCase):
         self.assertIn(r"mi_addsegment(1, 0, 1, 1)", f.content)
         self.assertIn(r"mi_addsegment(1, 1, 0, 1)", f.content)
         self.assertIn(r"mi_addsegment(0, 1, 0, 0)", f.content)
-        self.assertIn(r"mi_addarc(0, 0.5, 1, 0.5, 180.0, 20)", f.content)
+        self.assertIn(r"mi_addarc(0, 0.5, 1, 0.5, 180.0, 1)", f.content)
 
     def test_retrive_results(self):
         s = self.get_snapshot()

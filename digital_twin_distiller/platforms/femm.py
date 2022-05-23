@@ -124,7 +124,7 @@ class Femm(Platform):
 
     def export_material_definition(self, mat: Material):
         if self.metadata.problem_type == "magnetic":
-            lamtypes = {"inplane": 1, "magnetwire": 3}
+            lamtypes = {"inplane": 0, "magnetwire": 3}
             femm_material = MagneticMaterial(
                 material_name=mat.name,
                 mu_x=mat.mu_r,
@@ -257,8 +257,11 @@ class Femm(Platform):
             # the start, center, end points will be on the same line therefore radius == clamp/2
             # and asin(1) -> inf. possible solution is to put this into a try block as in the
             # objects.CircleArc.__init__ function.
-            theta = round(asin(clamp / radius) * 180 / pi * 2, 2)
-
+            try:
+                theta = round(asin(clamp / radius) * 180 / pi * 2, 2)
+            except ValueError:
+                theta = 180
+                
             self.write(
                 self.writer.add_arc(
                     e.start_pt.x,

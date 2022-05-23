@@ -129,12 +129,12 @@ def ping():
     return result_json
 
 
-@app.get("/", include_in_schema=True, tags=["docs"])
-def project_documentation(request: Request):
-    """
-    Endpoint for checking the custom project's documentation.
-    """
-    return app.doc_templates.TemplateResponse("index.html", {"request": request, "project_name": app.project.app_name})
+# @app.get("/", include_in_schema=True, tags=["docs"])
+# def project_documentation(request: Request):
+#     """
+#     Endpoint for checking the custom project's documentation.
+#     """
+#     return app.doc_templates.TemplateResponse("index.html", {"request": request, "project_name": app.project.app_name})
 
 
 class Encapsulator:
@@ -147,9 +147,9 @@ class Encapsulator:
         :param project: either MachineLearningProject or SimulationProject instance
         """
         self.app = app
-        self.app.doc_templates = Jinja2Templates(
-            directory=files("digital_twin_distiller") / "resources" / "doc_template" / "site"
-        )
+        # self.app.doc_templates = Jinja2Templates(
+        #     directory=files("digital_twin_distiller") / "resources" / "doc_template" / "site"
+        # )
         self.app.project = project
         self.app.title = self.app.title.format(project.app_name)
         # self.workers = self.number_of_workers()
@@ -158,7 +158,7 @@ class Encapsulator:
         self.cert_file_path = None
         self.key_file_path = None
 
-        self.set_project_mkdocs_dir_path(ModelDir.DOCS)
+        # self.set_project_mkdocs_dir_path(ModelDir.DOCS)
 
     def set_cert_file_path(self, cert_file_path):
         self.cert_file_path = cert_file_path
@@ -175,13 +175,14 @@ class Encapsulator:
 
         :path mkdocs_path:
         """
-        mkdocs_path = os.path.join(mkdocs_path, "site")
+        # mkdocs_path = os.path.join(mkdocs_path, "site")
         self.app.doc_templates = Jinja2Templates(directory=mkdocs_path)
 
         asset_path = os.path.join(mkdocs_path, "assets")
         search_path = os.path.join(mkdocs_path, "search")
         # javascripts_path = os.path.join(asset_path, "javascripts")
         # worker_path = os.path.join(javascripts_path, "workers")
+        # __import__('pudb').set_trace()
         if not os.path.exists(asset_path) or not os.path.exists(search_path):
             raise FileNotFoundError('please build the mkdocs site by calling "mkdocs build" in the docs directory')
 

@@ -2,7 +2,7 @@ from copy import copy
 from math import pi
 from unittest import TestCase
 
-from digital_twin_distiller.objects import CircleArc, CubicBezier, Line, Node, ParametricBezier, Rectangle
+from digital_twin_distiller.objects import CircleArc, CubicBezier, Line, Node, Rectangle
 
 
 class TestNodeOperations(TestCase):
@@ -87,7 +87,7 @@ class TestLine(TestCase):
         a = Node(1.0, 0.0)
         b = Node(0.5, 0.0)
 
-        l = Line(a, b, id=1, label="test")
+        l = Line(a, b, id_=1, label="test")
 
         self.assertEqual("test", l.label)
         self.assertEqual(a, l.start_pt)
@@ -164,7 +164,7 @@ class TestCubicBezier(TestCase):
         c1 = Node(0.6, 0.1)
         c2 = Node(0.7, 0.2)
 
-        cb = CubicBezier(a, c1, c2, b, id=1, label="test")
+        cb = CubicBezier(a, c1, c2, b, id_=1, label="test")
 
         self.assertEqual("test", cb.label)
         self.assertEqual(a, cb.start_pt)
@@ -172,56 +172,10 @@ class TestCubicBezier(TestCase):
 
         self.assertIn(
             f"CubicBezier(Node(1.0, 0.0, id={a.id},label=None), Node(0.6, 0.1, id={c1.id},label=None), Node("
-            + f"0.7, 0.2, id={c2.id},label=None), Node(0.5, 0.0, id={b.id},label=None), id=1,label='test')",
+            + f"0.7, 0.2, id={c2.id},label=None), Node(0.5, 0.0, id={b.id},label=None), id=1,label='test', color=None)",
             str(cb),
         )
         # print(cb)
-
-
-class TestParametricBezier(TestCase):
-    def test_init(self):
-        bz = ParametricBezier((1, 0), (2, 2), (5, 5), (10, 0))
-        self.assertEqual(bz.p0, (1, 0))
-        self.assertEqual(bz.p1, (2, 2))
-        self.assertEqual(bz.p2, (5, 5))
-        self.assertEqual(bz.p3, (10, 0))
-
-    def test_set(self):
-        bz = ParametricBezier((1, 0), (2, 2), (5, 5), (10, 0))
-
-        bz.set(start=(0, 0))
-        self.assertEqual(bz.p0, (0, 0))
-        self.assertEqual(bz.p1, (2, 2))
-        self.assertEqual(bz.p2, (5, 5))
-        self.assertEqual(bz.p3, (10, 0))
-
-    def test_approximate(self):
-        bz = ParametricBezier((0, 0), (2.5, 0), (7.5, 0), (10, 0))
-
-        reflines = [
-            Line(Node(0, 0), Node(5.0, 0)),
-            Line(Node(5.0, 0), Node(10.0, 0)),
-        ]
-        for refl, l in zip(reflines, bz.approximate(2)):
-            self.assertEqual(refl, l)
-
-    def test_call(self):
-        bz = ParametricBezier((0, 0), (2.5, 0), (7.5, 0), (10, 0))
-        x, y = bz(0)
-        self.assertAlmostEqual(x, 0.0, 5)
-        self.assertAlmostEqual(y, 0.0, 5)
-
-        x, y = bz(0.5)
-        self.assertAlmostEqual(x, 5.0, 5)
-        self.assertAlmostEqual(y, 0.0, 5)
-
-        x, y = bz(1)
-        self.assertAlmostEqual(x, 10.0, 5)
-        self.assertAlmostEqual(y, 0.0, 5)
-
-        with self.assertRaises(AssertionError):
-            x, y = bz(5)
-
 
 class TesRectangle(TestCase):
     def test_creation(self):
@@ -324,8 +278,3 @@ class TesRectangle(TestCase):
         self.assertEqual(r.d, r1.d)
         self.assertAlmostEqual(r.width, r1.width, 5)
         self.assertAlmostEqual(r.height, r1.height, 5)
-
-
-if __name__ == "__main__":
-    t = TestParametricBezier()
-    t.test_call()

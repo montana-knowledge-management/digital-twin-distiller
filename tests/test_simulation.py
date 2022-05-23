@@ -26,7 +26,7 @@ class TestSimulation(unittest.TestCase):
         new(MODELNAME, CURRENT)
 
         # import the model class from the new model
-        cls.modelclass = __import__(str("tests." + MODELNAME + ".model"), fromlist=["TestModel"]).TestModel
+        cls.modelclass = __import__(str("tests." + MODELNAME + ".model"), fromlist=[MODELNAME]).SimulationModel
 
         # set the paths for the new model
         ModelDir.set_base(MODELPATH)

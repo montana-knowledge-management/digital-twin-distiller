@@ -73,6 +73,16 @@ class Snapshot:
         for arc_i in geo.circle_arcs:
             self.circle_arcs[arc_i.id] = arc_i
 
+        for bz in geo.cubic_beziers:
+            for li in bz.approximate():
+                self.nodes[li.start_pt.id] = li.start_pt
+                self.nodes[li.end_pt.id] = li.end_pt
+                self.lines[li.id] = li
+
+                boundary = bz.attributes.get("boundary", "")
+                if boundary in self.boundaries.keys():
+                    self.boundaries[boundary].assigned.add(li.id)
+
     def add_postprocessing(self, action, entity, variable):
         self.metrics.append((action, entity, variable))
 
@@ -100,14 +110,16 @@ class Snapshot:
         for id, node_i in self.nodes.items():
             self.platform.export_geometry_element(node_i)
 
+        exported = set()
+
         # Export the boundaries first
         for name_i, boundary_i in self.boundaries.items():
             for id_i in boundary_i.assigned:
                 if id_i in self.lines.keys():
-                    line_i = self.lines.pop(id_i)
+                    line_i = self.lines[id_i]
                     self.platform.export_geometry_element(line_i, boundary=name_i)
                 elif id_i in self.circle_arcs.keys():
-                    arc_i = self.circle_arcs.pop(id_i)
+                    arc_i = self.circle_arcs[id_i]
                     self.platform.export_geometry_element(arc_i, boundary=name_i)
                 else:
                     raise ValueError(
@@ -116,14 +128,17 @@ class Snapshot:
                         "boundary:",
                         boundary_i.name,
                     )
+                exported.add(id_i)
 
         # Export the rest
-        for id, line_i in self.lines.items():
-            self.platform.export_geometry_element(line_i)
+        for id_i, line_i in self.lines.items():
+            if id_i not in exported:
+                self.platform.export_geometry_element(line_i)
 
         # Export circle arcs
-        for id, arc_i in self.circle_arcs.items():
-            self.platform.export_geometry_element(arc_i)
+        for id_i, arc_i in self.circle_arcs.items():
+            if id_i not in exported:
+                self.platform.export_geometry_element(arc_i)
 
         self.platform.newline(1)
         self.platform.comment("BLOCK LABELS")

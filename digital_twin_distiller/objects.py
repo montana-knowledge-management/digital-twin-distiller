@@ -13,23 +13,23 @@ class Node:
     the label can be important to rotate and copy and rotate the selected part of the geometry.
     """
 
-    def __init__(self, x=0.0, y=0.0, id=None, label=None, precision=6):
+    def __init__(self, x=0.0, y=0.0, id_=None, label=None, precision=6):
         self.x = x
         self.y = y
-        self.id = id or getID()  # a node has to got a unique id to be translated or moved
+        self.id = id_ or getID()  # a node has to got a unique id to be translated or moved
         self.label = label  # can be used to denote a group of the elements and make some operation with them
         self.precision = precision  # number of the digits, every coordinate represented in the same precision
         self.hanging = True  # if its contained by another object it will be set to False
 
     @classmethod
-    def from_polar(cls, r:float, phi:float):
+    def from_polar(cls, r: float, phi: float):
         """
         Create a Node from its polar coordinates.
 
         :param float r: the length of the vector
         :param float phi: the angle of the vector in degrees
         """
-        return cls(r*math.cos(math.radians(phi)), r*math.sin(math.radians(phi))) 
+        return cls(r * math.cos(math.radians(phi)), r * math.sin(math.radians(phi)))
 
     def __getitem__(self, item):
         if item == 0:
@@ -105,7 +105,7 @@ class Node:
         return Node(
             self.x,
             self.y,
-            id=getID(),
+            id_=getID(),
             label=self.label,
             precision=self.precision,
         )
@@ -220,7 +220,8 @@ class Node:
 class Line:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, end_pt, id=None, label=None):
+    def __init__(self, start_pt, end_pt, id_=None, label=None, color=None,
+                 attributes:dict={}):
         # sorting the incoming points by coordinate
         # sorted_points = sorted((start_pt, end_pt), key=lambda pi: pi.x)  # sorting by x coordinate
         # sorted_points = sorted(sorted_points, key=lambda pi: pi.y)  # sorting by y coordinate
@@ -228,11 +229,15 @@ class Line:
         # self.end_pt = sorted_points[-1]
         self.start_pt = start_pt
         self.end_pt = end_pt
-        self.id = id or getID()
+        self.id = id_ or getID()
         self.label = label
+        self.color = color  # the color of the given edge can be used to render the appropriate boundary conditions to the given edges
+        self.attributes = attributes.copy()
 
     def __copy__(self):
-        return Line(copy(self.start_pt), copy(self.end_pt), id=getID(), label=self.label)
+        return Line(copy(self.start_pt), copy(self.end_pt), id_=getID(),
+                    label=self.label, color=self.color,
+                    attributes=self.attributes)
 
     def distance_to_point(self, px, py):
         """
@@ -321,20 +326,23 @@ class Line:
         return self.start_pt + (self.end_pt - self.start_pt) * t
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r})"
+        return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt},label={self.label!r}, color={self.color})"
         # return f"{self.__class__.__name__}({self.start_pt}, {self.end_pt}, id={hex(self.id)[-5:]})"
 
 
 class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, center_pt, end_pt, id=None, label=None, max_seg_deg=20):
+    def __init__(self, start_pt, center_pt, end_pt, id_=None, label=None,
+                 max_seg_deg=1, color=None, attributes:dict={}):
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt
-        self.id = id or getID()
+        self.id = id_ or getID()
         self.label = label
         self.max_seg_deg = max_seg_deg
+        self.color = color
+        self.attributes = attributes.copy()
 
         self.radius = self.start_pt.distance_to(self.center_pt)
         clamp = self.start_pt.distance_to(self.end_pt) / 2.0
@@ -400,119 +408,57 @@ class CircleArc:
             copy(self.center_pt),
             copy(self.end_pt),
             max_seg_deg=self.max_seg_deg,
+            color=self.color,
+            attributes=self.attributes
         )
 
     def __repr__(self):
-        return "{}({!r}, {!r}, {!r}, id={!r},label={!r})".format(
+        return "{}({!r}, {!r}, {!r}, id={!r},label={!r}, color={!r})".format(
             self.__class__.__name__,
             self.start_pt,
             self.center_pt,
             self.end_pt,
             self.id,
             self.label,
+            self.color
         )
 
 
 class CubicBezier:
-    def __init__(self, start_pt, control1, control2, end_pt, id=None, label=None):
+    def __init__(self, start_pt, control1, control2, end_pt, id_=None, label=None, color=None, attributes:dict={},
+                 n_segment=51):
         self.start_pt = start_pt
         self.control1 = control1
         self.control2 = control2
         self.end_pt = end_pt
-        self.id = id or getID()
+        self.id = id_ or getID()
         self.label = label
+        self.color = color
+        self.attributes = attributes.copy()
+        self.n_segment = n_segment
 
-    def __repr__(self):
-        return "{}({!r}, {!r}, {!r}, {!r}, id={!r},label={!r})".format(
-            self.__class__.__name__,
-            self.start_pt,
-            self.control1,
-            self.control2,
-            self.end_pt,
-            self.id,
-            self.label,
-        )
+    def approximate(self):
+        X, Y = zip(*(self(ti) for ti in linspace(0, 1, self.n_segment + 1)))
 
-
-# Todo: ez a két class mergelhető-e?
-# TODO: GK: mergelhető
-class ParametricBezier:
-    def __init__(self, start, c1, c2, end):
-        self.p0 = tuple(start)
-        self.p1 = tuple(c1)
-        self.p2 = tuple(c2)
-        self.p3 = tuple(end)
-
-    def set(self, **kwargs):
-        self.p0 = kwargs.get("start", self.p0)
-        self.p1 = kwargs.get("c1", self.p1)
-        self.p2 = kwargs.get("c2", self.p2)
-        self.p3 = kwargs.get("end", self.p3)
-
-    # def casteljau(p0, p1, p2, p3):
-    #     m = ((p1[0] + p2[0]) * 0.5, (p1[1] + p2[1]) * 0.5)
-    #     l0 = p0
-    #     r3 = p3
-
-    #     l1 = ((p0[0] + p1[0]) * 0.5, (p0[1] + p1[1]) * 0.5)
-    #     r2 = ((p2[0] + p3[0]) * 0.5, (p2[1] + p3[1]) * 0.5)
-
-    #     l2 = ((l1[0] + m[0]) * 0.5, (l1[1] + m[1]) * 0.5)
-    #     r1 = ((r2[0] + m[0]) * 0.5, (r2[1] + m[1]) * 0.5)
-
-    #     l3 = ((l2[0] + r1[0]) * 0.5, (l2[1] + r1[1]) * 0.5)
-    #     r0 = l3
-
-    #     return (r0, r1, r2, r3), (l0, l1, l2, l3)
-
-    # def approximate(self, nb_iter=0):
-    #     """
-    #     Bezier-Curve approximation with the De-Casteljau algorithm. This
-    #     function gives back the the linesegments' x and y coordinates in 2
-    #     separate list.
-    #     """
-    #     lines = [(self.p0, self.p1, self.p2, self.p3)]
-    #     for iter_i in range(nb_iter):
-    #         templines = []
-    #         for curve_i in lines:
-    #             r, l = self.casteljau(*curve_i)
-    #             templines.append(l)
-    #             templines.append(r)
-    #         lines.clear()
-    #         lines = templines.copy()
-
-    #     linex = [(ci[0][0], ci[-1][0]) for ci in lines]
-    #     linex = [item for sublist in linex for item in sublist]
-    #     liney = [(ci[0][1], ci[-1][1]) for ci in lines]
-    #     liney = [item for sublist in liney for item in sublist]
-
-    #     return linex, liney
-
-    def approximate(self, n_segment):
-        X, Y = zip(*(self(ti) for ti in linspace(0, 1, n_segment + 1)))
-
-        segments = []
         for Xi, Yi in zip(pairwise(X), pairwise(Y)):
             n0 = Node(Xi[0], Yi[0])
             n1 = Node(Xi[1], Yi[1])
-            segments.append(Line(n0, n1))
-
-        return segments
+            yield Line(n0, n1)
 
     def __call__(self, t: float):
         assert (0 <= t) and (t <= 1), f"t [0, 1] not {t}"
         X = (
-            (1 - t) ** 3 * self.p0[0]
-            + 3 * (1 - t) ** 2 * t * self.p1[0]
-            + 3 * (1 - t) * t ** 2 * self.p2[0]
-            + t ** 3 * self.p3[0]
+                (1 - t) ** 3 * self.start_pt.x
+                + 3 * (1 - t) ** 2 * t * self.control1.x
+                + 3 * (1 - t) * t ** 2 * self.control2.x
+                + t ** 3 * self.end_pt.x
         )
 
         Y = (
-            (1 - t) ** 3 * self.p0[1]
-            + 3 * (1 - t) ** 2 * t * self.p1[1]
-            + 3 * (1 - t) * t ** 2 * self.p2[1]
-            + t ** 3 * self.p3[1]
+                (1 - t) ** 3 * self.start_pt.y
+                + 3 * (1 - t) ** 2 * t * self.control1.y
+                + 3 * (1 - t) * t ** 2 * self.control2.y
+                + t ** 3 * self.end_pt.y
         )
 
         return X, Y
@@ -522,19 +468,31 @@ class ParametricBezier:
         If 2 Bezier-Curves have the same set of points, then they are equal.
         """
 
-        if math.dist(self.p1, other.p1) > 1e-5:
+        if math.dist(self.start_pt, other.start_pt) > 1e-5:
             return False
 
-        if math.dist(self.p1, other.p1) > 1e-5:
+        if math.dist(self.control1, other.control1) > 1e-5:
             return False
 
-        if math.dist(self.p1, other.p1) > 1e-5:
+        if math.dist(self.control2, other.control2) > 1e-5:
             return False
 
-        if math.dist(self.p1, other.p1) > 1e-5:
+        if math.dist(self.end_pt, other.end_pt) > 1e-5:
             return False
 
         return True
+
+    def __repr__(self):
+        return "{}({!r}, {!r}, {!r}, {!r}, id={!r},label={!r}, color={!r})".format(
+            self.__class__.__name__,
+            self.start_pt,
+            self.control1,
+            self.control2,
+            self.end_pt,
+            self.id,
+            self.label,
+            self.color
+        )
 
 
 class Rectangle:

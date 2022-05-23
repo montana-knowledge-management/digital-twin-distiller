@@ -7,10 +7,10 @@ from digital_twin_distiller.objects import CubicBezier, Line, Node
 class TestBezierApprox(unittest.TestCase):
     def test_casteljeu_step(self):
         # Test Nodes
-        a = Node(x=0.0, y=0.0, id=1)
-        b = Node(x=1.0, y=-0.2, id=2)
-        c1 = Node(x=0.2, y=0.9, id=3)
-        c2 = Node(x=0.8, y=0.7, id=4)
+        a = Node(x=0.0, y=0.0, id_=1)
+        b = Node(x=1.0, y=-0.2, id_=2)
+        c1 = Node(x=0.2, y=0.9, id_=3)
+        c2 = Node(x=0.8, y=0.7, id_=4)
 
         bez = CubicBezier(a, c1, c2, b)
 
