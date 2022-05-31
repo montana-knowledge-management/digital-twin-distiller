@@ -38,6 +38,7 @@ h5py = "^3.6.0"
 kwargs = "^1.0.1"
 data = "^0.4"
 # list all devtools here
+pandas = "^1.4.2"
 [tool.poetry.dev-dependencies]
 black = "*"
 coverage = "*"

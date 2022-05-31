@@ -2,7 +2,7 @@ import math
 from copy import copy
 from math import cos, pi, radians
 
-from digital_twin_distiller import inch2mm
+from digital_twin_distiller import inch2mm, Geometry
 from digital_twin_distiller.boundaries import DirichletBoundaryCondition
 from digital_twin_distiller.boundaries import AntiPeriodicBoundaryCondition
 from digital_twin_distiller.boundaries import AntiPeriodicAirGap
@@ -11,7 +11,7 @@ from digital_twin_distiller.metadata import FemmMetadata
 from digital_twin_distiller.model import BaseModel
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.modelpiece import ModelPiece
-from digital_twin_distiller.objects import CircleArc, Node, Line
+from digital_twin_distiller.objects import CircleArc, Node, Line, CubicBezier
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
 
