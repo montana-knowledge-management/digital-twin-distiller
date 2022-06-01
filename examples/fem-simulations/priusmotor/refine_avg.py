@@ -42,14 +42,33 @@ if switch == 0:
     avg = json.load(f)
 
     ran = 46 * nsteps_a
-
+    tmin = [[] for i in range(ran)]
+    tmax = [[] for i in range(ran)]
+    tdif = [[] for i in range(ran)]
     t = [[] for i in range(ran)]
+    r = [[] for i in range(ran)]
+    l = []
+    e = []
     a = 0
     b = 0
     while a < (ran):
         t[a] = [(avg["Torque"])[i] for i in range(b + 0, b + 61)]
+        t[a] = [round(num, 1) for num in t[a]]
+        tmin[a] = min(t[a])
+        tmax[a] = max(t[a])
+        tdif[a] = tmax[a] - tmin[a]
         a = a + 1
         b = b + 61
+
+    for i in range(ran):
+        for j in range(61):
+            r[i].append(j)
+    for i in range(ran):
+            l.append(i%46)
+
+    for j in range(26):
+        for i in range(46):
+            e.append(0.5+j/10)
 
     tavg = [[] for i in range(ran)]
     #tmax = [[] for i in range(ran)]
@@ -90,8 +109,33 @@ if switch == 0:
         b=b+46
 
     res = {"rotorangle": x,
-          "tavg": y}
+           "tavg": y}
 
+    ripple = {'earheight': e,
+              "loadangle": l,
+              "rotorangle": r,
+              "torque": t,
+              "dif": tdif,
+              "maxavg": tavg}
+
+    ripple = pd.DataFrame(ripple)
     res = pd.DataFrame(res)
     res.to_pickle(ModelDir.DATA / "df_avgear100.pkl")
-    print(res)
+
+    tmax = [[] for i in range(26)]
+    lmax = [[] for i in range(26)]
+    for i in range(26):
+        tmax[i] = max(y[i])
+        lmax[i] = y[i].index(tmax[i])
+
+    ear = list(linspace(0.5, 3.0, 26))
+    ear = [round(num, 1) for num in ear]
+
+    dff = ripple.loc[(ripple['earheight'] == ear[0]) & (ripple['loadangle'] == lmax[0])]
+    for i in range(26):
+        df = ripple.loc[(ripple['earheight'] == ear[i]) & (ripple['loadangle'] == lmax[0])]
+        dff = pd.concat([dff, df], ignore_index=True)
+    ripple = dff.iloc[1:, :]
+    ripple.to_pickle(ModelDir.DATA / "df_ripple100.pkl")
+
+
