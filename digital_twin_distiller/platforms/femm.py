@@ -227,26 +227,19 @@ class Femm(Platform):
         self.write(self.writer.add_boundary(femm_boundary))
 
     def export_geometry_element(self, e, boundary=None):
-        if self.metadata.elementsize:
-            automesh = 0
-            elementsize = 1
-        else:
-            automesh = 1
-            elementsize = self.metadata.elementsize
 
         if isinstance(e, Node):
             self.write(self.writer.add_node(e.x, e.y))
 
         if isinstance(e, Line):
             self.write(self.writer.add_segment(e.start_pt.x, e.start_pt.y, e.end_pt.x, e.end_pt.y))
-            if boundary:
-                # we should give an internal point to select the line
-                m_x = (e.start_pt.x + e.end_pt.x) * 0.5
-                m_y = (e.start_pt.y + e.end_pt.y) * 0.5
+            # we should give an internal point to select the line
+            m_x = (e.start_pt.x + e.end_pt.x) * 0.5
+            m_y = (e.start_pt.y + e.end_pt.y) * 0.5
 
-                self.write(self.writer.select_segment(m_x, m_y))
-                self.write(self.writer.set_segment_prop(boundary, automesh=automesh, elementsize=elementsize))
-                self.write(self.writer.clear_selected())
+            self.write(self.writer.select_segment(m_x, m_y))
+            self.write(self.writer.set_segment_prop(boundary or "<None>", automesh=0, elementsize=e.meshScaling))
+            self.write(self.writer.clear_selected())
 
         if isinstance(e, CircleArc):
             # we should find an internal point of the circle arc
