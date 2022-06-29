@@ -7,6 +7,30 @@ from numpy import linspace
 from digital_twin_distiller.utils import getID, get_phi, get_short_id, mirror_point, pairwise
 
 
+def transformIntoInterval(minx, maxx, x):
+    return min(max(x, minx), maxx)
+
+
+def transformMeshScalingInterval(x):
+    return transformIntoInterval(0.1, 20, x)
+
+
+def calculateMeshScalingInput(meshScaling):
+    return abs(int(math.ceil(float(meshScaling))))
+
+# def transform(x):
+#     a = 0.1
+#     b = 20
+#     if a <= x <= b:
+#         return x
+#     # [0.1, num] => [0.1, 20]
+#     else:
+#         res = (x - 0.1) * ((b - a) / x) + a
+#         if res > a:
+#             return res
+#         return a
+
+
 class Node:
     """
     A Node identified by (x,y) coordinates, optionally it can contains an id number or a label. The id_number and
@@ -221,7 +245,7 @@ class Line:
     """A directed line, which is defined by the (start -> end) points"""
 
     def __init__(self, start_pt, end_pt, id_=None, label=None, color=None,
-                 attributes:dict={}):
+                 attributes: dict = {}):
         # sorting the incoming points by coordinate
         # sorted_points = sorted((start_pt, end_pt), key=lambda pi: pi.x)  # sorting by x coordinate
         # sorted_points = sorted(sorted_points, key=lambda pi: pi.y)  # sorting by y coordinate
@@ -233,11 +257,21 @@ class Line:
         self.label = label
         self.color = color  # the color of the given edge can be used to render the appropriate boundary conditions to the given edges
         self.attributes = attributes.copy()
+        self.length = math.dist(self.start_pt, self.end_pt)
+        self.meshScaling = 1.0
+
+        getMeshScaling = attributes.get("meshScaling")
+
+        if getMeshScaling:
+            self.set_mesh_scaling(getMeshScaling)
 
     def __copy__(self):
         return Line(copy(self.start_pt), copy(self.end_pt), id_=getID(),
                     label=self.label, color=self.color,
                     attributes=self.attributes)
+
+    def set_mesh_scaling(self, meshScaling):
+        self.meshScaling = transformMeshScalingInterval(self.length / calculateMeshScalingInput(meshScaling))
 
     def distance_to_point(self, px, py):
         """
@@ -334,7 +368,7 @@ class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
     def __init__(self, start_pt, center_pt, end_pt, id_=None, label=None,
-                 max_seg_deg=1, color=None, attributes:dict={}):
+                 max_seg_deg=1, color=None, attributes: dict = {}):
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt
@@ -344,16 +378,25 @@ class CircleArc:
         self.color = color
         self.attributes = attributes.copy()
 
+        self.meshScaling = attributes.get("meshScaling")
+
         self.radius = self.start_pt.distance_to(self.center_pt)
         clamp = self.start_pt.distance_to(self.end_pt) / 2.0
         try:
             self.theta = round(math.asin(clamp / self.radius) * 180 / math.pi * 2, 2)
             self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(self.theta / 2))
+
+            if self.meshScaling:
+                self.set_max_seg_deg_by_mesh_scaling(self.meshScaling)
+
         except ValueError:
             self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(90))
 
+    def set_max_seg_deg_by_mesh_scaling(self, meshScaling):
+        self.max_seg_deg = transformMeshScalingInterval(self.theta / calculateMeshScalingInput(meshScaling))
+
     @classmethod
-    def from_radius(cls, start_pt: Node, end_pt: Node, r: float = 1.0):
+    def from_radius(cls, start_pt: Node, end_pt: Node, r: float = 1.0, attributes: dict = {}):
         """
         Construct a CircleArc instance from start- and end-point and a radius.
 
@@ -361,6 +404,7 @@ class CircleArc:
             start_pt: Starting point of the arc.
             end_pt: End point of the arc.
             r: radius of the arc. r > 0.
+            attributes: dict
         """
         assert r > 0.0, f"Radius should be greater than 0. Got {r=}."
         assert start_pt != end_pt, "Start- and End-point cannot be the same."
@@ -369,7 +413,7 @@ class CircleArc:
         alpha = math.acos(a * 0.5 / r)
         u = start_pt.unit_to(end_pt) * r
         u = u.rotate(alpha) + start_pt
-        return cls(start_pt, u, end_pt)
+        return cls(start_pt, u, end_pt, attributes=attributes)
 
     def distance_to_point(self, x, y):
         """
@@ -425,7 +469,7 @@ class CircleArc:
 
 
 class CubicBezier:
-    def __init__(self, start_pt, control1, control2, end_pt, id_=None, label=None, color=None, attributes:dict={},
+    def __init__(self, start_pt, control1, control2, end_pt, id_=None, label=None, color=None, attributes: dict = {},
                  n_segment=51):
         self.start_pt = start_pt
         self.control1 = control1
@@ -435,7 +479,7 @@ class CubicBezier:
         self.label = label
         self.color = color
         self.attributes = attributes.copy()
-        self.n_segment = n_segment
+        self.n_segment = attributes.get("meshScaling", n_segment)
 
     def approximate(self):
         X, Y = zip(*(self(ti) for ti in linspace(0, 1, self.n_segment + 1)))
