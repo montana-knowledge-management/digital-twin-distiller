@@ -505,6 +505,7 @@ class SRM(BaseModel):
         ksi = math.acos((el_dir.x * fl_dir.x + el_dir.y * fl_dir.y)/(e * f))
 
         self.half_coil_area = (e * f * math.sin(ksi)) / 2 / 1000**2
+        print(self.half_coil_area*2)
         J0 = self.Nturns * self.I0 / self.half_coil_area
         self.JU = J0 * math.cos(math.radians(self.alpha))
         self.JV = J0 * math.cos(math.radians(self.alpha + 120))
@@ -612,11 +613,13 @@ class SRM(BaseModel):
     def build_geometry(self):
         self.build_rotor()
         self.build_rotorpole()
+        self.geom.export_svg("rotor.svg")
         self.build_stator()
         self.build_tooth()
         self.build_coil()
         self.build_boundaries()
         self.build_material()
+        self.geom.export_svg("stator.svg")
         self.snapshot.add_geometry(self.geom)
 
 def execute_model(model: SRM):
@@ -632,4 +635,4 @@ def execute_model(model: SRM):
 
 if __name__ == "__main__":
     m = SRM(exportname="dev")
-    print(m(devmode=False, cleanup=False))
+    print(m(devmode=True, cleanup=False))

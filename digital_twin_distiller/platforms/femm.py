@@ -233,13 +233,14 @@ class Femm(Platform):
 
         if isinstance(e, Line):
             self.write(self.writer.add_segment(e.start_pt.x, e.start_pt.y, e.end_pt.x, e.end_pt.y))
-            # we should give an internal point to select the line
-            m_x = (e.start_pt.x + e.end_pt.x) * 0.5
-            m_y = (e.start_pt.y + e.end_pt.y) * 0.5
+            if boundary:
+                # we should give an internal point to select the line
+                m_x = (e.start_pt.x + e.end_pt.x) * 0.5
+                m_y = (e.start_pt.y + e.end_pt.y) * 0.5
 
-            self.write(self.writer.select_segment(m_x, m_y))
-            self.write(self.writer.set_segment_prop(boundary or "<None>", automesh=0, elementsize=e.meshScaling))
-            self.write(self.writer.clear_selected())
+                self.write(self.writer.select_segment(m_x, m_y))
+                self.write(self.writer.set_segment_prop(boundary or "<None>", automesh=0, elementsize=e.meshScaling))
+                self.write(self.writer.clear_selected())
 
         if isinstance(e, CircleArc):
             # we should find an internal point of the circle arc
@@ -254,7 +255,7 @@ class Femm(Platform):
                 theta = round(asin(clamp / radius) * 180 / pi * 2, 2)
             except ValueError:
                 theta = 180
-                
+
             self.write(
                 self.writer.add_arc(
                     e.start_pt.x,
@@ -331,7 +332,6 @@ class Femm(Platform):
                 self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
         if action == "mesh_info":
-
             self.write(f'write(file_out, "nodes, ", {fieldmapping[self.metadata.problem_type]}_numnodes(), "\\n")')
             self.write(f'write(file_out, "elements, ", {prefix}_numelements(), "\\n")')
 
