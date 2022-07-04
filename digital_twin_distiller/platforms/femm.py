@@ -261,7 +261,7 @@ class Femm(Platform):
                 theta = round(asin(clamp / radius) * 180 / pi * 2, 2)
             except ValueError:
                 theta = 180
-                
+
             self.write(
                 self.writer.add_arc(
                     e.start_pt.x,
@@ -294,7 +294,8 @@ class Femm(Platform):
         self.write(self.writer.analyze())
         self.write(self.writer.load_solution())
 
-    def export_results(self, action, entity, variable):
+    def export_results(self, action, entity, variable, custom_name=None):
+
         mappings = {
             "Bx": "B1",
             "By": "B2",
@@ -309,6 +310,11 @@ class Femm(Platform):
             "Ex": "Ex",
             "Ey": "Ey"
         }
+
+        if custom_name is not None and mappings[custom_name] is not None:
+            mappings_custom_name = mappings[custom_name]
+        else:
+            mappings_custom_name = mappings[variable]
         field = self.metadata.problem_type
         fieldmapping = {
             "electrostatic": "eo",
@@ -323,7 +329,7 @@ class Femm(Platform):
 
             if field == "electrostatic":
                 self.write(f"V, Dx, Dy, Ex, Ey, ex, ey, nrg = eo_getpointvalues({x}, {y})")
-                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings_custom_name}, "\\n")')
 
             if field == "magnetic":
                 self.write(
@@ -331,14 +337,13 @@ class Femm(Platform):
                     nb_newline=0,
                 )
                 self.write(self.writer.get_point_values(x, y))
-                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings_custom_name}, "\\n")')
 
             if field == "heat":
                 self.write(f"V, Fx, Fy, Gx, Gy, kx, ky = ho_getpointvalues({x}, {y})")
-                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings_custom_name}, "\\n")')
 
         if action == "mesh_info":
-
             self.write(f'write(file_out, "nodes, ", {fieldmapping[self.metadata.problem_type]}_numnodes(), "\\n")')
             self.write(f'write(file_out, "elements, ", {prefix}_numelements(), "\\n")')
 

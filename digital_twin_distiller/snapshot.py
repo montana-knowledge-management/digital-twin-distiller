@@ -83,8 +83,8 @@ class Snapshot:
                 if boundary in self.boundaries.keys():
                     self.boundaries[boundary].assigned.add(li.id)
 
-    def add_postprocessing(self, action, entity, variable):
-        self.metrics.append((action, entity, variable))
+    def add_postprocessing(self, action, entity, variable, custom_name=None):
+        self.metrics.append((action, entity, variable, custom_name))
 
     def export(self, customfilehandle=None, develmode=None):
         self.platform.open(customfilehandle)
