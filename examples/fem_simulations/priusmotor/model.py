@@ -196,13 +196,17 @@ class PriusMotor(BaseModel):
     def build_geometry(self):
         # ...
         rotor = ModelPiece('rotor')
-        rotor.load_piece_from_dxf(ModelDir.RESOURCES / "prius_test.dxf")
-        rotor.rotate(alpha=67.5)
-        rotor.scale(1000, 1000)
+        rotor.load_piece_from_svg("/home/csanyig/PycharmProjects/bosch-2022-1/resources/prius_motor/rotor.svg")
+        # rotor = ModelPiece('rotor')
+        # rotor.load_piece_from_dxf(ModelDir.RESOURCES / "prius_test.dxf")
+        # rotor.rotate(alpha=67.5)
+        # rotor.scale(1000, 1000)
         self.geom.merge_geometry(rotor.geom)
 
+
         stator = ModelPiece('stator')
-        stator.load_piece_from_dxf(ModelDir.RESOURCES / "Prius2004_Stator_SB.dxf")
+        stator.load_piece_from_svg("/home/csanyig/PycharmProjects/bosch-2022-1/resources/prius_motor/stator.svg")
+        # stator.load_piece_from_dxf(ModelDir.RESOURCES / "Prius2004_Stator_SB.dxf")
         self.geom.merge_geometry(stator.geom)
 
         a = Node.from_polar(80.4494, 67.5)
@@ -212,6 +216,14 @@ class PriusMotor(BaseModel):
                                     b))
         self.add_line(-30.691, 74.095, -30.7867, 74.3256)
         self.add_line( 30.691, 74.095, 30.7867, 74.3256)
+
+        a = Node.from_polar(80.8, 67.5)
+        b = Node.from_polar(80.8, 112.5)
+        self.geom.add_arc(CircleArc(a,
+                                    Node(0, 0),
+                                    b))
+        self.add_line(-30.9782, 74.788, *b)
+        self.add_line(30.9782, 74.788, *a)
 
         self.snapshot.add_geometry(self.geom)
         for i in range(len(self.geom.circle_arcs)):
@@ -256,4 +268,4 @@ class PriusMotor(BaseModel):
 
 if __name__ == "__main__":
     m = PriusMotor(exportname="dev")
-    print(m(cleanup=False, devmode=True))
+    print(m(cleanup=False, devmode=False, timeout=5000))

@@ -227,12 +227,6 @@ class Femm(Platform):
         self.write(self.writer.add_boundary(femm_boundary))
 
     def export_geometry_element(self, e, boundary=None):
-        if self.metadata.elementsize:
-            automesh = 0
-            elementsize = 1
-        else:
-            automesh = 1
-            elementsize = self.metadata.elementsize
 
         if isinstance(e, Node):
             self.write(self.writer.add_node(e.x, e.y))
@@ -245,7 +239,7 @@ class Femm(Platform):
                 m_y = (e.start_pt.y + e.end_pt.y) * 0.5
 
                 self.write(self.writer.select_segment(m_x, m_y))
-                self.write(self.writer.set_segment_prop(boundary, automesh=automesh, elementsize=elementsize))
+                self.write(self.writer.set_segment_prop(boundary or "<None>", automesh=0, elementsize=e.meshScaling))
                 self.write(self.writer.clear_selected())
 
         if isinstance(e, CircleArc):
