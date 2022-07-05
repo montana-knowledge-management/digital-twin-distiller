@@ -166,7 +166,7 @@ class Agros2D(Platform):
         self.write(f'f = open(r"{self.metadata.file_metrics_name}", "w")')
 
     # TODO: check!
-    def export_results(self, action, entity, variable):
+    def export_results(self, action, entity, variable, custom_name):
         """
         Exports the given value from the agros2d with the given coordinates.
 
@@ -186,13 +186,16 @@ class Agros2D(Platform):
             "Ex": "Ex",
             "Ey": "Ey"
         }
+
+        custom_name_result = custom_name or variable
+
         field = self.metadata.problem_type
         if action == "point_value":
             x = self.metadata.unit * entity[0]
             y = self.metadata.unit * entity[1]
             self.write(f'point = {field}.local_values({x}, {y})["{mappings[variable]}"]')
             self.write(
-                f'f.write("{{}}, {x}, {y}, {{}}\\n".format("{variable}", point))',
+                f'f.write("{{}}, {x}, {y}, {{}}\\n".format("{custom_name_result}", point))',
                 nb_newline=2,
             )
 
@@ -206,17 +209,17 @@ class Agros2D(Platform):
             if field == "electrostatic":
                 mapping = {"Energy": "We"}
                 self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
-                self.write(f'f.write("{variable}, {{}}\\n".format(val))')
+                self.write(f'f.write("{custom_name_result}, {{}}\\n".format(val))')
 
             if field == "heat":
                 mapping = {"T":"T"}
                 self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
-                self.write(f'f.write("{variable}, {{}}\\n".format(val))')
+                self.write(f'f.write("{custom_name_result}, {{}}\\n".format(val))')
 
             if field == "magnetic":
                 mapping = {"Energy": "Wm"}
                 self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
-                self.write(f'f.write("{variable}, {{}}\\n".format(val))')
+                self.write(f'f.write("{custom_name_result}, {{}}\\n".format(val))')
 
     def export_closing_steps(self):
         self.write("f.close()")

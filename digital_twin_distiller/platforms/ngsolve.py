@@ -75,7 +75,7 @@ class NgSolve(Platform, metaclass=ABCMeta):
         """This function is not used here."""
         ...
 
-    def export_results(self, action, entity, variable):
+    def export_results(self, action, entity, variable, custom_name):
         """This function is not used here."""
         ...
 

@@ -294,7 +294,7 @@ class Femm(Platform):
         self.write(self.writer.analyze())
         self.write(self.writer.load_solution())
 
-    def export_results(self, action, entity, variable, custom_name=None):
+    def export_results(self, action, entity, variable, custom_name):
 
         mappings = {
             "Bx": "B1",
@@ -311,10 +311,8 @@ class Femm(Platform):
             "Ey": "Ey"
         }
 
-        if custom_name is not None and mappings[custom_name] is not None:
-            mappings_custom_name = mappings[custom_name]
-        else:
-            mappings_custom_name = mappings[variable]
+        custom_name_result = custom_name or variable
+
         field = self.metadata.problem_type
         fieldmapping = {
             "electrostatic": "eo",
@@ -329,7 +327,7 @@ class Femm(Platform):
 
             if field == "electrostatic":
                 self.write(f"V, Dx, Dy, Ex, Ey, ex, ey, nrg = eo_getpointvalues({x}, {y})")
-                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings_custom_name}, "\\n")')
+                self.write(f'write(file_out, "{custom_name_result}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
             if field == "magnetic":
                 self.write(
@@ -337,11 +335,11 @@ class Femm(Platform):
                     nb_newline=0,
                 )
                 self.write(self.writer.get_point_values(x, y))
-                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings_custom_name}, "\\n")')
+                self.write(f'write(file_out, "{custom_name_result}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
             if field == "heat":
                 self.write(f"V, Fx, Fy, Gx, Gy, kx, ky = ho_getpointvalues({x}, {y})")
-                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings_custom_name}, "\\n")')
+                self.write(f'write(file_out, "{custom_name_result}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
         if action == "mesh_info":
             self.write(f'write(file_out, "nodes, ", {fieldmapping[self.metadata.problem_type]}_numnodes(), "\\n")')
@@ -365,7 +363,7 @@ class Femm(Platform):
 
                 self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
                 self.write(f"{prefix}_clearblock()")
-                self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
+                self.write(f'write(file_out, "{custom_name_result}, ", {variable}, "\\n")')
 
             if self.metadata.problem_type == "electrostatic":
                 int_type = {"Energy": 0}
@@ -377,7 +375,7 @@ class Femm(Platform):
 
                 self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
                 self.write(f"{prefix}_clearblock()")
-                self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
+                self.write(f'write(file_out, "{custom_name_result}, ", {variable}, "\\n")')
 
         if action == "saveimage":
             self.write(f"{prefix}_showdensityplot(0, 0, 0.0, 0.1, 'bmag')")
