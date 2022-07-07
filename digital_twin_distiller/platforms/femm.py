@@ -356,8 +356,13 @@ class Femm(Platform):
                         self.write(f"{prefix}_selectblock({x}, {y})")
 
                 self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
+                if variable == "Flux":
+                    self.write(f"coil_area = {prefix}_blockintegral(5)")
                 self.write(f"{prefix}_clearblock()")
-                self.write(f'write(file_out, "{custom_name_result}, ", {variable}, "\\n")')
+                if variable == "Flux":
+                    self.write(f'write(file_out, "{custom_name_result}, ", {variable}/coil_area, "\\n")')
+                else:
+                    self.write(f'write(file_out, "{custom_name_result}, ", {variable}, "\\n")')
 
             if self.metadata.problem_type == "electrostatic":
                 int_type = {"Energy": 0}
