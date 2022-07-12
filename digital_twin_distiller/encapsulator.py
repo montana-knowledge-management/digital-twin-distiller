@@ -128,6 +128,7 @@ class Encapsulator:
         Builds mkdocs documentation and deploys the documentation at the given endpoint.
         :param docs_path: path to the docs folder containing mkdocs.yml
         :param endpoint: endpoint to publish built docs to
+        :param build: whether to build documentation or not
         :return:
         """
         if build:
