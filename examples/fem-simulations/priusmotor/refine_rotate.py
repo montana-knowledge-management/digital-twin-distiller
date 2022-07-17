@@ -10,7 +10,7 @@ from digital_twin_distiller import ModelDir
 
 ModelDir.set_base(__file__)
 
-switch = 0
+switch = 3
 if switch == 0:
 
     range_a0 = 0
@@ -132,7 +132,7 @@ elif switch == 1:
     res = pd.DataFrame(res)
     res.to_pickle(ModelDir.DATA / "df_rotate_t2.pkl")
 
-    plt.scatter(res["current"], res["twav"])
+    plt.scatter(res["current"], res["tmax"])
     plt.show()
 
 elif switch == 2:

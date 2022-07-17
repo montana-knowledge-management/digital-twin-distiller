@@ -34,7 +34,7 @@ prod3 = list(product(range_b, range_c))
 f = open(ModelDir.DATA / f'locked_rotor.json')
 torque = json.load(f)
 
-switch = 4
+switch = 2
 if switch == 1:
     t = [[] for i in range(len(range_a))]
     a = 0

@@ -39,6 +39,9 @@ class PriusMotor(BaseModel):
         # Geometric parameters
         """ source: http://phdengineeringem.blogspot.com/2018/05/toyota-prius-motor-geometry.html"""
         """ source: https://github.com/Eomys/pyleecan/blob/master/Tests/Data/prius_test.dxf"""
+        self.msh1 = kwargs.get("msh1", 1)  # Airgap mesh size [mm]
+        self.msh2 = kwargs.get("msh2", 1)  # Flux barrier mesh size [mm]
+
         self.Dso = kwargs.get("Dsi", 269)  # Stator outer diameter [mm]
         self.Dsi = kwargs.get("Dso", 161.93)  # Stator inner diameter [mm]
 
@@ -125,7 +128,12 @@ class PriusMotor(BaseModel):
         # Airgap material
         airgap = copy(air)
         airgap.name = 'airgap'
-        airgap.meshsize = 0.1
+        airgap.meshsize = self.msh1
+
+        # Flux barrier material
+        airrot = copy(air)
+        airrot.name = 'airrot'
+        airrot.meshsize = self.msh2
 
         # Coils
         # PHASE U
@@ -178,6 +186,7 @@ class PriusMotor(BaseModel):
         # Adding the used materials to the snapshot
         self.snapshot.add_material(air)
         self.snapshot.add_material(airgap)
+        self.snapshot.add_material(airrot)
         self.snapshot.add_material(phase_U_positive)
         self.snapshot.add_material(phase_U_negative)
         self.snapshot.add_material(phase_V_positive)
@@ -331,9 +340,9 @@ class PriusMotor(BaseModel):
     def build_material(self):
         self.assign_material(10, self.R6, "magnet_right")
         self.assign_material(-10, self.R6, "magnet_left")
-        self.assign_material(0, 69, "air")
-        self.assign_material(-20, 75, "air")
-        self.assign_material(20, 75, "air")
+        self.assign_material(0, 69, "airrot")
+        self.assign_material(-20, 75, "airrot")
+        self.assign_material(20, 75, "airrot")
 
         temp1 = Node(*pol2cart(81.5, 108.75))
         self.assign_material(temp1.x, temp1.y, "air")
@@ -349,8 +358,8 @@ class PriusMotor(BaseModel):
         self.assign_material(temp6.x, temp6.y, "air")
 
         self.assign_material(0, 79, "steel_rotor")
-        self.assign_material(0, 80.35, "air")
-        self.assign_material(0, 80.85, "air")
+        self.assign_material(0, 80.35, "airgap")
+        self.assign_material(0, 80.85, "airgap")
         self.assign_material(0, 120, "steel_stator")
 
         self.snapshot.add_geometry(self.geom)

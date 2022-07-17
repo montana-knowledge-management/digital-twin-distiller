@@ -1,10 +1,40 @@
-import matplotlib.pyplot as plt
-import numpy as np
+from numpy import linspace
 
-x=[0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 144, 148, 152, 156, 160, 164, 168, 172, 176, 180]
-y=[-0.003, -2.1, -3.823, -4.905, -5.135, -4.442, -2.92, -0.712, 2.144, 5.689, 9.936, 14.339, 18.963, 24.192, 30.049, 36.833, 44.361, 52.336, 60.631, 69.093, 77.55, 85.87, 93.934, 101.632, 108.895, 115.668, 121.979, 127.733, 132.809, 137.024, 140.296, 142.544, 143.64, 143.448, 141.754, 138.203, 132.569, 124.652, 114.412, 102.051, 87.835, 72.04, 54.983, 37.041, 18.605, -0.005]
+range_a0 = 0.5
+range_a1 = 3.0
+nsteps_a = 26
 
-z = np.poly1d(np.polyfit(x,y,2))
-print(x,z(x))
-plt.plot(x,z(x))
-plt.show()
+range_b0 = 1.0
+range_b1 = 0.1
+nsteps_b = 7
+
+range_c0 = 0
+range_c1 = -60
+nsteps_c = 61
+
+range_d0 = 29
+range_d1 = 37
+nsteps_d = 9
+
+iterlist = [[], [], [], []]
+range_a = linspace(range_a0, range_a1, nsteps_a)
+range_b = linspace(range_b0, range_b1, nsteps_b)
+range_c = linspace(range_c0, range_c1, nsteps_c)
+range_d = linspace(range_d0, range_d1, nsteps_d)
+
+for a in range(nsteps_a):
+    for b in range(nsteps_b):
+        for i in range_d:
+            range_e0 = 0 + i
+            range_e1 = 15 + i
+            nsteps_e = 61
+
+            range_e = list(linspace(range_e0, range_e1, nsteps_e))
+
+            for j in range(nsteps_c):
+                iterlist[3].append(round(range_e[j], 3))
+                iterlist[2].append(round(range_c[j], 3))
+                iterlist[1].append(round(range_b[b], 3))
+                iterlist[0].append(round(range_a[a], 3))
+
+print(len(iterlist[0]))

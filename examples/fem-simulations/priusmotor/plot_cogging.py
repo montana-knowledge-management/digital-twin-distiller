@@ -41,27 +41,52 @@ if switch == 0:
     b = 806
     fig, ax1 = plt.subplots(figsize=(6, 4))
     #ax2 = ax1.twinx()
-    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["inmaxpeak"].loc[range(a, b)]):
-        ax1.scatter(xe, ye, c="r")
-    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["inminpeak"].loc[range(a, b)]):
-        ax1.scatter(xe, ye, c="b")
+    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["tmaxpeak"].loc[range(a, b)]):
+        ax1.scatter(xe, ye, c="#B90276")
+    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["tminpeak"].loc[range(a, b)]):
+        ax1.scatter(xe, ye, c='#005691')
     #for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tdelta3"].loc[range(a, b)]):
         #ax2.scatter(xe, ye, c="b")
     #for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tdelta3"].loc[range(a, b)]):
        #ax2.scatter(xe, ye, c="g")
-    ax1.set_xlabel('Parameter A [mm]', fontsize=10)
-    ax1.set_ylabel('Electrical angle [deg]', fontsize=10)
+    ax1.set_xlabel('"A" paraméter [mm]', fontsize=12)
+    ax1.set_ylabel('Nyomaték [Nm]', fontsize=12)
     #ax2.set_ylabel('Torque [Nm]', fontsize=10, c='r')
     ax1.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
     ax1.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
     ax1.minorticks_on()
     #ax2.minorticks_on()
-    legend = [Line2D([0], [0], marker="o", color='r', label= "maximum"),
-              Line2D([0], [0], marker="o", color='b', label= "minimum")]
-    plt.xticks(fontsize=10)
-    plt.yticks(fontsize=10)
-    plt.legend(handles=legend)
-    plt.savefig(ModelDir.MEDIA / "delta.png", bbox_inches="tight", dpi=650)
+    legend = [Line2D([0], [0], marker="o", color="#B90276", label= "maximum"),
+              Line2D([0], [0], marker="o", color='#005691', label= "minimum")]
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.legend(handles=legend, fontsize = 10)
+    plt.savefig(ModelDir.MEDIA / "mait2.png", bbox_inches="tight", dpi=650)
+    plt.show()
+
+    fig, ax1 = plt.subplots(figsize=(6, 4))
+    # ax2 = ax1.twinx()
+    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["inmaxpeak"].loc[range(a, b)]):
+        ax1.scatter(xe, ye, c="#008ECF")
+    for xe, ye in zip(case["earheight"].loc[range(a, b)], case["inminpeak"].loc[range(a, b)]):
+        ax1.scatter(xe, ye, c='#78BE20')
+    # for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tdelta3"].loc[range(a, b)]):
+    # ax2.scatter(xe, ye, c="b")
+    # for xe, ye in zip(case["aslheight"].loc[range(a, b)], case["tdelta3"].loc[range(a, b)]):
+    # ax2.scatter(xe, ye, c="g")
+    ax1.set_xlabel('"A" paraméter" [mm]', fontsize=12)
+    ax1.set_ylabel('Terhelési szög [°]', fontsize=12)
+    # ax2.set_ylabel('Torque [Nm]', fontsize=10, c='r')
+    ax1.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+    ax1.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+    ax1.minorticks_on()
+    # ax2.minorticks_on()
+    legend = [Line2D([0], [0], marker="o", color="#008ECF", label= "maximum"),
+              Line2D([0], [0], marker="o", color='#78BE20', label= "minimum")]
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.legend(handles=legend, fontsize = 10)
+    plt.savefig(ModelDir.MEDIA / "mait3.png", bbox_inches="tight", dpi=650)
     plt.show()
 
     x = [[] for i in range(805)]
@@ -91,8 +116,8 @@ if switch == 0:
     plt.ylabel("Torque [Nm]", fontsize=10)
     plt.xticks(fontsize=10)
     plt.yticks(fontsize=10)
-    plt.savefig(ModelDir.MEDIA / "cogging2.png", bbox_inches="tight", dpi=650)
-    plt.show()
+    #plt.savefig(ModelDir.MEDIA / "cogging2.png", bbox_inches="tight", dpi=650)
+    #plt.show()
 
     a = 620
     b = 651
@@ -168,3 +193,33 @@ elif switch == 2:
         #ax.minorticks_on()
         #ax.tick_params(labelsize=10)
     #plt.show()
+
+elif switch == 4:
+    a = 0
+    b = 806
+    c = 5
+
+    c = 31 * c
+    t = [[]*26]
+    colors = ["#B90276", '#50237F', '#005691', "#008ECF", '#78BE20', "#006249", '#525F6B', '#00A8B0', '#000']
+    fig = plt.subplots(figsize=(6, 4))
+    for i, j in zip(range(a, b, c), range(9)):
+        t = (case["coggingtorque"])[i]
+        t = np.multiply(t,-1)
+        tt = t[0]
+        x = [t[d] - 2*tt for d in range(76)]
+
+
+        plt.plot(range_c*4, (case["coggingtorque"])[i], color = colors[j], label="A=" + str(0.5+i/310) + "mm")
+        plt.plot(7.5*4-range_c*4, x, color = colors[j])
+        plt.xlabel('Terhelési szög [°]', fontsize=12)
+        plt.ylabel('Nyomaték [Nm]', fontsize=12)
+        plt.grid(visible=True, which="major", color="#666666", linestyle="-", linewidth=0.8)
+        plt.grid(visible=True, which="minor", color="#999999", linestyle=":", linewidth=0.5, alpha=0.5)
+        plt.minorticks_on()
+        plt.xticks(np.arange(0, 32, step=3))
+        plt.xticks(fontsize=12)
+        plt.yticks(fontsize=12)
+        plt.legend(fontsize=10)
+    plt.savefig(ModelDir.MEDIA / "mait1.png", bbox_inches="tight", dpi=650)
+    plt.show()
