@@ -349,6 +349,7 @@ class Femm(Platform):
                     "Energy": 2,
                     "Torque": 22,
                     "Flux": 1,
+                    "Current": 7
                 }
                 assert variable in int_type.keys(), f"There is no variable '{variable}'"
                 if isinstance(entity, Iterable):
