@@ -10,7 +10,7 @@ class Material:
         self.b = kwargs.get("b", []).copy()
         self.h = kwargs.get("h", []).copy()
         self.Je = kwargs.get("Je", 0.0)  # External current density, can be complex
-        self.Rho = kwargs.get("Rho", 0.0) # Volume charge density
+        self.Rho = kwargs.get("Rho", 0.0)  # Volume charge density
         self.remanence_angle = kwargs.get("remanence_angle", 0.0)
         self.remanence = kwargs.get("remanence", 0.0)
         self.coercivity = kwargs.get("coercivity", 0.0)

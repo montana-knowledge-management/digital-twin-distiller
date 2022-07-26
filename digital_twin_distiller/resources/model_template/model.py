@@ -13,7 +13,7 @@ class SimulationModel(BaseModel):
     """this SimulationModel created when calling 'new'"""
 
     def __init__(self, **kwargs):
-        super(SimulationModel, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._init_directories()
 
     def setup_solver(self):

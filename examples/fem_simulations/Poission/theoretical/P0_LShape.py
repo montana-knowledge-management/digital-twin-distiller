@@ -1,18 +1,28 @@
 # PREAMBLE
 
-from ngsolve import *
 from netgen.geom2d import SplineGeometry
+from ngsolve import *
 
-dudx = 2/3*(x*sin(2/3*atan2(y,x)+pi/3)-y*cos(2/3*atan2(y,x)+pi/3))/((x**2+y**2)**(2/3))
-dudy = 2/3*(y*sin(2/3*atan2(y,x)+pi/3)+x*cos(2/3*atan2(y,x)+pi/3))/((x**2+y**2)**(2/3))
+dudx = (
+    2
+    / 3
+    * (x * sin(2 / 3 * atan2(y, x) + pi / 3) - y * cos(2 / 3 * atan2(y, x) + pi / 3))
+    / ((x**2 + y**2) ** (2 / 3))
+)
+dudy = (
+    2
+    / 3
+    * (y * sin(2 / 3 * atan2(y, x) + pi / 3) + x * cos(2 / 3 * atan2(y, x) + pi / 3))
+    / ((x**2 + y**2) ** (2 / 3))
+)
 
 geo = SplineGeometry()
-geo.AppendPoint( 0,  0)
-geo.AppendPoint( 0, -1)
-geo.AppendPoint( 1, -1)
-geo.AppendPoint( 1,  1)
-geo.AppendPoint(-1,  1)
-geo.AppendPoint(-1,  0)
+geo.AppendPoint(0, 0)
+geo.AppendPoint(0, -1)
+geo.AppendPoint(1, -1)
+geo.AppendPoint(1, 1)
+geo.AppendPoint(-1, 1)
+geo.AppendPoint(-1, 0)
 
 geo.Append(["line", 0, 1], leftdomain=1, rightdomain=0, bc="GammaD1")
 geo.Append(["line", 1, 2], leftdomain=1, rightdomain=0, bc="GammaN1")
@@ -29,14 +39,14 @@ gfu.Set(0, BND)
 u = fes.TrialFunction()
 v = fes.TestFunction()
 a = BilinearForm(fes, symmetric=True)
-a += grad(u)*grad(v)*dx
+a += grad(u) * grad(v) * dx
 a.Assemble()
 
 f = LinearForm(fes)
-f += -dudy*v*ds(definedon="GammaN1")
-f +=  dudy*v*ds(definedon="GammaN3")
-f +=  dudx*v*ds(definedon="GammaN2")
-f += -dudx*v*ds(definedon="GammaN4")
+f += -dudy * v * ds(definedon="GammaN1")
+f += dudy * v * ds(definedon="GammaN3")
+f += dudx * v * ds(definedon="GammaN2")
+f += -dudx * v * ds(definedon="GammaN4")
 f.Assemble()
 
 r = f.vec.CreateVector()
@@ -47,5 +57,5 @@ Draw(gfu)
 
 print(mesh.Elements(VOL))
 print(len(gfu.vec.data))
-print(gfu(1e-3,1e-3))
+print(gfu(1e-3, 1e-3))
 print(a.Energy(gfu.vec))

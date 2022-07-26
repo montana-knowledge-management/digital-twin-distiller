@@ -1,5 +1,5 @@
 import itertools
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy as np
 from scipy.linalg import hankel, toeplitz

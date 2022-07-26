@@ -177,6 +177,7 @@ class TestCubicBezier(TestCase):
         )
         # print(cb)
 
+
 class TesRectangle(TestCase):
     def test_creation(self):
         r = Rectangle(x0=0, y0=0, width=1, height=2)

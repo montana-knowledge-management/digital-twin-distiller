@@ -18,6 +18,7 @@ def transformMeshScalingInterval(x):
 def calculateMeshScalingInput(meshScaling):
     return abs(int(math.ceil(float(meshScaling))))
 
+
 # def transform(x):
 #     a = 0.1
 #     b = 20
@@ -211,7 +212,7 @@ class Node:
 
         The new position is returned as a new Point.
         """
-        s, c = [f(rad) for f in (math.sin, math.cos)]
+        s, c = (f(rad) for f in (math.sin, math.cos))
         x, y = (c * self.x - s * self.y, s * self.x + c * self.y)
         return Node(round(x, self.precision), round(y, self.precision))
 
@@ -244,8 +245,7 @@ class Node:
 class Line:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, end_pt, id_=None, label=None, color=None,
-                 attributes: dict = {}):
+    def __init__(self, start_pt, end_pt, id_=None, label=None, color=None, attributes: dict = {}):
         # sorting the incoming points by coordinate
         # sorted_points = sorted((start_pt, end_pt), key=lambda pi: pi.x)  # sorting by x coordinate
         # sorted_points = sorted(sorted_points, key=lambda pi: pi.y)  # sorting by y coordinate
@@ -266,9 +266,14 @@ class Line:
             self.set_mesh_scaling(getMeshScaling)
 
     def __copy__(self):
-        return Line(copy(self.start_pt), copy(self.end_pt), id_=getID(),
-                    label=self.label, color=self.color,
-                    attributes=self.attributes)
+        return Line(
+            copy(self.start_pt),
+            copy(self.end_pt),
+            id_=getID(),
+            label=self.label,
+            color=self.color,
+            attributes=self.attributes,
+        )
 
     def set_mesh_scaling(self, meshScaling):
         self.meshScaling = transformMeshScalingInterval(self.length / calculateMeshScalingInput(meshScaling))
@@ -367,8 +372,9 @@ class Line:
 class CircleArc:
     """A directed line, which is defined by the (start -> end) points"""
 
-    def __init__(self, start_pt, center_pt, end_pt, id_=None, label=None,
-                 max_seg_deg=1, color=None, attributes: dict = {}):
+    def __init__(
+        self, start_pt, center_pt, end_pt, id_=None, label=None, max_seg_deg=1, color=None, attributes: dict = {}
+    ):
         self.start_pt = start_pt
         self.center_pt = center_pt
         self.end_pt = end_pt
@@ -453,24 +459,28 @@ class CircleArc:
             copy(self.end_pt),
             max_seg_deg=self.max_seg_deg,
             color=self.color,
-            attributes=self.attributes
+            attributes=self.attributes,
         )
 
     def __repr__(self):
         return "{}({!r}, {!r}, {!r}, id={!r},label={!r}, color={!r})".format(
-            self.__class__.__name__,
-            self.start_pt,
-            self.center_pt,
-            self.end_pt,
-            self.id,
-            self.label,
-            self.color
+            self.__class__.__name__, self.start_pt, self.center_pt, self.end_pt, self.id, self.label, self.color
         )
 
 
 class CubicBezier:
-    def __init__(self, start_pt, control1, control2, end_pt, id_=None, label=None, color=None, attributes: dict = {},
-                 n_segment=51):
+    def __init__(
+        self,
+        start_pt,
+        control1,
+        control2,
+        end_pt,
+        id_=None,
+        label=None,
+        color=None,
+        attributes: dict = {},
+        n_segment=51,
+    ):
         self.start_pt = start_pt
         self.control1 = control1
         self.control2 = control2
@@ -492,17 +502,17 @@ class CubicBezier:
     def __call__(self, t: float):
         assert (0 <= t) and (t <= 1), f"t [0, 1] not {t}"
         X = (
-                (1 - t) ** 3 * self.start_pt.x
-                + 3 * (1 - t) ** 2 * t * self.control1.x
-                + 3 * (1 - t) * t ** 2 * self.control2.x
-                + t ** 3 * self.end_pt.x
+            (1 - t) ** 3 * self.start_pt.x
+            + 3 * (1 - t) ** 2 * t * self.control1.x
+            + 3 * (1 - t) * t**2 * self.control2.x
+            + t**3 * self.end_pt.x
         )
 
         Y = (
-                (1 - t) ** 3 * self.start_pt.y
-                + 3 * (1 - t) ** 2 * t * self.control1.y
-                + 3 * (1 - t) * t ** 2 * self.control2.y
-                + t ** 3 * self.end_pt.y
+            (1 - t) ** 3 * self.start_pt.y
+            + 3 * (1 - t) ** 2 * t * self.control1.y
+            + 3 * (1 - t) * t**2 * self.control2.y
+            + t**3 * self.end_pt.y
         )
 
         return X, Y
@@ -535,7 +545,7 @@ class CubicBezier:
             self.end_pt,
             self.id,
             self.label,
-            self.color
+            self.color,
         )
 
 

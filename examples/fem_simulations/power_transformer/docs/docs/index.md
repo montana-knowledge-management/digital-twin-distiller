@@ -48,8 +48,8 @@ The following 7 independent parameters can be varied from the input model of the
 
 ## Model Validation
 
-The accuracy and the physical correctness of the applied transformer model is demonstrated on a 3 phase, 6.3 MVA, 
-33/22 kV, star/delta connected transformer. The core has a three-legged layout and made of M6 steel. 
+The accuracy and the physical correctness of the applied transformer model is demonstrated on a 3 phase, 6.3 MVA,
+33/22 kV, star/delta connected transformer. The core has a three-legged layout and made of M6 steel.
 The core filling factor was 0.85. The details of the manufactured transformer data are presented in [4]
 The independent variables of the reduced transformer model is defined by the following parameters of the manufactured model:
 

@@ -1,16 +1,16 @@
+import operator as op
 from enum import Enum
+from math import hypot
 
 from digital_twin_distiller import Agros2D, Platform
 from digital_twin_distiller.boundaries import DirichletBoundaryCondition
 from digital_twin_distiller.material import Material
-from digital_twin_distiller.metadata import FemmMetadata, Agros2DMetadata
+from digital_twin_distiller.metadata import Agros2DMetadata, FemmMetadata
 from digital_twin_distiller.model import BaseModel
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.objects import Line, Node
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
-import operator as op
-from math import hypot
 
 ModelDir.set_base(__file__)
 
@@ -37,9 +37,7 @@ class ParamModel:
         self.init_nodes()
 
     def init_nodes(self):
-        return self.generate_nodes_with_specific_values(H=self.H, L=self.L,
-                                                        lambda1=self.lambda1,
-                                                        lambda2=self.lambda2)
+        return self.generate_nodes_with_specific_values(H=self.H, L=self.L, lambda1=self.lambda1, lambda2=self.lambda2)
 
     def generate_nodes_with_specific_values(self, H: float, L: float, lambda1: float, lambda2: float):
         """
@@ -93,7 +91,7 @@ class SimulationModel(BaseModel):
     ratio: float = None
 
     def __init__(self, model_params=None, solver=None, **kwargs):
-        super(SimulationModel, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         if model_params is None:
             self.model = large_model()
@@ -139,15 +137,17 @@ class SimulationModel(BaseModel):
         return agros_metadata
 
     def define_materials(self):
-        air = Material('air')
+        air = Material("air")
         air.meshsize = 0.001  # TODO: create simulation loop
         self.snapshot.add_material(air)
 
     def define_boundary_conditions(self):
-        upper = DirichletBoundaryCondition(self.Boundary.upper.name, field_type="electrostatic",
-                                           fixed_voltage=self.Boundary.upper.value)
-        ground = DirichletBoundaryCondition(self.Boundary.ground.name, field_type="electrostatic",
-                                            fixed_voltage=self.Boundary.ground.value)
+        upper = DirichletBoundaryCondition(
+            self.Boundary.upper.name, field_type="electrostatic", fixed_voltage=self.Boundary.upper.value
+        )
+        ground = DirichletBoundaryCondition(
+            self.Boundary.ground.name, field_type="electrostatic", fixed_voltage=self.Boundary.ground.value
+        )
 
         # Adding boundary conditions to the snapshot
         self.snapshot.add_boundary_condition(upper)
@@ -155,17 +155,19 @@ class SimulationModel(BaseModel):
 
     def add_postprocessing(self):  # TODO: calculate point by geometry
         self.snapshot.add_postprocessing("mesh_info", None, None)
-        self.snapshot.add_postprocessing("point_value", (0.14215, 0.61966), 'Ex')
-        self.snapshot.add_postprocessing("point_value", (0.14215, 0.61966), 'Ey')
+        self.snapshot.add_postprocessing("point_value", (0.14215, 0.61966), "Ex")
+        self.snapshot.add_postprocessing("point_value", (0.14215, 0.61966), "Ey")
 
     def build_geometry(self):
 
-        self.build_lines_and_boundaries(self.model.node.u1,
-                                        self.model.node.u2,
-                                        self.model.node.u3,
-                                        self.model.node.l1,
-                                        self.model.node.l2,
-                                        self.model.node.l3)
+        self.build_lines_and_boundaries(
+            self.model.node.u1,
+            self.model.node.u2,
+            self.model.node.u3,
+            self.model.node.l1,
+            self.model.node.l2,
+            self.model.node.l3,
+        )
 
         self.snapshot.add_geometry(self.geom)
         self.assign_material(0.1, 0.1, "air")
@@ -216,9 +218,9 @@ if __name__ == "__main__":
 
     m = SimulationModel(model, platform, exportname="dev")
     r_ = m(cleanup=False, devmode=False)
-    nb_elements = int(r_['elements'])
-    Ex = tuple(map(op.itemgetter(2), r_['Ex']))
-    Ey = tuple(map(op.itemgetter(2), r_['Ey']))
+    nb_elements = int(r_["elements"])
+    Ex = tuple(map(op.itemgetter(2), r_["Ex"]))
+    Ey = tuple(map(op.itemgetter(2), r_["Ey"]))
     E = hypot(Ex[0], Ey[0])
     print(nb_elements)
     print(Ex)

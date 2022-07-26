@@ -181,10 +181,10 @@ class Agros2D(Platform):
             "Bz": "Brz",
             "Hx": "Hrx",
             "Hy": "Hry",
-            "T":  "T",
-            "V":  "V",
+            "T": "T",
+            "V": "V",
             "Ex": "Ex",
-            "Ey": "Ey"
+            "Ey": "Ey",
         }
 
         custom_name_result = custom_name or variable
@@ -212,7 +212,7 @@ class Agros2D(Platform):
                 self.write(f'f.write("{custom_name_result}, {{}}\\n".format(val))')
 
             if field == "heat":
-                mapping = {"T":"T"}
+                mapping = {"T": "T"}
                 self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
                 self.write(f'f.write("{custom_name_result}, {{}}\\n".format(val))')
 

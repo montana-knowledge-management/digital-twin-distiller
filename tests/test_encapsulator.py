@@ -4,11 +4,11 @@ from pathlib import Path
 import requests
 from fastapi.testclient import TestClient
 
+from digital_twin_distiller.cli import new
 from digital_twin_distiller.encapsulator import Encapsulator
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.simulationproject import SimulationProject
 from digital_twin_distiller.utils import purge_dir
-from digital_twin_distiller.cli import new
 
 CURRENT = Path(__file__).parent
 MODELNAME = "TestServer"

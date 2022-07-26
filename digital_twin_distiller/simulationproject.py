@@ -1,7 +1,8 @@
 import functools
 import json
 import operator as op
-from typing import Dict, Sequence
+from collections.abc import Sequence
+from typing import Dict
 
 from digital_twin_distiller.doe import *
 from digital_twin_distiller.model import BaseModel

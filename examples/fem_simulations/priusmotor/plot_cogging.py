@@ -1,16 +1,17 @@
-import matplotlib.pyplot as plt
-from digital_twin_distiller import setup_matplotlib
-from digital_twin_distiller import ModelDir
 import json
+
+import matplotlib.pyplot as plt
+
+from digital_twin_distiller import ModelDir, setup_matplotlib
 
 ModelDir.set_base(__file__)
 
 alpha = []
 T = []
-with open(ModelDir.DATA / 'cogging_torque.json', 'r', encoding='utf-8') as f:
+with open(ModelDir.DATA / "cogging_torque.json", encoding="utf-8") as f:
     res_ = json.load(f)
-    alpha = res_.pop('alpha')
-    T = res_.pop('T')
+    alpha = res_.pop("alpha")
+    T = res_.pop("T")
 
 
 setup_matplotlib()
@@ -27,4 +28,3 @@ plt.ylabel("Cogging Torque [Nm]")
 # plt.savefig(ModelDir.MEDIA / "cogging_torque.pdf", bbox_inches="tight")
 plt.savefig(ModelDir.MEDIA / "cogging_torque.png", bbox_inches="tight", dpi=650)
 plt.show()
-

@@ -1,8 +1,10 @@
 import unittest
+from math import pi
 from unittest import TestCase
+
 from examples.fem_simulations.power_transformer.model import PowerTransformer
 from examples.fem_simulations.power_transformer.simulation import calculate_base_impedance
-from math import pi
+
 
 @unittest.skip("tests a custom model itself, not how it works")
 class TestPowerTransformerExample(TestCase):
@@ -14,22 +16,35 @@ class TestPowerTransformerExample(TestCase):
     """
 
     def init_transformer_model(self):
-        self.pt = PowerTransformer(ff_in=60, ff_ou=60, alpha=1.0, end_ins=180., core_ins=20., core_diam=420., gap=50.,
-                                   hin=1100, tin=35, tou=44, jin=2.6, jou=2.26, exportname="dev")
+        self.pt = PowerTransformer(
+            ff_in=60,
+            ff_ou=60,
+            alpha=1.0,
+            end_ins=180.0,
+            core_ins=20.0,
+            core_diam=420.0,
+            gap=50.0,
+            hin=1100,
+            tin=35,
+            tou=44,
+            jin=2.6,
+            jou=2.26,
+            exportname="dev",
+        )
 
     def test_init_transformer_model(self):
         self.init_transformer_model()
 
-        self.assertEqual(self.pt.design_parameters['ff_in'], 60)
-        self.assertEqual(self.pt.design_parameters['ff_ou'], 60)
-        self.assertEqual(self.pt.design_parameters['end_ins'], 180)
-        self.assertEqual(self.pt.design_parameters['alpha'], 1.0)
-        self.assertEqual(self.pt.design_parameters['core_ins'], 20)
+        self.assertEqual(self.pt.design_parameters["ff_in"], 60)
+        self.assertEqual(self.pt.design_parameters["ff_ou"], 60)
+        self.assertEqual(self.pt.design_parameters["end_ins"], 180)
+        self.assertEqual(self.pt.design_parameters["alpha"], 1.0)
+        self.assertEqual(self.pt.design_parameters["core_ins"], 20)
 
-        self.assertEqual(self.pt.design_variables['core_diam'], 420)
-        self.assertEqual(self.pt.design_variables['gap'], 50)
-        self.assertEqual(self.pt.design_variables['jin'], 2.6)
-        self.assertEqual(self.pt.design_variables['jou'], 2.26)
+        self.assertEqual(self.pt.design_variables["core_diam"], 420)
+        self.assertEqual(self.pt.design_variables["gap"], 50)
+        self.assertEqual(self.pt.design_variables["jin"], 2.6)
+        self.assertEqual(self.pt.design_variables["jou"], 2.26)
 
     def test_calculate_window_parameters(self):
         self.init_transformer_model()
@@ -53,6 +68,7 @@ class TestPowerTransformerExample(TestCase):
         self.assertEqual(self.pt.h3, 1100)
         self.assertEqual(self.pt.r3, 315)
         self.assertEqual(self.pt.z3, 90)
+
     #  TODO
     # def test_total_model(self):
     #     self.init_transformer_model()

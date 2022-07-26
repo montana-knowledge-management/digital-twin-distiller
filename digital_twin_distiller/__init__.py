@@ -18,4 +18,4 @@ from digital_twin_distiller.platforms import *
 from digital_twin_distiller.snapshot import Snapshot
 from digital_twin_distiller.model import BaseModel
 
-__all__ = ['new']
+__all__ = ["new"]

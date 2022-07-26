@@ -1,12 +1,13 @@
+import operator as op
 from math import hypot
-from matplotlib import colors
-from digital_twin_distiller import setup_matplotlib
+from pprint import pprint
+
 import matplotlib.pyplot as plt
 import pymongo
-import operator as op
-from digital_twin_distiller import ModelDir
-from model import u, gradu
-from pprint import pprint
+from matplotlib import colors
+from model import gradu, u
+
+from digital_twin_distiller import ModelDir, setup_matplotlib
 
 ModelDir.set_base(__file__)
 setup_matplotlib()
@@ -33,18 +34,17 @@ def plot_v():
     r = tuple(db.aggregate([{"$match": {"solver": "agros2d"}}, {"$project": {"_id": 0, "V": "$V2.V", "elements": 1}}]))
     elements = tuple(map(op.itemgetter("elements"), r))
     v = tuple(map(op.itemgetter("V"), r))
-    plt.plot(elements, v, 'o-', color=COLOR_AGROS, markerfacecolor='white', markersize=3, label="Agros2D")
-
+    plt.plot(elements, v, "o-", color=COLOR_AGROS, markerfacecolor="white", markersize=3, label="Agros2D")
 
     r = tuple(db.aggregate([{"$match": {"solver": "comsol35"}}, {"$project": {"_id": 0, "V": "$V2.V", "elements": 1}}]))
     elements = tuple(map(op.itemgetter("elements"), r))
     v = tuple(map(op.itemgetter("V"), r))
-    plt.plot(elements, v, 'o-', color=COLOR_COMSOL, markerfacecolor='white', markersize=3, label="Comsol 3.5")
+    plt.plot(elements, v, "o-", color=COLOR_COMSOL, markerfacecolor="white", markersize=3, label="Comsol 3.5")
 
     r = tuple(db.aggregate([{"$match": {"solver": "netgen"}}, {"$project": {"_id": 0, "V": "$V2.V", "elements": 1}}]))
     elements = tuple(map(op.itemgetter("elements"), r))
     v = tuple(map(op.itemgetter("V"), r))
-    plt.plot(elements, v, 'o-', color=COLOR_NETGEN, markerfacecolor='white', markersize=3, label="Ngsolve")
+    plt.plot(elements, v, "o-", color=COLOR_NETGEN, markerfacecolor="white", markersize=3, label="Ngsolve")
 
     ue = u(0.95, 0.95)
     plt.plot([10, 310000], [ue, ue], "k", label="exact")
@@ -95,7 +95,9 @@ def plot_e0():
     e0 = tuple(map(op.itemgetter("E"), r))
     plt.semilogx(elements, e0, "o-", color=COLOR_FEMM, markerfacecolor="white", markersize=3, label="FEMM")
 
-    r = tuple(db.aggregate([{"$match": {"solver": "agros2d"}}, {"$project": {"_id": 0, "E": "$E0.abs", "elements": 1}}]))
+    r = tuple(
+        db.aggregate([{"$match": {"solver": "agros2d"}}, {"$project": {"_id": 0, "E": "$E0.abs", "elements": 1}}])
+    )
     elements = tuple(map(op.itemgetter("elements"), r))
     e0 = tuple(map(op.itemgetter("E"), r))
     plt.semilogx(elements, e0, "o-", color=COLOR_AGROS, markerfacecolor="white", markersize=3, label="Agros2D")
@@ -120,7 +122,9 @@ def plot_e1():
     e1 = tuple(map(op.itemgetter("E"), r))
     plt.semilogx(elements, e1, "o-", color=COLOR_FEMM, markerfacecolor="white", markersize=3, label="FEMM")
 
-    r = tuple(db.aggregate([{"$match": {"solver": "agros2d"}}, {"$project": {"_id": 0, "E": "$E1.abs", "elements": 1}}]))
+    r = tuple(
+        db.aggregate([{"$match": {"solver": "agros2d"}}, {"$project": {"_id": 0, "E": "$E1.abs", "elements": 1}}])
+    )
     elements = tuple(map(op.itemgetter("elements"), r))
     e1 = tuple(map(op.itemgetter("E"), r))
     plt.semilogx(elements, e1, "o-", color=COLOR_AGROS, markerfacecolor="white", markersize=3, label="Agros2D")

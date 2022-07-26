@@ -291,8 +291,9 @@ class Geometry:
                     control2 = obj.Node(c2.real, c2.imag, id_ + 2)
                     end = obj.Node(s2.real, s2.imag, id_ + 3)
                     xcolor = self.get_color_value_from_svg(attr)
-                    self.add_cubic_bezier(obj.CubicBezier(start, control1, control2, end, id_ + 4, color=xcolor,
-                                                          attributes=attr))
+                    self.add_cubic_bezier(
+                        obj.CubicBezier(start, control1, control2, end, id_ + 4, color=xcolor, attributes=attr)
+                    )
                     id_ += 5
 
                 if isinstance(element, svg.Arc):
@@ -303,9 +304,9 @@ class Geometry:
                     center = obj.Node(p2.real, p2.imag)
                     end = obj.Node(p3.real, p3.imag)
                     xcolor = self.get_color_value_from_svg(attr)
-                    self.add_arc(obj.CircleArc(start_pt=start,
-                                               center_pt=center,
-                                               end_pt=end, color=xcolor, attributes=attr))
+                    self.add_arc(
+                        obj.CircleArc(start_pt=start, center_pt=center, end_pt=end, color=xcolor, attributes=attr)
+                    )
 
     def get_line_intersetions(self, line_1, line_2):
         """

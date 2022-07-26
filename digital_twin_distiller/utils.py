@@ -137,7 +137,7 @@ def rms(arr):
     """
     Get the root mean square value from a Sequence.
     """
-    return sqrt(fmean(map(lambda xi: xi ** 2, arr)))
+    return sqrt(fmean(map(lambda xi: xi**2, arr)))
 
 
 def csv_write(file, names, *args):

@@ -32,8 +32,8 @@ class TestSvgImport(TestCase):
         geo.import_svg(eml.as_posix())
 
         # the line should be red
-        self.assertEqual(geo.lines[0].color, '#ff00ff')
-        self.assertEqual(geo.cubic_beziers[0].color, '#ff0000')
+        self.assertEqual(geo.lines[0].color, "#ff00ff")
+        self.assertEqual(geo.cubic_beziers[0].color, "#ff0000")
 
     def test_colored_rotor_import(self):
         eml = Path(resources / "svgtests" / "antunes_rotor.svg")
@@ -45,16 +45,16 @@ class TestSvgImport(TestCase):
             colors.append(c.color)
 
         # yellow
-        self.assertIn('#ffcc00', colors)
+        self.assertIn("#ffcc00", colors)
         # blue
-        self.assertIn('#0000ff', colors)
+        self.assertIn("#0000ff", colors)
         # black
-        self.assertIn('#000000', colors)
+        self.assertIn("#000000", colors)
         # aqua
-        self.assertIn('#00ff00', colors)
+        self.assertIn("#00ff00", colors)
 
         line_colors = []
         for lc in geo.lines:
             line_colors.append(line_colors.append(lc.color))
         # red
-        self.assertIn('#ff0000', line_colors)
+        self.assertIn("#ff0000", line_colors)

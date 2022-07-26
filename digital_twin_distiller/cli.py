@@ -1,16 +1,15 @@
 import argparse
-
 import json
 import string
 import subprocess
+from importlib import metadata
+from importlib.metadata import PackageNotFoundError
 from os import chdir, getcwd
 from pathlib import Path
 from shutil import copy
+from sys import version_info
 
 from digital_twin_distiller.modelpaths import ModelDir
-from importlib import metadata
-from importlib.metadata import PackageNotFoundError
-from sys import version_info
 
 NAME_OF_THE_PROGRAM = "digital-twin-distiller"
 
@@ -36,7 +35,7 @@ def optimize_cli(argv=None):
         formatter_class=argparse.RawTextHelpFormatter,
         prefix_chars="-",
         description=_get_all_metadata(),
-        epilog=f"Run {NAME_OF_THE_PROGRAM} COMMAND --help for more information on a command"
+        epilog=f"Run {NAME_OF_THE_PROGRAM} COMMAND --help for more information on a command",
     )
 
     # optional arguments
@@ -103,6 +102,7 @@ def _get_metadata(param: str):
         __mt__ = "unknown"
         exit(1)
     return __mt__
+
 
 def new(name, location):
     """

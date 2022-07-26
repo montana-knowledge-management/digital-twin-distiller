@@ -1,10 +1,9 @@
-from examples.fem_simulations.power_transformer.model import PowerTransformer
+from math import pi
 
 from digital_twin_distiller.encapsulator import Encapsulator
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.simulationproject import sim
-
-from math import pi
+from examples.fem_simulations.power_transformer.model import PowerTransformer
 
 
 def execute_model(model: PowerTransformer):
@@ -19,7 +18,7 @@ def phase_current(sb, ub, con_fact):
     :param con_fact: connection factor --- 1 for delta --- sqrt(3) for star connection --- sqrt(2)/2. for zig-zag
     :return:
     """
-    return sb * 1e3 / ub / 3. ** 0.5 / con_fact
+    return sb * 1e3 / ub / 3.0**0.5 / con_fact
 
 
 def calculate_base_impedance(ub, sb, f, con_fact, Wm):
@@ -33,13 +32,13 @@ def calculate_base_impedance(ub, sb, f, con_fact, Wm):
     """
 
     # calculating the base impedance and the base currents on the selected terminal
-    zb = ub ** 2. / sb  # impedance
-    ib = sb * 1e3 / ub / 3. ** 0.5 / con_fact
+    zb = ub**2.0 / sb  # impedance
+    ib = sb * 1e3 / ub / 3.0**0.5 / con_fact
 
     # calculating the impedance from the volume integrals
-    L = 2 * Wm / ib ** 2.
+    L = 2 * Wm / ib**2.0
 
-    return 2. * pi * f * L / zb * 100.
+    return 2.0 * pi * f * L / zb * 100.0
 
 
 def get_main_parameters(simparams):
@@ -49,9 +48,9 @@ def get_main_parameters(simparams):
     f = simparams["f"]
     connection = simparams["con_fact"]
 
-    cf = 1.  # in case of delta connection
-    if str(connection).lower() is 'star':
-        cf = 3. ** 0.5
+    cf = 1.0  # in case of delta connection
+    if str(connection).lower() == "star":
+        cf = 3.0**0.5
 
     return ub, sb, f, cf
 
@@ -101,15 +100,15 @@ def short_circuit_impedance(model, modelparams, simparams, miscparams):
     # base impedance for the short circuit impedance calculation
     ub = 6.9  # voltage --- kV base voltage
     sb = 10.0  # nominal power  --- MVA
-    zb = ub ** 2. / sb  # impedance
+    zb = ub**2.0 / sb  # impedance
     f = 50
-    ib = sb * 1e3 / ub / 3. ** 0.5 / 3. ** 0.5
+    ib = sb * 1e3 / ub / 3.0**0.5 / 3.0**0.5
 
     # -- calculating the impedance from the volume integrals --
-    L = 2 * Wm / ib ** 2.
-    sci = 2. * pi * f * L / zb * 100.
+    L = 2 * Wm / ib**2.0
+    sci = 2.0 * pi * f * L / zb * 100.0
 
-    res["Xpu"] = Xlv * Ilv ** 2 / (2 * S) * 2
+    res["Xpu"] = Xlv * Ilv**2 / (2 * S) * 2
 
     return res
 

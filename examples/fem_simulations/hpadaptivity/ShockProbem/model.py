@@ -1,8 +1,12 @@
-from itertools import count
 from copy import deepcopy
+from itertools import count
 from math import atan, hypot
 from os import devnull
+
+from numpy import linspace, meshgrid
 from numpy.core.function_base import linspace
+
+from digital_twin_distiller import Agros2D, Agros2DMetadata
 from digital_twin_distiller.boundaries import DirichletBoundaryCondition, NeumannBoundaryCondition
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import FemmMetadata
@@ -11,9 +15,7 @@ from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.objects import Line, Node
 from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
-from digital_twin_distiller import Agros2DMetadata, Agros2D
 from digital_twin_distiller.utils import pairwise
-from numpy import linspace, meshgrid
 
 ModelDir.set_base(__file__)
 
@@ -22,23 +24,27 @@ x0 = 0.5
 y0 = 0.5
 r0 = 0.25
 
+
 def u(x, y):
-    return atan(alpha*(hypot(x-x0, y-y0)-r0))
+    return atan(alpha * (hypot(x - x0, y - y0) - r0))
+
 
 def gradu(x, y):
-    w = hypot(x-x0, y-y0)
-    denominator = w * (1+3600*(w-1)**2)
+    w = hypot(x - x0, y - y0)
+    denominator = w * (1 + 3600 * (w - 1) ** 2)
     dudx = 60 * (x - 1.25) / denominator
     dudy = 60 * (y + 0.25) / denominator
     return dudx, dudy
+
 
 def gamma(x, y, nx, ny):
     dx, dy = gradu(x, y)
     return dx * nx + dy * ny
 
+
 class ShockProbem(BaseModel):
     def __init__(self, **kwargs):
-        super(ShockProbem, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._init_directories()
 
     def setup_solver(self):
@@ -51,7 +57,6 @@ class ShockProbem(BaseModel):
         femm_metadata.smartmesh = True
         femm_metadata.depth = 1000
 
-        
         agros_metadata = Agros2DMetadata()
         agros_metadata.file_script_name = self.file_solver_script
         agros_metadata.file_metrics_name = self.file_solution
@@ -68,13 +73,12 @@ class ShockProbem(BaseModel):
         self.platform = Agros2D(agros_metadata)
         self.platform = Femm(femm_metadata)
 
-
         self.snapshot = Snapshot(self.platform)
 
     def define_materials(self):
         air = Material("air")
         air.meshsize = 0.1
-        air.epsioln_r = (1/8.8541878128e-12)
+        air.epsioln_r = 1 / 8.8541878128e-12
 
         self.snapshot.add_material(air)
 
@@ -108,7 +112,6 @@ class ShockProbem(BaseModel):
         # g3 = lambda x, y: gamma(x, y, 0, 1)
         # g4 = lambda x, y: gamma(x, y, -1, 0)
 
-
         n0 = NeumannBoundaryCondition("gamma_1", field_type="electrostatic")
         n1 = NeumannBoundaryCondition("gamma_2", field_type="electrostatic")
         n2 = NeumannBoundaryCondition("gamma_3", field_type="electrostatic")
@@ -123,7 +126,6 @@ class ShockProbem(BaseModel):
         self._approximate_boundary(a1, "fixed_voltage", r1, r2, N, u)
         self._approximate_boundary(a2, "fixed_voltage", r2, r3, N, u)
         self._approximate_boundary(a3, "fixed_voltage", r3, r0, N, u)
-
 
         self.assign_material(0.95, 0.95, "air")
 
@@ -150,10 +152,11 @@ class ShockProbem(BaseModel):
 
 if __name__ == "__main__":
     import csv
+
     m = ShockProbem(exportname="dev")
     r_ = m(cleanup=False, devmode=False)
 
-    with open(ModelDir.DATA / 'r_femm.csv', 'w') as f:
+    with open(ModelDir.DATA / "r_femm.csv", "w") as f:
         w = csv.writer(f)
-        for ri in r_['V']:
+        for ri in r_["V"]:
             w.writerow(ri)

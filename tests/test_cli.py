@@ -5,10 +5,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from digital_twin_distiller import cli
-from digital_twin_distiller import purge_dir
-from digital_twin_distiller.cli import NAME_OF_THE_PROGRAM
-from digital_twin_distiller.cli import optimize_cli
+from digital_twin_distiller import cli, purge_dir
+from digital_twin_distiller.cli import NAME_OF_THE_PROGRAM, optimize_cli
 
 CURRENT = Path(__file__).parent
 
@@ -18,13 +16,14 @@ MODEL_DIR = CURRENT / TEST_FOLDER
 
 
 class TestCli(unittest.TestCase):
-
     @classmethod
     def tearDownClass(cls):
         cli.NAME_OF_THE_PROGRAM = NAME_OF_THE_PROGRAM
 
-    @patch('argparse.ArgumentParser.parse_args',
-           return_value=argparse.Namespace(command="new", name=TEST_NAME, location=MODEL_DIR))
+    @patch(
+        "argparse.ArgumentParser.parse_args",
+        return_value=argparse.Namespace(command="new", name=TEST_NAME, location=MODEL_DIR),
+    )
     def test_parse_arguments(self, mock_args):
         """testing the required params (command, new, location)"""
         optimize_cli(["new", TEST_NAME, MODEL_DIR])
@@ -45,13 +44,13 @@ class TestCli(unittest.TestCase):
     def tst_invalid_param_list_when_new_called(self, stderr):
         with self.assertRaises(SystemExit):
             optimize_cli(["new"])
-        self.assertRegexpMatches(stderr.getvalue(), r"the following arguments are required")
+        self.assertRegex(stderr.getvalue(), r"the following arguments are required")
 
     def tst_when_required_param_is_unknown(self, stderr):
-        """ Try to perform when param isn't an option. """
+        """Try to perform when param isn't an option."""
         with self.assertRaises(SystemExit):
             optimize_cli(["unknown"])
-        self.assertRegexpMatches(stderr.getvalue(), r"invalid choice")
+        self.assertRegex(stderr.getvalue(), r"invalid choice")
 
     def test_output_when_version_called(self):
         self.valid_version_call(param="-v")
@@ -62,7 +61,7 @@ class TestCli(unittest.TestCase):
         sys.stdout = stored_out
         with self.assertRaises(SystemExit):
             optimize_cli([param])
-        self.assertRegexpMatches(stored_out.getvalue(), r"digital-twin-distiller [\d.]+ \nPython [\d.]+")
+        self.assertRegex(stored_out.getvalue(), r"digital-twin-distiller [\d.]+ \nPython [\d.]+")
 
     def test_when_exception_thrown(self):
         cli.NAME_OF_THE_PROGRAM = "unknown-package-name"

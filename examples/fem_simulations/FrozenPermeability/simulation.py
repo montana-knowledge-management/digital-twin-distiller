@@ -12,9 +12,10 @@ def execute_model(model: FrozenPermeability):
     return result
 
 
-@sim.register('default')
+@sim.register("default")
 def default_simulation(model, modelparams, simparams, miscparams):
     return "Hello World!"
+
 
 if __name__ == "__main__":
 
