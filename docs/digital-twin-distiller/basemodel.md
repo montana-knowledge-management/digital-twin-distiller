@@ -76,7 +76,7 @@ self.label_queue.append((0.5, 1.5, "air"))
 
 ##  Class Reference
 
-::: adze_modeler.model.BaseModel
+::: digital_twin_distiller.model.BaseModel
     handler: python
     rendering:
       heading_level: 3
