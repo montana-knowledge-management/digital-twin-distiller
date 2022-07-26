@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from digital_twin_distiller.__main__ import new
+from digital_twin_distiller.cli import new
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.simulationproject import SimulationProject
 from digital_twin_distiller.utils import purge_dir

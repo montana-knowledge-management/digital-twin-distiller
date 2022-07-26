@@ -1,8 +1,8 @@
 import unittest
 from pathlib import Path
 
-from digital_twin_distiller.__main__ import new
 from digital_twin_distiller.utils import purge_dir
+from digital_twin_distiller.cli import new
 
 CURRENT = Path(__file__).parent
 
