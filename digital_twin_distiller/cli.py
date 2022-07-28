@@ -157,7 +157,7 @@ def new(name, location):
                 template = string.Template(f.read())
 
             with open(file_i, "w", encoding="utf-8") as f:
-                f.write(template.substitute(name=name))
+                f.write(template.substitute(name=name).replace('SimulationModel', name))
 
     # build the documentation
     cwd = getcwd()

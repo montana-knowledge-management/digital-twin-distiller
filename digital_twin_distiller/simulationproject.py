@@ -12,7 +12,7 @@ from digital_twin_distiller.modelpaths import ModelDir
 class SimulationProject:
     app_name = "digital twin project"
 
-    def __init__(self, model: BaseModel = None):
+    def __init__(self, model: BaseModel = ...):
 
         # the model creation class will be stored here
         self.model = model
