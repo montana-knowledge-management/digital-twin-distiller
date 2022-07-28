@@ -13,6 +13,7 @@ nav:
     - Distributed winding coil: examples/DistributedWinding/readme.md
   - Applications:
     - Team 35 Benchmark Optimization: applications/Team35/readme.md
+  - Building Digital Twins: digital-twins/readme.md
 
 
 
