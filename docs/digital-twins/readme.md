@@ -509,5 +509,128 @@ That concludes the model creation. Using this model as a unit of calculation we 
 more complex simulations and scenarios in the API.
 
 
-## Creating callable simulations with API
+## Creating callable simulations with a server
 
+First run the `simulation.py` file to see the default implementation of a callable API server. The terminal should look
+like this:
+![missing periodic](media/api_started.png "API started")
+
+First the `mkdocs` package builds a static website from the markdown files then the webserver starts at localhost port
+5000. After navigating to this url we should see this:
+![missing picture](media/default_docs_site.png "Defult docs site")
+
+After this navigate to <http://127.0.0.1:5000/apidocs> to see the interactive API interface.
+
+!!! note
+
+    Windows userts may have to navigate to `/docs` instead of `/apidocs`.
+
+This is an automatically generated page where we can interact with various api endpoints.
+For now click on the `ping` endpoint, then `Try it out` then `Execute`. If everything is
+working the API should respond with an affarmative answer. Now shut down the server with
+`Ctrl+C` and begin to create a simple simulation where we give an input and we get back
+the torque.  
+
+Adding new types of simulations is done by creating simple functions with a particular
+input and using a decorator on them to register in the API. After that the
+`simulation.json` needs to be updated too.
+
+First define a function with 3 positional arguments. Its name doesn't matter.
+
+```python
+def example_simulation(model, modelparams, simparams, miscparams):
+    pass
+```
+
+The only restriction is that this function has to have 4 positional arguments as follows:  
+`model`:  This is will be the `FrozenPermeability` class to build model objects.  
+`modelparams`:  The default model input parameters that are defined in the
+`defaults/model.json` and updated according to the API call.  
+`simparams`:  Same as with `modelparams` just for simulations.  
+`miscparams`:  Miscellaneous parameters that don't fit the above categories.  
+
+Next we add the decorator in front of the function. It has one parameter: the name of the
+simulation. In this case we call it `simple`.
+
+```python hl_lines="1"
+@sim.register('simple')
+def example_simulation(model, modelparams, simparams, miscparams):
+    ...
+```
+
+This simulation has 4 inputs: the phase currents and the rotor angle. Update the
+`defaults/simulation.json` file accordingly. Here  the parameters and their default values
+go under tha name of the simulation:
+
+```json
+{
+  "default": {},
+  "simple": {
+      "iU": 0.0,
+      "iV": 0.0,
+      "iW": 0.0,
+      "theta": 0.0
+
+  }
+}
+```
+
+Next, in the function we create a new model object with the requested parameters:
+```python hl_lines="3"
+@sim.register('simple')
+def example_simulation(model, modelparams, simparams, miscparams):
+    motor = model(**simparams)
+```
+Then execute it with the generated `execute_model` function. This is there for later
+parallelization. Finally we give back the execution results without any additional
+postprocessing.
+
+```python hl_lines="4-5"
+@sim.register('simple')
+def example_simulation(model, modelparams, simparams, miscparams):
+    motor = model(**simparams)
+    result = execute_model(motor)
+    return result
+```
+
+Now run the `simulation.py` file again and navigate to the `http://127.0.0.1:5000/apidocs`
+page. Then open the `process_sim` tab, then `Try it out`. In the request body there is a
+json document that can be edited. Change the simulation type from `default` to `simple`
+then click execute. If everything is working correctly FEMM should start to compute and
+the server should respond like this after a while:
+```json
+{
+  "res": {
+    "Torque": 0.00009824012008555909
+  }
+}
+```
+
+### Update the model documentation
+
+We now have a functional API that can compute the torque of this motor but there is no
+documentation for the model. To change this, open `docs/docs/index.md` file and edit it:
+
+``` markdown
+# Frozen Permeability Benchmark Motor
+
+## Example chapter title
+
+Lorem ipsum dolor sit amet, consectetur adipisci ...
+```
+
+Running the `simulation.py` file again we should see the updated documentation at the
+index of <http://127.0.0.1:5000>:
+
+![missing pic](media/updated_documentation.png "Updated documentation")
+
+### Changing backend solver
+
+
+## Model encapulation
+
+No we have a model with documentation that can be called to execute simulations. The last
+step is to pack this modell and all its dependencies into a container that can run
+everywhere and immune to outside chages. To do this we need to create a Docker image.  
+
+First, create a `.Dockerfle` file under `FrozenPermeability` directory.
