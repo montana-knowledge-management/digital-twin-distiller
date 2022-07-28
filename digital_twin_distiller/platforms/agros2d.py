@@ -6,7 +6,7 @@ from copy import copy
 from digital_twin_distiller.boundaries import BoundaryCondition, DirichletBoundaryCondition, NeumannBoundaryCondition
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import Metadata
-from digital_twin_distiller.objects import Line, Node
+from digital_twin_distiller.objects import Line, Node, CircleArc
 from digital_twin_distiller.platforms.platform import Platform
 
 
@@ -48,6 +48,8 @@ class Agros2D(Platform):
             self.write(
                 f'{self.metadata.problem_type}.adaptivity_parameters["steps"] = {self.metadata.adaptivity_steps}'
             )
+
+        self.write("labels = []")
 
     def export_material_definition(self, mat: Material):
         field = self.metadata.problem_type
@@ -139,7 +141,7 @@ class Agros2D(Platform):
         if isinstance(e, Node):
             pass
 
-        if isinstance(e, Line):
+        elif isinstance(e, Line):
             x0 = e.start_pt.x * self.metadata.unit
             y0 = e.start_pt.y * self.metadata.unit
             x1 = e.end_pt.x * self.metadata.unit
@@ -154,10 +156,30 @@ class Agros2D(Platform):
 
             self.write(")")
 
+        elif isinstance(e, CircleArc):
+            x0 = e.start_pt.x * self.metadata.unit
+            y0 = e.start_pt.y * self.metadata.unit
+            x1 = e.end_pt.x * self.metadata.unit
+            y1 = e.end_pt.y * self.metadata.unit
+
+            xapex = e.apex_pt.x * self.metadata.unit
+            yapex = e.apex_pt.y * self.metadata.unit
+
+            self.write(f"geometry.add_edge({x0}, {y0}, {xapex}, {yapex}, angle={e.theta/2}", nb_newline=0)
+            if boundary:
+                self.write(f", boundaries={{'{self.metadata.problem_type}': '{boundary}'}}", nb_newline=0)
+            self.write(")")
+
+            self.write(f"geometry.add_edge({xapex}, {yapex}, {x1}, {y1}, angle={e.theta/2}", nb_newline=0)
+            if boundary:
+                self.write(f", boundaries={{'{self.metadata.problem_type}': '{boundary}'}}", nb_newline=0)
+            self.write(")")
+
     def export_block_label(self, x, y, mat: Material):
         x = self.metadata.unit * x
         y = self.metadata.unit * y
         self.write(f"geometry.add_label({x}, {y}, materials = {{'{self.metadata.problem_type}' : '{mat.name}'}})")
+        self.write(f"labels.append(({x}, {y}))")
 
     def export_solving_steps(self):
         self.write("problem.solve()")
@@ -217,8 +239,9 @@ class Agros2D(Platform):
                 self.write(f'f.write("{custom_name_result}, {{}}\\n".format(val))')
 
             if field == "magnetic":
-                mapping = {"Energy": "Wm"}
-                self.write(f"val={field}.volume_integrals({entity})[{mapping[variable]!r}]")
+                mapping = {"Energy": "Wm", "Torque": "Tt"}
+                self.write(f"selected_labels = {[(ei[0]*self.metadata.unit, ei[1]*self.metadata.unit) for ei in entity]}")
+                self.write(f"val={field}.volume_integrals([labels.index(li) for li in selected_labels])[{mapping[variable]!r}]")
                 self.write(f'f.write("{custom_name_result}, {{}}\\n".format(val))')
 
     def export_closing_steps(self):

@@ -397,6 +397,7 @@ class CircleArc:
 
         except ValueError:
             self.apex_pt = self.start_pt.rotate_about(self.center_pt, math.radians(90))
+            self.theta = 180
 
     def set_max_seg_deg_by_mesh_scaling(self, meshScaling):
         self.max_seg_deg = transformMeshScalingInterval(self.theta / calculateMeshScalingInput(meshScaling))
