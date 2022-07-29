@@ -123,7 +123,7 @@ class TestSnapshotAgros2D(unittest.TestCase):
         self.assertIn(r'f.write("{}, 0.001, 0.001, {}\n".format("Bx", point))', f.content)
 
         # integral value
-        self.assertIn(r"magnetic.volume_integrals([(1.0, 2.0), (3.0, 3.0)])", f.content)
+        self.assertIn(r"magnetic.volume_integrals([", f.content)
         self.assertIn(r'f.write("Energy, {}\n".format(val))', f.content)
 
     def test_export_py(self):

@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 from copy import copy
+from math import pi
 
 from digital_twin_distiller.boundaries import BoundaryCondition, DirichletBoundaryCondition, NeumannBoundaryCondition
 from digital_twin_distiller.material import Material
@@ -65,7 +66,7 @@ class Agros2D(Platform):
                 "magnetic_current_density_external_imag": mat.Je.imag,
                 "magnetic_permeability": mat.mu_r,
                 "magnetic_conductivity": mat.conductivity,
-                "magnetic_remanence": mat.remanence,
+                "magnetic_remanence": mat.coercivity * 4*pi*1e-7,
                 "magnetic_velocity_angular": mat.angluar_velocity,
                 "magnetic_velocity_x": mat.vx,
             }
