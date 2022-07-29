@@ -10,7 +10,7 @@ tristique imperdiet. Cras semper vehicula diam, vitae ornare justo tincidunt id.
 Morbi sed feugiat tellus. Ut varius lacus in tortor porttitor sodales. Curabitur
 placerat ut sem quis sodales. Nam accumsan efficitur felis. Donec a blandit
 eros, eu tristique metus. Vivamus in consectetur leo. Nunc malesuada volutpat
-magna, ut viverra turpis semper at. 
+magna, ut viverra turpis semper at.
 
 
 ## Usage

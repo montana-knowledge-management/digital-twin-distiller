@@ -1,17 +1,17 @@
+from copy import copy
+from itertools import cycle
+from math import cos, fmod, hypot, radians, sin
 from operator import itemgetter
+
 from digital_twin_distiller.boundaries import DirichletBoundaryCondition
-from digital_twin_distiller.modelpiece import ModelPiece
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import Agros2DMetadata, FemmMetadata
 from digital_twin_distiller.model import BaseModel
 from digital_twin_distiller.modelpaths import ModelDir
-from digital_twin_distiller.platforms.femm import Femm
+from digital_twin_distiller.modelpiece import ModelPiece
 from digital_twin_distiller.platforms.agros2d import Agros2D
+from digital_twin_distiller.platforms.femm import Femm
 from digital_twin_distiller.snapshot import Snapshot
-
-from itertools import cycle
-from math import cos, fmod, hypot, radians, sin
-from copy import copy
 
 ModelDir.set_base(__file__)
 
@@ -54,7 +54,6 @@ class FrozenPermeability(BaseModel):
         agros_metadata.polyorder = 3
         agros_metadata.adaptivity_steps = 50
         platform_agros = Agros2D(agros_metadata)
-
 
         # change the backend solver here
         self.platform = platform_agros
@@ -246,7 +245,7 @@ class FrozenPermeability(BaseModel):
 
         # drop the last element, the label name
         # labelCoordinates = [(x0, y0), (x1,y1), ... , (xn, yn)]
-        labelCoordinates = map(itemgetter(0,1), rotorLabels)
+        labelCoordinates = map(itemgetter(0, 1), rotorLabels)
 
         # add torque calculation
         self.snapshot.add_postprocessing("integration", labelCoordinates, "Torque")
@@ -280,7 +279,6 @@ class FrozenPermeability(BaseModel):
             labelY = vectorLength * sin(angle)
             self.assign_material(labelX, labelY, next(windingLabels))
 
-
         # magnet labels
         numberOfMagnets = 6
         vectorLength = 28.5
@@ -289,7 +287,6 @@ class FrozenPermeability(BaseModel):
             labelX = vectorLength * cos(angle)
             labelY = vectorLength * sin(angle)
             self.assign_material(labelX, labelY, f"Magnet_{i+1}")
-
 
 
 if __name__ == "__main__":

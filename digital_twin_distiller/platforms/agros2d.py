@@ -7,7 +7,7 @@ from math import pi
 from digital_twin_distiller.boundaries import BoundaryCondition, DirichletBoundaryCondition, NeumannBoundaryCondition
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import Metadata
-from digital_twin_distiller.objects import Line, Node, CircleArc
+from digital_twin_distiller.objects import CircleArc, Line, Node
 from digital_twin_distiller.platforms.platform import Platform
 
 
@@ -66,7 +66,7 @@ class Agros2D(Platform):
                 "magnetic_current_density_external_imag": mat.Je.imag,
                 "magnetic_permeability": mat.mu_r,
                 "magnetic_conductivity": mat.conductivity,
-                "magnetic_remanence": mat.coercivity * 4*pi*1e-7,
+                "magnetic_remanence": mat.coercivity * 4 * pi * 1e-7,
                 "magnetic_velocity_angular": mat.angluar_velocity,
                 "magnetic_velocity_x": mat.vx,
             }
@@ -241,8 +241,12 @@ class Agros2D(Platform):
 
             if field == "magnetic":
                 mapping = {"Energy": "Wm", "Torque": "Tt"}
-                self.write(f"selected_labels = {[(ei[0]*self.metadata.unit, ei[1]*self.metadata.unit) for ei in entity]}")
-                self.write(f"val={field}.volume_integrals([labels.index(li) for li in selected_labels])[{mapping[variable]!r}]")
+                self.write(
+                    f"selected_labels = {[(ei[0]*self.metadata.unit, ei[1]*self.metadata.unit) for ei in entity]}"
+                )
+                self.write(
+                    f"val={field}.volume_integrals([labels.index(li) for li in selected_labels])[{mapping[variable]!r}]"
+                )
                 self.write(f'f.write("{custom_name_result}, {{}}\\n".format(val))')
 
     def export_closing_steps(self):

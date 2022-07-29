@@ -96,7 +96,7 @@ in csv format etc.
 
 Building the model is done by implementing a couple of class methods in the `model.py`
 file. In this file there is a class declaration with 5 abstract methods that are related
-to the classical FEM workflow. 
+to the classical FEM workflow.
 
 ```python
 from digital_twin_distiller.boundaries import DirichletBoundaryCondition
@@ -207,7 +207,7 @@ create and execute a FEM simulation. Geometry, solver settings, material definit
 Above this, there is a wrapper class called `BaseModel` which implements a couple of
 convenience and managing functions for snapshot objects. User defined models should be
 derived from this base. Nevertheless, we still have to interact with the snapshot object
-that resides in the models class.  
+that resides in the models class.
 For this modell the FEMM solver will be sufficient, only the depth of the model should be
 changef from `1000` mm to `30` mm.
 ```python
@@ -270,7 +270,7 @@ attributes except their remanence angle. There are 6 magnets in this motor so we
 generate 6 magnet material. We can use the already defined `"Magnet"` material, copy it
 and modify its properties then add it to the snapshot. This code snippet does this:
 ``` python
-        # magnet angles: 
+        # magnet angles:
 
         flipper = cycle([0, 180])
         for i in range(6):
@@ -326,7 +326,7 @@ which is a homogeneous Dirichlet boundary condition along the most outer circle:
 ```
 Other types of boundary conditions can be: Neumann, periodic or antiperiodic. Be aware
 that not all backend solver can handle periodic/antiperiodic boundary conditions. For
-example Agros2D cannot.  
+example Agros2D cannot.
 Let's assign this boundary condition to the outer circle arcs of the geometry. We can do
 this before the geometry is even part of the snapshot object. To do this there is a helper
 method called `assign_boundary_arc`. This method has 3 arguments: `x` and `y` coordinates and
@@ -487,7 +487,7 @@ It has 3 arguments. The first is an action, this can be `point_value`, `integrat
 Lastly we specify the variable that we are interested in. This can be `Torque`, `Flux`,
 `Energy` etc. For this example we only interested in the torque that the motor produces.
 For this we need to integrate the stress tensor on the rotor. To do this we simply filter
-out the labels that are on the rotor and drop their material name. 
+out the labels that are on the rotor and drop their material name.
 ```python
     def add_postprocessing(self):
         # filter the labels that lie inside a 30.5 mm radius circle.
@@ -530,7 +530,7 @@ This is an automatically generated page where we can interact with various api e
 For now click on the `ping` endpoint, then `Try it out` then `Execute`. If everything is
 working the API should respond with an affarmative answer. Now shut down the server with
 `Ctrl+C` and begin to create a simple simulation where we give an input and we get back
-the torque.  
+the torque.
 
 Adding new types of simulations is done by creating simple functions with a particular
 input and using a decorator on them to register in the API. After that the
@@ -543,12 +543,12 @@ def example_simulation(model, modelparams, simparams, miscparams):
     pass
 ```
 
-The only restriction is that this function has to have 4 positional arguments as follows:  
-`model`:  This is will be the `FrozenPermeability` class to build model objects.  
+The only restriction is that this function has to have 4 positional arguments as follows:
+`model`:  This is will be the `FrozenPermeability` class to build model objects.
 `modelparams`:  The default model input parameters that are defined in the
-`defaults/model.json` and updated according to the API call.  
-`simparams`:  Same as with `modelparams` just for simulations.  
-`miscparams`:  Miscellaneous parameters that don't fit the above categories.  
+`defaults/model.json` and updated according to the API call.
+`simparams`:  Same as with `modelparams` just for simulations.
+`miscparams`:  Miscellaneous parameters that don't fit the above categories.
 
 Next we add the decorator in front of the function. It has one parameter: the name of the
 simulation. In this case we call it `simple`.
@@ -632,7 +632,7 @@ index of <http://127.0.0.1:5000>:
 
 No we have a model with documentation that can be called to execute simulations. The last
 step is to pack this modell and all its dependencies into a container that can run
-everywhere and immune to outside chages. To do this we need to create a Docker image.  
+everywhere and immune to outside chages. To do this we need to create a Docker image.
 
 First, create a `Dockerfle` file under `FrozenPermeability` directory. For this image we
 will you Agros2D as a backend solver because it is easier to install:

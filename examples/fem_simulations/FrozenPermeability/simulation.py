@@ -12,14 +12,16 @@ def execute_model(model: FrozenPermeability):
     return result
 
 
-@sim.register('default')
+@sim.register("default")
 def default_simulation(model, modelparams, simparams, miscparams):
     return "Hello World"
 
-@sim.register('simple')
+
+@sim.register("simple")
 def example_simulation(model, modelparams, simparams, miscparams):
     motor = model(**simparams)
     return execute_model(motor)
+
 
 if __name__ == "__main__":
 
