@@ -2,7 +2,7 @@ from multiprocessing import Pool
 
 from model import FrozenPermeability
 
-from digital_twin_distiller.encapsulator import Encapsulator, mounts
+from digital_twin_distiller.encapsulator import Encapsulator
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.simulationproject import sim
 
@@ -12,10 +12,14 @@ def execute_model(model: FrozenPermeability):
     return result
 
 
-@sim.register("default")
+@sim.register('default')
 def default_simulation(model, modelparams, simparams, miscparams):
-    return "Hello World!"
+    return "Hello World"
 
+@sim.register('simple')
+def example_simulation(model, modelparams, simparams, miscparams):
+    motor = model(**simparams)
+    return execute_model(motor)
 
 if __name__ == "__main__":
 
@@ -25,6 +29,6 @@ if __name__ == "__main__":
     sim.set_model(FrozenPermeability)
 
     model = Encapsulator(sim)
-    model.build_docs()
-    mounts()
+    model.set_host("0.0.0.0")
+    model.build_docs(ModelDir.DOCS)
     model.run()

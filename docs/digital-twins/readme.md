@@ -11,6 +11,7 @@ be covered:
 - how to build a callable API with the model,
 - how to encapsulate with Docker images
 
+The final model can be viewed at `examples/fem_simulations/FrozenPermeability`.
 
 ## Creating a model
 
@@ -633,4 +634,52 @@ No we have a model with documentation that can be called to execute simulations.
 step is to pack this modell and all its dependencies into a container that can run
 everywhere and immune to outside chages. To do this we need to create a Docker image.  
 
-First, create a `.Dockerfle` file under `FrozenPermeability` directory.
+First, create a `Dockerfle` file under `FrozenPermeability` directory. For this image we
+will you Agros2D as a backend solver because it is easier to install:
+```
+FROM python:3.9.13
+
+# set up working directory
+WORKDIR /usr/src/app
+
+# install the digital-twin-distiller package
+RUN pip install digital-twin-distiller
+
+# copy model files into the working directory
+COPY . .
+
+# start the server
+CMD [ "python", "./simulation.py" ]
+```
+
+This `Dockerfle` doesn't contain the backend solver installation. It is a template that
+can be used in any model. The installation is carried out by adding a layer to this
+`Dockerfile`. Before we build the image we have to change the IP address that the server
+is binding to from localhost to `0.0.0.0`:
+
+```python hl_lines="9"
+if __name__ == "__main__":
+
+    ModelDir.set_base(__file__)
+
+    # set the model for the simulation
+    sim.set_model(FrozenPermeability)
+
+    model = Encapsulator(sim)
+    model.set_host("0.0.0.0")
+    model.build_docs(ModelDir.DOCS)
+    model.run()
+```
+
+Now build this image:
+```
+docker build -t frozenpermeability:1.0.0 .
+```
+
+Next, run this image:
+```
+docker run -d -it -p 5000:5000 frozenpermeability:1.0.0
+```
+
+Now we get the same behaviour as before but with a docker container that can be
+distributed and run everywhere where docker is installed.
