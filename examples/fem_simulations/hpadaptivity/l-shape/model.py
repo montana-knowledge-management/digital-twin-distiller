@@ -1,22 +1,23 @@
-from itertools import count
 from copy import deepcopy
+from itertools import count
+from math import atan, atan2, cos, hypot, pi, prod, sin, sqrt
 from typing import Callable
+
 from numpy import linspace
+
+from digital_twin_distiller import Agros2D, Agros2DMetadata, NeumannBoundaryCondition
 from digital_twin_distiller.boundaries import DirichletBoundaryCondition
-from digital_twin_distiller import NeumannBoundaryCondition
 from digital_twin_distiller.material import Material
 from digital_twin_distiller.metadata import FemmMetadata
 from digital_twin_distiller.model import BaseModel
 from digital_twin_distiller.modelpaths import ModelDir
 from digital_twin_distiller.objects import Line, Node
 from digital_twin_distiller.platforms.femm import Femm
-from digital_twin_distiller import Agros2D, Agros2DMetadata
 from digital_twin_distiller.snapshot import Snapshot
-from math import atan, cos, hypot, atan2, prod, sin, pi, sqrt
-
 from digital_twin_distiller.utils import pairwise
 
 ModelDir.set_base(__file__)
+
 
 def u(x, y):
     r = hypot(x, y)
@@ -38,7 +39,7 @@ def gamma(x, y, xu, yu):
 
 class LShape(BaseModel):
     def __init__(self, **kwargs):
-        super(LShape, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._init_directories()
 
         self.solver = kwargs.get("solver", "femm")
@@ -122,7 +123,6 @@ class LShape(BaseModel):
         self._approximate_boundary(n3, "surface_charge_density", r3, r4, self.nb_segments // 2, g3)
         self._approximate_boundary(n6, "surface_charge_density", r6, r1, self.nb_segments // 2, g6)
 
-
         self.assign_material(0.3, 0.3, "air")
 
         self.snapshot.add_geometry(self.geom)
@@ -143,7 +143,7 @@ class LShape(BaseModel):
 
         self.snapshot.add_postprocessing("mesh_info", None, None)
 
-        if self.solver=="agros2d":
+        if self.solver == "agros2d":
             self.snapshot.add_postprocessing("integration", [0], "Energy")
         else:
             self.snapshot.add_postprocessing("integration", [(0.1, 0.1)], "Energy")
@@ -172,5 +172,6 @@ if __name__ == "__main__":
     m = LShape(exportname="dev", meshsize=0.01, solver="femm")
     res = m(cleanup=False, devmode=False)
     import pprint
+
     pprint.pprint(res)
     print(u(0.95, 0.95))

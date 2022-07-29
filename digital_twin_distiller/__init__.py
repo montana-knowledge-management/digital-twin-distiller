@@ -1,5 +1,5 @@
 from digital_twin_distiller.utils import *
-from digital_twin_distiller.objects import CircleArc, Line, Node, ParametricBezier, Rectangle
+from digital_twin_distiller.objects import CircleArc, Line, Node, Rectangle
 from digital_twin_distiller.modelpaths import ModelDir
 
 from digital_twin_distiller.boundaries import (
@@ -18,6 +18,4 @@ from digital_twin_distiller.platforms import *
 from digital_twin_distiller.snapshot import Snapshot
 from digital_twin_distiller.model import BaseModel
 
-from .__main__ import new
-
-__all__ = ['new']
+__all__ = ["new"]

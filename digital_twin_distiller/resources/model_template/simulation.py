@@ -24,5 +24,5 @@ if __name__ == "__main__":
     sim.set_model(${name})
 
     model = Encapsulator(sim)
-    model.build_docs()
+    model.build_docs(ModelDir.DOCS)
     model.run()

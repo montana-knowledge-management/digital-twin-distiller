@@ -73,8 +73,18 @@ class Snapshot:
         for arc_i in geo.circle_arcs:
             self.circle_arcs[arc_i.id] = arc_i
 
-    def add_postprocessing(self, action, entity, variable):
-        self.metrics.append((action, entity, variable))
+        for bz in geo.cubic_beziers:
+            for li in bz.approximate():
+                self.nodes[li.start_pt.id] = li.start_pt
+                self.nodes[li.end_pt.id] = li.end_pt
+                self.lines[li.id] = li
+
+                boundary = bz.attributes.get("boundary", "")
+                if boundary in self.boundaries.keys():
+                    self.boundaries[boundary].assigned.add(li.id)
+
+    def add_postprocessing(self, action, entity, variable, custom_name=None):
+        self.metrics.append((action, entity, variable, custom_name))
 
     def export(self, customfilehandle=None, develmode=None):
         self.platform.open(customfilehandle)
@@ -144,7 +154,7 @@ class Snapshot:
             self.platform.newline(1)
             self.platform.comment("POSTPROCESSING AND EXPORTING")
             for step in self.metrics:
-                self.platform.export_results(step[0], step[1], step[2])
+                self.platform.export_results(*step)
 
             self.platform.newline(1)
             self.platform.comment("CLOSING STEPS")

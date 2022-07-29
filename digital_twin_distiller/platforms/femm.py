@@ -227,12 +227,6 @@ class Femm(Platform):
         self.write(self.writer.add_boundary(femm_boundary))
 
     def export_geometry_element(self, e, boundary=None):
-        if self.metadata.elementsize:
-            automesh = 0
-            elementsize = 1
-        else:
-            automesh = 1
-            elementsize = self.metadata.elementsize
 
         if isinstance(e, Node):
             self.write(self.writer.add_node(e.x, e.y))
@@ -245,7 +239,7 @@ class Femm(Platform):
                 m_y = (e.start_pt.y + e.end_pt.y) * 0.5
 
                 self.write(self.writer.select_segment(m_x, m_y))
-                self.write(self.writer.set_segment_prop(boundary, automesh=automesh, elementsize=elementsize))
+                self.write(self.writer.set_segment_prop(boundary or "<None>", automesh=0, elementsize=e.meshScaling))
                 self.write(self.writer.clear_selected())
 
         if isinstance(e, CircleArc):
@@ -257,7 +251,10 @@ class Femm(Platform):
             # the start, center, end points will be on the same line therefore radius == clamp/2
             # and asin(1) -> inf. possible solution is to put this into a try block as in the
             # objects.CircleArc.__init__ function.
-            theta = round(asin(clamp / radius) * 180 / pi * 2, 2)
+            try:
+                theta = round(asin(clamp / radius) * 180 / pi * 2, 2)
+            except ValueError:
+                theta = 180
 
             self.write(
                 self.writer.add_arc(
@@ -291,7 +288,8 @@ class Femm(Platform):
         self.write(self.writer.analyze())
         self.write(self.writer.load_solution())
 
-    def export_results(self, action, entity, variable):
+    def export_results(self, action, entity, variable, custom_name):
+
         mappings = {
             "Bx": "B1",
             "By": "B2",
@@ -304,8 +302,11 @@ class Femm(Platform):
             "T": "V",
             "V": "V",
             "Ex": "Ex",
-            "Ey": "Ey"
+            "Ey": "Ey",
         }
+
+        custom_name_result = custom_name or variable
+
         field = self.metadata.problem_type
         fieldmapping = {
             "electrostatic": "eo",
@@ -320,7 +321,7 @@ class Femm(Platform):
 
             if field == "electrostatic":
                 self.write(f"V, Dx, Dy, Ex, Ey, ex, ey, nrg = eo_getpointvalues({x}, {y})")
-                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+                self.write(f'write(file_out, "{custom_name_result}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
             if field == "magnetic":
                 self.write(
@@ -328,36 +329,33 @@ class Femm(Platform):
                     nb_newline=0,
                 )
                 self.write(self.writer.get_point_values(x, y))
-                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+                self.write(f'write(file_out, "{custom_name_result}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
             if field == "heat":
                 self.write(f"V, Fx, Fy, Gx, Gy, kx, ky = ho_getpointvalues({x}, {y})")
-                self.write(f'write(file_out, "{variable}, {x}, {y}, ", {mappings[variable]}, "\\n")')
+                self.write(f'write(file_out, "{custom_name_result}, {x}, {y}, ", {mappings[variable]}, "\\n")')
 
         if action == "mesh_info":
-
             self.write(f'write(file_out, "nodes, ", {fieldmapping[self.metadata.problem_type]}_numnodes(), "\\n")')
             self.write(f'write(file_out, "elements, ", {prefix}_numelements(), "\\n")')
 
         if action == "integration":
             if self.metadata.problem_type == "magnetic":
                 # TODO: xx_selectblock for postprocessing is missing in femm_wrapper
-                int_type = {
-                    "Fx": 18,
-                    "Fy": 19,
-                    "Area": 5,
-                    "Energy": 2,
-                    "Torque": 22,
-                    "Flux": 1,
-                }
+                int_type = {"Fx": 18, "Fy": 19, "Area": 5, "Energy": 2, "Torque": 22, "Flux": 1, "Current": 7}
                 assert variable in int_type.keys(), f"There is no variable '{variable}'"
                 if isinstance(entity, Iterable):
                     for x, y in entity:
                         self.write(f"{prefix}_selectblock({x}, {y})")
 
                 self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
+                if variable == "Flux":
+                    self.write(f"coil_area = {prefix}_blockintegral(5)")
                 self.write(f"{prefix}_clearblock()")
-                self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
+                if variable == "Flux":
+                    self.write(f'write(file_out, "{custom_name_result}, ", {variable}/coil_area, "\\n")')
+                else:
+                    self.write(f'write(file_out, "{custom_name_result}, ", {variable}, "\\n")')
 
             if self.metadata.problem_type == "electrostatic":
                 int_type = {"Energy": 0}
@@ -369,7 +367,7 @@ class Femm(Platform):
 
                 self.write(f"{variable} = {prefix}_blockintegral({int_type[variable]})")
                 self.write(f"{prefix}_clearblock()")
-                self.write(f'write(file_out, "{variable}, ", {variable}, "\\n")')
+                self.write(f'write(file_out, "{custom_name_result}, ", {variable}, "\\n")')
 
         if action == "saveimage":
             self.write(f"{prefix}_showdensityplot(0, 0, 0.0, 0.1, 'bmag')")

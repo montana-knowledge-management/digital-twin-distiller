@@ -123,11 +123,10 @@ class TestSnapshotAgros2D(unittest.TestCase):
         self.assertIn(r'f.write("{}, 0.001, 0.001, {}\n".format("Bx", point))', f.content)
 
         # integral value
-        self.assertIn(r"magnetic.volume_integrals([(1.0, 2.0), (3.0, 3.0)])", f.content)
+        self.assertIn(r"magnetic.volume_integrals([", f.content)
         self.assertIn(r'f.write("Energy, {}\n".format(val))', f.content)
 
-    # TODO: ??
-    def test_export(self):
+    def test_export_py(self):
         # compares the created model with a reference script
         s = self.get_snapshot()
         s.add_material(Material("air"))
@@ -276,7 +275,7 @@ class TestSnapshotFemm(unittest.TestCase):
         self.assertIn(r"mo_refreshview()", f.content)
         self.assertIn(r'mo_save_bitmap("', f.content)
 
-    def test_export(self):
+    def test_export_lua(self):
         s = self.get_snapshot()
         s.add_geometry(self.get_geometry())
         s.add_material(Material("air"))
@@ -348,12 +347,12 @@ class TestSnapshotFemm(unittest.TestCase):
         self.assertIn(r"mi_addnode(1, 0.5)", f.content)
         self.assertIn(r"mi_addsegment(0, 0, 1, 0)", f.content)
         self.assertIn(r"mi_selectsegment(0.5, 0.0)", f.content)
-        self.assertIn(r'mi_setsegmentprop("eper", None, 1, 0, 0, "<None>")', f.content)
+        self.assertIn(r'mi_setsegmentprop("eper", 1.0, 0, 0, 0, "<None>")', f.content)
         self.assertIn(r"mi_clearselected()", f.content)
         self.assertIn(r"mi_addsegment(1, 0, 1, 1)", f.content)
         self.assertIn(r"mi_addsegment(1, 1, 0, 1)", f.content)
         self.assertIn(r"mi_addsegment(0, 1, 0, 0)", f.content)
-        self.assertIn(r"mi_addarc(0, 0.5, 1, 0.5, 180.0, 20)", f.content)
+        self.assertIn(r"mi_addarc(0, 0.5, 1, 0.5, 180.0, 1)", f.content)
 
     def test_retrive_results(self):
         s = self.get_snapshot()

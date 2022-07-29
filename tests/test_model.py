@@ -145,7 +145,7 @@ class TestModel(unittest.TestCase):
         m.assign_material(0, 1, "testmaterial")
 
         self.assertEqual(len(m.label_queue), 1)
-        self.assertEquals(m.label_queue[0], (0, 1, "testmaterial"))
+        self.assertEqual(m.label_queue[0], (0, 1, "testmaterial"))
 
     def test_assign_boundary(self):
         m = MockModel(exportname="test_name")
@@ -155,7 +155,7 @@ class TestModel(unittest.TestCase):
         m.assign_boundary(0, 1, "testboundary")
 
         self.assertEqual(len(m.boundary_queue), 1)
-        self.assertEquals(m.boundary_queue[0], (0, 1, "testboundary"))
+        self.assertEqual(m.boundary_queue[0], (0, 1, "testboundary"))
 
     def test_assign_boundary_arc(self):
         m = MockModel(exportname="test_name")
@@ -165,7 +165,7 @@ class TestModel(unittest.TestCase):
         m.assign_boundary_arc(0, 1, "testboundary")
 
         self.assertEqual(len(m.boundary_arc_queue), 1)
-        self.assertEquals(m.boundary_arc_queue[0], (0, 1, "testboundary"))
+        self.assertEqual(m.boundary_arc_queue[0], (0, 1, "testboundary"))
 
     def test_call(self):
 

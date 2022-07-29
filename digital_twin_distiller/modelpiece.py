@@ -130,7 +130,7 @@ class ModelPiece:
             self.geom.lines[i].start_pt = mirror_point(p1, p2, self.geom.lines[i].start_pt)
             self.geom.lines[i].end_pt = mirror_point(p1, p2, self.geom.lines[i].end_pt)
 
-    def rotate(self, ref_point=(0, 0), alpha=0):
+    def rotate(self, ref_point=(0, 0), alpha=0.0):
         """
         Rotate all points of the modelpiece around the reference point with alpha degrees.
         """

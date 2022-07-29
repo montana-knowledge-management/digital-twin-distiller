@@ -104,6 +104,6 @@ class TestUtils(unittest.TestCase):
         u.setup_matplotlib()
 
     def test_depracted(self):
-        f = u.deprecated(lambda x: x ** 2)
+        f = u.deprecated(lambda x: x**2)
         with self.assertWarns(DeprecationWarning):
             f(2.2)
